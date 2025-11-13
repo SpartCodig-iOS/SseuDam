@@ -9,18 +9,7 @@ let project = Project(
             product: .app,
             bundleId: "com.testdev.{{ name|lowercase }}",
             infoPlist: .extendingDefault(with: [
-                "UILaunchStoryboardName": "LaunchScreen",
-                "UIApplicationSceneManifest": [
-                    "UIApplicationSupportsMultipleScenes": false,
-                    "UISceneConfigurations": [
-                        "UIWindowSceneSessionRoleApplication": [
-                            [
-                                "UISceneConfigurationName": "Default Configuration",
-                                "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
-                            ]
-                        ]
-                    ]
-                ]
+                "UILaunchStoryboardName": "LaunchScreen"
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"]
