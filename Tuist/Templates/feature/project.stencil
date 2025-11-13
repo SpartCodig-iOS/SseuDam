@@ -1,0 +1,56 @@
+//
+//  Project.swift
+//  TestApp
+//
+//  Created by TestDev on 09-11-25.
+//  Copyright © 2025 TestDev. All rights reserved.
+//
+
+import ProjectDescription
+
+let project = Project(
+    name: "{{ name }}Feature",
+    targets: [
+        .target(
+            name: "{{ name }}Feature",
+            destinations: .iOS,
+            product: .framework,
+            bundleId: "com.testdev.{{ name|lowercase }}feature",
+            sources: ["Sources/**"],
+            dependencies: [
+                .project(target: "Domain", path: "../../Domain"),
+                .project(target: "DesignSystem", path: "../../DesignSystem")
+            ]
+        ),
+        .target(
+            name: "{{ name }}FeatureDemo",
+            destinations: .iOS,
+            product: .app,
+            bundleId: "com.testdev.{{ name|lowercase }}feature.demo",
+            infoPlist: .extendingDefault(with: [
+                "UILaunchStoryboardName": "LaunchScreen",
+                "UIApplicationSceneManifest": [
+                    "UIApplicationSupportsMultipleScenes": false,
+                    "UISceneConfigurations": [
+                        "UIWindowSceneSessionRoleApplication": [
+                            [
+                                "UISceneConfigurationName": "Default Configuration",
+                                "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
+                            ]
+                        ]
+                    ]
+                ]
+            ]),
+            sources: ["Demo/Sources/**"],
+            resources: ["Demo/Resources/**"],
+            dependencies: [
+                .target(name: "{{ name }}Feature")
+            ],
+            settings: .settings(
+                base: [
+                    "CODE_SIGN_STYLE": "Automatic"
+                ]
+            )
+        )
+    ]
+)

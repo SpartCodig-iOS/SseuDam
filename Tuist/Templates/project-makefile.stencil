@@ -1,0 +1,56 @@
+# {{ name }} Project Makefile
+
+.PHONY: feature generate clean help
+
+# Find Tuist path
+TUIST_PATH := $(shell command -v tuist 2>/dev/null || find /usr/local/bin /opt/homebrew/bin ~/.local/share/mise/installs/tuist/*/bin -name tuist 2>/dev/null | head -1)
+
+# Create a new feature module
+feature:
+	@echo "🚀 새로운 Feature를 생성합니다..."
+	@if [ -z "$(TUIST_PATH)" ]; then \
+		echo "❌ Tuist를 찾을 수 없습니다."; \
+		echo "다음 명령어로 설치해주세요:"; \
+		echo "curl -Ls https://install.tuist.io | bash"; \
+		exit 1; \
+	fi
+	@read -p "Feature 이름을 입력하세요: " name && \
+	$(TUIST_PATH) scaffold feature --name $$name && \
+	./Scripts/update-workspace.sh && \
+	echo "✅ Feature '$$name'이 성공적으로 생성되었습니다!" && \
+	echo "📦 Workspace.swift가 자동으로 업데이트되었습니다!" && \
+	echo "" && \
+	echo "다음 단계:" && \
+	echo "1. 'make generate'로 Xcode 프로젝트 업데이트" && \
+	echo "2. '$$name'FeatureDemo 스킴을 선택해서 테스트"
+
+# Generate Xcode project
+generate:
+	@echo "📦 Xcode 프로젝트를 생성합니다..."
+	@if [ -z "$(TUIST_PATH)" ]; then \
+		echo "❌ Tuist를 찾을 수 없습니다."; \
+		echo "다음 명령어로 설치해주세요:"; \
+		echo "curl -Ls https://install.tuist.io | bash"; \
+		exit 1; \
+	fi
+	$(TUIST_PATH) generate
+
+# Clean build artifacts
+clean:
+	@echo "🧹 정리 중..."
+	@if [ -z "$(TUIST_PATH)" ]; then \
+		echo "❌ Tuist를 찾을 수 없습니다."; \
+		echo "다음 명령어로 설치해주세요:"; \
+		echo "curl -Ls https://install.tuist.io | bash"; \
+		exit 1; \
+	fi
+	$(TUIST_PATH) clean
+	@echo "✅ 정리 완료!"
+
+# Show help
+help:
+	@echo "사용 가능한 명령어:"
+	@echo "  make feature   - 새 Feature 모듈 생성"
+	@echo "  make generate  - Xcode 프로젝트 생성/업데이트"
+	@echo "  make clean     - 빌드 아티팩트 정리"
+	@echo "  make help      - 이 도움말 표시"
