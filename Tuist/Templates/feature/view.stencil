@@ -1,0 +1,33 @@
+//
+//  {{ name }}View.swift
+//  TestApp
+//
+//  Created by TestDev on 09-11-25.
+//  Copyright © 2025 TestDev. All rights reserved.
+//
+
+import SwiftUI
+import DesignSystem
+
+public struct {{ name }}View: View {
+    public init() {}
+
+    public var body: some View {
+        VStack {
+            Image(systemName: "star.fill")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Text("{{ name }} Feature")
+                .font(.title)
+                .fontWeight(.bold)
+        }
+        .padding()
+        .navigationTitle("{{ name }}")
+    }
+}
+
+#Preview {
+    NavigationView {
+        {{ name }}View()
+    }
+}
