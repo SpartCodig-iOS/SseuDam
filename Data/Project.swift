@@ -1,18 +1,10 @@
 import ProjectDescription
+import ModularAppPlugin
 
-let project = Project(
+let project = Project.makeFramework(
     name: "Data",
-    targets: [
-        .target(
-            name: "Data",
-            destinations: .iOS,
-            product: .framework,
-            bundleId: "com.testdev.data",
-            sources: ["Sources/**"],
-            dependencies: [
-                .project(target: "Domain", path: "../Domain"),
-                .project(target: "NetworkService", path: "../NetworkService")
-            ]
-        )
+    dependencies: [
+        .project(target: "Domain", path: "../Domain"),
+        .project(target: "NetworkService", path: "../NetworkService")
     ]
 )

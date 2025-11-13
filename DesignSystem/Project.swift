@@ -1,16 +1,8 @@
 import ProjectDescription
+import ModularAppPlugin
 
-let project = Project(
+let project = Project.makeFramework(
     name: "DesignSystem",
-    targets: [
-        .target(
-            name: "DesignSystem",
-            destinations: .iOS,
-            product: .framework,
-            bundleId: "com.testdev.designsystem",
-            sources: ["Sources/**"],
-            resources: ["Resources/**"],
-            dependencies: []
-        )
-    ]
+    dependencies: [],
+    resources: ["Resources/**"]
 )
