@@ -9,13 +9,13 @@ fileprivate let template = Template(
     ],
     items: [
         // Project configuration
-        .file(path: "Feature/{{ name }}/Project.swift", templatePath: "project.stencil"),
+        .file(path: "Features/{{ name }}/Project.swift", templatePath: "project.stencil"),
 
         // Feature module files
-        .file(path: "Feature/{{ name }}/Sources/{{ name }}View.swift", templatePath: "view.stencil"),
+        .file(path: "Features/{{ name }}/Sources/{{ name }}View.swift", templatePath: "view.stencil"),
 
         // Demo app files
-        .file(path: "Feature/{{ name }}/Demo/Sources/{{ name }}DemoApp.swift", templatePath: "demoApp.stencil"),
-        .file(path: "Feature/{{ name }}/Demo/Resources/LaunchScreen.storyboard", templatePath: "launchScreen.stencil")
+        .file(path: "Features/{{ name }}/Demo/Sources/{{ name }}DemoApp.swift", templatePath: "demoApp.stencil"),
+        .file(path: "Features/{{ name }}/Demo/Resources/LaunchScreen.storyboard", templatePath: "launchScreen.stencil")
     ]
 )
