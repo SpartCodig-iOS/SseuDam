@@ -2,7 +2,7 @@ import ProjectDescription
 import SseuDamPlugin
 
 let project = Project.makeFeature(
-    name: .{{ name }},
+    name: .Login,
     dependencies: [
         .Domain,
         .DesignSystem

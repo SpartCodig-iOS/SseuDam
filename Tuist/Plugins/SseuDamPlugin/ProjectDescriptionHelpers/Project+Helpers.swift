@@ -66,7 +66,20 @@ public extension Project {
         return Project(name: name, targets: targets)
     }
 
-    /// Create a Feature module with Demo app
+    /// Create a Feature module with Demo app (using FeatureName enum)
+    static func makeFeature(
+        name: FeatureName,
+        dependencies: [TargetDependency] = [],
+        hasTests: Bool = false
+    ) -> Project {
+        return makeFeature(
+            name: name.rawValue,
+            dependencies: dependencies,
+            hasTests: hasTests
+        )
+    }
+
+    /// Create a Feature module with Demo app (using String)
     static func makeFeature(
         name: String,
         dependencies: [TargetDependency] = [],

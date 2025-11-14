@@ -7,6 +7,7 @@ let workspace = Workspace(
         "Domain",
         "DesignSystem",
         "Data",
-        "NetworkService"
+        "NetworkService",
+        "Features/Login",
     ]
 )
