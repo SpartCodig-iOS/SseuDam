@@ -8,6 +8,6 @@ let workspace = Workspace(
         "DesignSystem",
         "Data",
         "NetworkService",
-        "Features/Login",
+        "Features/**",
     ]
 )
