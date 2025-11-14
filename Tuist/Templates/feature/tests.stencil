@@ -1,0 +1,7 @@
+import Testing
+@testable import {{ name }}Feature
+
+@Suite("{{ name }}Feature Tests")
+struct {{ name }}FeatureTests {
+
+}
