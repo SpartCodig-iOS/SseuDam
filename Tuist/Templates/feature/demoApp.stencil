@@ -1,9 +1,9 @@
 //
 //  {{ name }}DemoApp.swift
-//  TestApp
+//  SseuDam
 //
-//  Created by TestDev on 09-11-25.
-//  Copyright © 2025 TestDev. All rights reserved.
+//  Created by SseuDam on {% now "utc", "%d-%m-%y" %}.
+//  Copyright © {% now "utc", "%Y" %} com.testdev. All rights reserved.
 //
 
 import SwiftUI
