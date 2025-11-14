@@ -1,5 +1,5 @@
 import ProjectDescription
-import ModularAppPlugin
+import SseuDamPlugin
 
 let project = Project.makeFramework(
     name: "DesignSystem",

@@ -29,7 +29,7 @@ public enum Environment {
             shared: true,
             buildAction: .buildAction(targets: targets.map { TargetReference(stringLiteral: $0) }),
             testAction: .targets(
-                targets.map { TestableTarget(target: TargetReference(stringLiteral: $0)) },
+                targets.map { TestableTarget(stringLiteral: $0) },
                 configuration: .debug,
                 options: .options(coverage: true)
             ),
