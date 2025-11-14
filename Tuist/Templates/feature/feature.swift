@@ -14,6 +14,9 @@ fileprivate let template = Template(
         // Feature module files
         .file(path: "Features/{{ name }}/Sources/{{ name }}View.swift", templatePath: "view.stencil"),
 
+        // Test files
+        .file(path: "Features/{{ name }}/Tests/{{ name }}FeatureTests.swift", templatePath: "tests.stencil"),
+
         // Demo app files
         .file(path: "Features/{{ name }}/Demo/Sources/{{ name }}DemoApp.swift", templatePath: "demoApp.stencil"),
         .file(path: "Features/{{ name }}/Demo/Resources/LaunchScreen.storyboard", templatePath: "launchScreen.stencil")
