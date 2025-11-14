@@ -8,21 +8,24 @@ TUIST_PATH := $(shell command -v tuist 2>/dev/null || find /usr/local/bin /opt/h
 # Create a new feature module
 feature:
 	@echo "🚀 새로운 Feature를 생성합니다..."
+	@echo "💡 Tip: 'Feature' 접미사는 자동으로 추가됩니다 (예: main → MainFeature)"
 	@if [ -z "$(TUIST_PATH)" ]; then \
 		echo "❌ Tuist를 찾을 수 없습니다."; \
 		echo "다음 명령어로 설치해주세요:"; \
 		echo "curl -Ls https://install.tuist.io | bash"; \
 		exit 1; \
 	fi
-	@read -p "Feature 이름을 입력하세요: " name && \
+	@read -p "Feature 이름을 입력하세요: " input && \
+	name=$$(echo "$$input" | sed -E 's/[Ff]eature$$//' | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}') && \
+	echo "📝 생성할 Feature: $${name}Feature" && \
 	$(TUIST_PATH) scaffold feature --name $$name && \
-	./Scripts/update-workspace.sh && \
-	echo "✅ Feature '$$name'이 성공적으로 생성되었습니다!" && \
-	echo "📦 Workspace.swift가 자동으로 업데이트되었습니다!" && \
+	./Scripts/update-modules.sh && \
+	echo "✅ Feature '$${name}'이 성공적으로 생성되었습니다!" && \
+	echo "📦 TargetDependency+Modules.swift가 자동으로 업데이트되었습니다!" && \
 	echo "" && \
 	echo "다음 단계:" && \
 	echo "1. 'make generate'로 Xcode 프로젝트 업데이트" && \
-	echo "2. '$$name'FeatureDemo 스킴을 선택해서 테스트"
+	echo "2. '$${name}FeatureDemo' 스킴을 선택해서 테스트"
 
 # Generate Xcode project
 generate:

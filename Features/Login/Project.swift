@@ -1,12 +1,12 @@
 import ProjectDescription
 import SseuDamPlugin
 
-let project = Project.makeApp(
-    name: "SseuDamApp",
+let project = Project.makeFeature(
+    name: .Login,
     dependencies: [
         .SPM.ComposableArchitecture,
         .SPM.TCACoordinators,
-        .Features.Login
-    ],
-    infoPlist: .defaultSwiftUIApp
+        .Domain,
+        .DesignSystem
+    ]
 )

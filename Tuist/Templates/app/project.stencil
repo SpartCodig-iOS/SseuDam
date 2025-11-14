@@ -1,29 +1,7 @@
 import ProjectDescription
+import SseuDamPlugin
 
-let project = Project(
+let project = Project.makeApp(
     name: "{{ name }}",
-    targets: [
-        .target(
-            name: "{{ name }}",
-            destinations: .iOS,
-            product: .app,
-            bundleId: "com.testdev.{{ name|lowercase }}",
-            infoPlist: .extendingDefault(with: [
-                "UILaunchStoryboardName": "LaunchScreen",
-                "UIApplicationSceneManifest": [
-                    "UIApplicationSupportsMultipleScenes": false,
-                    "UISceneConfigurations": [
-                        "UIWindowSceneSessionRoleApplication": [
-                            [
-                                "UISceneConfigurationName": "Default Configuration",
-                                "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate"
-                            ]
-                        ]
-                    ]
-                ]
-            ]),
-            sources: ["Sources/**"],
-            resources: ["Resources/**"]
-        )
-    ]
+    dependencies: []
 )

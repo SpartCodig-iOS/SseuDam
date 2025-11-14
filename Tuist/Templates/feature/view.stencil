@@ -1,0 +1,33 @@
+//
+//  {{ name }}View.swift
+//  SseuDam
+//
+//  Created by SseuDam on {% now "utc", "%d-%m-%y" %}.
+//  Copyright © {% now "utc", "%Y" %} com.testdev. All rights reserved.
+//
+
+import SwiftUI
+import DesignSystem
+
+public struct {{ name }}View: View {
+    public init() {}
+
+    public var body: some View {
+        VStack {
+            Image(systemName: "star.fill")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Text("{{ name }} Feature")
+                .font(.title)
+                .fontWeight(.bold)
+        }
+        .padding()
+        .navigationTitle("{{ name }}")
+    }
+}
+
+#Preview {
+    NavigationView {
+        {{ name }}View()
+    }
+}
