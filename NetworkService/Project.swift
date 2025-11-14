@@ -3,5 +3,7 @@ import SseuDamPlugin
 
 let project = Project.makeFramework(
     name: "NetworkService",
-    dependencies: []
+    dependencies: [
+        .SPM.Moya
+    ]
 )

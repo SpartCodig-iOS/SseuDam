@@ -4,6 +4,8 @@ import SseuDamPlugin
 let project = Project.makeFeature(
     name: .{{ name }},
     dependencies: [
+        .SPM.ComposableArchitecture,
+        .SPM.TCACoordinators,
         .Domain,
         .DesignSystem
     ]

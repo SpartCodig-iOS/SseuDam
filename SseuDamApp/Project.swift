@@ -3,6 +3,10 @@ import SseuDamPlugin
 
 let project = Project.makeApp(
     name: "SseuDamApp",
-    dependencies: [],
+    dependencies: [
+        .SPM.ComposableArchitecture,
+        .SPM.TCACoordinators,
+        .Features.Login
+    ],
     infoPlist: .defaultSwiftUIApp
 )

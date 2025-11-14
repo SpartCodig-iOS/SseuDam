@@ -11,7 +11,8 @@ public extension TargetDependency.SPM {
     static let TCACoordinators: TargetDependency = .external(name: "TCACoordinators")
 
     // MARK: - Networking
-    static let Alamofire: TargetDependency = .external(name: "Alamofire")
+    static let Moya: TargetDependency = .external(name: "Moya")
+    static let CombineMoya: TargetDependency = .external(name: "CombineMoya")
 }
 
 // MARK: - Usage Example
@@ -21,16 +22,17 @@ public extension TargetDependency.SPM {
  let project = Project.makeFramework(
      name: "NetworkService",
      dependencies: [
-         .SPM.Alamofire
+         .SPM.Moya,
+         .SPM.CombineMoya
      ]
  )
 
- let project = Project.makeFramework(
-     name: "MyFeature",
+ let project = Project.makeFeature(
+     name: .MyFeature,
      dependencies: [
          .SPM.ComposableArchitecture,
          .SPM.TCACoordinators,
-         .project(target: "Domain", path: "../Domain")
+         .Domain
      ]
  )
 */

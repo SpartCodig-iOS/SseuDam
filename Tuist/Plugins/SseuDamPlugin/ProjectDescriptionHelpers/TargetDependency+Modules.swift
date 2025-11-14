@@ -15,12 +15,14 @@ public extension TargetDependency {
 
 public extension TargetDependency.Features {
     // MARK: - Feature Modules
-    static let Login: TargetDependency = .project(target: "LoginFeature", path: "../../Features/Login")
+    static let Login: TargetDependency = .project(target: "LoginFeature", path: .relativeToRoot("Features/Login"))
+    static let Main: TargetDependency = .project(target: "MainFeature", path: .relativeToRoot("Features/Main"))
 }
 
 // MARK: - Feature Names
 public enum FeatureName: String {
     case Login
+    case Main
 
     public var targetName: String {
         return "\(rawValue)Feature"
