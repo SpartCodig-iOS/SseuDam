@@ -15,17 +15,23 @@ public protocol GoogleOAuthServicing {
 
 // MARK: - Dependencies
 
-private struct UnimplementedGoogleOAuthService: GoogleOAuthServicing {
+private struct MockGoogleOAuthService: GoogleOAuthServicing {
   @MainActor
   func signIn() async throws -> GoogleOAuthPayload {
-    fatalError("GoogleOAuthService dependency has not been provided.")
+    // Mock implementation for testing/preview
+    return GoogleOAuthPayload(
+      idToken: "mock-google-id-token",
+      accessToken: "mock-google-access-token",
+      authorizationCode: "mock-google-auth-code",
+      displayName: "Mock Google User"
+    )
   }
 }
 
 public struct GoogleOAuthServiceDependency: DependencyKey {
-  public static var liveValue: any GoogleOAuthServicing = UnimplementedGoogleOAuthService()
-  public static var previewValue: any GoogleOAuthServicing = UnimplementedGoogleOAuthService()
-  public static var testValue: any GoogleOAuthServicing = UnimplementedGoogleOAuthService()
+  public static var liveValue: any GoogleOAuthServicing = MockGoogleOAuthService()
+  public static var previewValue: any GoogleOAuthServicing = MockGoogleOAuthService()
+  public static var testValue: any GoogleOAuthServicing = MockGoogleOAuthService()
 }
 
 public extension DependencyValues {
