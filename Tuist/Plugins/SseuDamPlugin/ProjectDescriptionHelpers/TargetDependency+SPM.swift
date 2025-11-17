@@ -2,17 +2,20 @@ import ProjectDescription
 
 // MARK: - SPM Dependencies Extension
 public extension TargetDependency {
-    enum SPM {}
+  enum SPM {}
 }
 
 public extension TargetDependency.SPM {
-    // MARK: - Architecture
-    static let ComposableArchitecture: TargetDependency = .external(name: "ComposableArchitecture")
-    static let TCACoordinators: TargetDependency = .external(name: "TCACoordinators")
+  // MARK: - Architecture
+  static let ComposableArchitecture: TargetDependency = .external(name: "ComposableArchitecture")
+  static let TCACoordinators: TargetDependency = .external(name: "TCACoordinators")
 
-    // MARK: - Networking
-    static let Moya: TargetDependency = .external(name: "Moya")
-    static let CombineMoya: TargetDependency = .external(name: "CombineMoya")
+  // MARK: - Networking
+  static let Moya: TargetDependency = .external(name: "Moya")
+  static let CombineMoya: TargetDependency = .external(name: "CombineMoya")
+  static let Supabase : TargetDependency = .external(name: "Supabase")
+  static let GoogleSignIn: TargetDependency = .external(name: "GoogleSignIn")
+  static let LogMacro: TargetDependency = .external(name: "LogMacro")
 }
 
 // MARK: - Usage Example
@@ -20,19 +23,19 @@ public extension TargetDependency.SPM {
  사용 예시:
 
  let project = Project.makeFramework(
-     name: "NetworkService",
-     dependencies: [
-         .SPM.Moya,
-         .SPM.CombineMoya
-     ]
+ name: "NetworkService",
+ dependencies: [
+ .SPM.Moya,
+ .SPM.CombineMoya
+ ]
  )
 
  let project = Project.makeFeature(
-     name: .MyFeature,
-     dependencies: [
-         .SPM.ComposableArchitecture,
-         .SPM.TCACoordinators,
-         .Domain
-     ]
+ name: .MyFeature,
+ dependencies: [
+ .SPM.ComposableArchitecture,
+ .SPM.TCACoordinators,
+ .Domain
+ ]
  )
-*/
+ */

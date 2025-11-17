@@ -8,7 +8,9 @@ let packageSettings = PackageSettings(
     productTypes: [
         "ComposableArchitecture": .framework,
         "TCACoordinators": .framework,
-        "Moya": .framework
+        "Moya": .framework,
+        "Supabase" :.framework,
+        "LogMacro": .framework
     ]
 )
 #endif
@@ -19,7 +21,9 @@ let package = Package(
         // MARK: - Architecture
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.18.0"),
         .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators.git", from: "0.10.0"),
-
+        .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.37.0"),
+        .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "9.0.0"),
+        .package(url: "https://github.com/Roy-wonji/LogMacro.git", from: "1.1.1"),
         // MARK: - Networking
         .package(url: "https://github.com/Moya/Moya.git", exact: "15.0.3")
     ]

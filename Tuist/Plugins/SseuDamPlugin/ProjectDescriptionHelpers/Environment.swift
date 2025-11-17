@@ -4,8 +4,9 @@ import ProjectDescription
 public enum Environment {
     // MARK: - App Configuration
     public static let appName = "SseuDam"
-    public static let organizationName = "com.testdev"
+    public static let organizationName = "io.sseudam.co"
     public static let deploymentTarget: DeploymentTargets = .iOS("17.0")
+    public static let organizationTeamId = "N94CS4N6VR"
 
     // MARK: - Platform
     public static let platform: Platform = .iOS
