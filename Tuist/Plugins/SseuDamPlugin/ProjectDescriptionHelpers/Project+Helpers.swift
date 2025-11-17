@@ -7,7 +7,8 @@ public extension Project {
     name: String,
     dependencies: [TargetDependency] = [],
     resources: ResourceFileElements? = nil,
-    infoPlist: InfoPlist = .defaultSwiftUIApp
+    infoPlist: InfoPlist = .defaultSwiftUIApp,
+    entitlements: ProjectDescription.Entitlements? = nil,
   ) -> Project {
     return Project(
       name: name,
@@ -21,8 +22,9 @@ public extension Project {
           infoPlist: infoPlist,
           sources: ["Sources/**"],
           resources: resources ?? ["Resources/**"],
+          entitlements: entitlements,
           dependencies: dependencies,
-          settings: .appMainSetting
+          settings: .appMainSetting,
         )
       ]
     )

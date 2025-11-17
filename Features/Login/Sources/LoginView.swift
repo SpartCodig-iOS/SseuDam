@@ -12,50 +12,88 @@ import ComposableArchitecture
 import Domain
 import Data
 import Dependencies
+import AuthenticationServices
+import CryptoKit
+
 
 public struct LoginView: View {
-    public init() {}
+  @Bindable var store: StoreOf<LoginFeature>
+
+
+  public init(
+    store: StoreOf<LoginFeature>
+  ) {
+    self.store = store
+  }
 
   public var body: some View {
-        withDependencies {
-            $0.googleOAuthService = GoogleOAuthService()
-            $0.oAuthRepository = OAuthRepository()
-        } operation: {
-            LoginViewContent()
-        }
-    }
-}
+    VStack(spacing: 20) {
+      Image(systemName: "star.fill")
+        .imageScale(.large)
+        .foregroundStyle(.tint)
 
-private struct LoginViewContent: View {
-    @Dependency(\.oAuthRepository) private var repository
-    @Dependency(\.googleOAuthService) private var googleService
+      Text("Login Feature")
+        .font(.title)
+        .fontWeight(.bold)
 
-    var body: some View {
-        VStack {
-            Image(systemName: "star.fill")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Login Feature")
-                .font(.title)
-                .fontWeight(.bold)
-                .onTapGesture {
-                  Task {
-                    // 여기서 직접 usecase를 만들어서 사용
-                    let useCase = OAuthUseCase(
-                        repository: repository,
-                        googleService: googleService
-                    )
-                    try await useCase.signUpWithGoogleSuperBase()
-                  }
-                }
+      // Apple Sign In Button
+      SignInWithAppleButton(.signIn) { request in
+        let nonce = AppleLoginManger.shared.randomNonceString()
+        store.send(.view(.appleNonceGenerated(nonce)))
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = AppleLoginManger.shared.sha256(nonce)
+      } onCompletion: { result in
+        store.send(.view(.appleSignIn(result)))
+      }
+      .frame(height: 50)
+      .disabled(store.isLoading)
+
+      // Google Login Button
+      Button {
+        store.send(.view(.googleButtonTapped))
+      } label: {
+        HStack {
+          Image(systemName: "g.circle.fill")
+          Text("Google로 로그인")
+            .fontWeight(.semibold)
         }
-        .padding()
-        .navigationTitle("Login")
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+      }
+      .buttonStyle(.borderedProminent)
+      .tint(.orange)
+      .disabled(store.isLoading)
+
+      if store.isLoading {
+        ProgressView("로그인 중...")
+      }
+
+      if let statusMessage = store.statusMessage {
+        Text(statusMessage)
+          .font(.footnote)
+          .foregroundColor(.blue)
+          .multilineTextAlignment(.center)
+      }
     }
+    .padding()
+    .navigationTitle("Login")
+  }
 }
 
 #Preview {
-    NavigationView {
-        LoginView()
-    }
+  NavigationView {
+    LoginView(store:  Store(
+      initialState: LoginFeature.State(),
+      reducer: {
+        LoginFeature()
+      },
+      withDependencies: {
+        $0.oAuthUseCase = OAuthUseCase(
+          repository: OAuthRepository(),
+          googleService: GoogleOAuthService(),
+          appleService: AppleOAuthService()
+        )
+      }
+    ))
+  }
 }

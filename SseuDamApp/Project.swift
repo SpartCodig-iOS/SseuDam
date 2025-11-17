@@ -10,5 +10,6 @@ let project = Project.makeApp(
         .Domain,
         .Data
     ],
-    infoPlist: .defaultSwiftUIApp
+    infoPlist: .defaultSwiftUIApp,
+    entitlements: .file(path: .relativeToManifest("../Entitlements/SseuDamApp.entitlements"))
 )
