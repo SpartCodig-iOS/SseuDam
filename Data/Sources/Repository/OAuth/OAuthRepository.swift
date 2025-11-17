@@ -8,10 +8,10 @@
 import Domain
 import Supabase
 import LogMacro
+import Dependencies
 
 
 public class OAuthRepository: OAuthRepositoryProtocol {
-  private let gooOauthManger = GoogleAuthManager.shared
   private let client = SuperBaseManger.shared.client
   public init() {}
 
@@ -60,3 +60,4 @@ public class OAuthRepository: OAuthRepositoryProtocol {
     )
   }
 }
+

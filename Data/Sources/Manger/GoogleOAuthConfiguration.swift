@@ -8,18 +8,23 @@
 import Foundation
 
 
-struct GoogleOAuthConfiguration {
-  let clientID: String
-  let serverClientID: String
+public struct GoogleOAuthConfiguration {
+  public let clientID: String
+  public let serverClientID: String
 
-  static var current: GoogleOAuthConfiguration {
+  public static var current: GoogleOAuthConfiguration {
     let clientID = "\(Bundle.main.object(forInfoDictionaryKey: "GOOGLE_IOS_CLIENT_ID") as? String ?? "")"
     let serverClientID = "\(Bundle.main.object(forInfoDictionaryKey: "GOOGLE_SERVER_CLIENT_ID") as? String ?? "")"
     return GoogleOAuthConfiguration(clientID: clientID, serverClientID: serverClientID)
   }
 
-  var isValid: Bool {
+  public var isValid: Bool {
     !clientID.contains("YOUR_GOOGLE_IOS_CLIENT_ID") &&
     !serverClientID.contains("YOUR_GOOGLE_SERVER_CLIENT_ID")
+  }
+
+  public init(clientID: String, serverClientID: String) {
+    self.clientID = clientID
+    self.serverClientID = serverClientID
   }
 }

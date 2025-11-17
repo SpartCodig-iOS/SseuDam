@@ -9,24 +9,21 @@ import Foundation
 import GoogleSignIn
 import Supabase
 import LogMacro
+import Domain
 
 #if canImport(UIKit)
 import UIKit
 #endif
 
-protocol GoogleOAuthServicing {
-  func signIn() async throws -> GoogleOAuthPayload
-}
-
-
-final class GoogleOAuthService: GoogleOAuthServicing {
+public final class GoogleOAuthService: GoogleOAuthServicing {
   private let configuration: GoogleOAuthConfiguration
 
-  init(configuration: GoogleOAuthConfiguration = .current) {
+  public init(configuration: GoogleOAuthConfiguration = .current) {
     self.configuration = configuration
   }
 
-  func signIn() async throws -> GoogleOAuthPayload {
+  @MainActor
+  public func signIn() async throws -> GoogleOAuthPayload {
     guard configuration.isValid else {
       throw GoogleSignInError.configurationMissing
     }
@@ -53,6 +50,7 @@ final class GoogleOAuthService: GoogleOAuthServicing {
 
       let payload = GoogleOAuthPayload(
         idToken: idToken,
+        accessToken: "",
         authorizationCode: result.serverAuthCode,
         displayName: result.user.profile?.name
       )

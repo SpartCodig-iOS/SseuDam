@@ -33,7 +33,8 @@ public extension Project {
     name: String,
     dependencies: [TargetDependency] = [],
     resources: ResourceFileElements? = nil,
-    hasTests: Bool = false
+    hasTests: Bool = false,
+    settings: Settings? = nil
   ) -> Project {
     var targets: [Target] = [
       .target(
@@ -44,7 +45,8 @@ public extension Project {
         deploymentTargets: Environment.deploymentTarget,
         sources: ["Sources/**"],
         resources: resources,
-        dependencies: dependencies
+        dependencies: dependencies,
+        settings: settings
       )
     ]
 
