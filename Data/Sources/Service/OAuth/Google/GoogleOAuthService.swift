@@ -42,29 +42,59 @@ public final class GoogleOAuthService: GoogleOAuthServicing {
     )
     GIDSignIn.sharedInstance.configuration = gidConfiguration
 
-    do {
-      let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenting)
-      guard let idToken = result.user.idToken?.tokenString else {
-        throw GoogleSignInError.missingIDToken
-      }
+    return try await withCheckedThrowingContinuation { continuation in
+      Task { @MainActor in
+        do {
+          let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenting)
+          guard let idToken = result.user.idToken?.tokenString else {
+            continuation.resume(throwing: GoogleSignInError.missingIDToken)
+            return
+          }
 
-      let payload = GoogleOAuthPayload(
-        idToken: idToken,
-        accessToken: "",
-        authorizationCode: result.serverAuthCode,
-        displayName: result.user.profile?.name
-      )
+          let payload = GoogleOAuthPayload(
+            idToken: idToken,
+            accessToken: "",
+            authorizationCode: result.serverAuthCode,
+            displayName: result.user.profile?.name
+          )
 
-      Log.info("Google serverAuthCode present: \(payload.authorizationCode != nil ? "yes" : "no")")
-      return payload
-    } catch let error as NSError {
-      if error.domain == "com.google.GIDSignIn",
-         error.code == GIDSignInError.canceled.rawValue {
-        Log.info("Google sign-in cancelled by user.")
-        throw GoogleSignInError.userCancelled
+          Log.info("Google serverAuthCode present: \(payload.authorizationCode != nil ? "yes" : "no")")
+          continuation.resume(returning: payload)
+        } catch let error as NSError {
+          if error.domain == "RBSServiceErrorDomain" && error.code == 1 {
+            Log.error("RBSServiceErrorDomain detected, retrying Google sign-in...")
+            // RBSServiceErrorDomain 에러 발생 시 재시도
+            do {
+              try await Task.sleep(for: .seconds(0.5)) // 0.5초 대기
+              let retryResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenting)
+              guard let idToken = retryResult.user.idToken?.tokenString else {
+                continuation.resume(throwing: GoogleSignInError.missingIDToken)
+                return
+              }
+
+              let payload = GoogleOAuthPayload(
+                idToken: idToken,
+                accessToken: "",
+                authorizationCode: retryResult.serverAuthCode,
+                displayName: retryResult.user.profile?.name
+              )
+
+              Log.info("Google sign-in retry succeeded")
+              continuation.resume(returning: payload)
+            } catch {
+              Log.error("Google sign-in retry failed: \(error.localizedDescription)")
+              continuation.resume(throwing: error)
+            }
+          } else if error.domain == "com.google.GIDSignIn",
+                    error.code == GIDSignInError.canceled.rawValue {
+            Log.info("Google sign-in cancelled by user.")
+            continuation.resume(throwing: GoogleSignInError.userCancelled)
+          } else {
+            Log.error("Google sign-in failed: \(error.localizedDescription)")
+            continuation.resume(throwing: error)
+          }
+        }
       }
-      Log.error("Google sign-in failed: \(error.localizedDescription)")
-      throw error
     }
   }
 
