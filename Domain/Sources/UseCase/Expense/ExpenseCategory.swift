@@ -16,7 +16,7 @@ public enum ExpenseCategory: String, CaseIterable, Codable {
     case other         = "other"            // 기타 지출
     
     // MARK: - 사용자 표시 (한국어 명칭)
-    public var koreanName: String {
+    public var displayName: String {
         switch self {
         case .accommodation:
             return "숙박"
