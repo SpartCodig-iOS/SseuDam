@@ -9,10 +9,13 @@ import Foundation
 import AuthenticationServices
 
 public protocol OAuthUseCaseProtocol {
-  func signInWithAppleOnce(
-    credential: ASAuthorizationAppleIDCredential,
-    nonce: String
-  ) async throws -> UserEntity
+//  func signInWithAppleOnce(
+//    credential: ASAuthorizationAppleIDCredential,
+//    nonce: String
+//  ) async throws -> UserEntity
+
+  @MainActor
+  func signUpWithGoogleSuperBase() async throws -> UserEntity
 
   
 }
