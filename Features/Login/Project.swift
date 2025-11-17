@@ -8,5 +8,6 @@ let project = Project.makeFeature(
         .SPM.TCACoordinators,
         .Domain,
         .DesignSystem
-    ]
+    ],
+    hasTests: true
 )
