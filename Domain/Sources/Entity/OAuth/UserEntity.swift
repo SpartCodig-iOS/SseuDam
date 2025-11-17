@@ -22,7 +22,7 @@ public struct UserEntity: Equatable, Identifiable {
     displayName: String? = nil,
     provider: SocialType = .none,
     tokens: AuthTokens = AuthTokens(superBaseToken: "", accessToken: "", refreshToken: ""),
-    authCode: String
+    authCode: String? = nil
   ) {
     self.id = id
     self.email = email
@@ -79,7 +79,7 @@ public extension User {
     return nil
   }
 
-  func toDomain(session: Session, authCode: String) -> UserEntity {
+  func toDomain(session: Session, authCode: String?) -> UserEntity {
     .init(
       id: id.uuidString,
       email: email,
@@ -89,8 +89,8 @@ public extension User {
         superBaseToken: session.accessToken,
         accessToken: "",
         refreshToken: ""
-      ), authCode: authCode
+      ),
+      authCode: authCode
     )
   }
 }
-

@@ -1,5 +1,5 @@
 //
-//  GoogleOAuthService.swift
+//  GoogleOAuthRepository.swift
 //  Data
 //
 //  Created by Wonji Suh  on 11/17/25.
@@ -15,7 +15,7 @@ import Domain
 import UIKit
 #endif
 
-public final class GoogleOAuthService: GoogleOAuthServicing {
+public final class GoogleOAuthRepository: GoogleOAuthProtocol {
   private let configuration: GoogleOAuthConfiguration
 
   public init(configuration: GoogleOAuthConfiguration = .current) {

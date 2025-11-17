@@ -1,5 +1,5 @@
 //
-//  AppleOAuthService.swift
+//  AppleOAuthRepository.swift
 //  Data
 //
 //  Created by Wonji Suh  on 11/17/25.
@@ -15,7 +15,7 @@ import Domain
 import UIKit
 #endif
 
-public final class AppleOAuthService: NSObject, AppleOAuthServicing {
+public final class AppleOAuthRepository: NSObject, AppleOAuthProtocol {
   private let logger = LogMacro.Log.self
   private var currentNonce: String?
   private var signInContinuation: CheckedContinuation<AppleOAuthPayload, Error>?
@@ -87,7 +87,7 @@ public final class AppleOAuthService: NSObject, AppleOAuthServicing {
 }
 
 // MARK: - ASAuthorizationControllerDelegate
-extension AppleOAuthService: ASAuthorizationControllerDelegate {
+extension AppleOAuthRepository: ASAuthorizationControllerDelegate {
   public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
     guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
       signInContinuation?.resume(throwing: AppleSignInError.authorizationFailed("Invalid credential type"))
@@ -143,7 +143,7 @@ extension AppleOAuthService: ASAuthorizationControllerDelegate {
 }
 
 // MARK: - ASAuthorizationControllerPresentationContextProviding
-extension AppleOAuthService: ASAuthorizationControllerPresentationContextProviding {
+extension AppleOAuthRepository: ASAuthorizationControllerPresentationContextProviding {
   public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
 #if canImport(UIKit)
     return UIApplication.shared.connectedScenes

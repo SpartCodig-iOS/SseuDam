@@ -6,23 +6,23 @@
 //
 
 import Foundation
-import Dependencies
+import ComposableArchitecture
 import LogMacro
 import AuthenticationServices
 
 public struct OAuthUseCase: OAuthUseCaseProtocol {
   private let repository: OAuthRepositoryProtocol
-  private let googleService: GoogleOAuthServicing
-  private let appleService: AppleOAuthServicing
+  private let googleRepository: GoogleOAuthProtocol
+  private let appleRepository: AppleOAuthProtocol
 
   public init(
     repository: OAuthRepositoryProtocol,
-    googleService: GoogleOAuthServicing,
-    appleService: AppleOAuthServicing,
+    googleRepository: GoogleOAuthProtocol,
+    appleRepository: AppleOAuthProtocol,
   ) {
     self.repository = repository
-    self.googleService = googleService
-    self.appleService = appleService
+    self.googleRepository = googleRepository
+    self.appleRepository = appleRepository
   }
 
   public func signInWithAppleOnce(
@@ -52,7 +52,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
 
 
   public func signUpWithAppleSuperBase() async throws -> UserEntity {
-    let payload = try await appleService.signIn()
+    let payload = try await appleRepository.signIn()
     Log.info("Apple sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
     let session = try await repository.signInWithApple(
@@ -63,21 +63,21 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     Log.info("Supabase sign-in with Apple succeeded")
 
     let user = session.user
-    return user.toDomain(session: session, authCode: payload.authorizationCode ?? "")
+    return user.toDomain(session: session, authCode: payload.authorizationCode)
   }
 
   public func signUpWithGoogleSuperBase() async throws -> UserEntity {
-    let payload = try await googleService.signIn()
+    let payload = try await googleRepository.signIn()
     Log.info("Google sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
     let session = try await repository.signInWithGoogle(
       idToken: payload.idToken,
       displayName: payload.displayName
     )
-    Log.info("Supabase sign-in with Google succeeded", "\(payload.authorizationCode ?? "")")
+    Log.info("Supabase sign-in with Google succeeded")
 
     let user = session.user
-    return user.toDomain(session: session, authCode: payload.authorizationCode ?? "")
+    return user.toDomain(session: session, authCode: payload.authorizationCode)
   }
 
   // MARK: - Helper Methods
@@ -90,54 +90,14 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
 }
 
 // MARK: - Dependencies
-
-private struct MockOAuthUseCase: OAuthUseCaseProtocol {
-  func signInWithAppleOnce(
-    credential: ASAuthorizationAppleIDCredential,
-    nonce: String
-  ) async throws -> UserEntity {
-    // Mock implementation for testing/preview
-    return UserEntity(
-      id: "mock-apple-user-id",
-      email: "apple.user@example.com",
-      displayName: "Mock Apple User",
-      provider: .apple,
-      authCode: "",
-    )
-  }
-
-  func signUpWithAppleSuperBase() async throws -> UserEntity {
-    // Mock implementation for testing/preview
-    return UserEntity(
-      id: "mock-apple-user-id",
-      email: "apple.user@example.com",
-      displayName: "Mock Apple User",
-      provider: .apple,
-      authCode: "",
-
-    )
-  }
-
-  func signUpWithGoogleSuperBase() async throws -> UserEntity {
-    // Mock implementation for testing/preview
-    return UserEntity(
-      id: "mock-google-user-id",
-      email: "google.user@example.com",
-      displayName: "Mock Google User",
-      provider: .google,
-      authCode: "",
-    )
-  }
-}
-
 extension OAuthUseCase: DependencyKey {
-  public static var liveValue: any OAuthUseCaseProtocol = MockOAuthUseCase()
-  public static var previewValue: any OAuthUseCaseProtocol = MockOAuthUseCase()
-  public static var testValue: any OAuthUseCaseProtocol = MockOAuthUseCase()
+  public static var liveValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
+  public static var previewValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
+  public static var testValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
 }
 
 public extension DependencyValues {
-  var oAuthUseCase: any OAuthUseCaseProtocol {
+  var oAuthUseCase:  OAuthUseCaseProtocol {
     get { self[OAuthUseCase.self] }
     set { self[OAuthUseCase.self] = newValue }
   }

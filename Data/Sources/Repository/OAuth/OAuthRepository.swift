@@ -10,7 +10,6 @@ import Supabase
 import LogMacro
 import Dependencies
 
-
 public class OAuthRepository: OAuthRepositoryProtocol {
   private let client = SuperBaseManger.shared.client
   public init() {}
