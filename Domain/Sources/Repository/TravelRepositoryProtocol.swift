@@ -1,0 +1,15 @@
+//
+//  TravelRepositoryProtocol.swift
+//  Domain
+//
+//  Created by 김민희 on 11/17/25.
+//
+
+import Foundation
+
+protocol TravelRepositoryProtocol {
+  func fetchTravels(limit: Int, page: Int) async throws -> [Travel]
+  func createTravel(input: CreateTravelInput) async throws -> Travel
+  func updateTravel(id: String, _ input: UpdateTravelInput) async throws -> Travel
+  func deleteTravel(id: String) async throws
+}
