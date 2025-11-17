@@ -86,13 +86,6 @@ public struct LoginView: View {
       initialState: LoginFeature.State(),
       reducer: {
         LoginFeature()
-      },
-      withDependencies: {
-        $0.oAuthUseCase = OAuthUseCase(
-          repository: OAuthRepository(),
-          googleService: GoogleOAuthService(),
-          appleService: AppleOAuthService()
-        )
       }
     ))
   }

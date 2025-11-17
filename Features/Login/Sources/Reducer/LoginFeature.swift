@@ -63,7 +63,7 @@ public struct LoginFeature {
 
   // MARK: - Dependencies
 
-  @Dependency(\.oAuthUseCase) var oAuthUseCase
+  @Dependency(LoginUseCase.self) var loginUseCase
 
   // MARK: - Body
 
@@ -166,7 +166,7 @@ extension LoginFeature {
       case .googleSignIn:
         return .run { send in
           do {
-            let user = try await oAuthUseCase.signUpWithGoogleSuperBase()
+            let user = try await loginUseCase.oauth.signUpWithGoogleSuperBase()
             await send(.inner(.googleLoginResponse(.success(user))))
           } catch let authError as AuthError {
             await send(.inner(.googleLoginResponse(.failure(authError))))
@@ -182,7 +182,7 @@ extension LoginFeature {
           case let .success(payload):
             return .run { send in
               do {
-                let user = try await oAuthUseCase.signInWithAppleOnce(
+                let user = try await loginUseCase.oauth.signInWithAppleOnce(
                   credential: payload.credential,
                   nonce: payload.nonce
                 )
