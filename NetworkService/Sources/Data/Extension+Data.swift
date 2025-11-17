@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+public extension Data {
+  func decoded<T: Decodable>(as type: T.Type) throws -> T {
+    let decoder = JSONDecoder()
+    return try decoder.decode(T.self, from: self)
+  }
+}

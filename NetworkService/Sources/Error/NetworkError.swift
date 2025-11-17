@@ -6,3 +6,11 @@
 //
 
 import Foundation
+import Moya
+
+public enum NetworkError: Error {
+  case customError(ResponseError)
+  case unhandledStatusCode(Int)
+  case moyaError(MoyaError)
+  case noData
+}

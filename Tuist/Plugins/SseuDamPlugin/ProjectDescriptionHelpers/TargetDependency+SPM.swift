@@ -12,7 +12,8 @@ public extension TargetDependency.SPM {
 
     // MARK: - Networking
     static let Moya: TargetDependency = .external(name: "Moya")
-    static let CombineMoya: TargetDependency = .external(name: "CombineMoya")
+  static let EventLimiter: TargetDependency = .external(name: "EventLimiter")
+  static let LogMacro: TargetDependency = .external(name: "LogMacro")
 }
 
 // MARK: - Usage Example
