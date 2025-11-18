@@ -28,18 +28,23 @@ public enum SocialType: String, CaseIterable, Identifiable, Hashable {
     }
   }
 
-  var supabaseProvider: Auth.Provider {
+
+  public var image: String {
+    switch self {
+      case .apple:
+        return "apple.logo"
+      case .google:
+        return "google"
+      case .none:
+        return ""
+    }
+  }
+
+  public var supabaseProvider: Auth.Provider {
     switch self {
       case .google: return .google
       case .apple: return .apple
       case .none: return .email
-    }
-  }
-
-  var promptParams: [(name: String, value: String?)] {
-    switch self {
-      case .google: return [("prompt", "select_account")]
-      case .apple, .none: return []
     }
   }
 }
