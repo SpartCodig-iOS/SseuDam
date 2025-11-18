@@ -128,6 +128,19 @@ public extension Project {
             )
         }
 
-        return Project(name: "\(name)Feature", targets: targets)
+        var schemes: [Scheme] = [
+            // Scheme for Feature Framework
+            Environment.makeScheme(
+                name: "\(name)Feature",
+                targets: hasTests ? ["\(name)Feature", "\(name)FeatureTests"] : ["\(name)Feature"]
+            ),
+            // Scheme for Demo App
+            Environment.makeDemoScheme(
+                name: "\(name)FeatureDemo",
+                executableTarget: "\(name)FeatureDemo"
+            )
+        ]
+
+        return Project(name: "\(name)Feature", targets: targets, schemes: schemes)
     }
 }
