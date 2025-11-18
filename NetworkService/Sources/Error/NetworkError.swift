@@ -9,8 +9,13 @@ import Foundation
 import Moya
 
 public enum NetworkError: Error {
-  case customError(ResponseError)
-  case unhandledStatusCode(Int)
-  case moyaError(MoyaError)
-  case noData
+  case noResponse               // HTTPURLResponse 없음
+  case noData                   // 데이터 없음
+  case decodingError(underlying: Error)
+  case server(ResponseError)
+  case clientError(statusCode: Int)    // 4xx
+  case serverError(statusCode: Int)    // 5xx
+  case unauthorized                      // 401
+  case unknown(statusCode: Int?)
+  case underlying(Error)               // 기타 에러 래핑 (로그용)
 }

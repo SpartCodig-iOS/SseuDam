@@ -5,7 +5,6 @@ let project = Project.makeFramework(
     name: "NetworkService",
     dependencies: [
         .SPM.Moya,
-        .SPM.LogMacro,
-        .SPM.EventLimiter
+        .SPM.LogMacro
     ]
 )

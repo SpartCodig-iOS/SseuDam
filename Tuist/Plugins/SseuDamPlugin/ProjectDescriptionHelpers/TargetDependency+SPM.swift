@@ -12,28 +12,6 @@ public extension TargetDependency.SPM {
 
     // MARK: - Networking
     static let Moya: TargetDependency = .external(name: "Moya")
-  static let EventLimiter: TargetDependency = .external(name: "EventLimiter")
-  static let LogMacro: TargetDependency = .external(name: "LogMacro")
+    static let LogMacro: TargetDependency = .external(name: "LogMacro")
 }
 
-// MARK: - Usage Example
-/*
- 사용 예시:
-
- let project = Project.makeFramework(
-     name: "NetworkService",
-     dependencies: [
-         .SPM.Moya,
-         .SPM.CombineMoya
-     ]
- )
-
- let project = Project.makeFeature(
-     name: .MyFeature,
-     dependencies: [
-         .SPM.ComposableArchitecture,
-         .SPM.TCACoordinators,
-         .Domain
-     ]
- )
-*/
