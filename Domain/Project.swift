@@ -3,6 +3,8 @@ import SseuDamPlugin
 
 let project = Project.makeFramework(
     name: "Domain",
-    dependencies: [],
+    dependencies: [
+        .SPM.LogMacro
+    ],
     hasTests: true
 )

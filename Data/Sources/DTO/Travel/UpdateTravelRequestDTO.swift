@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UpdateTravelRequestDTO: Encodable {
+public struct UpdateTravelRequestDTO: Encodable {
     let title: String
     let startDate: String
     let endDate: String

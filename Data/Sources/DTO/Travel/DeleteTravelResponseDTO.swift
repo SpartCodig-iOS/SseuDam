@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct DeleteTravelResponseDTO: Codable {
+public struct DeleteTravelResponseDTO: Codable {
     let code: Int
     let data: [String: String]
     let message: String
     let meta: DeleteMetaDTO
 }
 
-struct DeleteMetaDTO: Codable {
+public struct DeleteMetaDTO: Codable {
     let responseTime: String
     let cached: Bool
 }

@@ -7,53 +7,38 @@
 
 import Foundation
 import Domain
+import Moya
+import NetworkService
 
-protocol TravelRemoteDataSourceProtocol {
+public protocol TravelRemoteDataSourceProtocol {
     func fetchTravels(limit: Int, page: Int) async throws -> [TravelResponseDTO]
-    func createTravel(_ body: CreateTravelRequestDTO) async throws -> TravelResponseDTO
+    func createTravel(body: CreateTravelRequestDTO) async throws -> TravelResponseDTO
     func updateTravel(id: String, body: UpdateTravelRequestDTO) async throws -> TravelResponseDTO
     func deleteTravel(id: String) async throws -> DeleteTravelResponseDTO
 }
 
 final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
-    
-    private let api: APIClient
-    
-    init(api: APIClient) {
-        self.api = api
+
+    private let provider: MoyaProvider<TravelAPI>
+
+    init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>()) {
+        self.provider = provider
     }
-    
+
     func fetchTravels(limit: Int, page: Int) async throws -> [TravelResponseDTO] {
-        try await api.request(
-            method: .GET,
-            path: "/api/v1/travels",
-            query: [
-                "limit": "\(limit)",
-                "page": "\(page)"
-            ]
-        )
+        try await provider.request(.fetchTravels(limit: limit, page: page))
     }
-    
-    func createTravel(_ body: CreateTravelRequestDTO) async throws -> TravelResponseDTO {
-        try await api.request(
-            method: .POST,
-            path: "/api/v1/travels",
-            body: body
-        )
+
+    func createTravel(body: CreateTravelRequestDTO) async throws -> TravelResponseDTO {
+        try await provider.request(.createTravel(body: body))
     }
-    
+
     func updateTravel(id: String, body: UpdateTravelRequestDTO) async throws -> TravelResponseDTO {
-        try await api.request(
-            method: .PATCH,
-            path: "/api/v1/travels/\(id)",
-            body: body
-        )
+        try await provider.request(.updateTravel(id: id, body: body))
     }
-    
+
     func deleteTravel(id: String) async throws -> DeleteTravelResponseDTO {
-        try await api.request(
-            method: .DELETE,
-            path: "/api/v1/travels/\(id)"
-        )
+        try await provider.request(.deleteTravel(id: id))
     }
 }
+

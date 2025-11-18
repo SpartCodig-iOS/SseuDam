@@ -19,6 +19,6 @@ final class UpdateTravelUseCaseImpl: UpdateTravelUseCase {
     }
 
     func execute(id: String, input: UpdateTravelInput) async throws -> Travel {
-        try await repository.updateTravel(id: id, input)
+        try await repository.updateTravel(id: id, input: input)
     }
 }

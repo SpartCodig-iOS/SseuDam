@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct TravelResponseDTO: Decodable {
+public struct TravelResponseDTO: Decodable {
     let id: String
     let title: String
     let startDate: String
