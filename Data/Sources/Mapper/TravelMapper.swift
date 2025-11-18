@@ -28,7 +28,7 @@ extension TravelResponseDTO {
             baseCurrency: baseCurrency,
             baseExchangeRate: baseExchangeRate,
             inviteCode: inviteCode,
-            status: status,
+            status: TravelStatus(rawValue: status) ?? .unknown,
             role: role,
             createdAt: dateTimeFormatter.date(from: createdAt) ?? Date(),
             ownerName: ownerName,
