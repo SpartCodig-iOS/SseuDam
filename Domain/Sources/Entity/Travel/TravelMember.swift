@@ -8,13 +8,13 @@
 import Foundation
 
 public struct TravelMember {
-  public let id: String
-  public let name: String
-  public let role: String
+    public let id: String
+    public let name: String
+    public let role: String
 
-  public init(id: String, name: String, role: String) {
-    self.id = id
-    self.name = name
-    self.role = role
-  }
+    public init(id: String, name: String, role: String) {
+        self.id = id
+        self.name = name
+        self.role = role
+    }
 }

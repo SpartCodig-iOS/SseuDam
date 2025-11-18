@@ -8,10 +8,10 @@
 import Foundation
 
 public struct CreateTravelInput {
-  public let title: String
-  public let startDate: Date
-  public let endDate: Date
-  public let countryCode: String
-  public let baseCurrency: String
-  public let baseExchangeRate: Double
+    public let title: String
+    public let startDate: Date
+    public let endDate: Date
+    public let countryCode: String
+    public let baseCurrency: String
+    public let baseExchangeRate: Double
 }

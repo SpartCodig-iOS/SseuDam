@@ -9,7 +9,7 @@ import Foundation
 import Domain
 
 struct TravelMemberDTO: Decodable {
-  let userId: String
-  let name: String
-  let role: String
+    let userId: String
+    let name: String
+    let role: String
 }

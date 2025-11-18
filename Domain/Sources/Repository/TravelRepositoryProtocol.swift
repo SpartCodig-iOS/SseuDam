@@ -7,9 +7,9 @@
 
 import Foundation
 
-protocol TravelRepositoryProtocol {
-  func fetchTravels(limit: Int, page: Int) async throws -> [Travel]
-  func createTravel(input: CreateTravelInput) async throws -> Travel
-  func updateTravel(id: String, _ input: UpdateTravelInput) async throws -> Travel
-  func deleteTravel(id: String) async throws
+public protocol TravelRepositoryProtocol {
+    func fetchTravels(limit: Int, page: Int) async throws -> [Travel]
+    func createTravel(input: CreateTravelInput) async throws -> Travel
+    func updateTravel(id: String, _ input: UpdateTravelInput) async throws -> Travel
+    func deleteTravel(id: String) async throws
 }

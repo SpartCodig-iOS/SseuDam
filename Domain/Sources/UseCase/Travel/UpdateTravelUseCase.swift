@@ -8,17 +8,17 @@
 import Foundation
 
 protocol UpdateTravelUseCase {
-  func execute(id: String, input: UpdateTravelInput) async throws -> Travel
+    func execute(id: String, input: UpdateTravelInput) async throws -> Travel
 }
 
 final class UpdateTravelUseCaseImpl: UpdateTravelUseCase {
-  private let repository: TravelRepositoryProtocol
+    private let repository: TravelRepositoryProtocol
 
-  init(repository: TravelRepositoryProtocol) {
-    self.repository = repository
-  }
+    init(repository: TravelRepositoryProtocol) {
+        self.repository = repository
+    }
 
-  func execute(id: String, input: UpdateTravelInput) async throws -> Travel {
-    try await repository.updateTravel(id: id, input)
-  }
+    func execute(id: String, input: UpdateTravelInput) async throws -> Travel {
+        try await repository.updateTravel(id: id, input)
+    }
 }

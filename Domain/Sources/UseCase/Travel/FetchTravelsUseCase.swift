@@ -7,18 +7,18 @@
 
 import Foundation
 
-protocol FetchTravelsUseCaseProtocol {
-  func excute(limit: Int, page: Int) async throws -> [Travel]
+public protocol FetchTravelsUseCaseProtocol {
+    func excute(limit: Int, page: Int) async throws -> [Travel]
 }
 
-final class FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
-  private let repository: TravelRepositoryProtocol
-
-  init(repository: TravelRepositoryProtocol) {
-    self.repository = repository
-  }
-
-  func excute(limit: Int, page: Int) async throws -> [Travel] {
-    try await repository.fetchTravels(limit: limit, page: page)
-  }
+public final class FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
+    private let repository: TravelRepositoryProtocol
+    
+    public init(repository: TravelRepositoryProtocol) {
+        self.repository = repository
+    }
+    
+    public func excute(limit: Int, page: Int) async throws -> [Travel] {
+        try await repository.fetchTravels(limit: limit, page: page)
+    }
 }

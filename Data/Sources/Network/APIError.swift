@@ -8,9 +8,9 @@
 import Foundation
 
 enum APIError: Error {
-  case invalidURL
-  case invalidResponse
-  case httpError(Int)
-  case decodingError
-  case unknown(Error)
+    case invalidURL
+    case invalidResponse
+    case httpError(Int)
+    case decodingError
+    case unknown(Error)
 }

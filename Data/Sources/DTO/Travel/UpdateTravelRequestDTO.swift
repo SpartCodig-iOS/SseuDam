@@ -8,10 +8,10 @@
 import Foundation
 
 struct UpdateTravelRequestDTO: Encodable {
-  let title: String
-  let startDate: String
-  let endDate: String
-  let countryCode: String
-  let baseCurrency: String
-  let baseExchangeRate: Double
+    let title: String
+    let startDate: String
+    let endDate: String
+    let countryCode: String
+    let baseCurrency: String
+    let baseExchangeRate: Double
 }

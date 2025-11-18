@@ -8,5 +8,5 @@
 import Foundation
 
 enum HTTPMethod: String {
-  case GET, POST, PATCH, DELETE
+    case GET, POST, PATCH, DELETE
 }
