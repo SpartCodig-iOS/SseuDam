@@ -29,8 +29,13 @@ public struct LoginView: View {
   public var body: some View {
     VStack {
 
+      Text("test")
+        .onTapGesture {
+          store.send(.view(.googleButtonTapped))
+        }
+
     }
-    .background()
+    .background(Color.primary50)
 
 //    VStack(spacing: 20) {
 //      Image(systemName: "star.fill")
@@ -56,6 +61,11 @@ public struct LoginView: View {
 //    .padding()
 //    .navigationTitle("Login")
   }
+}
+
+
+extension LoginView {
+  
 }
 
 #Preview {

@@ -140,8 +140,8 @@ public extension Project {
             // Scheme for Demo App
             Environment.makeDemoScheme(
                 name: "\(name)FeatureDemo",
-            )
                 executableTarget: "\(name)FeatureDemo"
+            )
         ]
 
         return Project(name: "\(name)Feature", targets: targets, schemes: schemes)
@@ -149,11 +149,11 @@ public extension Project {
             targets.append(
                 .target(
                     name: "\(name)FeatureTests",
-                    product: .unitTests,
                     destinations: Environment.destinations,
+                    product: .unitTests,
                     bundleId: Environment.bundleId(for: "\(name)FeatureTests"),
-                    sources: ["Tests/**"],
                     deploymentTargets: Environment.deploymentTarget,
+                    sources: ["Tests/**"],
                     dependencies: [
                         .target(name: "\(name)Feature")
                     ]

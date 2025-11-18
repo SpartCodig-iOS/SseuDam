@@ -13,6 +13,6 @@ let project = Project.makeFramework(
   ],
   settings: .settings(
     base: SettingsDictionary()
-      .setOtherLdFlags()
+      .setOtherLdFlags("-ObjC -all_load")
   )
 )

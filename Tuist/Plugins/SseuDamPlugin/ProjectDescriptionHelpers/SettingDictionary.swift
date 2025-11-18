@@ -41,6 +41,10 @@ public extension SettingsDictionary {
     return self.merging(["CODE_SIGN_STYLE": SettingValue(stringLiteral: value)]) { (_, new) in new }
   }
 
+  func setOtherLdFlags(_ value: String = "$(inherited) -ObjC") -> SettingsDictionary {
+    return self.merging(["OTHER_LDFLAGS": SettingValue(stringLiteral: value)]) { (_, new) in new }
+  }
+
   func setVersioningSystem(_ value: String = "apple-generic") -> SettingsDictionary {
     return self.merging(["VERSIONING_SYSTEM": SettingValue(stringLiteral: value)]) { (_, new) in new }
   }
