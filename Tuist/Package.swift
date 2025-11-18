@@ -9,7 +9,7 @@ let packageSettings = PackageSettings(
         "ComposableArchitecture": .framework,
         "TCACoordinators": .framework,
         "Moya": .framework,
-        "EventLimiter": .framework
+        "EventLimiter": .framework,
         "LogMacro": .framework,
     ]
 )
