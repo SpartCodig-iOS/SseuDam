@@ -21,7 +21,8 @@ public extension Project {
                     infoPlist: infoPlist,
                     sources: ["Sources/**"],
                     resources: resources ?? ["Resources/**"],
-                    dependencies: dependencies
+                    dependencies: dependencies,
+                    settings: .appMainSetting
                 )
             ]
         )
