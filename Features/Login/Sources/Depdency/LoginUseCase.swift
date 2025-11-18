@@ -25,7 +25,6 @@ extension LoginUseCase: DependencyKey {
       googleRepository: GoogleOAuthRepository(),
       appleRepository: AppleOAuthRepository()
     )
-
     return LoginUseCase(oauth: oauth)
   }()
 
@@ -39,7 +38,6 @@ extension LoginUseCase: DependencyKey {
     )
     return LoginUseCase(oauth: oauth)
   }()
-
 }
 
 public extension DependencyValues {
