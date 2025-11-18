@@ -50,8 +50,6 @@ extension AnyJSON {
   }
 }
 
-// MARK: - Supabase.User → UserEntity 매핑
-
 public extension User {
   private var providerString: String? {
     if let provider = appMetadata["provider"]?.stringValue {
@@ -62,7 +60,6 @@ public extension User {
        let first = providers.first?.stringValue {
       return first
     }
-
     return nil
   }
 

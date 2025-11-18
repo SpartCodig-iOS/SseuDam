@@ -9,7 +9,7 @@ let project = Project.makeFramework(
     .SPM.Supabase,
     .SPM.GoogleSignIn,
     .SPM.LogMacro,
-    .SPM.Dependencies
+    .SPM.ComposableArchitecture
   ],
   settings: .settings(
     base: SettingsDictionary()
