@@ -18,24 +18,3 @@ public extension TargetDependency.SPM {
   static let LogMacro: TargetDependency = .external(name: "LogMacro")
 }
 
-// MARK: - Usage Example
-/*
- 사용 예시:
-
- let project = Project.makeFramework(
- name: "NetworkService",
- dependencies: [
- .SPM.Moya,
- .SPM.CombineMoya
- ]
- )
-
- let project = Project.makeFeature(
- name: .MyFeature,
- dependencies: [
- .SPM.ComposableArchitecture,
- .SPM.TCACoordinators,
- .Domain
- ]
- )
- */

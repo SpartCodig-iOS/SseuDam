@@ -29,22 +29,6 @@ public extension SettingsDictionary {
     return self.merging(["AS_AUTHENTICATION_SERVICES_ENABLED": SettingValue(stringLiteral: value)]) { (_, new) in new }
   }
 
-  func setPushNotificationsEnabled(_ value: String = "YES") -> SettingsDictionary {
-    return self.merging(["PUSH_NOTIFICATIONS_ENABLED": SettingValue(stringLiteral: value)]) { (_, new) in new }
-  }
-
-  func setEnableBackgroundModes(_ value: String = "YES", backgroundModes: String = "remote-notification") -> SettingsDictionary {
-    return self.merging(["ENABLE_BACKGROUND_MODES": SettingValue(stringLiteral: value), "BACKGROUND_MODES": SettingValue(stringLiteral: backgroundModes)]) { (_, new) in new }
-  }
-
-  func setArchs(_ value: String = "$(ARCHS_STANDARD)") -> SettingsDictionary {
-    return self.merging(["ARCHS": SettingValue(stringLiteral: value)]) { (_, new) in new }
-  }
-
-  func setOtherLdFlags(_ value: String = "$(inherited) -ObjC") -> SettingsDictionary {
-    return self.merging(["OTHER_LDFLAGS": SettingValue(stringLiteral: value)]) { (_, new) in new }
-  }
-
   func setCurrentProjectVersion(_ value: String) -> SettingsDictionary {
     return self.merging(["CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: value)]) { (_, new) in new }
   }
@@ -85,20 +69,9 @@ public extension SettingsDictionary {
     return self.merging(["SKIP_INSTALL": SettingValue(stringLiteral: value ? "YES" : "NO")])
   }
 
-  func setExplicitlyBuiltModules(_ value: Bool = true) -> SettingsDictionary {
-    return self.merging(["EXPLICITLY_BUILT_MODULES": SettingValue(stringLiteral: value ? "YES" : "NO")])
-  }
-
   /// 기본 로케일을 한국어(ko)로 설정하는 메서드
   func setCFBundleDevelopmentRegion(_ value: String = "ko") -> SettingsDictionary {
     return self.merging(["CFBundleDevelopmentRegion": SettingValue(stringLiteral: value)]) { (_, new) in new }
-  }
-
-  func setAllowNonModularIncludesInFrameworkModules(_ value: Bool) -> SettingsDictionary {
-    let stringValue = value ? "YES" : "NO"
-    return merging([
-      "CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES": SettingValue(stringLiteral: stringValue)
-    ]) { _, new in new }
   }
 }
 
