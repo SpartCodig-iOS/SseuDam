@@ -44,6 +44,6 @@ public final class TravelRepository: TravelRepositoryProtocol {
     public func deleteTravel(
         id: String
     ) async throws {
-        _ = try await remote.deleteTravel(id: id)
+        try await remote.deleteTravel(id: id)
     }
 }
