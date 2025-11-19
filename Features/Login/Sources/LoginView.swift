@@ -18,8 +18,7 @@ public struct LoginView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Login Feature")
-                .font(.title)
-                .fontWeight(.bold)
+                .font(.app(.title1, weight: .semibold))
         }
         .padding()
         .navigationTitle("Login")
