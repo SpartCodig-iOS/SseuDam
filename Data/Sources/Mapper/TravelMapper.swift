@@ -37,6 +37,12 @@ extension TravelResponseDTO {
     }
 }
 
+extension FetchTravelsInput {
+    func toDTO() -> FetchTravelsRequestDTO {
+        FetchTravelsRequestDTO(limit: limit, page: page)
+    }
+}
+
 extension CreateTravelInput {
     func toDTO() -> CreateTravelRequestDTO {
         let formatter = DateFormatters.apiDate

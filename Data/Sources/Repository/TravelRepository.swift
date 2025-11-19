@@ -16,8 +16,9 @@ public final class TravelRepository: TravelRepositoryProtocol {
         self.remote = remote
     }
 
-    public func fetchTravels(limit: Int, page: Int) async throws -> [Travel] {
-        let dtoList = try await remote.fetchTravels(limit: limit, page: page)
+    public func fetchTravels(input: FetchTravelsInput) async throws -> [Travel] {
+        let requestDTO = input.toDTO()
+        let dtoList = try await remote.fetchTravels(body: requestDTO)
         return dtoList.map { $0.toDomain() }
     }
 

@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchTravelsUseCaseProtocol {
-    func excute(limit: Int, page: Int) async throws -> [Travel]
+    func excute(input: FetchTravelsInput) async throws -> [Travel]
 }
 
 public final class FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
@@ -18,7 +18,7 @@ public final class FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
         self.repository = repository
     }
     
-    public func excute(limit: Int, page: Int) async throws -> [Travel] {
-        try await repository.fetchTravels(limit: limit, page: page)
+    public func excute(input: FetchTravelsInput) async throws -> [Travel] {
+        try await repository.fetchTravels(input: input)
     }
 }

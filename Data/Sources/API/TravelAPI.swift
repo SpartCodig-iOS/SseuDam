@@ -10,7 +10,7 @@ import Moya
 import NetworkService
 
 public enum TravelAPI {
-    case fetchTravels(limit: Int, page: Int)
+    case fetchTravels(body: FetchTravelsRequestDTO)
     case createTravel(body: CreateTravelRequestDTO)
     case updateTravel(id: String, body: UpdateTravelRequestDTO)
     case deleteTravel(id: String)
@@ -48,11 +48,8 @@ extension TravelAPI: BaseTargetType {
 
     public var parameters: [String: Any]? {
         switch self {
-        case .fetchTravels(let limit, let page):
-            return [
-                "limit": limit,
-                "page": page
-            ]
+        case .fetchTravels(let body):
+            return body.toDictionary
         case .createTravel(let body):
             return body.toDictionary
         case .updateTravel(_, let body):
