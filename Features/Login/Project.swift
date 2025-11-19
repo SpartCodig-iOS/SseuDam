@@ -9,7 +9,6 @@ let project = Project.makeFeature(
         .SPM.Supabase,
         .SPM.GoogleSignIn,
         .Domain,
-        .Data,
         .DesignSystem
     ],
     hasTests: true

@@ -137,7 +137,7 @@ extension LoginFeature {
             case .googleSignIn:
                 return .run { send in
                     do {
-                        let user = try await loginUseCase.oauth.signUpWithGoogleSuperBase()
+                        let user = try await loginUseCase.oAuth.signUpWithGoogleSuperBase()
                         await send(.inner(.googleLoginResponse(.success(user))))
                     } catch let authError as AuthError {
                         await send(.inner(.googleLoginResponse(.failure(authError))))
@@ -153,7 +153,7 @@ extension LoginFeature {
                     case let .success(payload):
                         return .run { send in
                             do {
-                                let user = try await loginUseCase.oauth.signInWithAppleOnce(
+                                let user = try await loginUseCase.oAuth.signInWithAppleOnce(
                                     credential: payload.credential,
                                     nonce: payload.nonce
                                 )
@@ -168,7 +168,6 @@ extension LoginFeature {
                         }
 
                     case let .failure(error):
-                        // userCancelled는 이미 위에서 걸렀다고 가정
                         state.isLoading = false
                         state.statusMessage = error.localizedDescription
                         return .none

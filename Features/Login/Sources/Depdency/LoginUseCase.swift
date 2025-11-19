@@ -6,43 +6,37 @@
 //
 
 import Domain
-import Data
 import ComposableArchitecture
 
+/// Coordinates every dependency needed to perform an OAuth based login.
 public struct LoginUseCase {
-  let oauth: OAuthUseCase
-  public init(
-    oauth: OAuthUseCase,
-  ) {
-    self.oauth = oauth
+  public let oAuth: OAuthUseCase
+
+  public init(oAuth: OAuthUseCase) {
+    self.oAuth = oAuth
   }
 }
 
 extension LoginUseCase: DependencyKey {
-  static public var liveValue: LoginUseCase = {
-    let oauth =  OAuthUseCase(
-      repository: OAuthRepository(),
-      googleRepository: GoogleOAuthRepository(),
-      appleRepository: AppleOAuthRepository()
-    )
-    return LoginUseCase(oauth: oauth)
-  }()
-
-  static public var previewValue: LoginUseCase { liveValue }
-
-  static public var testValue: LoginUseCase =   {
-    let oauth = OAuthUseCase(
-      repository: MockOAuthRepository(),
-      googleRepository: MockGoogleOAuthRepository(),
-      appleRepository: MockAppleOAuthRepository()
-    )
-    return LoginUseCase(oauth: oauth)
-  }()
+  public static var liveValue: LoginUseCase = .mockedDependency()
+  public static var previewValue: LoginUseCase { .mockedDependency() }
+  public static var testValue: LoginUseCase = .mockedDependency()
 }
 
 public extension DependencyValues {
   var loginUseCase: LoginUseCase {
     get { self[LoginUseCase.self] }
     set { self[LoginUseCase.self] = newValue }
+  }
+}
+
+private extension LoginUseCase {
+  static func mockedDependency() -> LoginUseCase {
+    let oauth = OAuthUseCase(
+      repository: MockOAuthRepository(),
+      googleRepository: MockGoogleOAuthRepository(),
+      appleRepository: MockAppleOAuthRepository()
+    )
+    return LoginUseCase(oAuth: oauth)
   }
 }

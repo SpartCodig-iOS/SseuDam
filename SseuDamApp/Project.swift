@@ -7,7 +7,6 @@ let project = Project.makeApp(
         .SPM.ComposableArchitecture,
         .SPM.TCACoordinators,
         .Features.Login,
-        .Domain,
         .Data
     ],
     infoPlist: .defaultSwiftUIApp,
