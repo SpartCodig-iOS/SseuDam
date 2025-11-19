@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension Font {
     static func app(_ style: AppFontStyle, weight: AppFontWeight = .regular) -> Font {
-        let config = AppFontConfig.shared.resolve(style: style, weight: weight)
+        let config = Typography.resolve(style: style, weight: weight)
         return .system(size: config.size, weight: config.weight)
     }
 }

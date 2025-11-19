@@ -1,5 +1,5 @@
 //
-//  AppFontConfig.swift
+//  Typography.swift
 //  DesignSystem
 //
 //  Created by 김민희 on 11/18/25.
@@ -7,12 +7,9 @@
 
 import SwiftUI
 
-public struct AppFontConfig {
-    public static let shared = AppFontConfig()
-
-    public func resolve(style: AppFontStyle, weight: AppFontWeight) -> (size: CGFloat, weight: Font.Weight) {
+public enum Typography {
+    public static func resolve(style: AppFontStyle, weight: AppFontWeight) -> (size: CGFloat, weight: Font.Weight) {
         switch (style, weight) {
-
         // MARK: - Large Title (24)
         case (.largeTitle, .semibold): return (24, .semibold)
         case (.largeTitle, .medium):   return (24, .medium)
@@ -48,6 +45,5 @@ public struct AppFontConfig {
         case (.caption2, .medium):   return (10, .medium)
         case (.caption2, .regular):  return (10, .regular)
         }
-
     }
 }
