@@ -22,7 +22,21 @@ public struct Travel {
     public let ownerName: String
     public let members: [TravelMember]
 
-    public init(id: String, title: String, startDate: Date, endDate: Date, countryCode: String, baseCurrency: String, baseExchangeRate: Double, inviteCode: String, status: TravelStatus, role: String, createdAt: Date, ownerName: String, members: [TravelMember]) {
+    public init(
+        id: String,
+        title: String,
+        startDate: Date,
+        endDate: Date,
+        countryCode: String,
+        baseCurrency: String,
+        baseExchangeRate: Double,
+        inviteCode: String,
+        status: TravelStatus,
+        role: String,
+        createdAt: Date,
+        ownerName: String,
+        members: [TravelMember]
+    ) {
         self.id = id
         self.title = title
         self.startDate = startDate

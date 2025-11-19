@@ -16,25 +16,34 @@ public final class TravelRepository: TravelRepositoryProtocol {
         self.remote = remote
     }
 
-    public func fetchTravels(input: FetchTravelsInput) async throws -> [Travel] {
+    public func fetchTravels(
+        input: FetchTravelsInput
+    ) async throws -> [Travel] {
         let requestDTO = input.toDTO()
         let dtoList = try await remote.fetchTravels(body: requestDTO)
         return dtoList.map { $0.toDomain() }
     }
 
-    public func createTravel(input: CreateTravelInput) async throws -> Travel {
+    public func createTravel(
+        input: CreateTravelInput
+    ) async throws -> Travel {
         let requestDTO = input.toDTO()
         let responseDTO = try await remote.createTravel(body: requestDTO)
         return responseDTO.toDomain()
     }
 
-    public func updateTravel(id: String, input: UpdateTravelInput) async throws -> Travel {
+    public func updateTravel(
+        id: String,
+        input: UpdateTravelInput
+    ) async throws -> Travel {
         let requestDTO = input.toDTO()
         let responseDTO = try await remote.updateTravel(id: id, body: requestDTO)
         return responseDTO.toDomain()
     }
 
-    public func deleteTravel(id: String) async throws {
+    public func deleteTravel(
+        id: String
+    ) async throws {
         _ = try await remote.deleteTravel(id: id)
     }
 }

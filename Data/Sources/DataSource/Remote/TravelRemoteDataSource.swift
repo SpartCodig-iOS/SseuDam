@@ -25,19 +25,28 @@ final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
         self.provider = provider
     }
 
-    func fetchTravels(body: FetchTravelsRequestDTO) async throws -> [TravelResponseDTO] {
+    func fetchTravels(
+        body: FetchTravelsRequestDTO
+    ) async throws -> [TravelResponseDTO] {
         try await provider.request(.fetchTravels(body: body))
     }
 
-    func createTravel(body: CreateTravelRequestDTO) async throws -> TravelResponseDTO {
+    func createTravel(
+        body: CreateTravelRequestDTO
+    ) async throws -> TravelResponseDTO {
         try await provider.request(.createTravel(body: body))
     }
 
-    func updateTravel(id: String, body: UpdateTravelRequestDTO) async throws -> TravelResponseDTO {
+    func updateTravel(
+        id: String,
+        body: UpdateTravelRequestDTO
+    ) async throws -> TravelResponseDTO {
         try await provider.request(.updateTravel(id: id, body: body))
     }
 
-    func deleteTravel(id: String) async throws -> DeleteTravelResponseDTO {
+    func deleteTravel(
+        id: String
+    ) async throws -> DeleteTravelResponseDTO {
         try await provider.request(.deleteTravel(id: id))
     }
 }
