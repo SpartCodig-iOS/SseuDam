@@ -10,24 +10,34 @@ import SwiftUI
 import DesignSystem
 
 public struct TravelView: View {
+    @State private var selectedTab: TravelTab = .ongoing
     public init() {}
 
     public var body: some View {
         VStack {
-            Image(systemName: "star.fill")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Travel Feature")
-                .font(.title)
-                .fontWeight(.bold)
+            TravelListHeaderView()
+
+            TabBarView(selectedTab: $selectedTab)
+
+            ScrollView {
+                VStack(spacing: 18) {
+                    TravelCardView()
+                    TravelCardView()
+                    TravelCardView()
+                    TravelCardView()
+                    TravelCardView()
+                    TravelCardView()
+                    TravelCardView()
+                    TravelCardView()
+                }
+                .padding(16)
+            }
+            .scrollIndicators(.hidden)
         }
-        .padding()
-        .navigationTitle("Travel")
+        .background(Color.primary50)
     }
 }
 
 #Preview {
-    NavigationView {
-        TravelView()
-    }
+    TravelView()
 }
