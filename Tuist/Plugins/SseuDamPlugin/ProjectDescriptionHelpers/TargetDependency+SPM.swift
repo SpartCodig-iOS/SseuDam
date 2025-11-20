@@ -15,5 +15,7 @@ public extension TargetDependency.SPM {
   static let Supabase : TargetDependency = .external(name: "Supabase")
   static let GoogleSignIn: TargetDependency = .external(name: "GoogleSignIn")
   static let LogMacro: TargetDependency = .external(name: "LogMacro")
+  // MARK: - Dependency Injection
+  static let Swinject: TargetDependency = .external(name: "Swinject")
 }
 
