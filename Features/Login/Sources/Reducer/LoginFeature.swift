@@ -136,7 +136,7 @@ extension LoginFeature {
             case .googleSignIn:
                 return .run { send in
                     do {
-                        let user = try await loginUseCase.oAuth.signUp(with: .google)
+                        let user = try await loginUseCase.signUp(with: .google)
                         await send(.inner(.googleLoginResponse(.success(user))))
                     } catch let authError as AuthError {
                         await send(.inner(.googleLoginResponse(.failure(authError))))
@@ -152,7 +152,7 @@ extension LoginFeature {
                     case let .success(payload):
                         return .run { send in
                             do {
-                                let user = try await loginUseCase.oAuth.signInWithAppleOnce(
+                                let user = try await loginUseCase.signInWithApple(
                                     credential: payload.credential,
                                     nonce: payload.nonce
                                 )

@@ -1,19 +1,31 @@
 //
 //  LoginUseCase.swift
-//  LoginFeature
+//  Domain
 //
-//  Created by Wonji Suh  on 11/18/25.
+//  Created by Wonji Suh  on 11/20/25.
 //
 
 import Domain
 import ComposableArchitecture
+import AuthenticationServices
 
 /// Coordinates every dependency needed to perform an OAuth based login.
 public struct LoginUseCase {
-  public let oAuth: OAuthUseCase
+  private let oAuth: OAuthUseCase
 
   public init(oAuth: OAuthUseCase) {
     self.oAuth = oAuth
+  }
+
+  public func signInWithApple(
+    credential: ASAuthorizationAppleIDCredential,
+    nonce: String
+  ) async throws -> UserEntity {
+    try await oAuth.signInWithAppleOnce(credential: credential, nonce: nonce)
+  }
+
+  public func signUp(with provider: SocialType) async throws -> UserEntity {
+    try await oAuth.signUp(with: provider)
   }
 }
 
@@ -40,3 +52,4 @@ private extension LoginUseCase {
     return LoginUseCase(oAuth: oauth)
   }
 }
+
