@@ -14,4 +14,6 @@ let project = Project.makeFramework(
       base: SettingsDictionary()
         .setOtherLdFlags("-ObjC -all_load")
     )
+    ],
+    hasTests: true
 )
