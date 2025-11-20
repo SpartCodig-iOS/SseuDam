@@ -21,7 +21,11 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
       email: "apple.user@example.com",
       displayName: "Mock Apple User",
       provider: .apple,
-      tokens: .init(authToken: "", accessToken: "", refreshToken: ""),
+      tokens: .init(
+        authToken: "mock-superbase-token",
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token"
+      ),
       authCode: "mock-auth-code"
     )
   }
@@ -33,7 +37,11 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
       email: "apple.user@example.com",
       displayName: "Mock Apple User",
       provider: .apple,
-      tokens: .init(authToken: "", accessToken: "", refreshToken: ""),
+      tokens: .init(
+        authToken: "mock-superbase-token",
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token"
+      ),
       authCode: "mock-auth-code"
     )
   }
@@ -45,7 +53,11 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
       email: "google.user@example.com",
       displayName: "Mock Google User",
       provider: .google,
-      tokens: .init(authToken: "", accessToken: "", refreshToken: ""),
+      tokens: .init(
+        authToken: "mock-superbase-token",
+        accessToken: "mock-access-token",
+        refreshToken: "mock-refresh-token"
+      ),
       authCode: "mock-google-auth-code"
     )
   }

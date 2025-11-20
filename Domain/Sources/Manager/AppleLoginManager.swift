@@ -16,7 +16,8 @@ public protocol AppleAuthRequestPreparing {
 
 /// Generates and applies the nonce needed for Apple's OAuth flow.
 public struct AppleLoginManager: AppleAuthRequestPreparing {
-  public static let shared = AppleLoginManager()
+
+  public init() {}
 
   public func prepare(_ request: ASAuthorizationAppleIDRequest) -> String {
     let nonce = randomNonceString()

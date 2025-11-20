@@ -129,7 +129,7 @@ extension LoginFeature {
     ) -> Effect<Action> {
         switch action {
             case .prepareAppleRequest(let request):
-                let nonce = AppleLoginManager.shared.prepare(request)
+            let nonce = AppleLoginManager().prepare(request)
                 state.currentNonce = nonce
                 return .none
 

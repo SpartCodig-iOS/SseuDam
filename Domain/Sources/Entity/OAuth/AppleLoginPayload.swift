@@ -24,6 +24,10 @@ public struct AppleLoginPayload: Equatable {
 public enum AuthError: Error, Equatable, LocalizedError {
   /// 설정 누락 (Google/Supabase 키 등)
   case configurationMissing
+  /// 프레젠트할 컨트롤러가 없음
+  case missingPresentingController
+  /// ID 토큰 없음
+  case missingIDToken
   /// 사용자가 로그인 플로우를 취소한 경우
   case userCancelled
   /// 자격 증명 문제 (예: 잘못된 nonce, credential 등)
@@ -41,6 +45,10 @@ public enum AuthError: Error, Equatable, LocalizedError {
     switch self {
     case .configurationMissing:
       return "인증 설정이 올바르게 구성되지 않았습니다."
+    case .missingPresentingController:
+      return "프레젠트할 뷰 컨트롤러를 찾을 수 없습니다."
+    case .missingIDToken:
+      return "ID 토큰을 가져오지 못했습니다."
     case .userCancelled:
       return "사용자가 로그인을 취소했습니다."
     case .invalidCredential(let message):

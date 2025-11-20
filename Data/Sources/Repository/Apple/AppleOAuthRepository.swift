@@ -20,7 +20,7 @@ public final class AppleOAuthRepository: NSObject, AppleOAuthProtocol {
   private var currentNonce: String?
   private var signInContinuation: CheckedContinuation<AppleOAuthPayload, Error>?
 
-  public init(authRequestPreparer: AppleAuthRequestPreparing = AppleLoginManager.shared) {
+  public init(authRequestPreparer: AppleAuthRequestPreparing = AppleLoginManager()) {
     self.authRequestPreparer = authRequestPreparer
     super.init()
   }
