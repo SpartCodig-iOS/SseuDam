@@ -97,61 +97,13 @@ extension LoginView {
     private func loginSocialButton() -> some View {
         HStack (alignment: .center, spacing: 24){
             ForEach(SocialType.allCases.filter { $0 != .none } ) { type in
-                socialCircleButton(type: type) {
-                    store.send(.view(.signInWithSocial(social: type)))
-                }
+              SocialCircleButtonView(
+                store: store,
+                type: type
+              ) {
+                store.send(.view(.signInWithSocial(social: type)))
+              }
             }
-        }
-    }
-
-
-    @ViewBuilder
-    private func socialCircleButton(
-        type: SocialType,
-        onTap: @escaping () -> Void
-    ) -> some View {
-        let circleSize: CGFloat = 44
-        switch type {
-            case .apple:
-                ZStack {
-                    Circle()
-                        .fill(.black)
-                        .frame(width: circleSize, height: circleSize)
-
-                    Image(systemName: type.image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 18, height: 30)
-                        .foregroundColor(.white)
-
-
-                    SignInWithAppleButton(.signIn) { request in
-                        store.send(.async(.prepareAppleRequest(request)))
-                    } onCompletion: { result in
-                        store.send(.async(.appleCompletion(result)))
-                    }
-                    .frame(width: circleSize, height: circleSize)
-                    .clipShape(Circle())
-                    .opacity(0.02)
-                    .allowsHitTesting(true)
-                }
-
-            case .google:
-                Button(action: onTap) {
-                    Circle()
-                        .fill(.white)
-                        .overlay(Circle().stroke(.gray2, lineWidth: 1))
-                        .frame(width: circleSize, height: circleSize)
-                        .overlay(
-                            Image(assetName: type.image)
-                                .resizable().scaledToFit()
-                                .frame(width: 20, height: 20)
-                        )
-                }
-                .buttonStyle(.plain)
-
-            case .none:
-                EmptyView()
         }
     }
 }
