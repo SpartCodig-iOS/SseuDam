@@ -6,6 +6,7 @@ let project = Project.makeApp(
     dependencies: [
         .SPM.ComposableArchitecture,
         .SPM.TCACoordinators,
+        .SPM.Swinject,
         .Features.Login
     ],
     infoPlist: .defaultSwiftUIApp
