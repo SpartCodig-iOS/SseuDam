@@ -39,7 +39,8 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     let displayName = formatDisplayName(credential.fullName)
     Log.info("Apple sign-in credential received for \(displayName ?? "unknown user")")
 
-    let session = try await repository.signInWithApple(
+    let session = try await repository.signIn(
+      provider: .apple,
       idToken: identityToken,
       nonce: nonce,
       displayName: displayName
@@ -55,7 +56,8 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     let payload = try await appleRepository.signIn()
     Log.info("Apple sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
-    let session = try await repository.signInWithApple(
+    let session = try await repository.signIn(
+      provider: .apple,
       idToken: payload.idToken,
       nonce: payload.nonce,
       displayName: payload.displayName
@@ -70,8 +72,10 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     let payload = try await googleRepository.signIn()
     Log.info("Google sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
-    let session = try await repository.signInWithGoogle(
+    let session = try await repository.signIn(
+      provider: .google,
       idToken: payload.idToken,
+      nonce: nil,
       displayName: payload.displayName
     )
     Log.info("Supabase sign-in with Google succeeded")

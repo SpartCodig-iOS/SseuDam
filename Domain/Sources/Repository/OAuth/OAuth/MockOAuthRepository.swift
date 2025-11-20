@@ -74,13 +74,13 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
     public let id: UUID
     public let email: String
     public let displayName: String?
-    public let provider: AuthProvider
+    public let provider: SocialType
 
     public init(
       id: UUID = UUID(),
       email: String,
       displayName: String?,
-      provider: AuthProvider
+      provider: SocialType
     ) {
       self.id = id
       self.email = email
@@ -113,30 +113,19 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
     )
   }
 
-  public enum AuthProvider {
-    case apple
-    case google
-  }
-
   private let configuration: Configuration
 
   public init(configuration: Configuration = Configuration()) {
     self.configuration = configuration
   }
 
-  public func signInWithApple(
+  public func signIn(
+    provider: SocialType,
     idToken: String,
-    nonce: String,
+    nonce: String?,
     displayName: String?
   ) async throws -> Supabase.Session {
-    return try await performMockSignIn(provider: .apple, displayName: displayName)
-  }
-
-  public func signInWithGoogle(
-    idToken: String,
-    displayName: String?
-  ) async throws -> Supabase.Session {
-    return try await performMockSignIn(provider: .google, displayName: displayName)
+    return try await performMockSignIn(provider: provider, displayName: displayName)
   }
 
   public func updateUserDisplayName(_ name: String) async throws {
@@ -156,7 +145,7 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
   // MARK: - Private Methods
 
   private func performMockSignIn(
-    provider: AuthProvider,
+    provider: SocialType,
     displayName: String?
   ) async throws -> Supabase.Session {
     // Simulate network delay
@@ -166,12 +155,7 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
 
     // Simulate failure if configured
     if !configuration.shouldSucceed {
-      switch provider {
-      case .apple:
-        throw MockOAuthError.appleSignInFailed("Mock Apple Sign In failed")
-      case .google:
-        throw MockOAuthError.googleSignInFailed("Mock Google Sign In failed")
-      }
+      throw MockOAuthError.signInFailed(provider)
     }
 
     // Create mock Supabase.User
@@ -192,15 +176,27 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
   }
 
   private func createMockSupabaseUser(
-    provider: AuthProvider,
+    provider: SocialType,
     displayName: String?
   ) -> Supabase.User {
-    let email = provider == .apple ? "apple.user@icloud.com" : "google.user@gmail.com"
-    let finalDisplayName = displayName ?? (provider == .apple ? "Apple User" : "Google User")
+    let email: String
+    let finalDisplayName: String
+
+    switch provider {
+    case .apple:
+      email = "apple.user@icloud.com"
+      finalDisplayName = displayName ?? "Apple User"
+    case .google:
+      email = "google.user@gmail.com"
+      finalDisplayName = displayName ?? "Google User"
+    case .none:
+      email = "anonymous@example.com"
+      finalDisplayName = displayName ?? "Anonymous User"
+    }
 
     return Supabase.User(
       id: configuration.mockSession.user.id,
-      appMetadata: ["provider": AnyJSON.string(provider == .apple ? "apple" : "google")],
+      appMetadata: ["provider": AnyJSON.string(provider.rawValue)],
       userMetadata: ["display_name": AnyJSON.string(finalDisplayName)],
       aud: email,
       confirmationSentAt: nil,
@@ -228,16 +224,13 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
 // MARK: - Mock Errors
 
 public enum MockOAuthError: Error, LocalizedError {
-  case appleSignInFailed(String)
-  case googleSignInFailed(String)
+  case signInFailed(SocialType)
   case updateDisplayNameFailed(String)
 
   public var errorDescription: String? {
     switch self {
-    case .appleSignInFailed(let message):
-      return "Mock Apple Sign In Error: \(message)"
-    case .googleSignInFailed(let message):
-      return "Mock Google Sign In Error: \(message)"
+    case .signInFailed(let provider):
+      return "Mock \(provider.rawValue.capitalized) Sign In Error"
     case .updateDisplayNameFailed(let message):
       return "Mock Update Display Name Error: \(message)"
     }

@@ -7,7 +7,6 @@
 
 import Foundation
 import AuthenticationServices
-import CryptoKit
 import LogMacro
 import Domain
 
@@ -17,10 +16,12 @@ import UIKit
 
 public final class AppleOAuthRepository: NSObject, AppleOAuthProtocol {
   private let logger = LogMacro.Log.self
+  private let authRequestPreparer: AppleAuthRequestPreparing
   private var currentNonce: String?
   private var signInContinuation: CheckedContinuation<AppleOAuthPayload, Error>?
 
-  public override init() {
+  public init(authRequestPreparer: AppleAuthRequestPreparing = AppleLoginManager.shared) {
+    self.authRequestPreparer = authRequestPreparer
     super.init()
   }
 
@@ -29,53 +30,15 @@ public final class AppleOAuthRepository: NSObject, AppleOAuthProtocol {
     return try await withCheckedThrowingContinuation { continuation in
       self.signInContinuation = continuation
 
-      let nonce = randomNonceString()
-      self.currentNonce = nonce
-
       let request = ASAuthorizationAppleIDProvider().createRequest()
-      request.requestedScopes = [.fullName, .email]
-      request.nonce = sha256(nonce)
+      let nonce = authRequestPreparer.prepare(request)
+      self.currentNonce = nonce
 
       let controller = ASAuthorizationController(authorizationRequests: [request])
       controller.delegate = self
       controller.presentationContextProvider = self
       controller.performRequests()
     }
-  }
-
-  private func randomNonceString(length: Int = 32) -> String {
-    precondition(length > 0)
-    let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-    var result = ""
-    var remainingLength = length
-
-    while remainingLength > 0 {
-      var randoms: [UInt8] = []
-      for _ in 0..<16 {
-        var random: UInt8 = 0
-        let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
-        if errorCode != errSecSuccess {
-          fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
-        }
-        randoms.append(random)
-      }
-
-      randoms.forEach { random in
-        if remainingLength == 0 { return }
-        if random < charset.count {
-          result.append(charset[Int(random)])
-          remainingLength -= 1
-        }
-      }
-    }
-
-    return result
-  }
-
-  private func sha256(_ input: String) -> String {
-    let inputData = Data(input.utf8)
-    let hashed = SHA256.hash(data: inputData)
-    return hashed.map { String(format: "%02x", $0) }.joined()
   }
 
   private func formatDisplayName(_ components: PersonNameComponents?) -> String? {

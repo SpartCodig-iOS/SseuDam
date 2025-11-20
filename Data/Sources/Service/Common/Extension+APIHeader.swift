@@ -10,8 +10,14 @@ import NetworkService
 import Domain
 
 public extension APIHeaders {
-  static var accesstokenHeader: [String: String] = [
-    "Content-Type": "application/json",
-    "Authorization": "Bearer \(KeychainManager.loadAccessToken)"
-  ]
+  static var accessTokenHeader: [String: String] {
+    guard let token = KeychainManager.shared.loadAccessToken() else {
+      return ["Content-Type": "application/json"]
+    }
+
+    return [
+      "Content-Type": "application/json",
+      "Authorization": "Bearer \(token)"
+    ]
+  }
 }

@@ -15,7 +15,7 @@ enum KeychainKey: String {
 }
 
 public struct KeychainManager {
-  static let shared = KeychainManager()
+  public static let shared = KeychainManager()
   private init() {}
 
   // MARK: - Public API

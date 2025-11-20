@@ -1,5 +1,5 @@
 //
-//  AppleLoginManger.swift
+//  AppleLoginManager.swift
 //  Domain
 //
 //  Created by Wonji Suh  on 11/17/25.
@@ -8,14 +8,15 @@
 import Foundation
 import CryptoKit
 import AuthenticationServices
+import Security
 
 public protocol AppleAuthRequestPreparing {
-   func prepare(_ request: ASAuthorizationAppleIDRequest) -> String
+  func prepare(_ request: ASAuthorizationAppleIDRequest) -> String
 }
 
-public struct AppleLoginManger: AppleAuthRequestPreparing {
-  public static let shared = AppleLoginManger()
-
+/// Generates and applies the nonce needed for Apple's OAuth flow.
+public struct AppleLoginManager: AppleAuthRequestPreparing {
+  public static let shared = AppleLoginManager()
 
   public func prepare(_ request: ASAuthorizationAppleIDRequest) -> String {
     let nonce = randomNonceString()
@@ -37,7 +38,7 @@ public struct AppleLoginManger: AppleAuthRequestPreparing {
   public func randomNonceString(length: Int = 32) -> String {
     precondition(length > 0)
     let charset: [Character] =
-    Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+      Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
     var result = ""
     var remainingLength = length
 

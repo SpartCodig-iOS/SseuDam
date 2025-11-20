@@ -10,8 +10,12 @@ import Supabase
 import Dependencies
 
 public protocol OAuthRepositoryProtocol {
-  func signInWithApple(idToken: String, nonce: String, displayName: String?) async throws -> Supabase.Session
-  func signInWithGoogle(idToken: String, displayName: String?) async throws -> Supabase.Session
+  func signIn(
+    provider: SocialType,
+    idToken: String,
+    nonce: String?,
+    displayName: String?
+  ) async throws -> Supabase.Session
   func updateUserDisplayName(_ name: String) async throws
 }
 

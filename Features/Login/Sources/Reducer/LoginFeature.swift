@@ -125,12 +125,12 @@ extension LoginFeature {
     // MARK: AsyncAction 처리 (실제 비동기 작업 실행)
 
     private func handleAsyncAction(
-        state: inout State,
-        action: AsyncAction
+      state: inout State,
+      action: AsyncAction
     ) -> Effect<Action> {
         switch action {
             case .prepareAppleRequest(let request):
-                let nonce = AppleLoginManger.shared.prepare(request)
+                let nonce = AppleLoginManager.shared.prepare(request)
                 state.currentNonce = nonce
                 return .none
 
