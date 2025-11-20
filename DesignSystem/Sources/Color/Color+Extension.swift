@@ -2,8 +2,8 @@ import Foundation
 import SwiftUI
 
 public extension Color {
-    static var white: Color { asset(#function) }
-    static var black: Color { asset(#function) }
+    static var appWhite: Color { asset(#function) }
+    static var appBlack: Color { asset(#function) }
 
     //MARK: - primary
     static var primary50: Color { asset(#function) }
