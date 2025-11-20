@@ -10,7 +10,7 @@ import AuthenticationServices
 
 
 public protocol OAuthUseCaseProtocol {
-  func signInWithAppleOnce(
+  func signInWithApple(
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
   ) async throws -> UserEntity

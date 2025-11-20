@@ -11,7 +11,7 @@ import LogMacro
 import AuthenticationServices
 
 public struct MockOAuthUseCase: OAuthUseCaseProtocol {
-  public func signInWithAppleOnce(
+  public func signInWithApple(
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
   ) async throws -> UserEntity {

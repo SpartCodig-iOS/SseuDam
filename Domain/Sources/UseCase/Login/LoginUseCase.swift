@@ -21,7 +21,7 @@ public struct LoginUseCase {
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
   ) async throws -> UserEntity {
-    try await oAuth.signInWithAppleOnce(credential: credential, nonce: nonce)
+    try await oAuth.signInWithApple(credential: credential, nonce: nonce)
   }
 
   public func signUp(with provider: SocialType) async throws -> UserEntity {

@@ -25,7 +25,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     self.appleRepository = appleRepository
   }
 
-  public func signInWithAppleOnce(
+  public func signInWithApple(
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
   ) async throws -> UserEntity {
