@@ -64,9 +64,7 @@ struct TravelCardView: View {
                             .foregroundStyle(Color.gray8)
                     }
                 }
-                .padding(.trailing, 20)
-                .padding(.vertical, 20)
-                .padding(.leading, 20)
+                .padding(20)
 
                 Spacer()
             }
