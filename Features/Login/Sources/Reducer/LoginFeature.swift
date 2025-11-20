@@ -136,7 +136,7 @@ extension LoginFeature {
             case .googleSignIn:
                 return .run { send in
                     do {
-                        let user = try await loginUseCase.oAuth.signUpWithGoogleSuperBase()
+                        let user = try await loginUseCase.oAuth.signUp(with: .google)
                         await send(.inner(.googleLoginResponse(.success(user))))
                     } catch let authError as AuthError {
                         await send(.inner(.googleLoginResponse(.failure(authError))))

@@ -9,7 +9,7 @@ import Foundation
 import Dependencies
 
 /// Mock implementation of AppleOAuthProtocol for testing and preview purposes
-public struct MockAppleOAuthRepository: AppleOAuthProtocol {
+public struct MockAppleOAuthRepository: AppleOAuthRepositoryProtocol {
 
   /// Configuration for mock behavior
   public struct Configuration {
@@ -84,7 +84,7 @@ public struct MockAppleOAuthRepository: AppleOAuthProtocol {
 
     // Simulate failure if configured
     if !configuration.shouldSucceed {
-      throw AppleSignInError.authorizationFailed("Mock Apple Sign In failed")
+      throw AuthError.invalidCredential("Mock Apple Sign In failed")
     }
 
     // Return mock payload
@@ -132,9 +132,9 @@ public extension MockAppleOAuthRepository {
 // MARK: - Dependencies
 
 extension MockAppleOAuthRepository: DependencyKey {
-  public static var liveValue: any AppleOAuthProtocol = MockAppleOAuthRepository.success
-  public static var previewValue: any AppleOAuthProtocol = MockAppleOAuthRepository.success
-  public static var testValue: any AppleOAuthProtocol = MockAppleOAuthRepository.success
+  public static var liveValue: any AppleOAuthRepositoryProtocol = MockAppleOAuthRepository.success
+  public static var previewValue: any AppleOAuthRepositoryProtocol = MockAppleOAuthRepository.success
+  public static var testValue: any AppleOAuthRepositoryProtocol = MockAppleOAuthRepository.success
 }
 
 public extension DependencyValues {

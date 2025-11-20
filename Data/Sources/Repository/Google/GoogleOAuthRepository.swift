@@ -12,7 +12,7 @@ import LogMacro
 import Domain
 import UIKit
 
-public final class GoogleOAuthRepository: GoogleOAuthProtocol {
+public final class GoogleOAuthRepository: GoogleOAuthRepositoryProtocol {
   private let configuration: GoogleOAuthConfiguration
 
   public init(configuration: GoogleOAuthConfiguration = .current) {

@@ -14,7 +14,7 @@ import Domain
 import UIKit
 #endif
 
-public final class AppleOAuthRepository: NSObject, AppleOAuthProtocol {
+public final class AppleOAuthRepository: NSObject, AppleOAuthRepositoryProtocol {
   private let logger = LogMacro.Log.self
   private let authRequestPreparer: AppleAuthRequestPreparing
   private var currentNonce: String?
@@ -53,20 +53,20 @@ public final class AppleOAuthRepository: NSObject, AppleOAuthProtocol {
 extension AppleOAuthRepository: ASAuthorizationControllerDelegate {
   public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
     guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-      signInContinuation?.resume(throwing: AppleSignInError.authorizationFailed("Invalid credential type"))
+      signInContinuation?.resume(throwing: AuthError.invalidCredential("Invalid credential type"))
       signInContinuation = nil
       return
     }
 
     guard let nonce = currentNonce else {
-      signInContinuation?.resume(throwing: AppleSignInError.missingNonce)
+      signInContinuation?.resume(throwing: AuthError.missingIDToken)
       signInContinuation = nil
       return
     }
 
     guard let identityTokenData = credential.identityToken,
           let identityToken = String(data: identityTokenData, encoding: .utf8) else {
-      signInContinuation?.resume(throwing: AppleSignInError.missingIDToken)
+      signInContinuation?.resume(throwing: AuthError.missingIDToken)
       signInContinuation = nil
       return
     }
@@ -94,10 +94,10 @@ extension AppleOAuthRepository: ASAuthorizationControllerDelegate {
     let nsError = error as NSError
 
     if nsError.code == ASAuthorizationError.canceled.rawValue {
-      signInContinuation?.resume(throwing: AppleSignInError.userCancelled)
+      signInContinuation?.resume(throwing: AuthError.userCancelled)
     } else {
       logger.error("Apple Sign In failed: \(error.localizedDescription)")
-      signInContinuation?.resume(throwing: AppleSignInError.authorizationFailed(error.localizedDescription))
+      signInContinuation?.resume(throwing: AuthError.invalidCredential(error.localizedDescription))
     }
 
     signInContinuation = nil

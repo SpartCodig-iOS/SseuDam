@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct MockGoogleOAuthRepository: GoogleOAuthProtocol {
+public struct MockGoogleOAuthRepository: GoogleOAuthRepositoryProtocol {
 
   public init() {}
 

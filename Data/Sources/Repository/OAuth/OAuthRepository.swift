@@ -10,8 +10,11 @@ import Supabase
 import LogMacro
 
 public class OAuthRepository: OAuthRepositoryProtocol {
-  private let client = SupabaseManager.shared.client
-  public init() {}
+  private let provider: SupabaseClientProviding
+
+  public init() {
+    self.provider = SupabaseClientProvider.shared
+  }
 
   public func signIn(
     provider: SocialType,
@@ -39,6 +42,8 @@ public class OAuthRepository: OAuthRepositoryProtocol {
   }
 
   // MARK: - Private
+
+  private var client: SupabaseClient { provider.client }
 
   private func updateDisplayNameIfNeeded(_ displayName: String?) async throws {
     guard let displayName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines),

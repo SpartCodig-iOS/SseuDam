@@ -14,6 +14,5 @@ public protocol OAuthUseCaseProtocol {
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
   ) async throws -> UserEntity
-  func signUpWithAppleSuperBase() async throws -> UserEntity
-  func signUpWithGoogleSuperBase() async throws -> UserEntity
+  func signUp(with provider: SocialType) async throws -> UserEntity
 }

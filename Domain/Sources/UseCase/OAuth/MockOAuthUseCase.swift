@@ -30,35 +30,29 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
     )
   }
 
-  public func signUpWithAppleSuperBase() async throws -> UserEntity {
-    // Mock implementation for testing/preview
-    return UserEntity(
-      id: "mock-apple-user-id",
-      email: "apple.user@example.com",
-      displayName: "Mock Apple User",
-      provider: .apple,
-      tokens: .init(
-        authToken: "mock-superbase-token",
-        accessToken: "mock-access-token",
-        refreshToken: "mock-refresh-token"
-      ),
-      authCode: "mock-auth-code"
-    )
+  public func signUp(with provider: SocialType) async throws -> UserEntity {
+    switch provider {
+      case .apple:
+        return makeUser(provider: .apple)
+      case .google:
+        return makeUser(provider: .google)
+      case .none:
+        throw AuthError.configurationMissing
+    }
   }
 
-  public func signUpWithGoogleSuperBase() async throws -> UserEntity {
-    // Mock implementation for testing/preview
+  private func makeUser(provider: SocialType) -> UserEntity {
     return UserEntity(
-      id: "mock-google-user-id",
-      email: "google.user@example.com",
-      displayName: "Mock Google User",
-      provider: .google,
+      id: "mock-\(provider.rawValue)-user-id",
+      email: "\(provider.rawValue).user@example.com",
+      displayName: "Mock \(provider.rawValue.capitalized) User",
+      provider: provider,
       tokens: .init(
-        authToken: "mock-superbase-token",
-        accessToken: "mock-access-token",
-        refreshToken: "mock-refresh-token"
+        authToken: "mock-\(provider.rawValue)-superbase-token",
+        accessToken: "mock-\(provider.rawValue)-access-token",
+        refreshToken: "mock-\(provider.rawValue)-refresh-token"
       ),
-      authCode: "mock-google-auth-code"
+      authCode: "mock-\(provider.rawValue)-auth-code"
     )
   }
 }
