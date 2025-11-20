@@ -16,13 +16,13 @@ public extension TargetDependency {
 public extension TargetDependency.Features {
     // MARK: - Feature Modules
     static let Login: TargetDependency = .project(target: "LoginFeature", path: .relativeToRoot("Features/Login"))
-    static let Main: TargetDependency = .project(target: "MainFeature", path: .relativeToRoot("Features/Main"))
+    static let Travel: TargetDependency = .project(target: "TravelFeature", path: .relativeToRoot("Features/Travel"))
 }
 
 // MARK: - Feature Names
 public enum FeatureName: String {
     case Login
-    case Main
+    case Travel
 
     public var targetName: String {
         return "\(rawValue)Feature"
