@@ -10,10 +10,7 @@ import GoogleSignIn
 import Supabase
 import LogMacro
 import Domain
-
-#if canImport(UIKit)
 import UIKit
-#endif
 
 public final class GoogleOAuthRepository: GoogleOAuthProtocol {
   private let configuration: GoogleOAuthConfiguration
@@ -27,78 +24,63 @@ public final class GoogleOAuthRepository: GoogleOAuthProtocol {
     guard configuration.isValid else {
       throw GoogleSignInError.configurationMissing
     }
-
-#if canImport(UIKit)
     guard let presenting = Self.topViewController() else {
       throw GoogleSignInError.missingPresentingController
     }
-#else
-    throw GoogleSignInError.missingPresentingController
-#endif
-
     let gidConfiguration = GIDConfiguration(
       clientID: configuration.clientID,
       serverClientID: configuration.serverClientID
     )
     GIDSignIn.sharedInstance.configuration = gidConfiguration
 
-    return try await withCheckedThrowingContinuation { continuation in
-      Task { @MainActor in
-        do {
-          let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenting)
-          guard let idToken = result.user.idToken?.tokenString else {
-            continuation.resume(throwing: GoogleSignInError.missingIDToken)
-            return
-          }
-
-          let payload = GoogleOAuthPayload(
-            idToken: idToken,
-            accessToken: "",
-            authorizationCode: result.serverAuthCode,
-            displayName: result.user.profile?.name
-          )
-
-          Log.info("Google serverAuthCode present: \(payload.authorizationCode != nil ? "yes" : "no")")
-          continuation.resume(returning: payload)
-        } catch let error as NSError {
-          if error.domain == "RBSServiceErrorDomain" && error.code == 1 {
-            Log.error("RBSServiceErrorDomain detected, retrying Google sign-in...")
-            // RBSServiceErrorDomain 에러 발생 시 재시도
-            do {
-              try await Task.sleep(for: .seconds(0.5)) // 0.5초 대기
-              let retryResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenting)
-              guard let idToken = retryResult.user.idToken?.tokenString else {
-                continuation.resume(throwing: GoogleSignInError.missingIDToken)
-                return
-              }
-
-              let payload = GoogleOAuthPayload(
-                idToken: idToken,
-                accessToken: "",
-                authorizationCode: retryResult.serverAuthCode,
-                displayName: retryResult.user.profile?.name
-              )
-
-              Log.info("Google sign-in retry succeeded")
-              continuation.resume(returning: payload)
-            } catch {
-              Log.error("Google sign-in retry failed: \(error.localizedDescription)")
-              continuation.resume(throwing: error)
-            }
-          } else if error.domain == "com.google.GIDSignIn",
-                    error.code == GIDSignInError.canceled.rawValue {
-            Log.info("Google sign-in cancelled by user.")
-            continuation.resume(throwing: GoogleSignInError.userCancelled)
-          } else {
-            Log.error("Google sign-in failed: \(error.localizedDescription)")
-            continuation.resume(throwing: error)
-          }
-        }
-      }
+    do {
+      let result = try await signInWithRetry(presenting: presenting)
+      return try makePayload(from: result)
+    } catch let error as NSError {
+      throw mapSignInError(error)
     }
   }
 
-#if canImport(UIKit)
+  @MainActor
+  private func signInWithRetry(
+    presenting: UIViewController
+  ) async throws -> GIDSignInResult {
+    do {
+      return try await GIDSignIn.sharedInstance.signIn(withPresenting: presenting)
+    } catch let error as NSError where error.domain == "RBSServiceErrorDomain" && error.code == 1 {
+      Log.error("RBSServiceErrorDomain detected, retrying Google sign-in...")
+      try await Task.sleep(for: .seconds(0.5))
+      return try await GIDSignIn.sharedInstance.signIn(withPresenting: presenting)
+    }
+  }
+
+  private func makePayload(from result: GIDSignInResult) throws -> GoogleOAuthPayload {
+    guard let idToken = result.user.idToken?.tokenString else {
+      throw GoogleSignInError.missingIDToken
+    }
+
+    let payload = GoogleOAuthPayload(
+      idToken: idToken,
+      accessToken: "",
+      authorizationCode: result.serverAuthCode,
+      displayName: result.user.profile?.name
+    )
+
+    Log.info("Google serverAuthCode present: \(payload.authorizationCode != nil ? "yes" : "no")")
+    return payload
+  }
+
+  private func mapSignInError(_ error: NSError) -> Error {
+    if error.domain == "com.google.GIDSignIn",
+       error.code == GIDSignInError.canceled.rawValue {
+      Log.info("Google sign-in cancelled by user.")
+      return GoogleSignInError.userCancelled
+    }
+
+    Log.error("Google sign-in failed: \(error.localizedDescription)")
+    return error
+  }
+
   private static func topViewController(
     base: UIViewController? = UIApplication.shared.connectedScenes
       .compactMap { ($0 as? UIWindowScene)?.keyWindow }
@@ -115,5 +97,4 @@ public final class GoogleOAuthRepository: GoogleOAuthProtocol {
     }
     return base
   }
-#endif
 }
