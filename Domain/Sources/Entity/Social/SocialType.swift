@@ -40,7 +40,7 @@ public enum SocialType: String, CaseIterable, Identifiable, Hashable {
     }
   }
 
-  public var supabaseProvider: Auth.Provider {
+  public var method: Auth.Provider {
     switch self {
       case .google: return .google
       case .apple: return .apple

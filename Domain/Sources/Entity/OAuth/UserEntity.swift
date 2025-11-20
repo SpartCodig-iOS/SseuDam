@@ -17,11 +17,11 @@ public struct UserEntity: Equatable, Identifiable {
   public let authCode: String?
 
   public init(
-    id: String = "",
+    id: String,
     email: String? = nil,
     displayName: String? = nil,
-    provider: SocialType = .none,
-    tokens: AuthTokens = AuthTokens(superBaseToken: "", accessToken: "", refreshToken: ""),
+    provider: SocialType,
+    tokens: AuthTokens,
     authCode: String? = nil
   ) {
     self.id = id
@@ -83,7 +83,7 @@ public extension User {
       displayName: displayNameValue,
       provider: SocialType(rawValue: providerString ?? "") ?? .none,
       tokens: .init(
-        superBaseToken: session.accessToken,
+        authToken: session.accessToken,
         accessToken: "",
         refreshToken: ""
       ),

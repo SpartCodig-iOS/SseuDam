@@ -9,16 +9,16 @@
 import Foundation
 
 public struct AuthTokens: Equatable {
-  public let superBaseToken: String
+  public let authToken: String
   public let accessToken: String
   public let refreshToken: String?
 
   public init(
-    superBaseToken: String,
+    authToken: String,
     accessToken: String,
     refreshToken: String?
   ) {
-    self.superBaseToken = superBaseToken
+    self.authToken = authToken
     self.accessToken = accessToken
     self.refreshToken = refreshToken
   }
