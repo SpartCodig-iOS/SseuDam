@@ -18,9 +18,7 @@ extension Settings {
     return SettingsDictionary()
       .setProductName(appName)
       .setCFBundleDisplayName(displayName)
-      .setDebugInformationFormat("dwarf-with-dsym")
       .setProvisioningProfileSpecifier(provisioningProfile)
-      .setSkipInstall(setSkipInstall)
       .setCFBundleDevelopmentRegion("ko")
   }
 
@@ -32,13 +30,12 @@ extension Settings {
       .setASAuthenticationServicesEnabled()
       .setCurrentProjectVersion("10")
       .setCodeSignIdentity()
-      .setCodeSignStyle()
+      .setCodeSignStyle("Manual")
       .setSwiftVersion("6.0")
       .setVersioningSystem()
       .setProvisioningProfileSpecifier("match Development \(Environment.organizationName)")
       .setDevelopmentTeam(Environment.organizationTeamId)
-      .setCFBundleDevelopmentRegion()
-      .setDebugInformationFormat(),
+      .setCFBundleDevelopmentRegion(),
     configurations: [
       .debug(
         name: .debug,

@@ -12,6 +12,6 @@ let project = Project.makeFramework(
     hasTests: true,
     settings: .settings(
       base: SettingsDictionary()
-        .setOtherLdFlags("-ObjC -all_load")
+        .otherLinkerFlags(["-ObjC", "-all_load"])
     )
 )

@@ -51,9 +51,10 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     return user.toDomain(session: session, authCode: authCode)
   }
 
-
   // MARK: - Helper Methods
-  private func formatDisplayName(_ components: PersonNameComponents?) -> String? {
+  private func formatDisplayName(
+    _ components: PersonNameComponents?
+  ) -> String? {
     guard let components else { return nil }
     let formatter = PersonNameComponentsFormatter()
     let name = formatter.string(from: components).trimmingCharacters(in: .whitespacesAndNewlines)
