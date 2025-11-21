@@ -36,7 +36,7 @@ public struct LoginView: View {
                 .frame(height: 58)
 
         }
-        .background(Color.primary50)
+        .background(.primary50)
     }
 }
 
