@@ -1,0 +1,15 @@
+//
+//  BaseResponse.swift
+//  NetworkService
+//
+//  Created by 김민희 on 11/19/25.
+//
+
+import Foundation
+
+public struct BaseResponse<T: Decodable>: Decodable {
+    public let code: Int
+    public let data: T?
+    public let message: String
+    public let meta: MetaDTO?
+}

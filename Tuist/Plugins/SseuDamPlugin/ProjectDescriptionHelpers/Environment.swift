@@ -4,8 +4,13 @@ import ProjectDescription
 public enum Environment {
     // MARK: - App Configuration
     public static let appName = "SseuDam"
-    public static let organizationName = "com.testdev"
+    public static let organizationName = "io.sseudam.co"
     public static let deploymentTarget: DeploymentTargets = .iOS("17.0")
+    public static let organizationTeamId = "N94CS4N6VR"
+
+    // MARK: - Version Management
+    public static let mainAppVersion = "1.0.0"
+    public static let demoAppVersion = "0.1.0"  // Demo app용 별도 버전
 
     // MARK: - Platform
     public static let platform: Platform = .iOS
@@ -36,6 +41,25 @@ public enum Environment {
             runAction: .runAction(configuration: .debug),
             archiveAction: .archiveAction(configuration: .release),
             profileAction: .profileAction(configuration: .release),
+            analyzeAction: .analyzeAction(configuration: .debug)
+        )
+    }
+
+    /// Demo 앱 전용 Scheme 생성 (실행 가능한 앱)
+    public static func makeDemoScheme(name: String, executableTarget: String) -> Scheme {
+        return Scheme.scheme(
+            name: name,
+            shared: true,
+            buildAction: .buildAction(targets: [TargetReference(stringLiteral: executableTarget)]),
+            runAction: .runAction(
+                configuration: .debug,
+                executable: TargetReference(stringLiteral: executableTarget)
+            ),
+            archiveAction: .archiveAction(configuration: .release),
+            profileAction: .profileAction(
+                configuration: .release,
+                executable: TargetReference(stringLiteral: executableTarget)
+            ),
             analyzeAction: .analyzeAction(configuration: .debug)
         )
     }
