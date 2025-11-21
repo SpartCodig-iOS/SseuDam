@@ -10,10 +10,14 @@ import Supabase
 import LogMacro
 
 public class OAuthRepository: OAuthRepositoryProtocol {
-  private let provider: SupabaseClientProviding
 
-  public init() {
+  private let provider: SupabaseClientProviding
+  private let dataSource: OAuthRemoteDataSourceProtocol
+  private var client: SupabaseClient { provider.client }
+
+  public init(dataSource: OAuthRemoteDataSourceProtocol ) {
     self.provider = SupabaseClientProvider.shared
+    self.dataSource = dataSource
   }
 
   public func signIn(
@@ -43,7 +47,7 @@ public class OAuthRepository: OAuthRepositoryProtocol {
 
   // MARK: - Private
 
-  private var client: SupabaseClient { provider.client }
+
 
   private func updateDisplayNameIfNeeded(_ displayName: String?) async throws {
     guard let displayName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -52,5 +56,13 @@ public class OAuthRepository: OAuthRepositoryProtocol {
 
     try await updateUserDisplayName(displayName)
     Log.info("Updated Supabase display_name to \(displayName)")
+  }
+
+  public func checkSignUpUser(
+    input: Domain.OAuthCheckUserInput
+  ) async throws -> Domain.OAuthCheckUser {
+    let body = OAuthCheckUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
+    let data = try await dataSource.checkSingUpUser(body: body)
+    return data.toDomain()
   }
 }
