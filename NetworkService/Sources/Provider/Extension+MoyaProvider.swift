@@ -6,7 +6,6 @@
 //
 
 import Moya
-import EventLimiter
 import LogMacro
 
 public extension MoyaProvider {

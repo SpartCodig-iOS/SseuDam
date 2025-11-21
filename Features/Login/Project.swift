@@ -6,6 +6,8 @@ let project = Project.makeFeature(
     dependencies: [
         .SPM.ComposableArchitecture,
         .SPM.TCACoordinators,
+        .SPM.Supabase,
+        .SPM.GoogleSignIn,
         .Domain,
         .DesignSystem
     ],

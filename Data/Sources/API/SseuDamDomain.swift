@@ -14,8 +14,8 @@ public enum SseuDamDomain {
   case profile
   case session
   case travels
-  case travelExpenses(traveid: String)
-  case travelSettlements(traveid: String)
+  case travelExpenses(travelId: String)
+  case travelSettlements(travelId: String)
   case meta
 }
 
@@ -37,10 +37,10 @@ extension SseuDamDomain: DomainType {
         return "/session"
       case .travels:
         return "/travels"
-      case .travelExpenses(let traveid):
-        return"/travels\(traveid)"
-      case .travelSettlements(let traveid):
-        return"/travels\(traveid)"
+      case .travelExpenses(let travelId):
+        return "/travels/\(travelId)"
+      case .travelSettlements(let travelId):
+        return "/travels/\(travelId)"
       case .meta:
         return "/meta"
     }
