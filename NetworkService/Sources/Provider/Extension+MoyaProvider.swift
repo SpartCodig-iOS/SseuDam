@@ -78,7 +78,7 @@ public extension MoyaProvider {
   }
 }
 
-extension MoyaProvider {
+public extension MoyaProvider {
   /// 기본 Provider (로그 플러그인만 포함)
   static var `default`: MoyaProvider {
     MoyaProvider(

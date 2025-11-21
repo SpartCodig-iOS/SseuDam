@@ -25,7 +25,7 @@ private extension SseuDamApp {
     static func makeLoginUseCase() -> LoginUseCase {
         LoginUseCase(
             oAuth: OAuthUseCase(
-                repository: OAuthRepository(),
+              repository: OAuthRepository(dataSource: OAuthRemoteDataSource()),
                 googleRepository: GoogleOAuthRepository(),
                 appleRepository: AppleOAuthRepository()
             )
