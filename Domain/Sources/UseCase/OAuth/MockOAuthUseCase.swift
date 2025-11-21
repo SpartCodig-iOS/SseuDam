@@ -55,4 +55,11 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
       authCode: "mock-\(provider.rawValue)-auth-code"
     )
   }
+
+  public func checkUserSignUp(
+    accessToken: String,
+    socialType: SocialType
+  ) async throws -> OAuthCheckUser {
+    return OAuthCheckUser(registered: true)
+  }
 }

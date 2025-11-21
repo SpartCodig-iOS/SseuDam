@@ -139,11 +139,14 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
       throw MockOAuthError.updateDisplayNameFailed("Mock update display name failed")
     }
 
-    // Success case - do nothing (mock implementation)
   }
 
-  // MARK: - Private Methods
+  public func checkSignUpUser(input: OAuthCheckUserInput) async throws -> OAuthCheckUser {
+    return OAuthCheckUser(registered: false)
+  }
 
+
+  // MARK: - Private Methods
   private func performMockSignIn(
     provider: SocialType,
     displayName: String?

@@ -8,7 +8,7 @@
 import Moya
 import LogMacro
 
-public class MoyaLoggingPlugin: @preconcurrency PluginType {
+public class MoyaLoggingPlugin: PluginType {
   /// 플러그인 인스턴스를 생성합니다.
   public init() {}
 

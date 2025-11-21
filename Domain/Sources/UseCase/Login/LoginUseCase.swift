@@ -5,7 +5,6 @@
 //  Created by Wonji Suh  on 11/20/25.
 //
 
-import Domain
 import ComposableArchitecture
 import AuthenticationServices
 
@@ -26,6 +25,13 @@ public struct LoginUseCase {
 
   public func signUp(with provider: SocialType) async throws -> UserEntity {
     try await oAuth.signUp(with: provider)
+  }
+
+  public func checkUserSignUp(
+    accessToken: String,
+    socialType: SocialType
+  ) async throws -> OAuthCheckUser {
+    try await oAuth.checkUserSignUp(accessToken: accessToken, socialType: socialType)
   }
 }
 
