@@ -10,19 +10,15 @@ import DesignSystem
 
 struct FloatingPlusButton: View {
     var body: some View {
-        Button{
-            print("저장")
-        } label: {
-            Image(assetName: "plus")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 14)
-                .foregroundStyle(Color.appWhite)
-                .padding(19)
-                .background(Color.primary500)
-                .clipShape(Circle())
-                .shadow(color: Color.black.opacity(0.2), radius: 2, x: 1, y: 1)
-        }
+        Image(assetName: "plus")
+            .resizable()
+            .scaledToFit()
+            .frame(height: 14)
+            .foregroundStyle(Color.appWhite)
+            .padding(19)
+            .background(Color.primary500)
+            .clipShape(Circle())
+            .shadow(color: Color.black.opacity(0.2), radius: 2, x: 1, y: 1)
     }
 }
 

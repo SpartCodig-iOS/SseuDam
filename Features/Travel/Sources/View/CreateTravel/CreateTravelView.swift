@@ -12,20 +12,19 @@ struct CreateTravelView: View {
     @Binding var currency: [String]
     @Binding var rate: String
     var body: some View {
-        NavigationStack {
-            VStack {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        TravelInfoView(title: $title)
-                        ExchangeRateView(currency: $currency, rate: $rate)
-                    }
-                    .padding(.horizontal, 16)
+        VStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    TravelInfoView(title: $title)
+                    ExchangeRateView(currency: $currency, rate: $rate)
                 }
-                SaveButton()
-                    .padding(.horizontal, 16)
+                .padding(.horizontal, 16)
             }
-            .background(Color.primary50)
+            SaveButton()
+                .padding(.horizontal, 16)
         }
+        .background(Color.primary50)
+
     }
 }
 

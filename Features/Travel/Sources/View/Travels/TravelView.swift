@@ -11,35 +11,44 @@ import DesignSystem
 
 public struct TravelView: View {
     @State private var selectedTab: TravelTab = .ongoing
+    @State private var title: String = ""
+    @State private var currency: [String] = [""]
+    @State private var rate: String = ""
     public init() {}
 
     public var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            VStack {
-                TravelListHeaderView()
+        NavigationStack {
+            ZStack(alignment: .bottomTrailing) {
+                VStack {
+                    TravelListHeaderView()
 
-                TabBarView(selectedTab: $selectedTab)
+                    TabBarView(selectedTab: $selectedTab)
 
-                ScrollView {
-                    VStack(spacing: 18) {
-                        TravelCardView()
-                        TravelCardView()
-                        TravelCardView()
-                        TravelCardView()
-                        TravelCardView()
-                        TravelCardView()
-                        TravelCardView()
-                        TravelCardView()
+                    ScrollView {
+                        VStack(spacing: 18) {
+                            TravelCardView()
+                            TravelCardView()
+                            TravelCardView()
+                            TravelCardView()
+                            TravelCardView()
+                            TravelCardView()
+                            TravelCardView()
+                            TravelCardView()
+                        }
+                        .padding(16)
                     }
-                    .padding(16)
+                    .scrollIndicators(.hidden)
                 }
-                .scrollIndicators(.hidden)
-            }
-            .background(Color.primary50)
+                .background(Color.primary50)
 
-            FloatingPlusButton()
+                NavigationLink {
+                    CreateTravelView(title: $title, currency: $currency, rate: $rate)
+                } label: {
+                    FloatingPlusButton()
+                }
                 .padding(.trailing, 20)
                 .padding(.bottom, 54)
+            }
         }
     }
 }
