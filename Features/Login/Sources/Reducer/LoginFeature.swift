@@ -142,7 +142,7 @@ extension LoginFeature {
                     do {
                         let user = try await loginUseCase.signUp(with: .google)
                         await send(.inner(.googleLoginResponse(.success(user))))
-                        try await clock.sleep(for: .seconds(0.1))
+                      try await clock.sleep(for: .seconds(0.04))
                         await send(.async(.checkSignUpUser))
                     } catch let authError as AuthError {
                         await send(.inner(.googleLoginResponse(.failure(authError))))
@@ -202,7 +202,7 @@ extension LoginFeature {
                         return .run { send in
                             await send(.async(.appleSignIn(.success(payload))))
 
-                            try await clock.sleep(for: .seconds(0.1))
+                            try await clock.sleep(for: .seconds(0.04))
                             await send(.async(.checkSignUpUser))
                         }
 

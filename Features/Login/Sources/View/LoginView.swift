@@ -64,8 +64,7 @@ extension LoginView {
             VStack(spacing: 11) {
                 HStack {
                     Text("쓰담에 오신것을 환영합니다")
-                        .font(.system(size: 24))
-                        .fontWeight(.semibold)
+                        .font(.app(.largeTitle, weight: .semibold))
                         .foregroundStyle(.black)
 
                     Spacer()
@@ -73,13 +72,11 @@ extension LoginView {
 
                 HStack(spacing: .zero) {
                     Text("쓰담")
-                        .font(.system(size: 14))
-                        .fontWeight(.semibold)
+                        .font(.app(.body, weight: .regular))
                         .foregroundStyle(.primary500)
 
                     Text("에서 공금 정산을 빠르고 쉽게 확인해보세요")
-                        .font(.system(size: 14))
-                        .fontWeight(.semibold)
+                        .font(.app(.body, weight: .regular))
                         .foregroundStyle(.black)
 
                     Spacer()
@@ -97,12 +94,12 @@ extension LoginView {
     private func loginSocialButton() -> some View {
         HStack (alignment: .center, spacing: 24){
             ForEach(SocialType.allCases.filter { $0 != .none } ) { type in
-              SocialCircleButtonView(
-                store: store,
-                type: type
-              ) {
-                store.send(.view(.signInWithSocial(social: type)))
-              }
+                SocialCircleButtonView(
+                    store: store,
+                    type: type
+                ) {
+                    store.send(.view(.signInWithSocial(social: type)))
+                }
             }
         }
     }
