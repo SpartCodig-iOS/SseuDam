@@ -13,7 +13,8 @@ struct SelectField: View {
     var essential: Bool
     var placeholder: String
     var value: String?
-
+    var onTap: (() -> Void)? = nil
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 2) {
@@ -22,17 +23,17 @@ struct SelectField: View {
                         .font(.app(.title3, weight: .medium))
                         .foregroundColor(.red)
                 }
-
+                
                 Text(title)
                     .font(.app(.title3, weight: .medium))
                     .foregroundStyle(Color.appBlack)
             }
-
+            
             HStack {
                 Text(value ?? placeholder)
                     .font(.app(.body, weight: .medium))
                     .foregroundColor(value == nil ? Color.gray2 : Color.appBlack)
-
+                
                 Spacer()
                 
                 Image(assetName: "chevronRight")
@@ -46,6 +47,10 @@ struct SelectField: View {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.gray2, lineWidth: 1)
             )
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onTap?()            
+            }
         }
     }
 }

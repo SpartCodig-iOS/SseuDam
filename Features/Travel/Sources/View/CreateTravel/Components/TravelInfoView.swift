@@ -10,6 +10,8 @@ import DesignSystem
 
 struct TravelInfoView: View {
     @Binding var title: String
+    @State private var isCountrySheetPresented = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("여행 정보")
@@ -28,10 +30,17 @@ struct TravelInfoView: View {
                 SelectField(
                     title: "국가", 
                     essential: true,
-                    placeholder: "국가를 선택해주세요"
+                    placeholder: "국가를 선택해주세요",
+                    onTap: {
+                        isCountrySheetPresented = true
+                    }
                 )
             }
-
+        }
+        .sheet(isPresented: $isCountrySheetPresented) {
+            CountrySelectSheetView()
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
         }
     }
 }
