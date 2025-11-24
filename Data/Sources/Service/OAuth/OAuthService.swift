@@ -12,7 +12,6 @@ public enum OAuthService {
   case checkSignUpUser(body: OAuthCheckUserRequestDTO)
 }
 
-
 extension OAuthService: BaseTargetType {
   public typealias Domain = SseuDamDomain
 

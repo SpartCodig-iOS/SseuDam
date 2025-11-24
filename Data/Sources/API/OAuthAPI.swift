@@ -22,5 +22,4 @@ public enum OAuthAPI {
         return "/login"
     }
   }
-
 }
