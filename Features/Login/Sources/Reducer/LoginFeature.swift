@@ -22,7 +22,9 @@ public struct LoginFeature {
         var statusMessage: String?
         var currentNonce: String?
         var userEntity: UserEntity?
-      var checkUser: OAuthCheckUser?
+        var checkUser: OAuthCheckUser?
+        var authUserEntity: AuthEntity?
+
 
         public init() {}
     }
@@ -51,6 +53,8 @@ public struct LoginFeature {
         case googleSignIn
         case appleSignIn(Result<AppleLoginPayload, AuthError>)
         case appleCompletion(Result<ASAuthorization, Error>)
+        case checkSignUpUser
+        case loginUser
     }
 
     // MARK: - InnerAction (비동기 결과 처리)
@@ -58,6 +62,7 @@ public struct LoginFeature {
         case googleLoginResponse(Result<UserEntity, AuthError>)
         case appleLoginResponse(Result<UserEntity, AuthError>)
         case checkUserResponse(Result<OAuthCheckUser, AuthError>)
+        case authUserResponse(Result<AuthEntity, AuthError>)
     }
 
     // MARK: - NavigationAction
@@ -65,6 +70,13 @@ public struct LoginFeature {
     }
 
     // MARK: - Dependencies
+
+    nonisolated enum CancelID: Hashable {
+        case googleSignUp
+        case appleSignUp
+        case checkSignUpUser
+        case loginUser
+    }
 
     @Dependency(LoginUseCase.self) var loginUseCase
     @Dependency(SignUpUseCase.self) var signUpUseCase
@@ -128,12 +140,12 @@ extension LoginFeature {
     // MARK: AsyncAction 처리 (실제 비동기 작업 실행)
 
     private func handleAsyncAction(
-      state: inout State,
-      action: AsyncAction
+        state: inout State,
+        action: AsyncAction
     ) -> Effect<Action> {
         switch action {
             case .prepareAppleRequest(let request):
-            let nonce = AppleLoginManager().prepare(request)
+                let nonce = AppleLoginManager().prepare(request)
                 state.currentNonce = nonce
                 return .none
 
@@ -163,6 +175,7 @@ extension LoginFeature {
                     do {
                         let user = try await loginUseCase.signUp(with: .google)
                         await send(.inner(.googleLoginResponse(.success(user))))
+                        try await clock.sleep(for: .seconds(0.04))
                         await send(.async(.checkSignUpUser))
                     } catch let authError as AuthError {
                         await send(.inner(.googleLoginResponse(.failure(authError))))
@@ -172,6 +185,7 @@ extension LoginFeature {
                         )))
                     }
                 }
+                .cancellable(id: CancelID.googleSignUp, cancelInFlight: true)
 
             case .appleSignIn(let result):
                 switch result {
@@ -191,6 +205,7 @@ extension LoginFeature {
                                 )))
                             }
                         }
+                        
 
                     case let .failure(error):
                         state.isLoading = false
@@ -223,6 +238,7 @@ extension LoginFeature {
                             await send(.async(.appleSignIn(.success(payload))))
                             await send(.async(.checkSignUpUser))
                         }
+                        .cancellable(id: CancelID.appleSignUp, cancelInFlight: true)
 
                     case let .failure(error):
                         // 취소는 조용히 무시
@@ -235,6 +251,45 @@ extension LoginFeature {
                             }
                         }
                 }
+
+            case .checkSignUpUser:
+                return .run { [userEntity = state.userEntity] send in
+                    let checkSignUpUserResult = await Result {
+                        try await loginUseCase.checkUserSignUp(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
+                    }
+
+                    switch checkSignUpUserResult {
+                        case .success(let checkSignUpUserData):
+                            await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
+
+                            if checkSignUpUserData.registered == true {
+                                await send(.async(.loginUser))
+                            } else {
+                                // 여기에는 회원가입 로직
+                            }
+
+                        case .failure(let error):
+                            await send(.inner(.checkUserResponse(.failure(.unknownError(error.localizedDescription)))))
+                    }
+                }
+                .cancellable(id: CancelID.checkSignUpUser, cancelInFlight: true)
+
+            case .loginUser:
+                return .run {  [userEntity = state.userEntity] send in
+                    let loginUserResult = await Result {
+                        try await loginUseCase.loginUser(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
+                    }
+
+                    switch loginUserResult {
+
+                        case .success(let loginUserData):
+                            await send(.inner(.authUserResponse(.success(loginUserData))))
+
+                        case .failure(let error):
+                            await send(.inner(.authUserResponse(.failure(.unknownError(error.localizedDescription)))))
+                    }
+                }
+                .cancellable(id: CancelID.loginUser, cancelInFlight: true)
         }
     }
 
@@ -277,15 +332,28 @@ extension LoginFeature {
                 }
                 return .none
 
-          case .checkUserResponse(let result):
-            switch result {
-              case .success(let checkUserData):
-                state.checkUser = checkUserData
+            case .checkUserResponse(let result):
+                switch result {
+                    case .success(let checkUserData):
+                        state.checkUser = checkUserData
 
-              case .failure(let error):
-                state.statusMessage = "\(error.errorDescription)"
-            }
-            return .none
+                    case .failure(let error):
+                        state.statusMessage = "\(error.errorDescription)"
+                }
+                return .none
+
+            case .authUserResponse(let result):
+                switch result {
+                    case .success(let authModel):
+                        state.authUserEntity = authModel
+                        let accessToken = authModel.token.accessToken ?? ""
+                        let refreshToken = authModel.token.refreshToken ?? ""
+                        KeychainManager.shared.saveTokens(accessToken: accessToken, refreshToken: refreshToken)
+
+                    case .failure(let error):
+                        state.statusMessage = "\(error.errorDescription)"
+                }
+                return .none
         }
     }
 }
