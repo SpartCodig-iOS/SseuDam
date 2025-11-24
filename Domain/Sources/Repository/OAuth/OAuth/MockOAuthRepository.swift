@@ -12,6 +12,8 @@ import Dependencies
 /// Mock implementation of OAuthRepositoryProtocol for testing and preview purposes
 public struct MockOAuthRepository: OAuthRepositoryProtocol {
 
+  
+
   /// Configuration for mock behavior
   public struct Configuration {
     public let shouldSucceed: Bool
@@ -139,6 +141,18 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
       throw MockOAuthError.updateDisplayNameFailed("Mock update display name failed")
     }
 
+  }
+
+  public func checkSignUpUser(input: OAuthUserInput) async throws -> OAuthCheckUser {
+    return OAuthCheckUser(registered: false)
+  }
+  public func loginUser(input: OAuthUserInput) async throws -> AuthEntity {
+    let mockData = AuthEntity(
+      provider: .apple,
+      name: "testter",
+      token: .init(authToken: "", accessToken: "", refreshToken: "", sessionID: "")
+    )
+    return mockData
   }
 
 
