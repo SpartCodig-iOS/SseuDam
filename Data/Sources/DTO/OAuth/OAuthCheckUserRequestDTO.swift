@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-public struct OAuthCheckUserRequestDTO: Encodable {
+public struct OAuthLoginUserRequestDTO: Encodable {
   let accessToken: String
   let loginType: String
 }
