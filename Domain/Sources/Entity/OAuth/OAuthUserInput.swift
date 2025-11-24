@@ -5,7 +5,7 @@
 //  Created by Wonji Suh  on 11/21/25.
 //
 
-public struct OAuthCheckUserInput {
+public struct OAuthUserInput {
   public let accessToken: String
   public let socialType: SocialType
 

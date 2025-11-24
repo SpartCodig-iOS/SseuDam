@@ -85,7 +85,8 @@ public extension User {
       tokens: .init(
         authToken: session.accessToken,
         accessToken: "",
-        refreshToken: ""
+        refreshToken: "",
+        sessionID: ""
       ),
       authCode: authCode
     )

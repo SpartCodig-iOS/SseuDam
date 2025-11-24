@@ -24,7 +24,8 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
       tokens: .init(
         authToken: "mock-superbase-token",
         accessToken: "mock-access-token",
-        refreshToken: "mock-refresh-token"
+        refreshToken: "mock-refresh-token",
+        sessionID: "mock-sessionID"
       ),
       authCode: "mock-auth-code"
     )
@@ -50,7 +51,8 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
       tokens: .init(
         authToken: "mock-\(provider.rawValue)-superbase-token",
         accessToken: "mock-\(provider.rawValue)-access-token",
-        refreshToken: "mock-\(provider.rawValue)-refresh-token"
+        refreshToken: "mock-\(provider.rawValue)-refresh-token",
+        sessionID: "mock-\(provider.rawValue)-session-token",
       ),
       authCode: "mock-\(provider.rawValue)-auth-code"
     )
@@ -61,5 +63,14 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
     socialType: SocialType
   ) async throws -> OAuthCheckUser {
     return OAuthCheckUser(registered: true)
+  }
+
+  public func loginUser(accessToken: String, socialType: SocialType) async throws -> AuthEntity {
+    let mockData = AuthEntity(
+      name: "testter",
+      provider: .apple,
+      token: .init(authToken: "", accessToken: "", refreshToken: "", sessionID: "")
+    )
+    return mockData
   }
 }

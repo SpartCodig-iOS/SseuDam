@@ -10,22 +10,12 @@ import AuthenticationServices
 
 /// Coordinates every dependency needed to perform an OAuth based login.
 public struct LoginUseCase {
-    private let oAuth: OAuthUseCase
-    
-    public init(oAuth: OAuthUseCase) {
-        self.oAuth = oAuth
-    }
-    
-    public func signInWithApple(
-        credential: ASAuthorizationAppleIDCredential,
-        nonce: String
-    ) async throws -> UserEntity {
-        try await oAuth.signInWithApple(credential: credential, nonce: nonce)
-    }
-    
-    public func signUp(with provider: SocialType) async throws -> UserEntity {
-        try await oAuth.signUp(with: provider)
-    }
+  public func loginUser(
+    accessToken: String,
+    socialType: SocialType
+  ) async throws -> AuthEntity {
+    return try await oAuth.loginUser(accessToken: accessToken, socialType: socialType)
+  }
 }
 
 extension LoginUseCase: DependencyKey {
