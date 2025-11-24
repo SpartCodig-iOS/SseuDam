@@ -37,6 +37,13 @@ public struct LoginView: View {
 
         }
         .background(.primary50)
+        .sheet(item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService)) { termServiceStore in
+          TermsAgreementView(store: termServiceStore)
+            .presentationDetents([.height(UIScreen.main.bounds.height * 0.3)])
+            .presentationCornerRadius(20)
+            .presentationDragIndicator(.hidden)
+            .presentationBackground(.clear)
+        }
     }
 }
 

@@ -24,7 +24,7 @@ public struct LoginFeature {
         var userEntity: UserEntity?
         var checkUser: OAuthCheckUser?
         var authUserEntity: AuthEntity?
-
+        @Presents var destination: Destination.State?
 
         public init() {}
     }
@@ -33,17 +33,25 @@ public struct LoginFeature {
 
     public enum Action: ViewAction, BindableAction {
         case binding(BindingAction<State>)
+        case destination(PresentationAction<Destination.Action>)
         case view(View)
         case async(AsyncAction)
         case inner(InnerAction)
         case navigation(NavigationAction)
     }
 
+    @Reducer
+    public enum Destination {
+      case termsService(TermsAgreementFeature)
+    }
+
+
     // MARK: - ViewAction
     @CasePathable
     public enum View {
         case googleButtonTapped
         case signInWithSocial(social: SocialType)
+        case appearModal
     }
 
     // MARK: - AsyncAction (비동기 처리 트리거)
@@ -90,6 +98,9 @@ public struct LoginFeature {
                 case .binding:
                     return .none
 
+                case .destination(let action):
+                    return handleDestinationAction(state: &state, action: action)
+
                 case .view(let viewAction):
                     return handleViewAction(state: &state, action: viewAction)
 
@@ -103,12 +114,27 @@ public struct LoginFeature {
                     return handleNavigationAction(state: &state, action: navigationAction)
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 }
 
 // MARK: - Handlers
 
 extension LoginFeature {
+
+    private func handleDestinationAction(
+      state: inout State,
+      action: PresentationAction<Destination.Action>
+    ) -> Effect<Action> {
+      switch action {
+          case .presented(.termsService(.scope(.closeModel))):
+              state.destination = nil
+              return .none
+          default:
+              return .none
+      }
+    }
+
     // MARK: ViewAction 처리 (버튼/뷰 이벤트)
 
     private func handleViewAction(
@@ -134,6 +160,10 @@ extension LoginFeature {
                             break
                     }
                 }
+
+            case .appearModal:
+                state.destination = .termsService(.init())
+                return .none
         }
     }
 
@@ -263,7 +293,7 @@ extension LoginFeature {
                             await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
 
                             if checkSignUpUserData.registered == true {
-                                await send(.async(.loginUser))
+                                await send(.view(.appearModal))
                             } else {
                                 // 여기에는 회원가입 로직
                             }
@@ -357,3 +387,6 @@ extension LoginFeature {
         }
     }
 }
+
+// MARK: - Destination State Equatable
+extension LoginFeature.Destination.State: Equatable {}
