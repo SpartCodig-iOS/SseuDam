@@ -9,6 +9,8 @@ import SwiftUI
 import DesignSystem
 
 struct SaveButton: View {
+    var isEnabled: Bool
+
     var body: some View {
         Button {
             print("저장")
@@ -23,9 +25,10 @@ struct SaveButton: View {
                         .foregroundStyle(Color.primary500)
                 )
         }
+        .disabled(!isEnabled)
     }
 }
 
 #Preview {
-    SaveButton()
+    SaveButton(isEnabled: true)
 }

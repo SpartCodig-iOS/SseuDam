@@ -17,7 +17,7 @@ public struct TravelView: View {
     public init() {}
 
     public var body: some View {
-        NavigationStack {
+        GestureNavigationStack {
             ZStack(alignment: .bottomTrailing) {
                 VStack {
                     TravelListHeaderView()

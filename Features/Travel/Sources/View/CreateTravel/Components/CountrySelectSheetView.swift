@@ -10,6 +10,7 @@ import DesignSystem
 
 struct CountrySelectSheetView: View {
     @Environment(\.dismiss) var dismiss
+    @Binding var selectedCountry: String?
     @State private var searchText = ""
 
     var body: some View {
@@ -42,44 +43,26 @@ struct CountrySelectSheetView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("한국")
-                        .font(.app(.title3, weight: .medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 12)
-                    Text("미국")
-                        .font(.app(.title3, weight: .medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 12)
-                    Text("아르헨티나")
-                        .font(.app(.title3, weight: .medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 12)
-                    Text("일본")
-                        .font(.app(.title3, weight: .medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 12)
-                    Text("일본")
-                        .font(.app(.title3, weight: .medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 12)
-                    Text("일본")
-                        .font(.app(.title3, weight: .medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 30)
-                        .padding(.vertical, 12)
+                    countryRow("한국")
+                    countryRow("미국")
+                    countryRow("아르헨티나")
+                    countryRow("일본")
                 }
             }
             .scrollIndicators(.hidden)
         }
         .background(Color.primary50)
     }
-}
 
-#Preview {
-    CountrySelectSheetView()
+    private func countryRow(_ country: String) -> some View {
+        Text(country)
+            .font(.app(.title3, weight: .medium))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 30)
+            .padding(.vertical, 12)
+            .onTapGesture {
+                selectedCountry = country
+                dismiss()
+            }
+    }
 }

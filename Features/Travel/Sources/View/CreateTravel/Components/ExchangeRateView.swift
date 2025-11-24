@@ -17,7 +17,7 @@ struct ExchangeRateView: View {
                 InputTextField(
                     text: $currency.first ?? .constant(""),
                     title: "화폐 선택",
-                    essential: false,
+                    essential: true,
                     placeholder: "화폐를 선택해주세요",
                     isEnabled: false
                 )
