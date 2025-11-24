@@ -10,15 +10,19 @@ import DesignSystem
 
 struct SaveButton: View {
     var body: some View {
-        Text("저장")
-            .font(.app(.title3, weight: .semibold))
-            .foregroundStyle(Color.appWhite)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .foregroundStyle(Color.primary500)
-            )
+        Button {
+            print("저장")
+        } label: {
+            Text("저장")
+                .font(.app(.title3, weight: .semibold))
+                .foregroundStyle(Color.appWhite)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(Color.primary500)
+                )
+        }
     }
 }
 

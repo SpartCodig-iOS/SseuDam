@@ -14,27 +14,33 @@ public struct TravelView: View {
     public init() {}
 
     public var body: some View {
-        VStack {
-            TravelListHeaderView()
+        ZStack(alignment: .bottomTrailing) {
+            VStack {
+                TravelListHeaderView()
 
-            TabBarView(selectedTab: $selectedTab)
+                TabBarView(selectedTab: $selectedTab)
 
-            ScrollView {
-                VStack(spacing: 18) {
-                    TravelCardView()
-                    TravelCardView()
-                    TravelCardView()
-                    TravelCardView()
-                    TravelCardView()
-                    TravelCardView()
-                    TravelCardView()
-                    TravelCardView()
+                ScrollView {
+                    VStack(spacing: 18) {
+                        TravelCardView()
+                        TravelCardView()
+                        TravelCardView()
+                        TravelCardView()
+                        TravelCardView()
+                        TravelCardView()
+                        TravelCardView()
+                        TravelCardView()
+                    }
+                    .padding(16)
                 }
-                .padding(16)
+                .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
+            .background(Color.primary50)
+
+            FloatingPlusButton()
+                .padding(.trailing, 20)
+                .padding(.bottom, 54)
         }
-        .background(Color.primary50)
     }
 }
 
