@@ -6,7 +6,9 @@ let project = Project.makeApp(
     dependencies: [
         .SPM.ComposableArchitecture,
         .SPM.TCACoordinators,
-        .Features.Login
+        .Features.Login,
+        .Data
     ],
-    infoPlist: .defaultSwiftUIApp
+    infoPlist: .defaultSwiftUIApp,
+    entitlements: .file(path: .relativeToManifest("../Entitlements/SseuDamApp.entitlements"))
 )

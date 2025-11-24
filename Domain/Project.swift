@@ -4,7 +4,14 @@ import SseuDamPlugin
 let project = Project.makeFramework(
     name: "Domain",
     dependencies: [
-        .SPM.LogMacro
+      .SPM.ComposableArchitecture,
+      .SPM.GoogleSignIn,
+      .SPM.Supabase,
+      .SPM.LogMacro
     ],
-    hasTests: true
+    hasTests: true,
+    settings: .settings(
+      base: SettingsDictionary()
+        .otherLinkerFlags(["-ObjC", "-all_load"])
+    )
 )

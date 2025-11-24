@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-public extension Color {
+public extension ShapeStyle where Self == Color { 
     static var appWhite: Color { asset(#function) }
     static var appBlack: Color { asset(#function) }
 

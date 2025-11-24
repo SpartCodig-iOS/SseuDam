@@ -17,10 +17,10 @@ struct TravelListHeaderView: View {
 
             Spacer()
 
-            Image(systemName: "person")
+            Image(assetName: "user")
                 .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 18)
+                .scaledToFit()
+                .frame(height: 24)
                 .foregroundStyle(Color.appBlack)
         }
         .padding(.vertical, 20)

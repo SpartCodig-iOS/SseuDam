@@ -35,10 +35,10 @@ struct TravelCardView: View {
                         .foregroundColor(Color.appBlack)
 
                     HStack(spacing: 0) {
-                        Image(systemName: "calendar")
+                        Image(assetName: "calendar")
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 14)
+                            .scaledToFit()
+                            .frame(height: 18)
                             .foregroundStyle(Color.appBlack)
                             .padding(.trailing, 4)
 
@@ -52,10 +52,10 @@ struct TravelCardView: View {
                             .foregroundStyle(Color.gray2)
                             .padding(.trailing, 6)
 
-                        Image(systemName: "person.2")
+                        Image(assetName: "users")
                             .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 14)
+                            .scaledToFit()
+                            .frame(height: 18)
                             .foregroundStyle(Color.appBlack)
                             .padding(.trailing, 4)
 

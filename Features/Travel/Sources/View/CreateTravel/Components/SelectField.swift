@@ -35,10 +35,10 @@ struct SelectField: View {
 
                 Spacer()
                 
-                Image(systemName: "chevron.right")
+                Image(assetName: "chevronRight")
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 12)
+                    .scaledToFit()
+                    .frame(height: 24)
                     .foregroundColor(Color.gray5)
             }
             .padding(10)
