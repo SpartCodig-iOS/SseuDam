@@ -10,10 +10,11 @@ import DesignSystem
 
 struct SaveButton: View {
     var isEnabled: Bool
+    var action: () -> Void
 
     var body: some View {
         Button {
-            print("저장")
+            action()
         } label: {
             Text("저장")
                 .font(.app(.title3, weight: .semibold))

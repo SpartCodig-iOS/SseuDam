@@ -7,18 +7,18 @@
 
 import Foundation
 
-protocol CreateTravelUseCaseProtocol {
+public protocol CreateTravelUseCaseProtocol {
     func excute(input: CreateTravelInput) async throws -> Travel
 }
 
-final class CreateTravelUseCase: CreateTravelUseCaseProtocol {
+public final class CreateTravelUseCase: CreateTravelUseCaseProtocol {
     private let repository: TravelRepositoryProtocol
     
-    init(repository: TravelRepositoryProtocol) {
+    public init(repository: TravelRepositoryProtocol) {
         self.repository = repository
     }
     
-    func excute(input: CreateTravelInput) async throws -> Travel {
+    public func excute(input: CreateTravelInput) async throws -> Travel {
         try await repository.createTravel(input: input)
     }
 }

@@ -6,26 +6,11 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct CreateTravelView: View {
+    @Bindable var store: StoreOf<TravelCreateFeature>
     @Environment(\.dismiss) private var dismiss
-    @Binding var title: String
-    @Binding var currency: [String]
-    @Binding var rate: String
-    @State private var selectedCountry: String? = nil
-    @State private var startDate: Date? = nil
-    @State private var endDate: Date? = nil
-
-    private var isSaveEnabled: Bool {
-        guard !title.isEmpty else { return false }
-        guard startDate != nil, endDate != nil else { return false }
-        guard let country = selectedCountry, !country.isEmpty else { return false }
-
-        if country == "한국" {
-            return true
-        }
-        return !currency.isEmpty && !rate.isEmpty
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -52,25 +37,30 @@ struct CreateTravelView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     TravelInfoView(
-                        title: $title,
-                        selectedCountry: $selectedCountry,
-                        startDate: $startDate,
-                        endDate: $endDate
+                        title: $store.title,
+                        selectedCountry: $store.selectedCountry,
+                        startDate: $store.startDate,
+                        endDate: $store.endDate
                     )
 
-                    if selectedCountry != "한국" && selectedCountry != nil {
-                        ExchangeRateView(currency: $currency, rate: $rate)
+                    if store.selectedCountry != "한국",
+                       store.selectedCountry != nil {
+                        ExchangeRateView(
+                            currency: $store.currency,
+                            rate: $store.rate
+                        )
                     }
                 }
                 .padding(.horizontal, 16)
             }
-            SaveButton(isEnabled: isSaveEnabled)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+            SaveButton(isEnabled: store.isSaveEnabled) {
+                store.send(.saveButtonTapped)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
         }
         .background(Color.primary50)
         .navigationBarBackButtonHidden(true)
-        .interactiveDismissDisabled(false)
     }
 }
 

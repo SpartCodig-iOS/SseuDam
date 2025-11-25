@@ -115,6 +115,7 @@ public struct TravelListFeature {
                 return .none
 
             case .create(.dismiss):
+                state.create = nil
                 return .send(.refresh)
 
             case .create:
