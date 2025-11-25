@@ -8,11 +8,6 @@
 import SwiftUI
 import DesignSystem
 
-enum TravelTab: String, CaseIterable {
-    case ongoing = "진행중"
-    case completed = "완료됨"
-}
-
 struct TabBarView: View {
     @Binding var selectedTab: TravelTab
 

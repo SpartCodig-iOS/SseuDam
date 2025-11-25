@@ -8,13 +8,15 @@
 
 import SwiftUI
 import DesignSystem
+import Domain
+import ComposableArchitecture
 
 public struct TravelView: View {
-    @State private var selectedTab: TravelTab = .ongoing
-    @State private var title: String = ""
-    @State private var currency: [String] = [""]
-    @State private var rate: String = ""
-    public init() {}
+    @Bindable var store: StoreOf<TravelListFeature>
+
+    public init(store: StoreOf<TravelListFeature>) {
+        self.store = store
+    }
 
     public var body: some View {
         GestureNavigationStack {
@@ -22,27 +24,30 @@ public struct TravelView: View {
                 VStack {
                     TravelListHeaderView()
 
-                    TabBarView(selectedTab: $selectedTab)
+                    TabBarView(selectedTab: $store.selectedTab.sending(\.tabChanged))
 
                     ScrollView {
-                        VStack(spacing: 18) {
-                            TravelCardView()
-                            TravelCardView()
-                            TravelCardView()
-                            TravelCardView()
-                            TravelCardView()
-                            TravelCardView()
-                            TravelCardView()
-                            TravelCardView()
+                        LazyVStack(spacing: 18) {
+                            ForEach(store.travels, id: \.id) { travel in
+                                TravelCardView(travel: travel)
+                                    .onAppear {
+                                        store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
+                                    }
+                                    .onTapGesture {
+                                        //디테일로 이동
+                                    }
+                            }
+                            if store.isLoadingNextPage {
+                                ProgressView().padding(.vertical, 20)
+                            }
                         }
                         .padding(16)
                     }
-                    .scrollIndicators(.hidden)
                 }
                 .background(Color.primary50)
 
-                NavigationLink {
-                    CreateTravelView(title: $title, currency: $currency, rate: $rate)
+                Button {
+                    store.send(.createButtonTapped)
                 } label: {
                     FloatingPlusButton()
                 }
@@ -51,8 +56,4 @@ public struct TravelView: View {
             }
         }
     }
-}
-
-#Preview {
-    TravelView()
 }

@@ -10,4 +10,9 @@ import Foundation
 public struct FetchTravelsInput {
     public let limit: Int
     public let page: Int
+
+    public init(limit: Int, page: Int) {
+        self.limit = limit
+        self.page = page
+    }
 }
