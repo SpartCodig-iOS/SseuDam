@@ -9,6 +9,7 @@ import Foundation
 import ComposableArchitecture
 import Domain
 import AuthenticationServices
+import LogMacro
 
 @Reducer
 public struct LoginFeature {
@@ -63,6 +64,7 @@ public struct LoginFeature {
         case appleCompletion(Result<ASAuthorization, Error>)
         case checkSignUpUser
         case loginUser
+        case signUpUser
     }
 
     // MARK: - InnerAction (비동기 결과 처리)
@@ -84,6 +86,7 @@ public struct LoginFeature {
         case appleSignUp
         case checkSignUpUser
         case loginUser
+        case signUpUser
     }
 
     @Dependency(LoginUseCase.self) var loginUseCase
@@ -129,7 +132,7 @@ extension LoginFeature {
       switch action {
           case .presented(.termsService(.scope(.closeModel))):
               state.destination = nil
-              return .none
+              return .send(.async(.signUpUser))
           default:
               return .none
       }
@@ -293,9 +296,9 @@ extension LoginFeature {
                             await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
 
                             if checkSignUpUserData.registered == true {
-                                await send(.view(.appearModal))
+                                await send(.async(.loginUser))
                             } else {
-                                // 여기에는 회원가입 로직
+                                await send(.view(.appearModal))
                             }
 
                         case .failure(let error):
@@ -320,6 +323,25 @@ extension LoginFeature {
                     }
                 }
                 .cancellable(id: CancelID.loginUser, cancelInFlight: true)
+
+            case .signUpUser:
+                return .run {  [userEntity = state.userEntity] send in
+                    let signUpUserResult = await Result {
+                        try await loginUseCase.signUpUser(
+                            accessToken: userEntity?.tokens.authToken ?? "",
+                            socialType: userEntity?.provider ?? .none,
+                            authCode: userEntity?.authCode ?? ""
+                        )
+                    }
+
+                    switch signUpUserResult {
+                        case .success(let signUpUserData):
+                            await send(.inner(.authUserResponse(.success(signUpUserData))))
+                        case .failure(let error):
+                            await send(.inner(.authUserResponse(.failure(.unknownError(error.localizedDescription)))))
+                    }
+                }
+                .cancellable(id: CancelID.signUpUser, cancelInFlight: true)
         }
     }
 
@@ -366,7 +388,6 @@ extension LoginFeature {
                 switch result {
                     case .success(let checkUserData):
                         state.checkUser = checkUserData
-
                     case .failure(let error):
                         state.statusMessage = "\(error.errorDescription)"
                 }
@@ -376,9 +397,26 @@ extension LoginFeature {
                 switch result {
                     case .success(let authModel):
                         state.authUserEntity = authModel
-                        let accessToken = authModel.token.accessToken ?? ""
+                        state.statusMessage = "\(authModel.provider) 로그인 및 회원가입 성공 "
+                        let accessToken = authModel.token.accessToken
                         let refreshToken = authModel.token.refreshToken ?? ""
+                        let authToken = state.userEntity?.tokens.authToken ?? ""
+                        let updateModel = AuthEntity(
+                            name: authModel.name,
+                            provider: authModel.provider,
+                            token: AuthTokens(
+                                authToken: authToken,
+                                accessToken: accessToken,
+                                refreshToken: refreshToken,
+                                sessionID: authModel.token.sessionID
+                            )
+                        )
+
+                        state.authUserEntity = updateModel
+
                         KeychainManager.shared.saveTokens(accessToken: accessToken, refreshToken: refreshToken)
+                        let tokens = KeychainManager.shared.loadTokens()
+                        Log.debug("keychan", tokens)
 
                     case .failure(let error):
                         state.statusMessage = "\(error.errorDescription)"
