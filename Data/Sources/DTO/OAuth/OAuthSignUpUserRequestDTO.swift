@@ -2,11 +2,11 @@
 //  OAuthSignUpUserRequestDTO.swift
 //  Data
 //
-//  Created by Wonji Suh  on 11/24/25.
+//  Created by Wonji Suh  on 11/25/25.
 //
 
-import Foundation
-
-public struct OAuthSignUpUserRequestDTO : Encodable {
-
+public struct OAuthSignUpUserRequestDTO: Encodable {
+  let accessToken: String
+  let loginType: String
+  let authorizationCode: String
 }

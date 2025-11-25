@@ -1,5 +1,5 @@
 //
-//  OAuthCheckUserRequestDTO.swift
+//  OAuthLoginUserRequestDTO.swift
 //  Data
 //
 //  Created by Wonji Suh  on 11/21/25.
