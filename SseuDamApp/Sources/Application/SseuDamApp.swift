@@ -28,6 +28,7 @@ struct SseuDamApp: App {
             )
         }
     }
+  }
 }
 
 private extension SseuDamApp {
