@@ -77,6 +77,7 @@ public struct LoginFeature {
 
     // MARK: - NavigationAction
     public enum NavigationAction: Equatable {
+      case presentTravelList
     }
 
     // MARK: - Dependencies
@@ -318,6 +319,14 @@ extension LoginFeature {
                         case .success(let loginUserData):
                             await send(.inner(.authUserResponse(.success(loginUserData))))
 
+                        if !loginUserData.token.authToken.isEmpty &&
+                            !(loginUserData.token.refreshToken?.isEmpty != nil) &&
+                            !loginUserData.token.accessToken.isEmpty &&
+                            !loginUserData.token.sessionID.isEmpty
+                        {
+                          await send(.navigation(.presentTravelList))
+                        }
+
                         case .failure(let error):
                             await send(.inner(.authUserResponse(.failure(.unknownError(error.localizedDescription)))))
                     }
@@ -337,21 +346,20 @@ extension LoginFeature {
                     switch signUpUserResult {
                         case .success(let signUpUserData):
                             await send(.inner(.authUserResponse(.success(signUpUserData))))
+
+                        if !signUpUserData.token.authToken.isEmpty &&
+                            !(signUpUserData.token.refreshToken?.isEmpty != nil) &&
+                            !signUpUserData.token.accessToken.isEmpty &&
+                            !signUpUserData.token.sessionID.isEmpty
+                        {
+                          await send(.navigation(.presentTravelList))
+                        }
+
                         case .failure(let error):
                             await send(.inner(.authUserResponse(.failure(.unknownError(error.localizedDescription)))))
                     }
                 }
                 .cancellable(id: CancelID.signUpUser, cancelInFlight: true)
-        }
-    }
-
-    // MARK: NavigationAction
-
-    private func handleNavigationAction(
-        state: inout State,
-        action: NavigationAction
-    ) -> Effect<Action> {
-        switch action {
         }
     }
 
@@ -424,6 +432,18 @@ extension LoginFeature {
                 return .none
         }
     }
+
+  // MARK: NavigationAction
+
+  private func handleNavigationAction(
+      state: inout State,
+      action: NavigationAction
+  ) -> Effect<Action> {
+      switch action {
+        case .presentTravelList:
+          return .none
+      }
+  }
 }
 
 // MARK: - Destination State Equatable

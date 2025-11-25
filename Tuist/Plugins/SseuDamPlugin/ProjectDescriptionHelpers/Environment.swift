@@ -14,7 +14,7 @@ public enum Environment {
 
     // MARK: - Platform
     public static let platform: Platform = .iOS
-    public static let destinations: Destinations = .iOS
+  public static let destinations: Destinations = [.iPhone]
 
     // MARK: - Build Configuration
     public static let configurations: [Configuration] = [
