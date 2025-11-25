@@ -26,6 +26,7 @@ public struct TermsAgreementFeature {
         case binding(BindingAction<State>)
         case view(View)
         case scope(ScopeAction)
+        case navigation(NavigationAction)
 
     }
 
@@ -44,6 +45,12 @@ public struct TermsAgreementFeature {
         case closeModel
     }
 
+    @CasePathable
+    public enum NavigationAction: Equatable {
+        case presentServiceWeb
+        case presentPrivacyWeb
+    }
+
     public var body: some Reducer<State, Action> {
         BindingReducer()
         Reduce { state, action in
@@ -56,6 +63,9 @@ public struct TermsAgreementFeature {
 
                 case .scope(let scopeAction):
                     return handleScopeAction(state: &state, action: scopeAction)
+
+                case .navigation(let navigationAction):
+                    return handleNavigationAction(state: &state, action: navigationAction)
             }
         }
     }
@@ -75,7 +85,7 @@ extension TermsAgreementFeature {
                 state.privacyAgreed.toggle()
                 syncAllState(state: &state)
                 return .none
-                
+
             case .didTapService:
                 state.serviceAgreed.toggle()
                 syncAllState(state: &state)
@@ -92,21 +102,33 @@ extension TermsAgreementFeature {
                 return .none
         }
     }
+
+    private func handleNavigationAction(
+        state: inout State,
+        action: NavigationAction
+    )  -> Effect<Action> {
+        switch action {
+            case .presentPrivacyWeb:
+                return .none
+            case .presentServiceWeb:
+                return .none
+        }
+    }
 }
 
 
 extension TermsAgreementFeature {
-  /// 약관 전체 동의 토글
-  private func toggleAll(state: inout State) {
-    let newValue = !state.allAgreed
-    state.allAgreed = newValue
-    state.privacyAgreed = newValue
-    state.serviceAgreed = newValue
-  }
+    /// 약관 전체 동의 토글
+    private func toggleAll(state: inout State) {
+        let newValue = !state.allAgreed
+        state.allAgreed = newValue
+        state.privacyAgreed = newValue
+        state.serviceAgreed = newValue
+    }
 
-  /// 개별 선택 시 전체동의 상태 동기화
-  private func syncAllState(state: inout State) {
-    state.allAgreed = state.privacyAgreed && state.serviceAgreed
-  }
+    /// 개별 선택 시 전체동의 상태 동기화
+    private func syncAllState(state: inout State) {
+        state.allAgreed = state.privacyAgreed && state.serviceAgreed
+    }
 }
 

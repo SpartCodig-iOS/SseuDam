@@ -20,24 +20,21 @@ public struct TermsAgreementView: View {
     self.store = store
   }
   public var body: some View {
-    GeometryReader { geometry in
-      VStack(alignment: .leading) {
-        Spacer()
-          .frame(height: 32)
+    VStack(alignment: .leading) {
+      Spacer()
+        .frame(height: 32)
 
-        termsText()
+      termsText()
 
-        termsAgreeButton()
+      termsAgreeButton()
 
-        signUpButton()
+      signUpButton()
 
-        Spacer()
-          .frame(height: 32)
-      }
-      .frame(width: geometry.size.width, height: geometry.size.height)
-      .background(.white)
+      Spacer()
+        .frame(height: 32)
     }
-    .ignoresSafeArea(.all)
+    .frame(maxWidth: .infinity)
+    .background(.white)
 
   }
 }
@@ -62,7 +59,10 @@ extension TermsAgreementView {
       Spacer()
         .frame(height: 12)
 
-      TermsRowView(title: "약관 전체 동의", isOn: store.allAgreed) {
+      TermsRowView(
+        title: "약관 전체 동의",
+        isOn: store.allAgreed
+      ) {
         store.send(.view(.didTapAll))
       }
 
@@ -73,18 +73,26 @@ extension TermsAgreementView {
 
       TermsRowView(
         title: "개인정보 처리방침 동의 (필수)",
-        isOn: store.privacyAgreed
-      ) {
-        store.send(.view(.didTapPrivacy))
-      }
+        isOn: store.privacyAgreed,
+        action: {
+          store.send(.view(.didTapPrivacy))
+        },
+        onArrowTap: {
+          store.send(.navigation(.presentPrivacyWeb))
+        }
+      )
 
 
       TermsRowView(
         title: "서비스 이용 약관 동의 (필수)",
-        isOn: store.serviceAgreed
-      ) {
-        store.send(.view(.didTapService))
-      }
+        isOn: store.serviceAgreed,
+        action: {
+          store.send(.view(.didTapService))
+        },
+        onArrowTap: {
+          store.send(.navigation(.presentServiceWeb))
+        }
+      )
 
     }
     .padding(.horizontal, 20)

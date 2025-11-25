@@ -275,7 +275,6 @@ extension LoginFeature {
                         .cancellable(id: CancelID.appleSignUp, cancelInFlight: true)
 
                     case let .failure(error):
-                        // 취소는 조용히 무시
                         if (error as NSError).code == ASAuthorizationError.canceled.rawValue {
                             return .none
                         } else {
@@ -297,9 +296,9 @@ extension LoginFeature {
                             await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
 
                             if checkSignUpUserData.registered == true {
-                                await send(.async(.loginUser))
+                              await send(.async(.loginUser), animation: .easeIn)
                             } else {
-                                await send(.view(.appearModal))
+                              await send(.view(.appearModal), animation: .easeIn)
                             }
 
                         case .failure(let error):
