@@ -10,7 +10,7 @@ import Foundation
 public struct AuthEntity: Equatable {
   public let name: String
   public let provider: SocialType
-  public let token:  AuthTokens
+  public var token:  AuthTokens
 
   public init(
     name: String,

@@ -9,7 +9,7 @@
 import Foundation
 
 public struct AuthTokens: Equatable {
-  public let authToken: String
+  public var authToken: String
   public let accessToken: String
   public let refreshToken: String?
   public let sessionID: String

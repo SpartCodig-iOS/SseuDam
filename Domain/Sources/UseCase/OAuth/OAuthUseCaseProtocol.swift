@@ -16,4 +16,5 @@ public protocol OAuthUseCaseProtocol {
   ) async throws -> UserEntity
   func signUp(with provider: SocialType) async throws -> UserEntity
   func loginUser(accessToken: String, socialType: SocialType) async throws -> AuthEntity
+  func signUpUser(accessToken: String, socialType: SocialType, authCode: String) async throws -> AuthEntity
 }

@@ -8,9 +8,15 @@
 public struct OAuthUserInput {
   public let accessToken: String
   public let socialType: SocialType
+  public let authorizationCode: String
 
-  public init(accessToken: String, socialType: SocialType) {
+  public init(
+    accessToken: String,
+    socialType: SocialType,
+    authorizationCode: String
+  ) {
     self.accessToken = accessToken
     self.socialType = socialType
+    self.authorizationCode = authorizationCode
   }
 }

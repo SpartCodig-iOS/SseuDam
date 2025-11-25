@@ -108,7 +108,15 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     accessToken: String,
     socialType: SocialType
   ) async throws -> AuthEntity {
-    return try await repository.loginUser(input: OAuthUserInput(accessToken: accessToken, socialType: socialType))
+    return try await repository.loginUser(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: ""))
+  }
+
+  public func signUpUser(
+    accessToken: String,
+    socialType: SocialType,
+    authCode: String
+  ) async throws -> AuthEntity {
+    return try await repository.signUpUser(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: authCode))
   }
 }
 

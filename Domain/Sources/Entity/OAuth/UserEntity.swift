@@ -13,7 +13,7 @@ public struct UserEntity: Equatable, Identifiable {
   public let email: String?
   public let displayName: String?
   public let provider: SocialType
-  public let tokens: AuthTokens
+  public var tokens: AuthTokens
   public let authCode: String?
 
   public init(

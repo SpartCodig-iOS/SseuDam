@@ -65,7 +65,19 @@ public struct MockOAuthUseCase: OAuthUseCaseProtocol {
     return OAuthCheckUser(registered: true)
   }
 
-  public func loginUser(accessToken: String, socialType: SocialType) async throws -> AuthEntity {
+  public func loginUser(
+    accessToken: String,
+    socialType: SocialType
+  ) async throws -> AuthEntity {
+    let mockData = AuthEntity(
+      name: "testter",
+      provider: .apple,
+      token: .init(authToken: "", accessToken: "", refreshToken: "", sessionID: "")
+    )
+    return mockData
+  }
+
+  public func signUpUser(accessToken: String, socialType: SocialType, authCode: String) async throws -> AuthEntity {
     let mockData = AuthEntity(
       name: "testter",
       provider: .apple,

@@ -16,6 +16,14 @@ public struct LoginUseCase {
   ) async throws -> AuthEntity {
     return try await oAuth.loginUser(accessToken: accessToken, socialType: socialType)
   }
+
+  public func signUpUser(
+    accessToken: String,
+    socialType: SocialType,
+    authCode: String
+  ) async throws -> AuthEntity {
+    return try await oAuth.signUpUser(accessToken: accessToken, socialType: socialType, authCode: authCode)
+  }
 }
 
 extension LoginUseCase: DependencyKey {
