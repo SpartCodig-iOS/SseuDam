@@ -23,16 +23,17 @@ public struct LoginView: View {
     }
 
     public var body: some View {
-        VStack {
+        ZStack {
+            VStack {
 
-            loginLogoText()
+                loginLogoText()
 
-            Spacer()
+        Spacer()
 
-            loginSocialButton()
+        loginSocialButton()
 
-            Spacer()
-                .frame(height: 58)
+        Spacer()
+          .frame(height: 58)
 
         }
         .background(.primary50)
@@ -96,19 +97,36 @@ extension LoginView {
     }
 
 
-    @ViewBuilder
-    private func loginSocialButton() -> some View {
-        HStack (alignment: .center, spacing: 24){
-            ForEach(SocialType.allCases.filter { $0 != .none } ) { type in
-                SocialCircleButtonView(
-                    store: store,
-                    type: type
-                ) {
-                    store.send(.view(.signInWithSocial(social: type)))
-                }
-            }
+  @ViewBuilder
+  private func loginSocialButton() -> some View {
+    VStack(spacing: 12) {
+      HStack(alignment: .center, spacing: socialButtonSpacing) {
+        ForEach(SocialType.allCases.filter { $0 != .none }) { type in
+          SocialCircleButtonView(
+            store: store,
+            type: type
+          ) {
+            store.send(.view(.signInWithSocial(social: type)))
+          }
         }
+      }
+
+//      if let recentSocial = store.recentLoginSocialType, recentSocial != .none {
+//        RecentLoginTooltip(
+//          socialType: recentSocial,
+//          isVisible: true,
+//          circleSize: socialButtonSize,
+//          spacing: socialButtonSpacing
+//        )
+//        .padding(.top, 4)
+//      }
     }
+  }
+}
+
+// MARK: - Layout Constants
+  var socialButtonSize: CGFloat { 44 }
+  var socialButtonSpacing: CGFloat { 24 }
 }
 
 #Preview {
