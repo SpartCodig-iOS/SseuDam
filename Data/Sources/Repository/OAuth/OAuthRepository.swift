@@ -58,4 +58,9 @@ public final class OAuthRepository: OAuthRepositoryProtocol {
     try await updateUserDisplayName(displayName)
     Log.info("Updated Supabase display_name to \(displayName)")
   }
+  public func loginUser(input: Domain.OAuthUserInput) async throws -> Domain.AuthEntity {
+    let body = OAuthLoginUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
+    let data = try await dataSource.loginUser(body: body)
+    return data.toDomain()
+  }
 }

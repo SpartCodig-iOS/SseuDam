@@ -13,7 +13,6 @@ public enum OAuthAPITarget {
   case lognOAuth(body: OAuthLoginUserRequestDTO)
 }
 
-extension OAuthAPITarget: BaseTargetType {
   public typealias Domain = SseuDamDomain
   
   public var domain: SseuDamDomain {
@@ -25,8 +24,11 @@ extension OAuthAPITarget: BaseTargetType {
       case .checkSignUpUser:
         return OAuthAPI.checkSignUpUser.description
         
-      case .lognOAuth:
+      case .loginOAuth:
         return OAuthAPI.login.description
+
+      case .signUpOAuth:
+        return OAuthAPI.signUp.description
     }
   }
   
@@ -39,14 +41,17 @@ extension OAuthAPITarget: BaseTargetType {
       case .checkSignUpUser(let body):
         return body.toDictionary
         
-      case .lognOAuth(let body):
+      case .loginOAuth(let body):
+        return body.toDictionary
+
+      case .signUpOAuth(let body):
         return body.toDictionary
     }
   }
   
   public var method: Moya.Method {
     switch self {
-      case .checkSignUpUser, .lognOAuth:
+      case .checkSignUpUser, .loginOAuth, .signUpOAuth:
         return .post
     }
   }
