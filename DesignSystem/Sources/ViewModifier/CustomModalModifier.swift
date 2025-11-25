@@ -23,6 +23,12 @@ public struct CustomModalModifier<Item: Identifiable, ModalContent: View>: ViewM
     @State private var isDragging: Bool = false
     @State private var modalOffset: CGFloat = 0
 
+    // MARK: - Animation Constants
+    private let slideDistance: CGFloat = 300
+    private let dismissThreshold: CGFloat = 100
+    private let slideAnimation = Animation.spring(response: 0.4, dampingFraction: 0.8)
+    private let dragAnimation = Animation.spring(response: 0.5, dampingFraction: 0.8)
+
     public init(
         item: Binding<Item?>,
         height: ModalHeight = .auto,
@@ -39,93 +45,118 @@ public struct CustomModalModifier<Item: Identifiable, ModalContent: View>: ViewM
         GeometryReader { geometry in
             content
                 .overlay(
-                    item != nil ?
-                    ZStack {
-                        Color.black.opacity(0.4)
-                            .ignoresSafeArea()
-                            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-                            .onTapGesture {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                    modalOffset = 300
-                                }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    item = nil
-                                    modalOffset = 0
-                                }
-                            }
-
-                        VStack(spacing: 0) {
-                            Spacer()
-
-                            if let currentItem = item {
-                                VStack(spacing: 0) {
-                                    if showDragIndicator {
-                                        RoundedRectangle(cornerRadius: 2)
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(width: 36, height: 4)
-                                            .padding(.top, 8)
-                                            .padding(.bottom, 12)
-                                    }
-
-                                    modalContent(currentItem)
-                                        .frame(height: modalHeightValue(for: geometry))
-
-                                    Spacer()
-                                        .frame(height: geometry.safeAreaInsets.bottom)
-                                }
-                                .background(.white)
-                                .clipShape(
-                                    UnevenRoundedRectangle(
-                                        topLeadingRadius: 20,
-                                        topTrailingRadius: 20
-                                    )
-                                )
-                                .offset(y: modalOffset + max(0, dragOffset.height))
-                                .animation(isDragging ? nil : .spring(response: 0.5, dampingFraction: 0.8), value: dragOffset)
-                                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: modalOffset)
-                                .onAppear {
-                                    modalOffset = 300 // Start from bottom
-                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                        modalOffset = 0 // Slide up naturally
-                                    }
-                                }
-                                .gesture(
-                                    DragGesture()
-                                        .onChanged { value in
-                                            isDragging = true
-                                            if value.translation.height > 0 {
-                                                dragOffset = value.translation
-                                            }
-                                        }
-                                        .onEnded { value in
-                                            isDragging = false
-                                            let threshold: CGFloat = 100
-
-                                            if value.translation.height > threshold {
-                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                                    modalOffset = 300
-                                                }
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                                    item = nil
-                                                    modalOffset = 0
-                                                    dragOffset = .zero
-                                                }
-                                            } else {
-                                                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                                                    dragOffset = .zero
-                                                }
-                                            }
-                                        }
-                                )
-                            }
+                    Group {
+                        if item != nil {
+                            modalOverlay(geometry: geometry)
                         }
-                        .ignoresSafeArea(.container, edges: .bottom)
                     }
-                    : nil
                 )
         }
     }
 
+    // MARK: - Private Views
+    @ViewBuilder
+    private func modalOverlay(geometry: GeometryProxy) -> some View {
+        ZStack {
+            backgroundView
+            modalContentView(geometry: geometry)
+        }
+        .ignoresSafeArea(.container, edges: .bottom)
+    }
+
+    private var backgroundView: some View {
+        Color.black.opacity(0.4)
+            .ignoresSafeArea()
+            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+            .onTapGesture { dismissModal() }
+    }
+
+    @ViewBuilder
+    private func modalContentView(geometry: GeometryProxy) -> some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            if let currentItem = item {
+                VStack(spacing: 0) {
+                    dragIndicatorView
+                    modalContent(currentItem)
+                        .frame(height: modalHeightValue(for: geometry))
+                    safeAreaSpacer(geometry: geometry)
+                }
+                .background(.white)
+                .clipShape(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 20,
+                        topTrailingRadius: 20
+                    )
+                )
+                .offset(y: modalOffset + max(0, dragOffset.height))
+                .animation(isDragging ? nil : dragAnimation, value: dragOffset)
+                .animation(slideAnimation, value: modalOffset)
+                .onAppear { presentModal() }
+                .gesture(dragGesture)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var dragIndicatorView: some View {
+        if showDragIndicator {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 36, height: 4)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+        }
+    }
+
+    private func safeAreaSpacer(geometry: GeometryProxy) -> some View {
+        Spacer()
+            .frame(height: geometry.safeAreaInsets.bottom)
+    }
+
+    // MARK: - Gesture
+    private var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                isDragging = true
+                if value.translation.height > 0 {
+                    dragOffset = value.translation
+                }
+            }
+            .onEnded { value in
+                isDragging = false
+
+                if value.translation.height > dismissThreshold {
+                    dismissModal()
+                } else {
+                    withAnimation(dragAnimation) {
+                        dragOffset = .zero
+                    }
+                }
+            }
+    }
+
+    // MARK: - Actions
+    private func presentModal() {
+        modalOffset = slideDistance
+        withAnimation(slideAnimation) {
+            modalOffset = 0
+        }
+    }
+
+    private func dismissModal() {
+        withAnimation(slideAnimation) {
+            modalOffset = slideDistance
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            item = nil
+            modalOffset = 0
+            dragOffset = .zero
+        }
+    }
+
+    // MARK: - Helper Methods
     private func modalHeightValue(for geometry: GeometryProxy) -> CGFloat? {
         let safeAreaBottom = geometry.safeAreaInsets.bottom
         let availableHeight = geometry.size.height - safeAreaBottom
@@ -136,7 +167,7 @@ public struct CustomModalModifier<Item: Identifiable, ModalContent: View>: ViewM
         case .fixed(let points):
             return min(points, availableHeight)
         case .auto:
-            return nil 
+            return nil
         }
     }
 }
