@@ -15,5 +15,4 @@ public protocol OAuthUseCaseProtocol {
     nonce: String
   ) async throws -> UserEntity
   func signUp(with provider: SocialType) async throws -> UserEntity
-  func checkUserSignUp(accessToken: String, socialType: SocialType) async throws -> OAuthCheckUser
 }

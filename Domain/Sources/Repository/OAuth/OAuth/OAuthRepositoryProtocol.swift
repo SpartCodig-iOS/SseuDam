@@ -8,7 +8,6 @@
 import Foundation
 import Supabase
 import ComposableArchitecture
-import NetworkService
 
 public protocol OAuthRepositoryProtocol {
   func signIn(
@@ -18,7 +17,6 @@ public protocol OAuthRepositoryProtocol {
     displayName: String?
   ) async throws -> Supabase.Session
   func updateUserDisplayName(_ name: String) async throws
-  func checkSignUpUser(input: OAuthCheckUserInput) async throws -> OAuthCheckUser
 }
 
 // MARK: - Dependencies

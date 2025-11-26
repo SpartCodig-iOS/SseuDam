@@ -26,13 +26,6 @@ public struct LoginUseCase {
   public func signUp(with provider: SocialType) async throws -> UserEntity {
     try await oAuth.signUp(with: provider)
   }
-
-  public func checkUserSignUp(
-    accessToken: String,
-    socialType: SocialType
-  ) async throws -> OAuthCheckUser {
-    try await oAuth.checkUserSignUp(accessToken: accessToken, socialType: socialType)
-  }
 }
 
 extension LoginUseCase: DependencyKey {

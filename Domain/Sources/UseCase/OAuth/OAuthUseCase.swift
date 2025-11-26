@@ -104,12 +104,6 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     }
   }
 
-  public func checkUserSignUp(
-    accessToken: String,
-    socialType: SocialType
-  ) async throws -> OAuthCheckUser {
-    return try await repository.checkSignUpUser(input: OAuthCheckUserInput(accessToken: accessToken, socialType: socialType))
-  }
 }
 
 // MARK: - Dependencies

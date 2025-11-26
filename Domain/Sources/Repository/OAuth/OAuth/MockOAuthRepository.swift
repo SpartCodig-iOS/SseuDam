@@ -141,10 +141,6 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
 
   }
 
-  public func checkSignUpUser(input: OAuthCheckUserInput) async throws -> OAuthCheckUser {
-    return OAuthCheckUser(registered: false)
-  }
-
 
   // MARK: - Private Methods
   private func performMockSignIn(
