@@ -8,12 +8,20 @@
 import Domain
 import Supabase
 import LogMacro
+import Moya
+import NetworkService
 
-public class OAuthRepository: OAuthRepositoryProtocol {
-  private let provider: SupabaseClientProviding
+public final class OAuthRepository: OAuthRepositoryProtocol {
 
-  public init() {
-    self.provider = SupabaseClientProvider.shared
+  private let supabaseprovider: SupabaseClientProviding
+  private var client: SupabaseClient { supabaseprovider.client }
+  private var provider: MoyaProvider<OAuthAPITarget>
+
+  public init(
+    provider: MoyaProvider<OAuthAPITarget> = MoyaProvider<OAuthAPITarget>.default,
+  ) {
+    self.supabaseprovider = SupabaseClientProvider.shared
+    self.provider = provider
   }
 
   public func signIn(
@@ -42,9 +50,6 @@ public class OAuthRepository: OAuthRepositoryProtocol {
   }
 
   // MARK: - Private
-
-  private var client: SupabaseClient { provider.client }
-
   private func updateDisplayNameIfNeeded(_ displayName: String?) async throws {
     guard let displayName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines),
           !displayName.isEmpty
