@@ -30,7 +30,7 @@ public struct TermsRowView: View {
     HStack(spacing: 8) {
       Button(action: action) {
         HStack(spacing: 8) {
-          Image(systemName: isOn ? "checkmark.square.fill" : "square")
+          Image(systemName: isOn ? "checkmark" : "checkmark")
             .foregroundStyle(isOn ? .primary500: .gray2)
 
           Text(title)

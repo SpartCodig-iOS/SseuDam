@@ -62,7 +62,6 @@ public struct LoginFeature {
         case googleSignIn
         case appleSignIn(Result<AppleLoginPayload, AuthError>)
         case appleCompletion(Result<ASAuthorization, Error>)
-        case checkSignUpUser
         case loginUser
         case signUpUser
     }
@@ -91,6 +90,7 @@ public struct LoginFeature {
     }
 
     @Dependency(LoginUseCase.self) var loginUseCase
+    @Dependency(OAuthUseCase.self) var oAuthUseCase
     @Dependency(SignUpUseCase.self) var signUpUseCase
 
     // MARK: - Body
@@ -178,38 +178,38 @@ extension LoginFeature {
         action: AsyncAction
     ) -> Effect<Action> {
         switch action {
+          case .checkSignUpUser:
+              return .run { [userEntity = state.userEntity] send in
+                  let checkSignUpUserResult = await Result {
+                      try await signUpUseCase.checkUserSignUp(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
+                  }
+
+                  switch checkSignUpUserResult {
+                      case .success(let checkSignUpUserData):
+                          await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
+
+                          if checkSignUpUserData.registered == true {
+                            await send(.async(.loginUser), animation: .easeIn)
+                          } else {
+                            await send(.view(.appearModal), animation: .easeIn)
+                          }
+
+                      case .failure(let error):
+                          await send(.inner(.checkUserResponse(.failure(.unknownError(error.localizedDescription)))))
+                  }
+              }
+              .cancellable(id: CancelID.checkSignUpUser, cancelInFlight: true)
+
             case .prepareAppleRequest(let request):
                 let nonce = AppleLoginManager().prepare(request)
                 state.currentNonce = nonce
                 return .none
 
-            case .checkSignUpUser:
-                return .run { [userEntity = state.userEntity] send in
-                    let checkSignUpUserResult = await Result {
-                        try await signUpUseCase.checkUserSignUp(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
-                    }
-
-                    switch checkSignUpUserResult {
-                        case .success(let checkSignUpUserData):
-                            await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
-
-                            if checkSignUpUserData.registered == true {
-                                // 여기에는 로그인 로직
-                            } else {
-                                // 여기에는 회원가입 로직
-                            }
-
-                        case .failure(let error):
-                            await send(.inner(.checkUserResponse(.failure(.unknownError(error.localizedDescription)))))
-                    }
-                }
-
             case .googleSignIn:
                 return .run { send in
                     do {
-                        let user = try await loginUseCase.signUp(with: .google)
+                        let user = try await oAuthUseCase.signUp(with: .google)
                         await send(.inner(.googleLoginResponse(.success(user))))
-                        try await clock.sleep(for: .seconds(0.04))
                         await send(.async(.checkSignUpUser))
                     } catch let authError as AuthError {
                         await send(.inner(.googleLoginResponse(.failure(authError))))
@@ -226,7 +226,7 @@ extension LoginFeature {
                     case let .success(payload):
                         return .run { send in
                             do {
-                                let user = try await loginUseCase.signInWithApple(
+                                let user = try await oAuthUseCase.signInWithApple(
                                     credential: payload.credential,
                                     nonce: payload.nonce
                                 )
@@ -239,7 +239,7 @@ extension LoginFeature {
                                 )))
                             }
                         }
-                        
+
 
                     case let .failure(error):
                         state.isLoading = false
@@ -285,36 +285,14 @@ extension LoginFeature {
                         }
                 }
 
-            case .checkSignUpUser:
-                return .run { [userEntity = state.userEntity] send in
-                    let checkSignUpUserResult = await Result {
-                        try await loginUseCase.checkUserSignUp(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
-                    }
-
-                    switch checkSignUpUserResult {
-                        case .success(let checkSignUpUserData):
-                            await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
-
-                            if checkSignUpUserData.registered == true {
-                              await send(.async(.loginUser), animation: .easeIn)
-                            } else {
-                              await send(.view(.appearModal), animation: .easeIn)
-                            }
-
-                        case .failure(let error):
-                            await send(.inner(.checkUserResponse(.failure(.unknownError(error.localizedDescription)))))
-                    }
-                }
-                .cancellable(id: CancelID.checkSignUpUser, cancelInFlight: true)
 
             case .loginUser:
-                return .run {  [userEntity = state.userEntity] send in
+                return .run { [userEntity = state.userEntity] send in
                     let loginUserResult = await Result {
                         try await loginUseCase.loginUser(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
                     }
 
                     switch loginUserResult {
-
                         case .success(let loginUserData):
                             await send(.inner(.authUserResponse(.success(loginUserData))))
 
@@ -335,7 +313,7 @@ extension LoginFeature {
             case .signUpUser:
                 return .run {  [userEntity = state.userEntity] send in
                     let signUpUserResult = await Result {
-                        try await loginUseCase.signUpUser(
+                        try await signUpUseCase.signUpUser(
                             accessToken: userEntity?.tokens.authToken ?? "",
                             socialType: userEntity?.provider ?? .none,
                             authCode: userEntity?.authCode ?? ""
