@@ -37,17 +37,35 @@ struct CreateTravelView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     TravelInfoView(
-                        title: $store.title,
-                        selectedCountry: $store.selectedCountry,
-                        startDate: $store.startDate,
-                        endDate: $store.endDate
+                        title: Binding(
+                            get: { store.title },
+                            set: { store.send(.titleChanged($0)) }
+                        ),
+                        selectedCountry: Binding(
+                            get: { store.selectedCurrency },
+                            set: { store.send(.countryChanged($0)) }
+                        ),
+                        startDate: Binding(
+                            get: { store.startDate },
+                            set: { store.send(.startDateChanged($0)) }
+                        ),
+                        endDate: Binding(
+                            get: { store.endDate },
+                            set: { store.send(.endDateChanged($0)) }
+                        )
                     )
 
                     if store.selectedCountry != "한국",
                        store.selectedCountry != nil {
                         ExchangeRateView(
-                            currency: $store.currency,
-                            rate: $store.rate
+                            currency: Binding(
+                                get: { store.currency },
+                                set: { store.send(.currencyChanged($0)) }
+                            ),
+                            rate: Binding(
+                                get: { store.rate },
+                                set: { store.send(.rateChanged($0)) }
+                            )
                         )
                     }
                 }
@@ -62,8 +80,4 @@ struct CreateTravelView: View {
         .background(Color.primary50)
         .navigationBarBackButtonHidden(true)
     }
-}
-
-#Preview {
-    CreateTravelView(title: .constant(""), currency: .constant([""]), rate: .constant(""))
 }

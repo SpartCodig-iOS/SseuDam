@@ -10,13 +10,14 @@ import Domain
 import ComposableArchitecture
 
 @Reducer
-struct TravelCreateFeature {
+public struct TravelCreateFeature {
     @ObservableState
-    struct State: Equatable {
+    public struct State: Equatable {
         var title = ""
-        var currencey: [String] = []
+        var currency: [String] = []
         var rate = ""
         var selectedCurrency: String? = nil
+        var selectedCountry: String? = nil
         var startDate: Date? = nil
         var endDate: Date? = nil
 
@@ -36,8 +37,8 @@ struct TravelCreateFeature {
         }
     }
 
-    enum Action {
-        case titleCanged(String)
+    public enum Action {
+        case titleChanged(String)
         case currencyChanged([String])
         case rateChanged(String)
         case countryChanged(String?)
@@ -45,14 +46,14 @@ struct TravelCreateFeature {
         case endDateChanged(Date?)
 
         case saveButtonTapped
-        case saveResponse(Result<Travel, Error)
+        case saveResponse(Result<Travel, Error>)
 
         case dismiss
     }
 
     @Dependency(\.createTravelUseCase) var createTravelUseCase: CreateTravelUseCaseProtocol
 
-    var body: some Reducer<State, Action> {
+    public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .titleChanged(let newValue):
@@ -81,9 +82,10 @@ struct TravelCreateFeature {
 
             case .saveButtonTapped:
                 guard state.isSaveEnabled else { return .none }
-                guard let start = state.startDate
-                        let end = state.endDate
-                        let country = state.selectedCountry
+                guard
+                    let start = state.startDate,
+                    let end = state.endDate,
+                    let country = state.selectedCountry
                 else { return .none }
 
                 state.isSubmitting = true

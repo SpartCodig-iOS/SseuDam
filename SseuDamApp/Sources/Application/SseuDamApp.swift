@@ -12,6 +12,8 @@ struct SseuDamApp: App {
             ._printChanges(.actionLabels)
     } withDependencies: {
         $0.loginUseCase = makeLoginUseCase()
+        $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
+        $0.createTravelUseCase = makeCreateTravelUseCase()
     }
 
     var body: some Scene {
@@ -28,6 +30,22 @@ private extension SseuDamApp {
                 repository: OAuthRepository(),
                 googleRepository: GoogleOAuthRepository(),
                 appleRepository: AppleOAuthRepository()
+            )
+        )
+    }
+
+    static func makeFetchTravelsUseCase() -> FetchTravelsUseCase {
+        FetchTravelsUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeCreateTravelUseCase() -> CreateTravelUseCase {
+        CreateTravelUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
             )
         )
     }

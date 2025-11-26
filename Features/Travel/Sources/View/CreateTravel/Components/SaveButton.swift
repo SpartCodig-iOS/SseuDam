@@ -29,7 +29,3 @@ struct SaveButton: View {
         .disabled(!isEnabled)
     }
 }
-
-#Preview {
-    SaveButton(isEnabled: true)
-}

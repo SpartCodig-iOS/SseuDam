@@ -11,7 +11,7 @@ import ComposableArchitecture
 @Reducer
 public struct TravelListFeature {
     @ObservableState
-    struct State: Equatable {
+    public struct State: Equatable {
         var travels: [Travel] = []
         var selectedTab: TravelTab = .ongoing
 
@@ -27,7 +27,7 @@ public struct TravelListFeature {
         public init() {}
     }
 
-    enum Action {
+    public enum Action {
         case onAppear
         case refresh
         case fetch
@@ -43,7 +43,7 @@ public struct TravelListFeature {
 
     @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase: FetchTravelsUseCaseProtocol
 
-    var body: some Reducer<State, Action> {
+    public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -86,6 +86,9 @@ public struct TravelListFeature {
                       state.hasNext,
                       let last = state.travels.last, last.id == id
                 else { return .none }
+
+                state.page += 1
+                return .send(.fetch)
 
             case .fetchResponse(.success(let items)):
                 state.isLoading = false
