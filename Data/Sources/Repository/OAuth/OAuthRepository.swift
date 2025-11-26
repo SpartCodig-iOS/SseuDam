@@ -14,16 +14,13 @@ import NetworkService
 public final class OAuthRepository: OAuthRepositoryProtocol {
 
   private let supabaseprovider: SupabaseClientProviding
-  private let dataSource: OAuthRemoteDataSourceProtocol
   private var client: SupabaseClient { supabaseprovider.client }
   private var provider: MoyaProvider<OAuthAPITarget>
 
   public init(
     provider: MoyaProvider<OAuthAPITarget> = MoyaProvider<OAuthAPITarget>.default,
-    dataSource: OAuthRemoteDataSourceProtocol = OAuthRemoteDataSource()
   ) {
     self.supabaseprovider = SupabaseClientProvider.shared
-    self.dataSource = dataSource
     self.provider = provider
   }
 
@@ -60,16 +57,5 @@ public final class OAuthRepository: OAuthRepositoryProtocol {
 
     try await updateUserDisplayName(displayName)
     Log.info("Updated Supabase display_name to \(displayName)")
-  }
-
-  public func checkSignUpUser(
-    input: Domain.OAuthCheckUserInput
-  ) async throws -> Domain.OAuthCheckUser {
-    let body = OAuthCheckUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
-    let response: BaseResponse<OAuthCheckUserResponseDTO> = try await provider.request(.checkSignUpUser(body: body))
-    guard let data = response.data else {
-      throw NetworkError.noData
-    }
-    return data.toDomain()
   }
 }
