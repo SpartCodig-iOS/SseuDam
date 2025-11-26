@@ -8,6 +8,8 @@
 import Foundation
 
 public protocol SignUpRepositoryProtocol {
-    func checkSignUpUser(input: OAuthCheckUserInput) async throws -> OAuthCheckUser
+    func checkSignUpUser(input: OAuthUserInput) async throws -> OAuthCheckUser
+    func signUpUser(input: OAuthUserInput) async throws -> AuthEntity
+  
 }
 
