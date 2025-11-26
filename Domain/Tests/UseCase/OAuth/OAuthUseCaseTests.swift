@@ -16,44 +16,37 @@ struct OAuthUseCaseTests {
     @Test("Google 로그인 성공")
     func testGoogleSignUpReturnsMockUser() async throws {
         // Given
-        let mockUseCase = MockOAuthUseCase()
+        let oAuthUseCase = OAuthUseCase(
+            repository: MockOAuthRepository(),
+            googleRepository: MockGoogleOAuthRepository(),
+            appleRepository: MockAppleOAuthRepository()
+        )
 
         // When
-        let result = try await mockUseCase.signUp(with: Domain.SocialType.google)
+        let result = try await oAuthUseCase.signUp(with: Domain.SocialType.google)
 
         // Then
         #expect(result.provider == Domain.SocialType.google)
         #expect(result.displayName == "Mock Google User")
-        #expect(result.email == "google.user@example.com")
+        #expect(result.email == "google.user@gmail.com")
     }
 
     @Test("Apple 로그인 성공")
     func testAppleSignUpReturnsMockUser() async throws {
         // Given
-        let mockUseCase = MockOAuthUseCase()
+        let oAuthUseCase = OAuthUseCase(
+            repository: MockOAuthRepository(),
+            googleRepository: MockGoogleOAuthRepository(),
+            appleRepository: MockAppleOAuthRepository()
+        )
 
         // When
-        let result = try await mockUseCase.signUp(with: Domain.SocialType.apple)
+        let result = try await oAuthUseCase.signUp(with: Domain.SocialType.apple)
 
         // Then
         #expect(result.provider == Domain.SocialType.apple)
         #expect(result.displayName == "Mock Apple User")
-        #expect(result.email == "apple.user@example.com")
-    }
-
-    @Test("사용자 등록 확인 성공")
-    func testCheckUserSignUpReturnsRegistered() async throws {
-        // Given
-        let mockUseCase = MockOAuthUseCase()
-
-        // When
-        let result = try await mockUseCase.checkUserSignUp(
-            accessToken: "test-token",
-            socialType: Domain.SocialType.google
-        )
-
-        // Then
-        #expect(result.registered == true)
+        #expect(result.email == "apple.user@icloud.com")
     }
 
     // MARK: - Repository Actors
@@ -95,7 +88,8 @@ struct OAuthUseCaseTests {
         let result = try await mockRepo.checkSignUpUser(
             input: OAuthUserInput(
                 accessToken: "test-token",
-                socialType: Domain.SocialType.google, authorizationCode: <#String#>
+                socialType: Domain.SocialType.google,
+                authorizationCode: "test-auth-code"
             )
         )
 

@@ -107,9 +107,21 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
 
 // MARK: - Dependencies
 extension OAuthUseCase: DependencyKey {
-  public static var liveValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
-  public static var previewValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
-  public static var testValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
+  public static var liveValue:  OAuthUseCaseProtocol = {
+    return OAuthUseCase(
+      repository: MockOAuthRepository(),
+      googleRepository: MockGoogleOAuthRepository(),
+      appleRepository: MockAppleOAuthRepository()
+    )
+  }()
+  public static var previewValue:  OAuthUseCaseProtocol = liveValue
+  public static var testValue:  OAuthUseCaseProtocol = {
+    return OAuthUseCase(
+      repository: MockOAuthRepository(),
+      googleRepository: MockGoogleOAuthRepository(),
+      appleRepository: MockAppleOAuthRepository()
+    )
+  }()
 }
 
 public extension DependencyValues {
