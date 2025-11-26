@@ -8,16 +8,23 @@
 import Domain
 import Supabase
 import LogMacro
+import Moya
+import NetworkService
 
-public class OAuthRepository: OAuthRepositoryProtocol {
+public final class OAuthRepository: OAuthRepositoryProtocol {
 
-  private let provider: SupabaseClientProviding
+  private let supabaseprovider: SupabaseClientProviding
   private let dataSource: OAuthRemoteDataSourceProtocol
-  private var client: SupabaseClient { provider.client }
+  private var client: SupabaseClient { supabaseprovider.client }
+  private var provider: MoyaProvider<OAuthAPITarget>
 
-  public init(dataSource: OAuthRemoteDataSourceProtocol ) {
-    self.provider = SupabaseClientProvider.shared
+  public init(
+    provider: MoyaProvider<OAuthAPITarget> = MoyaProvider<OAuthAPITarget>.default,
+    dataSource: OAuthRemoteDataSourceProtocol = OAuthRemoteDataSource()
+  ) {
+    self.supabaseprovider = SupabaseClientProvider.shared
     self.dataSource = dataSource
+    self.provider = provider
   }
 
   public func signIn(
@@ -46,9 +53,6 @@ public class OAuthRepository: OAuthRepositoryProtocol {
   }
 
   // MARK: - Private
-
-
-
   private func updateDisplayNameIfNeeded(_ displayName: String?) async throws {
     guard let displayName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines),
           !displayName.isEmpty
@@ -62,7 +66,10 @@ public class OAuthRepository: OAuthRepositoryProtocol {
     input: Domain.OAuthCheckUserInput
   ) async throws -> Domain.OAuthCheckUser {
     let body = OAuthCheckUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
-    let data = try await dataSource.checkSingUpUser(body: body)
+    let response: BaseResponse<OAuthCheckUserResponseDTO> = try await provider.request(.checkSignUpUser(body: body))
+    guard let data = response.data else {
+      throw NetworkError.noData
+    }
     return data.toDomain()
   }
 }

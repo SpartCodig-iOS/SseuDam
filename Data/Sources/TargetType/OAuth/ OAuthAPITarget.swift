@@ -8,11 +8,11 @@
 import Moya
 import NetworkService
 
-public enum OAuthService {
+public enum OAuthAPITarget {
   case checkSignUpUser(body: OAuthCheckUserRequestDTO)
 }
 
-extension OAuthService: BaseTargetType {
+extension OAuthAPITarget: BaseTargetType {
   public typealias Domain = SseuDamDomain
 
   public var domain: SseuDamDomain {
