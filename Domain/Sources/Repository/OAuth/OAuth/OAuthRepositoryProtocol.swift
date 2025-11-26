@@ -19,18 +19,3 @@ public protocol OAuthRepositoryProtocol {
   func updateUserDisplayName(_ name: String) async throws
 }
 
-// MARK: - Dependencies
-
-
-public struct OAuthRepositoryDependency: DependencyKey {
-  public static var liveValue: OAuthRepositoryProtocol = MockOAuthRepository()
-  public static var previewValue: OAuthRepositoryProtocol = MockOAuthRepository()
-  public static var testValue: OAuthRepositoryProtocol = MockOAuthRepository()
-}
-
-public extension DependencyValues {
-  var oAuthRepository:  OAuthRepositoryProtocol {
-    get { self[OAuthRepositoryDependency.self] }
-    set { self[OAuthRepositoryDependency.self] = newValue }
-  }
-}

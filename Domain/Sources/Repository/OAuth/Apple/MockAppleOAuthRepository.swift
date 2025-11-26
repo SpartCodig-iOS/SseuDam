@@ -203,18 +203,3 @@ public enum MockAppleOAuthError: Error, LocalizedError {
         }
     }
 }
-
-// MARK: - Dependencies
-
-extension MockAppleOAuthRepository: DependencyKey {
-    public static var liveValue: any AppleOAuthRepositoryProtocol = MockAppleOAuthRepository.success()
-    public static var previewValue: any AppleOAuthRepositoryProtocol = MockAppleOAuthRepository.success()
-    public static var testValue: any AppleOAuthRepositoryProtocol = MockAppleOAuthRepository.success()
-}
-
-public extension DependencyValues {
-    var mockAppleOAuthRepository: AppleOAuthRepositoryProtocol {
-        get { self[MockAppleOAuthRepository.self] }
-        set { self[MockAppleOAuthRepository.self] = newValue }
-    }
-}
