@@ -8,8 +8,8 @@
 import Foundation
 import Dependencies
 
-/// Mock implementation of SignUpRepositoryProtocol for testing and preview purposes
-public struct MockSignUpRepository: SignUpRepositoryProtocol {
+/// Thread-safe Actor-based Mock implementation of SignUpRepositoryProtocol for testing and preview purposes
+public actor MockSignUpRepository: SignUpRepositoryProtocol {
     
     /// Configuration for mock behavior
     public struct Configuration {
