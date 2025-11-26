@@ -8,11 +8,18 @@
 import Foundation
 
 public protocol RecordExpenseUseCaseProtocol {
-    func execute(input: RecordExpenseInput) async throws
+    func execute(expense: Expense) async throws
 }
 
 public struct RecordExpenseUseCase: RecordExpenseUseCaseProtocol {
-    public func execute(input: RecordExpenseInput) async throws {
-        return
+    private let repository: ExpenseRepositoryProtocol
+    
+    public init(repository: ExpenseRepositoryProtocol) {
+        self.repository = repository
+    }
+    
+    public func execute(expense: Expense) async throws {
+        try expense.validate()
+        try await repository.save(expense: expense)
     }
 }
