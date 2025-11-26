@@ -15,7 +15,10 @@ final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
     
     public init() {}
     
-    public func setShouldFailSave(_ value: Bool, reason: String? = nil) {
+    public func setShouldFailSave(
+        _ value: Bool,
+        reason: String? = nil
+    ) {
         shouldFailSave = value
         saveErrorReason = reason
     }
