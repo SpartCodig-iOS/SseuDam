@@ -46,11 +46,11 @@ public struct LoginFeature {
 
     // MARK: - AsyncAction (비동기 처리 트리거)
     public enum AsyncAction {
+        case checkSignUpUser
         case prepareAppleRequest(ASAuthorizationAppleIDRequest)
         case googleSignIn
         case appleSignIn(Result<AppleLoginPayload, AuthError>)
         case appleCompletion(Result<ASAuthorization, Error>)
-        case checkSignUpUser
     }
 
     // MARK: - InnerAction (비동기 결과 처리)
@@ -67,7 +67,7 @@ public struct LoginFeature {
     // MARK: - Dependencies
 
     @Dependency(LoginUseCase.self) var loginUseCase
-    @Dependency(\.continuousClock) var clock
+    @Dependency(SignUpUseCase.self) var signUpUseCase
 
     // MARK: - Body
 
@@ -137,12 +137,32 @@ extension LoginFeature {
                 state.currentNonce = nonce
                 return .none
 
+            case .checkSignUpUser:
+                return .run { [userEntity = state.userEntity] send in
+                    let checkSignUpUserResult = await Result {
+                        try await signUpUseCase.checkUserSignUp(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
+                    }
+
+                    switch checkSignUpUserResult {
+                        case .success(let checkSignUpUserData):
+                            await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
+
+                            if checkSignUpUserData.registered == true {
+                                // 여기에는 로그인 로직
+                            } else {
+                                // 여기에는 회원가입 로직
+                            }
+
+                        case .failure(let error):
+                            await send(.inner(.checkUserResponse(.failure(.unknownError(error.localizedDescription)))))
+                    }
+                }
+
             case .googleSignIn:
                 return .run { send in
                     do {
                         let user = try await loginUseCase.signUp(with: .google)
                         await send(.inner(.googleLoginResponse(.success(user))))
-                      try await clock.sleep(for: .seconds(0.04))
                         await send(.async(.checkSignUpUser))
                     } catch let authError as AuthError {
                         await send(.inner(.googleLoginResponse(.failure(authError))))
@@ -201,8 +221,6 @@ extension LoginFeature {
 
                         return .run { send in
                             await send(.async(.appleSignIn(.success(payload))))
-
-                            try await clock.sleep(for: .seconds(0.04))
                             await send(.async(.checkSignUpUser))
                         }
 
@@ -216,27 +234,6 @@ extension LoginFeature {
                                 await send(.async(.appleSignIn(.failure(authError))))
                             }
                         }
-                }
-
-          case .checkSignUpUser:
-                return .run { [userEntity = state.userEntity] send in
-                    let checkSignUpUserResult = await Result {
-                        try await loginUseCase.checkUserSignUp(accessToken: userEntity?.tokens.authToken ?? "", socialType: userEntity?.provider ?? .none)
-                    }
-
-                    switch checkSignUpUserResult {
-                        case .success(let checkSignUpUserData):
-                            await send(.inner(.checkUserResponse(.success(checkSignUpUserData))))
-
-                            if checkSignUpUserData.registered == true {
-                                // 여기에는 로그인 로직
-                            } else {
-                                // 여기에는 회원가입 로직
-                            }
-
-                        case .failure(let error):
-                            await send(.inner(.checkUserResponse(.failure(.unknownError(error.localizedDescription)))))
-                    }
                 }
         }
     }
