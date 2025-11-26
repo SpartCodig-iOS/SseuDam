@@ -21,11 +21,12 @@ public extension TargetDependency {
 
 public extension TargetDependency {
     // MARK: - Core Modules
-    static let Domain: TargetDependency = .project(target: "Domain", path: "../../Domain")
-    static let Data: TargetDependency = .project(target: "Data", path: "../../Data")
-    static let DesignSystem: TargetDependency = .project(target: "DesignSystem", path: "../../DesignSystem")
-    static let NetworkService: TargetDependency = .project(target: "NetworkService", path: "../../NetworkService")
+    static let Domain: TargetDependency = .project(target: "Domain", path: .relativeToRoot("Domain"))
+    static let Data: TargetDependency = .project(target: "Data", path: .relativeToRoot("Data"))
+    static let DesignSystem: TargetDependency = .project(target: "DesignSystem", path: .relativeToRoot("DesignSystem"))
+    static let NetworkService: TargetDependency = .project(target: "NetworkService", path: .relativeToRoot("NetworkService"))
 }
+
 
 public extension TargetDependency.Features {
     // MARK: - Feature Modules

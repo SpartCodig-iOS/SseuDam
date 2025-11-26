@@ -13,14 +13,17 @@ public extension TargetDependency {
     static let NetworkService: TargetDependency = .project(target: "NetworkService", path: .relativeToRoot("NetworkService"))
 }
 
+
 public extension TargetDependency.Features {
     // MARK: - Feature Modules
+    static let Expense: TargetDependency = .project(target: "ExpenseFeature", path: .relativeToRoot("Features/Expense"))
     static let Login: TargetDependency = .project(target: "LoginFeature", path: .relativeToRoot("Features/Login"))
     static let Travel: TargetDependency = .project(target: "TravelFeature", path: .relativeToRoot("Features/Travel"))
 }
 
 // MARK: - Feature Names
 public enum FeatureName: String {
+    case Expense
     case Login
     case Travel
 
