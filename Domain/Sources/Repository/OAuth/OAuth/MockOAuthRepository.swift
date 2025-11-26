@@ -140,13 +140,10 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
 
   }
 
-  public func checkSignUpUser(input: OAuthUserInput) async throws -> OAuthCheckUser {
-    return OAuthCheckUser(registered: false)
-  }
   public func loginUser(input: OAuthUserInput) async throws -> AuthEntity {
     let mockData = AuthEntity(
-      provider: .apple,
       name: "testter",
+      provider: .apple,
       token: .init(authToken: "", accessToken: "", refreshToken: "", sessionID: "")
     )
     return mockData

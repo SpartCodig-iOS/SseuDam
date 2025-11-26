@@ -93,9 +93,9 @@ struct OAuthUseCaseTests {
 
         // When
         let result = try await mockRepo.checkSignUpUser(
-            input: OAuthCheckUserInput(
+            input: OAuthUserInput(
                 accessToken: "test-token",
-                socialType: Domain.SocialType.google
+                socialType: Domain.SocialType.google, authorizationCode: <#String#>
             )
         )
 

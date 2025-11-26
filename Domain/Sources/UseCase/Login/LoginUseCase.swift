@@ -9,21 +9,22 @@ import ComposableArchitecture
 import AuthenticationServices
 
 /// Coordinates every dependency needed to perform an OAuth based login.
-public struct LoginUseCase {
-  public func loginUser(
-    accessToken: String,
-    socialType: SocialType
-  ) async throws -> AuthEntity {
-    return try await oAuth.loginUser(accessToken: accessToken, socialType: socialType)
-  }
+public struct LoginUseCase: LoginUseCaseProtocol {
 
-  public func signUpUser(
-    accessToken: String,
-    socialType: SocialType,
-    authCode: String
-  ) async throws -> AuthEntity {
-    return try await oAuth.signUpUser(accessToken: accessToken, socialType: socialType, authCode: authCode)
-  }
+    private let repository: LoginRepositoryProtocol
+
+    public init(
+        repository: LoginRepositoryProtocol
+    ) {
+        self.repository = repository
+    }
+
+    public func loginUser(
+      accessToken: String,
+      socialType: SocialType
+    ) async throws -> AuthEntity {
+      return try await repository.loginUser(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: ""))
+    }
 }
 
 extension LoginUseCase: DependencyKey {
@@ -41,12 +42,7 @@ public extension DependencyValues {
 
 private extension LoginUseCase {
     static func mockedDependency() -> LoginUseCase {
-        let oauth = OAuthUseCase(
-            repository: MockOAuthRepository(),
-            googleRepository: MockGoogleOAuthRepository(),
-            appleRepository: MockAppleOAuthRepository()
-        )
-        return LoginUseCase(oAuth: oauth)
+        let repo = MockLoginRepository()
+        return LoginUseCase(repository: repo)
     }
 }
-

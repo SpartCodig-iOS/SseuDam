@@ -17,8 +17,5 @@ public protocol OAuthRepositoryProtocol {
     displayName: String?
   ) async throws -> Supabase.Session
   func updateUserDisplayName(_ name: String) async throws
-  func checkSignUpUser(input: OAuthUserInput) async throws -> OAuthCheckUser
-  func loginUser(input: OAuthUserInput) async throws -> AuthEntity
-  func signUpUser(input: OAuthUserInput) async throws -> AuthEntity
 }
 

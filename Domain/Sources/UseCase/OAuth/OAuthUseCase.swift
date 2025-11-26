@@ -103,21 +103,6 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
         throw AuthError.configurationMissing
     }
   }
-
-  public func loginUser(
-    accessToken: String,
-    socialType: SocialType
-  ) async throws -> AuthEntity {
-    return try await repository.loginUser(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: ""))
-  }
-
-  public func signUpUser(
-    accessToken: String,
-    socialType: SocialType,
-    authCode: String
-  ) async throws -> AuthEntity {
-    return try await repository.signUpUser(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: authCode))
-  }
 }
 
 // MARK: - Dependencies
