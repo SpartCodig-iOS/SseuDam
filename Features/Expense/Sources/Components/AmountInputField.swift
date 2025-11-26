@@ -12,39 +12,48 @@ public struct AmountInputField: View {
     @Binding var amount: String
     let currency: String
     
-    public init(amount: Binding<String>, currency: String = "₩") {
+    public init(amount: Binding<String>, currency: String = "JYP") {
         self._amount = amount
         self.currency = currency
     }
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("금액")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.primary800)
+            FormLabel("지출 금액")
             
-            HStack(spacing: 4) {
-                Text(currency)
-                    .font(.system(size: 32, weight: .semibold))
-                    .foregroundStyle(Color.primary800)
+            HStack(spacing: 8) {
+                InputContainer {
+                    TextField("", text: $amount)
+                        .font(.system(size: 16))
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                    
+                    Text("-")
+                        .foregroundStyle(.gray)
+                }
                 
-                TextField("0", text: $amount)
-                    .font(.system(size: 32, weight: .semibold))
+                Text(currency)
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundStyle(Color.primary800)
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.leading)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color.gray2.opacity(0.3))
-            .cornerRadius(12)
+            
+            HStack {
+                Text("KRW 환산 금액")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.blue)
+                
+                Spacer()
+                
+                Text("₩-")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.blue)
+            }
         }
     }
 }
 
 #Preview {
-    @Previewable @State var amount = "12000"
-    
+    @Previewable @State var amount = ""
     AmountInputField(amount: $amount)
         .padding()
 }

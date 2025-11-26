@@ -20,36 +20,42 @@ public struct DatePickerField: View {
     private var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateFormat = "yyyy년 MM월 dd일"
+        formatter.dateFormat = "yyyy.MM.dd"
         return formatter
     }
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(label)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Color.primary800)
+            FormLabel(label)
             
-            DatePicker(
-                "",
-                selection: $date,
-                in: ...Date(),
-                displayedComponents: .date
-            )
-            .datePickerStyle(.compact)
-            .labelsHidden()
-            .environment(\.locale, Locale(identifier: "ko_KR"))
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color.gray2.opacity(0.3))
-            .cornerRadius(12)
+            InputContainer {
+                HStack {
+                    Image(systemName: "calendar")
+                        .foregroundStyle(.gray)
+                    
+                    Text(dateFormatter.string(from: date))
+                        .foregroundStyle(Color.primary800)
+                    
+                    Spacer()
+                }
+                .overlay {
+                    DatePicker(
+                        "",
+                        selection: $date,
+                        in: ...Date(),
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .colorMultiply(.clear) // 텍스트 숨기고 터치 영역만 유지
+                }
+            }
         }
     }
 }
 
 #Preview {
     @Previewable @State var date = Date()
-    
-    DatePickerField(label: "날짜", date: $date)
+    DatePickerField(label: "지출일", date: $date)
         .padding()
 }

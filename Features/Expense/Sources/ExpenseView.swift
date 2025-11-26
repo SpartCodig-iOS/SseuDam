@@ -14,9 +14,8 @@ public struct ExpenseView: View {
     @State private var amount: String = ""
     @State private var selectedCategory: ExpenseCategory? = nil
     @State private var title: String = ""
-    @State private var note: String = ""
     @State private var expenseDate: Date = Date()
-    @State private var payer: [Expense.Participant] = []
+    @State private var payer: Expense.Participant? = nil
     @State private var participants: [Expense.Participant] = []
     
     // 샘플 참가자 데이터
@@ -33,44 +32,27 @@ public struct ExpenseView: View {
         ZStack(alignment: .bottom) {
             ScrollView {
                 VStack(spacing: 24) {
-                    // 금액 입력
+                    // 1. 지출 금액
                     AmountInputField(amount: $amount)
                     
-                    // 카테고리 선택
-                    CategorySelector(selectedCategory: $selectedCategory)
-                    
-                    // 제목 입력
+                    // 2. 지출 제목
                     TextInputField(
-                        label: "제목",
-                        placeholder: "지출 제목을 입력하세요",
+                        label: "지출 제목",
+                        placeholder: "ex) 점심 식사",
                         text: $title
                     )
                     
-                    // 메모 입력
-                    TextInputField(
-                        label: "메모",
-                        placeholder: "메모를 입력하세요",
-                        text: $note,
-                        isOptional: true
-                    )
+                    // 3. 지출일
+                    DatePickerField(label: "지출일", date: $expenseDate)
                     
-                    // 날짜 선택
-                    DatePickerField(label: "날짜", date: $expenseDate)
+                    // 4. 카테고리
+                    CategorySelector(selectedCategory: $selectedCategory)
                     
-                    // 지불자 선택
+                    // 5. 결제자 & 참여자
                     ParticipantSelector(
-                        label: "지불자",
-                        selectedParticipants: $payer,
-                        availableParticipants: availableParticipants,
-                        multipleSelection: false
-                    )
-                    
-                    // 참가자 선택
-                    ParticipantSelector(
-                        label: "참가자",
-                        selectedParticipants: $participants,
-                        availableParticipants: availableParticipants,
-                        multipleSelection: true
+                        payer: $payer,
+                        participants: $participants,
+                        availableParticipants: availableParticipants
                     )
                     
                     // 하단 여백 (버튼 공간 확보)
@@ -93,7 +75,7 @@ public struct ExpenseView: View {
                 .background(Color.white)
             }
         }
-        .navigationTitle("지출 기록")
+        .navigationTitle("지출 추가") // 타이틀 변경
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.white)
     }
