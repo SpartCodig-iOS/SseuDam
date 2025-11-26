@@ -20,13 +20,24 @@ final public class SignUpRepository: SignUpRepositoryProtocol {
   }
 
   public func checkSignUpUser(
-    input: Domain.OAuthCheckUserInput
-  ) async throws -> Domain.OAuthCheckUser {
-    let body = OAuthCheckUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
+    input: OAuthUserInput
+  ) async throws -> OAuthCheckUser {
+    let body = OAuthLoginUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
     let response: BaseResponse<OAuthCheckUserResponseDTO> = try await provider.request(.checkSignUpUser(body: body))
     guard let data = response.data else {
       throw NetworkError.noData
     }
     return data.toDomain()
   }
+
+  public func signUpUser(
+    input: Domain.OAuthUserInput
+  ) async throws -> Domain.AuthEntity {
+    let body = OAuthSignUpUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue, authorizationCode: input.authorizationCode)
+    let response: BaseResponse<OAuthResponseDTO> = try await provider.request(.signUpOAuth(body: body))
+    guard let data = response.data else {
+      throw NetworkError.noData
+    }
+    return data.toDomain()
+    }
 }

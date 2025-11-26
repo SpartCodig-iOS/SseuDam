@@ -8,22 +8,24 @@
 import Moya
 import NetworkService
 
-  case checkSignUpUser(body: OAuthCheckUserRequestDTO)
 public enum OAuthAPITarget {
-  case lognOAuth(body: OAuthLoginUserRequestDTO)
+  case checkSignUpUser(body: OAuthLoginUserRequestDTO)
+  case loginOAuth(body: OAuthLoginUserRequestDTO)
+  case signUpOAuth(body: OAuthSignUpUserRequestDTO)
 }
 
+extension OAuthAPITarget: BaseTargetType {
   public typealias Domain = SseuDamDomain
-  
+
   public var domain: SseuDamDomain {
     return .oauth
   }
-  
+
   public var urlPath: String {
     switch self {
       case .checkSignUpUser:
         return OAuthAPI.checkSignUpUser.description
-        
+
       case .loginOAuth:
         return OAuthAPI.login.description
 
@@ -31,16 +33,16 @@ public enum OAuthAPITarget {
         return OAuthAPI.signUp.description
     }
   }
-  
+
   public var error: [Int : NetworkService.NetworkError]? {
     return nil
   }
-  
+
   public var parameters: [String : Any]? {
     switch self {
       case .checkSignUpUser(let body):
         return body.toDictionary
-        
+
       case .loginOAuth(let body):
         return body.toDictionary
 
@@ -48,7 +50,7 @@ public enum OAuthAPITarget {
         return body.toDictionary
     }
   }
-  
+
   public var method: Moya.Method {
     switch self {
       case .checkSignUpUser, .loginOAuth, .signUpOAuth:
