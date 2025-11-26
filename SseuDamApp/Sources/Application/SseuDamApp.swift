@@ -12,6 +12,7 @@ struct SseuDamApp: App {
             ._printChanges(.actionLabels)
     } withDependencies: {
         $0.loginUseCase = makeLoginUseCase()
+        $0.signUpUseCase = makeSignUpUseCase()
     }
 
     var body: some Scene {
@@ -31,5 +32,13 @@ private extension SseuDamApp {
             )
         )
     }
+
+  static func makeSignUpUseCase() -> SignUpUseCase {
+    SignUpUseCase(
+      repository: SignUpRepository(
+        dataSource: OAuthRemoteDataSource()
+      )
+    )
+  }
 }
 
