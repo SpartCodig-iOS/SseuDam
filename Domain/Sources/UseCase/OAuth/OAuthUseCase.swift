@@ -103,6 +103,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
         throw AuthError.configurationMissing
     }
   }
+
 }
 
 // MARK: - Dependencies
