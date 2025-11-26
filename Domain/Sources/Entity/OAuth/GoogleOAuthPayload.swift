@@ -1,0 +1,39 @@
+//
+//  GoogleOAuthPayload.swift
+//  Domain
+//
+//  Created by Wonji Suh  on 11/17/25.
+//
+
+import Foundation
+import Supabase
+
+public struct GoogleOAuthPayload {
+  public let idToken: String
+  public let accessToken: String?
+  public let authorizationCode: String?
+  public let displayName: String?
+
+  public init(
+    idToken: String,
+    accessToken: String?,
+    authorizationCode: String?,
+    displayName: String?
+  ) {
+    self.idToken = idToken
+    self.accessToken = accessToken
+    self.authorizationCode = authorizationCode
+    self.displayName = displayName
+  }
+}
+
+
+extension GoogleOAuthPayload {
+  func toSupabaseGoogleCredentials() -> OpenIDConnectCredentials {
+    .init(
+      provider: .google,
+      idToken: idToken,
+      accessToken: accessToken
+    )
+  }
+}
