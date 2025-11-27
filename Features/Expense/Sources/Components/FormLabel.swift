@@ -22,11 +22,11 @@ struct FormLabel: View {
             if isRequired {
                 Text("*")
                     .foregroundStyle(.red)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.app(.title3, weight: .medium))
             }
             Text(title)
-                .foregroundStyle(Color.primary800) // DesignSystem Color
-                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(Color.black)
+                .font(.app(.title3, weight: .medium))
         }
     }
 }

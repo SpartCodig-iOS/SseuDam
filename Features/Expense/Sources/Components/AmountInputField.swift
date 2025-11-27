@@ -36,27 +36,26 @@ public struct AmountInputField: View {
             HStack(spacing: 8) {
                 InputContainer {
                     TextField("-", text: $amount)
-                        .font(.system(size: 16))
+                        .font(.app(.body, weight: .medium))
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.trailing)
                 }
                 
                 Text(currency)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.app(.body, weight: .medium))
                     .foregroundStyle(Color.primary800)
             }
             
             HStack {
                 Text("KRW 환산 금액")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.blue)
+                    .font(.app(.body, weight: .medium))
                 
                 Spacer()
                 
                 Text("₩\(convertedAmount)")
-                    .font(.system(size: 14))
-                    .foregroundStyle(.blue)
+                    .font(.app(.body, weight: .medium))
             }
+            .foregroundStyle(Color.primary500)
         }
     }
 }

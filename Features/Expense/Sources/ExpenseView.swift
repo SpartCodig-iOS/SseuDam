@@ -32,17 +32,17 @@ public struct ExpenseView: View {
     public var body: some View {
         VStack(spacing: 10) {
             ScrollView {
-                VStack(spacing: 24) {
-                    // 1. 지출 금액
-                    AmountInputField(amount: $amount)
-                    
-                    // 2. 지출 제목
+                VStack(spacing: 20) {
+                    // 1. 지출 제목
                     TextInputField(
                         label: "지출 제목",
                         placeholder: "ex) 점심 식사",
                         text: $title
                     )
                     
+                    // 2. 지출 금액
+                    AmountInputField(amount: $amount)
+                   
                     // 3. 지출일
                     DatePickerField(label: "지출일", date: $expenseDate)
                     
@@ -66,7 +66,7 @@ public struct ExpenseView: View {
             .padding(.horizontal, 16)
             .background(Color.clear)
         }
-        .navigationTitle("지출 추가") // 타이틀 변경
+        .navigationTitle("지출 추가")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.white)
     }
