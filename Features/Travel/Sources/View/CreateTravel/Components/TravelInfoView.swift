@@ -7,12 +7,10 @@
 
 import SwiftUI
 import DesignSystem
+import ComposableArchitecture
 
 struct TravelInfoView: View {
-    @Binding var title: String
-    @Binding var selectedCountry: String?
-    @Binding var startDate: Date?
-    @Binding var endDate: Date?
+    @Bindable var store: StoreOf<TravelCreateFeature>
     @State private var isCountrySheetPresented = false
 
     var body: some View {
@@ -23,7 +21,10 @@ struct TravelInfoView: View {
 
             VStack(spacing: 16) {
                 InputTextField(
-                    text: $title,
+                    text: Binding(
+                        get: { store.title },
+                        set: { store.send(.titleChanged($0)) }
+                    ),
                     title: "여행 이름",
                     essential: true,
                     placeholder: "ex) 제주도 여행",
@@ -31,17 +32,23 @@ struct TravelInfoView: View {
                 )
 
                 DateRangeView(
-                    startDate: $startDate,
-                    endDate: $endDate,
+                    startDate: Binding(
+                        get: { store.startDate },
+                        set: { store.send(.startDateChanged($0)) }
+                    ),
+                    endDate: Binding(
+                        get: { store.endDate },
+                        set: { store.send(.endDateChanged($0)) }
+                    ),
                     title: "여행 기간",
                     essential: true
                 )
 
                 SelectField(
-                    title: "국가", 
+                    title: "국가",
                     essential: true,
                     placeholder: "국가를 선택해주세요",
-                    value: selectedCountry,
+                    value: store.selectedCountryName,
                     onTap: {
                         isCountrySheetPresented = true
                     }
@@ -49,18 +56,9 @@ struct TravelInfoView: View {
             }
         }
         .sheet(isPresented: $isCountrySheetPresented) {
-            CountrySelectSheetView(selectedCountry: $selectedCountry)
+            CountrySelectSheetView(store: store)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         }
     }
-}
-
-#Preview {
-    TravelInfoView(
-        title: .constant("여행 정보"),
-        selectedCountry: .constant(nil),
-        startDate: .constant(nil),
-        endDate: .constant(nil)
-    )
 }

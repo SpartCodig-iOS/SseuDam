@@ -7,11 +7,13 @@
 
 import SwiftUI
 import DesignSystem
+import ComposableArchitecture
+import Domain
 
 struct CountrySelectSheetView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var selectedCountry: String?
     @State private var searchText = ""
+    let store: StoreOf<TravelCreateFeature>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -43,12 +45,9 @@ struct CountrySelectSheetView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 2) {
-                    countryRow("한국")
-                    countryRow("미국")
-                    countryRow("아르헨티나")
-                    countryRow("일본")
-                    countryRow("영국")
-                    countryRow("호주")
+                    ForEach(filteredCountries, id: \.code) { country in
+                        countryRow(country)
+                    }
                 }
             }
             .scrollIndicators(.hidden)
@@ -56,14 +55,25 @@ struct CountrySelectSheetView: View {
         .background(Color.primary50)
     }
 
-    private func countryRow(_ country: String) -> some View {
-        Text(country)
+    // MARK: Filter
+    private var filteredCountries: [Country] {
+        let list = store.countries
+        if searchText.isEmpty { return list }
+        return list.filter {
+            $0.nameKo.contains(searchText) ||
+            $0.nameEn.lowercased().contains(searchText.lowercased())
+        }
+    }
+
+    // MARK: Row
+    private func countryRow(_ country: Country) -> some View {
+        Text(country.nameKo)
             .font(.app(.title3, weight: .medium))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 30)
             .padding(.vertical, 12)
             .onTapGesture {
-                selectedCountry = country
+                store.send(.countryNameChanged(country.nameKo))
                 dismiss()
             }
     }

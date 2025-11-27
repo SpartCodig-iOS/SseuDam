@@ -16,6 +16,10 @@ struct DateRangeView: View {
     let title: String
     let essential: Bool
 
+    private var today: Date {
+        Calendar.current.startOfDay(for: Date())
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack(spacing: 2) {
@@ -31,6 +35,7 @@ struct DateRangeView: View {
             }
 
             HStack(spacing: 4) {
+                // MARK: 시작 날짜
                 DateFieldView(
                     title: "시작",
                     date: startDate
@@ -41,15 +46,20 @@ struct DateRangeView: View {
                     DatePicker(
                         "여행 시작",
                         selection: Binding(
-                            get: { startDate ?? Date() },
+                            get: { startDate ?? today },
                             set: { newValue in
                                 startDate = newValue
+
+                                // 종료일이 시작일보다 이전이라면 자동 조정
                                 if let end = endDate, end < newValue {
                                     endDate = newValue
                                 }
+
                                 showStartPicker = false
                             }
                         ),
+                        // 오늘 이후 날짜만 선택 가능
+                        in: today...,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
@@ -70,9 +80,9 @@ struct DateRangeView: View {
                     DatePicker(
                         "여행 종료",
                         selection: Binding(
-                            get: { endDate ?? Date() },
+                            get: { endDate ?? (startDate ?? today) },
                             set: { newValue in
-                                endDate = newValue
+                                // 종료일이 시작일보다 이전이라면 자동 조정
                                 if let start = startDate, newValue < start {
                                     endDate = start
                                 } else {
@@ -81,6 +91,8 @@ struct DateRangeView: View {
                                 showEndPicker = false
                             }
                         ),
+                        // 종료일은 시작일 이후부터 선택 가능
+                        in: (startDate ?? today)...,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)

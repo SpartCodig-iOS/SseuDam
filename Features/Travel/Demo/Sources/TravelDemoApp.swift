@@ -14,11 +14,14 @@ import TravelFeature
 
 @main
 struct TravelDemoApp: App {
+
+    private static let mockRepo = MockTravelRepository()
+
     private let store = Store(initialState: TravelListFeature.State()) {
         TravelListFeature()
     } withDependencies: {
-        $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
-        $0.createTravelUseCase = makeCreateTravelUseCase()
+        $0.fetchTravelsUseCase = FetchTravelsUseCase(repository: mockRepo)
+        $0.createTravelUseCase = CreateTravelUseCase(repository: mockRepo)
     }
 
     var body: some Scene {
@@ -27,23 +30,5 @@ struct TravelDemoApp: App {
                 TravelView(store: store)
             }
         }
-    }
-}
-
-private extension TravelDemoApp {
-    static func makeFetchTravelsUseCase() -> FetchTravelsUseCase {
-        FetchTravelsUseCase(
-            repository: TravelRepository(
-                remote: TravelRemoteDataSource()
-            )
-        )
-    }
-
-    static func makeCreateTravelUseCase() -> CreateTravelUseCase {
-        CreateTravelUseCase(
-            repository: TravelRepository(
-                remote: TravelRemoteDataSource()
-            )
-        )
     }
 }

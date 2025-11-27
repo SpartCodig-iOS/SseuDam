@@ -14,39 +14,55 @@ public struct TravelCreateFeature {
     @ObservableState
     public struct State: Equatable {
         var title = ""
-        var currency: [String] = []
-        var rate = ""
-        var selectedCurrency: String? = nil
-        var selectedCountry: String? = nil
-        var startDate: Date? = nil
-        var endDate: Date? = nil
 
-        var isSubmitting: Bool = false
+        // 국가 데이터
+        var countries: [Country] = []
+        var selectedCountryName: String?
+        var selectedCountryCode: String?
+
+        // 화폐 / 환율
+        var currency: [String] = []
+        var selectedCurrency: String?
+        var rate: String = ""
+
+        // 여행 날짜
+        var startDate: Date?
+        var endDate: Date?
+
+        // 로딩 상태
+        var isLoadingCountries = false
+        var isLoadingRate = false
+
+        var isSubmitting = false
         var submitError: String?
 
+        // 저장 여부
         var isSaveEnabled: Bool {
             guard !title.isEmpty else { return false }
             guard startDate != nil, endDate != nil else { return false }
-            guard let country = selectedCountry, !country.isEmpty else { return false }
+            guard let code = selectedCountryCode else { return false }
 
-            if country == "한국" {
-                return true
-            }
+            if code == "KR" { return true }
 
-            return !currency.isEmpty && !rate.isEmpty
+            return !currency.isEmpty && selectedCurrency != nil && !rate.isEmpty
         }
     }
 
     public enum Action {
-        case titleChanged(String)
-        case currencyChanged([String])
-        case rateChanged(String)
-        case countryChanged(String?)
+        case onAppear
+
+        case countriesResponse(Result<[Country], Error>)
+        case countryNameChanged(String?)
+
         case startDateChanged(Date?)
         case endDateChanged(Date?)
 
-        case currencyFieldTapped
         case currencySelected(String)
+        case rateChanged(String)
+
+        case fetchRateResponse(Result<ExchangeRate, Error>)
+
+        case titleChanged(String)
 
         case saveButtonTapped
         case saveResponse(Result<Travel, Error>)
@@ -54,80 +70,135 @@ public struct TravelCreateFeature {
         case dismiss
     }
 
-    @Dependency(\.createTravelUseCase) var createTravelUseCase: CreateTravelUseCaseProtocol
+    @Dependency(\.createTravelUseCase) var createTravelUseCase
+    @Dependency(\.fetchCountriesUseCase) var fetchCountriesUseCase
+    @Dependency(\.fetchExchangeRateUseCase) var fetchExchangeRateUseCase
 
-    public var body: some Reducer<State, Action> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .titleChanged(let newValue):
-                state.title = newValue
+
+                // MARK: 국가 목록 호출
+            case .onAppear:
+                state.isLoadingCountries = true
+                return .run { [fetchCountriesUseCase = self.fetchCountriesUseCase] send in
+                    do {
+                        let result = try await fetchCountriesUseCase.execute()
+                        await send(.countriesResponse(.success(result)))
+                    } catch {
+                        await send(.countriesResponse(.failure(error)))
+                    }
+                }
+
+
+                // MARK: 국가 목록 응답
+            case .countriesResponse(.success(let list)):
+                state.isLoadingCountries = false
+                state.countries = list
                 return .none
 
-            case .currencyChanged(let list):
-                state.currency = list
+            case .countriesResponse(.failure(let error)):
+                state.isLoadingCountries = false
+                state.submitError = "국가 목록 불러오기 실패: \(error.localizedDescription)"
+                return .none
+
+                // MARK: 국가 선택
+            case .countryNameChanged(let name):
+                state.selectedCountryName = name
+
+                guard let name,
+                      let selected = state.countries.first(where: { $0.nameKo == name }) else {
+                    state.selectedCountryCode = nil
+                    state.currency = []
+                    state.selectedCurrency = nil
+                    state.rate = ""
+                    return .none
+                }
+
+                state.selectedCountryCode = selected.code
+                state.currency = selected.currencies
+                state.selectedCurrency = selected.currencies.first
+                state.rate = ""
+
+                if selected.code == "KR" { return .none }
+
+                if let firstCurrency = selected.currencies.first {
+                    return .send(.currencySelected(firstCurrency))
+                }
+
+                return .none
+
+                // MARK: 날짜 선택
+            case .startDateChanged(let date):
+                state.startDate = date
+                return .none
+
+            case .endDateChanged(let date):
+                state.endDate = date
+                return .none
+
+                // MARK: 통화 선택 → 환율 호출
+            case .currencySelected(let cur):
+                state.selectedCurrency = cur
+
+                guard let quote = state.selectedCurrency,
+                      let code = state.selectedCountryCode,
+                      code != "KR" else { return .none }
+
+                state.isLoadingRate = true
+
+                return .run {
+                    [fetchExchangeRateUseCase = self.fetchExchangeRateUseCase, quote] send in
+                    do {
+                        let dto = try await fetchExchangeRateUseCase.execute(quote: quote)
+                        await send(.fetchRateResponse(.success(dto)))
+                    } catch {
+                        await send(.fetchRateResponse(.failure(error)))
+                    }
+                }
+
+
+                // MARK: 환율 응답
+            case .fetchRateResponse(.success(let dto)):
+                state.isLoadingRate = false
+                state.rate = String(dto.rate)
+                return .none
+
+            case .fetchRateResponse(.failure(let error)):
+                state.isLoadingRate = false
+                state.submitError = "환율 조회 실패: \(error.localizedDescription)"
                 return .none
 
             case .rateChanged(let value):
                 state.rate = value
                 return .none
 
-            case .countryChanged(let value):
-                state.selectedCountry = value
-
-                let mockCurrency: [String: [String]] = [
-                    "한국": ["KRW"],
-                    "미국": ["USD"],
-                    "일본": ["JPY"],
-                    "아르헨티나": ["ARS", "USD"],
-                    "영국": ["GBP", "USD"],
-                    "호주": ["AUD"]
-                ]
-
-                // 선택된 나라에 해당되는 화폐를 넣어줌
-                state.currency = mockCurrency[value ?? ""] ?? []
-                state.selectedCurrency = state.currency.first
-                state.rate = ""
+            case .titleChanged(let newValue):
+                state.title = newValue
                 return .none
 
-            case .startDateChanged(let value):
-                state.startDate = value
-                return .none
-
-            case .endDateChanged(let value):
-                state.endDate = value
-                return .none
-
-            case .currencyFieldTapped:
-                return .none
-
-            case .currencySelected(let value):
-                state.selectedCurrency = value
-                return .none
-
+                // MARK: 저장
             case .saveButtonTapped:
-                guard state.isSaveEnabled else { return .none }
-                guard
-                    let start = state.startDate,
-                    let end = state.endDate,
-                    let country = state.selectedCountry
-                else { return .none }
-
-                state.isSubmitting = true
-                state.submitError = nil
+                guard state.isSaveEnabled,
+                      let start = state.startDate,
+                      let end = state.endDate,
+                      let code = state.selectedCountryCode else { return .none }
 
                 let rateValue = Double(state.rate) ?? 0.0
                 let input = CreateTravelInput(
                     title: state.title,
                     startDate: start,
                     endDate: end,
-                    countryCode: country,
-                    baseCurrency: state.currency.first ?? "KRW",
-                    baseExchangeRate: country == "한국" ? 1 : rateValue
+                    countryCode: code,
+                    baseCurrency: state.selectedCurrency ?? "KRW",
+                    baseExchangeRate: code == "KR" ? 1 : rateValue
                 )
 
-                return .run { send in
+                state.isSubmitting = true
+
+                return .run {
+                    [createTravelUseCase = self.createTravelUseCase, input] send in
                     do {
-                        print("저장")
                         let travel = try await createTravelUseCase.excute(input: input)
                         await send(.saveResponse(.success(travel)))
                     } catch {
@@ -135,13 +206,14 @@ public struct TravelCreateFeature {
                     }
                 }
 
+
             case .saveResponse(.success):
                 state.isSubmitting = false
                 return .send(.dismiss)
 
             case .saveResponse(.failure(let error)):
                 state.isSubmitting = false
-                state.submitError = error.localizedDescription
+                state.submitError = "저장 실패: \(error.localizedDescription)"
                 return .none
 
             case .dismiss:

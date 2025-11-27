@@ -60,5 +60,8 @@ public struct TravelView: View {
                 CreateTravelView(store: createStore)
             }
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }

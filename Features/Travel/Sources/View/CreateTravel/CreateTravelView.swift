@@ -36,53 +36,46 @@ struct CreateTravelView: View {
 
             ScrollView {
                 VStack(spacing: 16) {
-                    TravelInfoView(
-                        title: Binding(
-                            get: { store.title },
-                            set: { store.send(.titleChanged($0)) }
-                        ),
-                        selectedCountry: Binding(
-                            get: { store.selectedCountry },
-                            set: { store.send(.countryChanged($0)) }
-                        ),
-                        startDate: Binding(
-                            get: { store.startDate },
-                            set: { store.send(.startDateChanged($0)) }
-                        ),
-                        endDate: Binding(
-                            get: { store.endDate },
-                            set: { store.send(.endDateChanged($0)) }
-                        )
-                    )
+                    // MARK: - 여행 기본 정보
+                    TravelInfoView(store: store)
 
-                    if store.selectedCountry != "한국",
-                       store.selectedCountry != nil {
+                    // MARK: - 환율 정보 (한국 제외)
+                    if let code = store.selectedCountryCode,
+                       code != "KR" {
+
                         ExchangeRateView(
                             currency: Binding(
                                 get: { store.currency },
-                                set: { store.send(.currencyChanged($0)) }
+                                set: { _ in }
                             ),
                             selectedCurrency: Binding(
                                 get: { store.selectedCurrency },
-                                set: { store.send(.currencySelected($0 ?? "")) }
+                                set: { newValue in
+                                    if let v = newValue {
+                                        store.send(.currencySelected(v))
+                                    }
+                                }
                             ),
                             rate: Binding(
                                 get: { store.rate },
                                 set: { store.send(.rateChanged($0)) }
                             ),
-                            onCurrencyFieldTapped: {
-                                store.send(.currencyFieldTapped)
-                            }
+                            onCurrencyFieldTapped: {}
                         )
                     }
                 }
                 .padding(.horizontal, 16)
             }
+
+            // MARK: 저장
             SaveButton(isEnabled: store.isSaveEnabled) {
                 store.send(.saveButtonTapped)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
+        }
+        .onAppear {
+            store.send(.onAppear)
         }
         .background(Color.primary50)
         .navigationBarBackButtonHidden(true)
