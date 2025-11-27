@@ -22,6 +22,7 @@ public struct LoginFeature {
         var isLoading = false
         var statusMessage: String?
         var authResult: AuthResult?
+        var currentNonce: String = ""
         @Presents var destination: Destination.State?
 
         public init() {}
@@ -34,6 +35,7 @@ public struct LoginFeature {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
         case view(View)
+        case async(AsyncAction)
         case inner(InnerAction)
         case navigation(NavigationAction)
     }
@@ -50,6 +52,11 @@ public struct LoginFeature {
         case googleButtonTapped
         case appleButtonTapped
         case signInWithSocial(social: SocialType)
+    }
+
+    public enum AsyncAction {
+        case prepareAppleRequest(ASAuthorizationAppleIDRequest)
+        case appleCompletion(Result<ASAuthorization, Error>)
     }
 
     // MARK: - InnerAction (결과 처리만)
@@ -86,6 +93,9 @@ public struct LoginFeature {
 
             case .view(let viewAction):
                 return handleViewAction(state: &state, action: viewAction)
+
+            case .async(let asyncAction):
+                return handleAsyncAction(state: &state, action: asyncAction)
 
             case .inner(let innerAction):
                 return handleInnerAction(state: &state, action: innerAction)
@@ -127,9 +137,12 @@ extension LoginFeature {
             return startOAuthFlow(state: &state, socialType: .google)
 
         case .appleButtonTapped:
-            return startOAuthFlow(state: &state, socialType: .apple)
+            return .none
 
         case .signInWithSocial(let social):
+            if social == .apple {
+                return .none
+            }
             return startOAuthFlow(state: &state, socialType: social)
         }
     }
@@ -157,6 +170,40 @@ extension LoginFeature {
                 Log.error("❌ OAuth authentication failed: \(error)")
                 return .none
             }
+        }
+    }
+
+    private func handleAsyncAction(
+        state: inout State,
+        action: AsyncAction
+    ) -> Effect<Action> {
+        switch action {
+          case .prepareAppleRequest(let request):
+            let nonce = AppleLoginManager().prepare(request)
+            state.currentNonce = nonce
+            return .none
+
+        case .appleCompletion(let result):
+            state.isLoading = true
+            state.statusMessage = "\(SocialType.apple.rawValue) 로그인 중..."
+            return .run { [nonce = state.currentNonce] send in
+                guard
+                    case .success(let auth) = result,
+                    let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                    !nonce.isEmpty
+                else {
+                    await send(.inner(.oAuthResult(.failure(.invalidCredential("Apple 인증 정보가 없습니다")))))
+                    return
+                }
+
+                let loginResult = await unifiedOAuthUseCase.loginOrSignUp(
+                    with: .apple,
+                    appleCredential: credential,
+                    nonce: nonce
+                )
+                await send(.inner(.oAuthResult(loginResult)))
+            }
+            .cancellable(id: CancelID.appleOAuth, cancelInFlight: true)
         }
     }
 

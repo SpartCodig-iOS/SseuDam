@@ -8,6 +8,7 @@
 import Foundation
 import Dependencies
 import LogMacro
+import AuthenticationServices
 
 /// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합
 public struct UnifiedOAuthUseCase {
@@ -32,9 +33,15 @@ public extension UnifiedOAuthUseCase {
     
     /// OAuth Provider에서 토큰 획득 (Google/Apple SDK 호출)
     func socialLogin(
-        with socialType: SocialType
+        with socialType: SocialType,
+        appleCredential: ASAuthorizationAppleIDCredential? = nil,
+        nonce: String? = nil
     ) async -> Result<AuthData, AuthError> {
-        return await getOAuthCredentials(socialType: socialType)
+        return await getOAuthCredentials(
+            socialType: socialType,
+            appleCredential: appleCredential,
+            nonce: nonce
+        )
     }
     
     /// 회원가입 상태 확인
@@ -65,12 +72,16 @@ public extension UnifiedOAuthUseCase {
     }
 
     func loginOrSignUp(
-        with socialType: SocialType
+        with socialType: SocialType,
+        appleCredential: ASAuthorizationAppleIDCredential? = nil,
+        nonce: String? = nil
     ) async -> Result<AuthResult, AuthError> {
-        Log.info("🔐 Starting unified OAuth flow for: \(socialType.rawValue)")
 
-        let oAuthResult = await getOAuthCredentials(socialType: socialType)
-        print(oAuthResult)
+        let oAuthResult = await getOAuthCredentials(
+            socialType: socialType,
+            appleCredential: appleCredential,
+            nonce: nonce
+        )
 
         switch oAuthResult {
         case .success(let oAuthData):
@@ -104,18 +115,51 @@ private extension UnifiedOAuthUseCase {
     
     /// OAuth Provider에서 인증 정보 획득
     func getOAuthCredentials(
-        socialType: SocialType
+        socialType: SocialType,
+        appleCredential: ASAuthorizationAppleIDCredential? = nil,
+        nonce: String? = nil
     ) async -> Result<AuthData, AuthError> {
         do {
-            let profile = try await oAuthUseCase.signUp(with: socialType)
-            let oAuthData = AuthData(
-                socialType: profile.provider,
-                accessToken: profile.tokens.accessToken,
-                authToken: profile.tokens.authToken,
-                displayName: profile.displayName,
-                authorizationCode: profile.authCode ?? ""
-            )
-            return .success(oAuthData)
+            switch socialType {
+            case .apple:
+                guard
+                    let credential = appleCredential,
+                    let nonce = nonce,
+                    !nonce.isEmpty
+                else {
+                    return .failure(.invalidCredential("Apple 자격정보가 없습니다"))
+                }
+
+                let profile = try await oAuthUseCase.signInWithApple(
+                    credential: credential,
+                    nonce: nonce
+                )
+
+                let oAuthData = AuthData(
+                    socialType: profile.provider,
+                    accessToken: profile.tokens.accessToken,
+                    authToken: profile.tokens.authToken,
+                    displayName: profile.displayName,
+                    authorizationCode: profile.authCode ?? ""
+                )
+
+
+                return .success(oAuthData)
+
+            case .google:
+                let profile = try await oAuthUseCase.signUp(with: socialType)
+                let oAuthData = AuthData(
+                    socialType: profile.provider,
+                    accessToken: profile.tokens.accessToken,
+                    authToken: profile.tokens.authToken,
+                    displayName: profile.displayName,
+                    authorizationCode: profile.authCode ?? ""
+                )
+                return .success(oAuthData)
+
+            case .none:
+                return .failure(.invalidCredential("잘못된 소셜 타입"))
+            }
         } catch {
             let authError = error as? AuthError ?? .unknownError(error.localizedDescription)
             return .failure(authError)

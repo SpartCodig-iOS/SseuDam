@@ -61,7 +61,9 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     return name.isEmpty ? nil : name
   }
 
-  public func signUp(with provider: SocialType) async throws -> UserProfile {
+  public func signUp(
+    with provider: SocialType
+  ) async throws -> UserProfile {
     let payload = try await fetchPayload(for: provider)
     Log.info("\(provider.rawValue) sign-in succeeded for \(payload.displayName ?? "unknown user")")
 

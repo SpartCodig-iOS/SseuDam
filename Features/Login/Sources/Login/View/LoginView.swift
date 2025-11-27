@@ -101,6 +101,7 @@ extension LoginView {
         HStack (alignment: .center, spacing: 24){
             ForEach(SocialType.allCases.filter { $0 != .none } ) { type in
                 SocialCircleButtonView(
+                    store: store,
                     type: type
                 ) {
                     store.send(.view(.signInWithSocial(social: type)))
