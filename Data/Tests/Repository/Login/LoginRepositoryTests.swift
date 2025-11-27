@@ -27,7 +27,7 @@ struct LoginRepositoryTests {
         let repository = LoginRepository(provider: provider)
 
         // When
-        let result = try await repository.loginUser(
+        let result = try await repository.login(
             input: Domain.OAuthUserInput(
                 accessToken: "google-access-token",
                 socialType: Domain.SocialType.google,
@@ -52,7 +52,7 @@ struct LoginRepositoryTests {
         let repository = LoginRepository(provider: provider)
 
         // When
-        let result = try await repository.loginUser(
+        let result = try await repository.login(
             input: Domain.OAuthUserInput(
                 accessToken: "apple-access-token",
                 socialType: Domain.SocialType.apple,
@@ -78,7 +78,7 @@ struct LoginRepositoryTests {
 
         // When & Then
         await #expect(throws: NetworkError.self) {
-            _ = try await repository.loginUser(
+            _ = try await repository.login(
                 input: Domain.OAuthUserInput(
                     accessToken: "invalid-token",
                     socialType: Domain.SocialType.google,
@@ -99,7 +99,7 @@ struct LoginRepositoryTests {
 
         // When & Then
         await #expect(throws: NetworkError.self) {
-            _ = try await repository.loginUser(
+            _ = try await repository.login(
                 input: Domain.OAuthUserInput(
                     accessToken: "test-token",
                     socialType: Domain.SocialType.apple,
@@ -112,7 +112,7 @@ struct LoginRepositoryTests {
     @Test("API 타겟이 올바른 로그인 경로를 사용한다")
     func testLoginRepository_UsesCorrectAPIPath() throws {
         // Given
-        let body = OAuthLoginUserRequestDTO(accessToken: "test-token", loginType: "google")
+        let body = LoginUserRequestDTO(accessToken: "test-token", loginType: "google")
         let target = OAuthAPITarget.loginOAuth(body: body)
 
         // Then
@@ -123,7 +123,7 @@ struct LoginRepositoryTests {
     @Test("요청 바디가 올바르게 구성된다")
     func testLoginRepository_BuildsRequestBodyCorrectly() throws {
         // Given
-        let body = OAuthLoginUserRequestDTO(accessToken: "token-123", loginType: "apple")
+        let body = LoginUserRequestDTO(accessToken: "token-123", loginType: "apple")
         let target = OAuthAPITarget.loginOAuth(body: body)
 
         // When
@@ -147,7 +147,7 @@ struct LoginRepositoryTests {
         let repository = LoginRepository(provider: provider)
 
         // When
-        let result = try await repository.loginUser(
+        let result = try await repository.login(
             input: Domain.OAuthUserInput(
                 accessToken: "test-token",
                 socialType: Domain.SocialType.google,

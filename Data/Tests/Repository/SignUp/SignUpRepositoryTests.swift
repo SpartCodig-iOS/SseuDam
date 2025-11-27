@@ -24,7 +24,7 @@ struct SignUpRepositoryTests {
         let repository = SignUpRepository(provider: provider)
 
         // When
-        let result = try await repository.checkSignUpUser(
+        let result = try await repository.checkSignUp(
             input: Domain.OAuthUserInput(
                 accessToken: "test-token",
                 socialType: Domain.SocialType.google,
@@ -43,7 +43,7 @@ struct SignUpRepositoryTests {
         let repository = SignUpRepository(provider: provider)
 
         // When
-        let result = try await repository.checkSignUpUser(
+        let result = try await repository.checkSignUp(
             input: Domain.OAuthUserInput(
                 accessToken: "apple-token",
                 socialType: Domain.SocialType.apple,
@@ -63,7 +63,7 @@ struct SignUpRepositoryTests {
 
         // When & Then
         await #expect(throws: NetworkError.self) {
-            _ = try await repository.checkSignUpUser(
+            _ = try await repository.checkSignUp(
                 input: Domain.OAuthUserInput(
                     accessToken: "invalid-token",
                     socialType: Domain.SocialType.google,
@@ -82,7 +82,7 @@ struct SignUpRepositoryTests {
         let repository = SignUpRepository(provider: provider)
 
         // When
-        let result = try await repository.signUpUser(
+        let result = try await repository.signUp(
             input: Domain.OAuthUserInput(
                 accessToken: "google-signup-token",
                 socialType: Domain.SocialType.google,
@@ -103,7 +103,7 @@ struct SignUpRepositoryTests {
         let repository = SignUpRepository(provider: provider)
 
         // When
-        let result = try await repository.signUpUser(
+        let result = try await repository.signUp(
             input: Domain.OAuthUserInput(
                 accessToken: "apple-signup-token",
                 socialType: Domain.SocialType.apple,
@@ -125,7 +125,7 @@ struct SignUpRepositoryTests {
 
         // When & Then
         await #expect(throws: NetworkError.self) {
-            _ = try await repository.signUpUser(
+            _ = try await repository.signUp(
                 input: Domain.OAuthUserInput(
                     accessToken: "invalid-token",
                     socialType: Domain.SocialType.google,

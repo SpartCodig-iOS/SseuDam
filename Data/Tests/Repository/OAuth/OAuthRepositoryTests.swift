@@ -20,7 +20,7 @@ struct OAuthRepositoryTests {
     @Test("checkSignUpUser 타깃이 올바른 경로와 메서드를 사용한다")
     func testOAuthAPITarget_HasCorrectPathAndMethod() throws {
         // Given
-        let body = OAuthLoginUserRequestDTO(accessToken: "token", loginType: "google")
+        let body = LoginUserRequestDTO(accessToken: "token", loginType: "google")
         let target = OAuthAPITarget.checkSignUpUser(body: body)
 
         // Then
@@ -31,7 +31,7 @@ struct OAuthRepositoryTests {
     @Test("checkSignUpUser 타깃이 파라미터를 올바르게 인코딩한다")
     func testOAuthAPITarget_EncodesParameters() throws {
         // Given
-        let body = OAuthLoginUserRequestDTO(accessToken: "token-123", loginType: "apple")
+        let body = LoginUserRequestDTO(accessToken: "token-123", loginType: "apple")
         let target = OAuthAPITarget.checkSignUpUser(body: body)
 
         // When
@@ -45,7 +45,7 @@ struct OAuthRepositoryTests {
     @Test("baseURL와 path 조합이 올바른 전체 URL을 만든다")
     func testOAuthAPITarget_BuildsFullURL() throws {
         // Given
-        let body = OAuthLoginUserRequestDTO(accessToken: "token", loginType: "google")
+        let body = LoginUserRequestDTO(accessToken: "token", loginType: "google")
         let target = OAuthAPITarget.checkSignUpUser(body: body)
 
         // When
