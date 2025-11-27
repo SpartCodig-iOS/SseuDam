@@ -52,7 +52,7 @@ public struct SplashView: View {
         }
       }
       .onAppear {
-        store.send(.startAnimation)
+        store.send(.view(.startAnimation))
       }
     }
 }

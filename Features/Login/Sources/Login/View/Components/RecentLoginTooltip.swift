@@ -70,13 +70,6 @@ struct RecentLoginTooltip: View {
           UpTriangle()
             .stroke(.gray2, lineWidth: 1)
         )
-
-      Image(systemName: "sparkles")
-        .resizable()
-        .scaledToFit()
-        .frame(width: 8, height: 8)
-        .foregroundStyle(.black)
-        .offset(x: pointerWidth / 2 + 6, y: -2)
     }
   }
 

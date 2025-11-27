@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import Data
 import LoginFeature
-import AuthenticationServices
+import SplashFeature
 
 @Reducer
 struct AppFeature {
@@ -17,12 +17,13 @@ struct AppFeature {
 
   @ObservableState
   enum State: Equatable {
-    case login(LoginFeature.State)
+    case login(LoginCoordinator.State)
+    case splash(SplashFeature.State)
     // 나중에 메인 탭 추가하면:
     // case main(MainFeature.State)
 
     init() {
-      self = .login(.init())
+      self = .splash(.init())
     }
   }
 
@@ -35,13 +36,15 @@ struct AppFeature {
 
   @CasePathable
   enum View {
+    case appearSession
     case presentLogin
     case presentMain
   }
 
   @CasePathable
   enum ScopeAction {
-    case login(LoginFeature.Action)
+    case login(LoginCoordinator.Action)
+    case splash(SplashFeature.Action)
     // case main(MainFeature.Action)
   }
 
@@ -60,7 +63,10 @@ struct AppFeature {
       }
     }
     .ifCaseLet(\.login, action: \.scope.login) {
-      LoginFeature()
+      LoginCoordinator()
+    }
+    .ifCaseLet(\.splash, action: \.scope.splash) {
+      SplashFeature()
     }
   }
 }
@@ -71,8 +77,11 @@ extension AppFeature {
     action: View
   ) -> Effect<Action> {
     switch action {
+      case .appearSession:
+        return .send(.scope(.login(.view(.onAppear))))
+
     case .presentLogin:
-      // 지금은 이미 login 상태라서 아무 것도 안 해도 됨
+        state = .login(.init())
       return .none
 
     case .presentMain:
@@ -89,6 +98,25 @@ extension AppFeature {
     switch action {
     case .login:
       return .none
+
+      case .splash(.delegate(.presentLogin)):
+        return .run { send in
+          await send(.view(.appearSession))
+          try await clock.sleep(for: .seconds(0.5))
+          await send(.view(.presentLogin))
+        }
+
+      case .splash(.delegate(.presentMain)):
+        return .run { send in
+          await send(.view(.appearSession))
+          try await clock.sleep(for: .seconds(0.5))
+          await send(.view(.presentLogin))
+        }
+
+
+      default:
+        return .none
+
     }
   }
 }
