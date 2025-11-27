@@ -8,7 +8,6 @@
 import ComposableArchitecture
 
 public struct SignUpUseCase: SignUpUseCaseProtocol {
-    
     private let repository: SignUpRepositoryProtocol
     
     public init(
@@ -22,8 +21,29 @@ public struct SignUpUseCase: SignUpUseCaseProtocol {
         accessToken: String,
         socialType: SocialType
     ) async throws -> OAuthCheckUser {
-        return try await repository.checkSignUpUser(input: OAuthCheckUserInput(accessToken: accessToken, socialType: socialType))
+      return try await repository.checkSignUp(
+        input: OAuthUserInput(
+          accessToken: accessToken,
+          socialType: socialType,
+          authorizationCode: ""
+        )
+      )
     }
+
+
+  public func signUp(
+    accessToken: String,
+    socialType: SocialType,
+    authCode: String
+  ) async throws -> AuthResult {
+    return try await repository.signUp(
+      input: OAuthUserInput(
+        accessToken: accessToken,
+        socialType: socialType,
+        authorizationCode: authCode
+      )
+    )
+  }
 }
 
 

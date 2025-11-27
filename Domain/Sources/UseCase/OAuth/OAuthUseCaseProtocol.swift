@@ -13,6 +13,6 @@ public protocol OAuthUseCaseProtocol {
   func signInWithApple(
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
-  ) async throws -> UserEntity
-  func signUp(with provider: SocialType) async throws -> UserEntity
+  ) async throws -> UserProfile
+  func signUp(with provider: SocialType) async throws -> UserProfile
 }

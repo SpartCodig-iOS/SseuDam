@@ -8,16 +8,16 @@
 import AuthenticationServices
 
 public struct AppleLoginPayload: Equatable {
-  public let credential: ASAuthorizationAppleIDCredential
-  public let nonce: String
-
-  public init(
-    credential: ASAuthorizationAppleIDCredential,
-    nonce: String
-  ) {
-    self.credential = credential
-    self.nonce = nonce
-  }
+    public let credential: ASAuthorizationAppleIDCredential
+    public let nonce: String
+    
+    public init(
+        credential: ASAuthorizationAppleIDCredential,
+        nonce: String
+    ) {
+        self.credential = credential
+        self.nonce = nonce
+    }
 }
 
 

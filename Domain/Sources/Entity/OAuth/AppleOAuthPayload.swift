@@ -13,7 +13,7 @@ public struct AppleOAuthPayload {
   public let authorizationCode: String?
   public let displayName: String?
   public let nonce: String
-
+  
   public init(
     idToken: String,
     authorizationCode: String?,
