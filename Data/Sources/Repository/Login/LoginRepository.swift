@@ -20,11 +20,11 @@ public final class LoginRepository: LoginRepositoryProtocol {
         self.provider = provider
     }
 
-    public func loginUser(
+    public func login(
         input: Domain.OAuthUserInput
-    ) async throws -> Domain.AuthEntity {
-        let body = OAuthLoginUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
-        let respons: BaseResponse<OAuthResponseDTO> = try await provider.request(.loginOAuth(body: body))
+    ) async throws -> Domain.AuthResult {
+        let body = LoginUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
+        let respons: BaseResponse<AuthResponseDTO> = try await provider.request(.loginOAuth(body: body))
         guard let data = respons.data  else {
             throw NetworkError.noData
         }

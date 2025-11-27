@@ -9,9 +9,9 @@ import Moya
 import NetworkService
 
 public enum OAuthAPITarget {
-  case checkSignUpUser(body: OAuthLoginUserRequestDTO)
-  case loginOAuth(body: OAuthLoginUserRequestDTO)
-  case signUpOAuth(body: OAuthSignUpUserRequestDTO)
+  case checkSignUpUser(body: LoginUserRequestDTO)
+  case loginOAuth(body: LoginUserRequestDTO)
+  case signUpOAuth(body: SignUpUserRequestDTO)
 }
 
 extension OAuthAPITarget: BaseTargetType {

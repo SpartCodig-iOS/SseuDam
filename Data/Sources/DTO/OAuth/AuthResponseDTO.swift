@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct OAuthResponseDTO: Decodable {
+public struct AuthResponseDTO: Decodable {
   let user: User
   let accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt: String
   let sessionID, sessionExpiresAt, lastLoginAt, loginType: String
