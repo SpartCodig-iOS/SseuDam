@@ -12,7 +12,10 @@ public struct PrimaryButton: View {
     let title: String
     let action: () -> Void
     
-    public init(title: String, action: @escaping () -> Void) {
+    public init(
+        title: String,
+        action: @escaping () -> Void
+    ) {
         self.title = title
         self.action = action
     }
@@ -20,12 +23,12 @@ public struct PrimaryButton: View {
     public var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.app(.title3, weight: .semibold))
                 .foregroundStyle(.white)
+                .padding(.vertical, 16)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56)
                 .background(Color.primary500)
-                .cornerRadius(12)
+                .cornerRadius(8)
         }
     }
 }

@@ -24,7 +24,7 @@ struct InputContainer<Content: View>: View {
         .background(Color.white)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.gray.opacity(0.3), lineWidth: 1) // TODO: Use DesignSystem Gray
+                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
         )
     }
 }
