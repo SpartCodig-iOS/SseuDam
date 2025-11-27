@@ -21,15 +21,15 @@ public enum ExpenseCategory: String, CaseIterable, Codable {
         case .accommodation:
             return "숙박"
         case .foodAndDrink:
-            return "식비 (음료 포함)"
+            return "식비"
         case .transportation:
-            return "교통/이동"
+            return "교통"
         case .activity:
-            return "관광/활동"
+            return "관광"
         case .shopping:
-            return "쇼핑/선물"
+            return "쇼핑"
         case .other:
-            return "기타 지출 (잡비)"
+            return "기타"
         }
     }
 }

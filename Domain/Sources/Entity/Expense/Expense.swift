@@ -20,7 +20,10 @@ public struct Expense: Identifiable {
     public let payerName: String
     public let participants: [Participant]
     
-    public struct Participant {
+    public struct Participant: Identifiable {
+        public var id: String {
+            return memberId
+        }
         public let memberId: String
         public let name: String
         
