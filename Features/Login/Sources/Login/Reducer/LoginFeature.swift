@@ -226,7 +226,6 @@ extension LoginFeature {
 
 private extension LoginFeature {
 
-    /// OAuth 플로우 시작 (모든 복잡한 로직은 UseCase에서 처리)
     func startOAuthFlow(
         state: inout State,
         socialType: SocialType
