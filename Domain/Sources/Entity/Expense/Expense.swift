@@ -19,7 +19,6 @@ public struct Expense: Identifiable, Equatable {
     public let payerId: String
     public let payerName: String
     public let participants: [TravelMember]
-
     public init(
         id: String,
         title: String,

@@ -2,8 +2,7 @@
 //  LoginView.swift
 //  TestApp
 //
-//  Created by TestDev on 09-11-25.
-//  Copyright © 2025 TestDev. All rights reserved.
+// Created by Wonji Suh on 11/18/25.
 //
 
 import SwiftUI
@@ -37,6 +36,13 @@ public struct LoginView: View {
 
         }
         .background(.primary50)
+        .presentDSModal(
+            item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService),
+            height: .fraction(0.36),
+            showDragIndicator: false
+        ) { termServiceStore in
+            TermsAgreementView(store: termServiceStore)
+        }
     }
 }
 

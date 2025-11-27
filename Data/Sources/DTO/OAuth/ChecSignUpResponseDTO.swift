@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct OAuthCheckUserResponseDTO: Decodable {
+public struct ChecSignUpResponseDTO: Decodable {
   let registered: Bool
   
 }
