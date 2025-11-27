@@ -18,6 +18,7 @@ struct SseuDamApp: App {
         $0.loginUseCase = makeLoginUseCase()
         $0.oAuthUseCase = makeOAuthUseCase()
         $0.signUpUseCase = makeSignUpUseCase()
+        $0.unifiedOAuthUseCase = makeUnifiedOAuthUseCase()
     }
     
     var body: some Scene {
@@ -48,5 +49,12 @@ private extension SseuDamApp {
       repository: SignUpRepository()
     )
   }
-}
 
+  static func makeUnifiedOAuthUseCase() -> UnifiedOAuthUseCase {
+    UnifiedOAuthUseCase(
+      oAuthUseCase: makeOAuthUseCase(),
+      signUpRepository: SignUpRepository(),
+      loginRepository: LoginRepository()
+    )
+  }
+}

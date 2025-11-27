@@ -7,12 +7,9 @@
 
 
 import SwiftUI
-import AuthenticationServices
-import ComposableArchitecture
 import Domain
 
 struct SocialCircleButtonView: View {
-  @State var store: StoreOf<LoginFeature>
   let type: SocialType
   let onTap: () -> Void
 
@@ -22,27 +19,19 @@ struct SocialCircleButtonView: View {
   var body: some View {
     switch type {
     case .apple:
-      ZStack {
+      Button(action: onTap) {
         Circle()
           .fill(.black)
           .frame(width: circleSize, height: circleSize)
-
-        Image(systemName: type.image)
-          .resizable()
-          .scaledToFit()
-          .frame(width: 18, height: 30)
-          .foregroundColor(.white)
-
-        SignInWithAppleButton(.signIn) { request in
-          store.send(.async(.prepareAppleRequest(request)))
-        } onCompletion: { result in
-          store.send(.async(.appleCompletion(result)))
-        }
-        .frame(width: circleSize, height: circleSize)
-        .clipShape(Circle())
-        .opacity(0.02)
-        .allowsHitTesting(true)
+          .overlay(
+            Image(systemName: type.image)
+              .resizable()
+              .scaledToFit()
+              .frame(width: 18, height: 30)
+              .foregroundColor(.white)
+          )
       }
+      .buttonStyle(.plain)
 
     case .google:
       Button(action: onTap) {

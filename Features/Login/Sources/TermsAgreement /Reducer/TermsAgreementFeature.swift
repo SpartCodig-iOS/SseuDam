@@ -16,9 +16,15 @@ public struct TermsAgreementFeature {
 
     @ObservableState
     public struct State: Equatable {
-        var allAgreed: Bool = false
         var privacyAgreed: Bool = false
         var serviceAgreed: Bool = false
+        var allAgreed: Bool {
+            get { privacyAgreed && serviceAgreed }
+            set {
+                privacyAgreed = newValue
+                serviceAgreed = newValue
+            }
+        }
         public init() {}
     }
 
@@ -33,16 +39,15 @@ public struct TermsAgreementFeature {
     //MARK: - ViewAction
     @CasePathable
     public enum View {
-        case didTapAll
-        case didTapPrivacy
-        case didTapService
+        case allAgreementTapped
+        case privacyAgreementTapped
+        case serviceAgreementTapped
 
     }
 
-    //MARK: - AsyncAction 비동기 처리 액션
     @CasePathable
     public enum ScopeAction: Equatable {
-        case closeModel
+        case close
     }
 
     @CasePathable
@@ -77,18 +82,16 @@ extension TermsAgreementFeature {
         action: View
     ) -> Effect<Action> {
         switch action {
-            case .didTapAll:
+            case .allAgreementTapped:
                 toggleAll(state: &state)
                 return .none
 
-            case .didTapPrivacy:
+            case .privacyAgreementTapped:
                 state.privacyAgreed.toggle()
-                syncAllState(state: &state)
                 return .none
 
-            case .didTapService:
+            case .serviceAgreementTapped:
                 state.serviceAgreed.toggle()
-                syncAllState(state: &state)
                 return .none
         }
     }
@@ -98,7 +101,7 @@ extension TermsAgreementFeature {
         action: ScopeAction
     ) -> Effect<Action> {
         switch action {
-            case .closeModel:
+            case .close:
                 return .none
         }
     }
@@ -118,17 +121,7 @@ extension TermsAgreementFeature {
 
 
 extension TermsAgreementFeature {
-    /// 약관 전체 동의 토글
     private func toggleAll(state: inout State) {
-        let newValue = !state.allAgreed
-        state.allAgreed = newValue
-        state.privacyAgreed = newValue
-        state.serviceAgreed = newValue
-    }
-
-    /// 개별 선택 시 전체동의 상태 동기화
-    private func syncAllState(state: inout State) {
-        state.allAgreed = state.privacyAgreed && state.serviceAgreed
+        state.allAgreed.toggle()
     }
 }
-

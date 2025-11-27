@@ -63,7 +63,7 @@ extension TermsAgreementView {
         title: "약관 전체 동의",
         isOn: store.allAgreed
       ) {
-        store.send(.view(.didTapAll))
+        store.send(.view(.allAgreementTapped))
       }
 
       Divider()
@@ -75,7 +75,7 @@ extension TermsAgreementView {
         title: "개인정보 처리방침 동의 (필수)",
         isOn: store.privacyAgreed,
         action: {
-          store.send(.view(.didTapPrivacy))
+          store.send(.view(.privacyAgreementTapped))
         },
         onArrowTap: {
           store.send(.navigation(.presentPrivacyWeb))
@@ -87,7 +87,7 @@ extension TermsAgreementView {
         title: "서비스 이용 약관 동의 (필수)",
         isOn: store.serviceAgreed,
         action: {
-          store.send(.view(.didTapService))
+          store.send(.view(.serviceAgreementTapped))
         },
         onArrowTap: {
           store.send(.navigation(.presentServiceWeb))
@@ -106,7 +106,7 @@ extension TermsAgreementView {
         .frame(height: 24)
 
       Button(action: {
-        store.send(.scope(.closeModel))
+        store.send(.scope(.close))
       }) {
         RoundedRectangle(cornerRadius: 8)
           .fill(store.allAgreed ? .primary500 : .gray2)

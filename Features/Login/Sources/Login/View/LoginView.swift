@@ -36,7 +36,7 @@ public struct LoginView: View {
 
         }
         .background(.primary50)
-        .customModal(
+        .presentDSModal(
             item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService),
             height: .fraction(0.36),
             showDragIndicator: false
@@ -101,7 +101,6 @@ extension LoginView {
         HStack (alignment: .center, spacing: 24){
             ForEach(SocialType.allCases.filter { $0 != .none } ) { type in
                 SocialCircleButtonView(
-                    store: store,
                     type: type
                 ) {
                     store.send(.view(.signInWithSocial(social: type)))
