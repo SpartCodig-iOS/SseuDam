@@ -31,70 +31,78 @@ struct RecentLoginTooltip: View {
 
   var body: some View {
     if isVisible {
-      VStack(spacing: -1) {
-        pointer
-        bubble
-      }
-      .opacity(showTooltip ? 1 : 0)
-      .offset(y: showTooltip ? 0 : -6)
-      .animation(.spring(response: 0.35, dampingFraction: 0.8), value: showTooltip)
-      .onAppear { showTooltip = true }
+      tooltip
+        .offset(x: bubbleOffset)
+        .opacity(showTooltip ? 1 : 0)
+        .offset(y: showTooltip ? 0 : -6)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: showTooltip)
+        .onAppear { showTooltip = true }
     }
   }
 
-  private var bubble: some View {
+  private var tooltip: some View {
     Text("마지막에 로그인한 계정이에요!")
       .font(.app(.caption2, weight: .medium))
       .foregroundColor(.gray8)
       .padding(.horizontal, 14)
       .padding(.vertical, 9)
+      .frame(width: bubbleWidth, alignment: .leading)
       .background(
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
           .fill(.white)
           .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
               .stroke(.gray2, lineWidth: 1)
           )
+          .overlay(alignment: .topLeading) {
+            pointer
+              .offset(x: pointerOffset - pointerWidth / 2, y: -pointerHeight)
+          }
       )
   }
 
   private var pointer: some View {
-    HStack(spacing: 0) {
-      Spacer()
-        .frame(width: pointerOffset - pointerWidth / 2)
-
+    ZStack(alignment: .topLeading) {
       UpTriangle()
         .fill(.white)
-        .frame(width: pointerWidth, height: 8)
+        .frame(width: pointerWidth, height: pointerHeight)
         .overlay(
           UpTriangle()
             .stroke(.gray2, lineWidth: 1)
         )
 
-      Spacer()
+      Image(systemName: "sparkles")
+        .resizable()
+        .scaledToFit()
+        .frame(width: 8, height: 8)
+        .foregroundStyle(.black)
+        .offset(x: pointerWidth / 2 + 6, y: -2)
     }
-    .frame(width: iconRowWidth, alignment: .leading)
   }
 
-  private var iconRowWidth: CGFloat {
-    (circleSize * 2) + spacing
-  }
+  private var pointerOffset: CGFloat { bubbleWidth - 24 }
 
-  private var pointerOffset: CGFloat {
+  private var bubbleOffset: CGFloat {
+    let halfGap = (circleSize + spacing) / 2
+    let targetX: CGFloat
     switch socialType {
     case .apple:
-      return circleSize / 2
+      targetX = -halfGap
     case .google:
-      return circleSize + spacing + (circleSize / 2)
+      targetX = halfGap
     case .none:
-      return circleSize / 2
+      targetX = 0
     }
+    // Place bubble so that the pointer sits under the target icon center.
+    return targetX + bubbleWidth / 2 - pointerOffset
   }
 
+  private var bubbleWidth: CGFloat { 150 }
   private var pointerWidth: CGFloat { 14 }
+  private var pointerHeight: CGFloat { 8 }
 }
 
-// 툴팁 화살표를 위한 Triangle Shape (위쪽 방향)
+// Triangle shape for the tooltip tail.
 struct UpTriangle: Shape {
   func path(in rect: CGRect) -> Path {
     var path = Path()
