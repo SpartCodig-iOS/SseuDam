@@ -18,6 +18,11 @@ public extension Image {
     self.init(assetName, bundle: bundle)
   }
 
+  /// ImageAsset을 사용해 에셋을 로드 (축약 문법 지원)
+  init(asset: ImageAsset, bundle: Bundle = .designSystem) {
+    self.init(asset.rawValue, bundle: bundle)
+  }
+
   /// RawValue가 String인 enum 등을 사용해 에셋을 로드
   init<Asset: RawRepresentable>(
     asset: Asset,

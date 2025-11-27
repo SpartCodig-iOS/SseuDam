@@ -63,10 +63,10 @@ extension LoginView {
                 .frame(height: 105)
 
             HStack {
-                Text("쓰담")
-                    .font(.system(size: 50))
-                    .fontWeight(.heavy)
-                    .foregroundStyle(.primary500)
+              Image(asset: .logo)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 45)
 
                 Spacer()
             }
