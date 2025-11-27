@@ -1,0 +1,132 @@
+//
+//  ParticipantSelectorView.swift
+//  ExpenseFeature
+//
+//  Created by SseuDam on 2025.
+//
+
+import SwiftUI
+import DesignSystem
+import Domain
+import ComposableArchitecture
+
+@ViewAction(for: ParticipantSelectorFeature.self)
+public struct ParticipantSelectorView: View {
+    public let store: StoreOf<ParticipantSelectorFeature>
+    
+    public init(store: StoreOf<ParticipantSelectorFeature>) {
+        self.store = store
+    }
+    
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            // 결제자 선택 (Dialog)
+            VStack(alignment: .leading, spacing: 8) {
+                FormLabel("결제자")
+                
+                Button {
+                    send(.payerButtonTapped)
+                } label: {
+                    InputContainer {
+                        HStack {
+                            Text(store.payer?.name ?? "결제자 선택")
+                                .foregroundStyle(store.payer == nil ? Color.gray : Color.primary800)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.down")
+                                .foregroundStyle(.gray)
+                                .font(.system(size: 14))
+                        }
+                    }
+                }
+                .confirmationDialog(
+                    store: store.scope(state: \.$payerDialog, action: \.scope.payerDialog)
+                )
+            }
+            
+            // 참여자 선택 (List Box)
+            VStack(alignment: .leading, spacing: 8) {
+                FormLabel("참여자")
+                
+                VStack(spacing: 12) {
+                    ForEach(store.availableParticipants, id: \.memberId) { participant in
+                        ParticipantRowView(
+                            participant: participant,
+                            isSelected: store.participants.contains(participant),
+                            isPayer: store.payer?.memberId == participant.memberId,
+                            showDivider: participant.memberId != store.availableParticipants.last?.memberId,
+                            action: { send(.participantToggled(participant)) }
+                        )
+                    }
+                }
+                .padding(16)
+                .background(Color.white)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                )
+            }
+        }
+    }
+}
+
+private struct ParticipantRowView: View {
+    let participant: Expense.Participant
+    let isSelected: Bool
+    let isPayer: Bool
+    let showDivider: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Button(action: action) {
+                HStack(spacing: 12) {
+                    // Avatar
+                    Image(systemName: "person.fill")
+                        .resizable()
+                        .foregroundStyle(Color.primary500)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 20, height: 20)
+                    
+                    Text(participant.name)
+                        .foregroundStyle(Color.primary800)
+                        .font(.system(size: 16))
+                    
+                    Spacer()
+                    
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(
+                            isSelected
+                            ? Color.primary500
+                            : Color.gray
+                        )
+                        .font(.system(size: 16))
+                }
+                .contentShape(Rectangle())
+            }
+            .disabled(isPayer)
+            
+            if showDivider {
+                Divider()
+            }
+        }
+    }
+}
+
+#Preview {
+    let sampleParticipants = IdentifiedArray(uniqueElements: [
+        Expense.Participant(memberId: "1", name: "김민수"),
+        Expense.Participant(memberId: "2", name: "이영희"),
+        Expense.Participant(memberId: "3", name: "박철수")
+    ])
+    
+    ParticipantSelectorView(
+        store: Store(initialState: ParticipantSelectorFeature.State(availableParticipants: sampleParticipants)) {
+            ParticipantSelectorFeature()
+        }
+    )
+    .padding()
+    .background(Color.gray.opacity(0.1))
+}
