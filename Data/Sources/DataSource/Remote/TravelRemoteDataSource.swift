@@ -15,6 +15,7 @@ public protocol TravelRemoteDataSourceProtocol {
     func createTravel(body: CreateTravelRequestDTO) async throws -> TravelResponseDTO
     func updateTravel(id: String, body: UpdateTravelRequestDTO) async throws -> TravelResponseDTO
     func deleteTravel(id: String) async throws
+    func fetchTravelDetail(id: String) async throws -> TravelResponseDTO
 }
 
 final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
@@ -64,6 +65,17 @@ final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
     func deleteTravel(id: String) async throws {
         let _: BaseResponse<EmptyDTO> =
         try await provider.request(.deleteTravel(id: id))
+    }
+    
+    func fetchTravelDetail(id: String) async throws -> TravelResponseDTO {
+        let response: BaseResponse<TravelResponseDTO> =
+        try await provider.request(.fetchTravelDetail(id: id))
+        
+        guard let data = response.data else {
+            throw NetworkError.noData
+        }
+        
+        return data
     }
 }
 
