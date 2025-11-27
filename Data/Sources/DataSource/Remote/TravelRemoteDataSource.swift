@@ -17,15 +17,14 @@ public protocol TravelRemoteDataSourceProtocol {
     func deleteTravel(id: String) async throws
 }
 
-final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
-
+public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
     private let provider: MoyaProvider<TravelAPI>
 
-    init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>()) {
+    public init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>()) {
         self.provider = provider
     }
 
-    func fetchTravels(
+    public func fetchTravels(
         body: FetchTravelsRequestDTO
     ) async throws -> [TravelResponseDTO] {
         let response: BaseResponse<[TravelResponseDTO]> =
@@ -34,9 +33,10 @@ final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
         return response.data ?? []
     }
 
-    func createTravel(
+    public func createTravel(
         body: CreateTravelRequestDTO
     ) async throws -> TravelResponseDTO {
+
         let response: BaseResponse<TravelResponseDTO> =
         try await provider.request(.createTravel(body: body))
 
@@ -47,7 +47,7 @@ final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
         return data
     }
 
-    func updateTravel(
+    public func updateTravel(
         id: String,
         body: UpdateTravelRequestDTO
     ) async throws -> TravelResponseDTO {
@@ -61,7 +61,7 @@ final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
         return data
     }
 
-    func deleteTravel(id: String) async throws {
+    public func deleteTravel(id: String) async throws {
         let _: BaseResponse<EmptyDTO> =
         try await provider.request(.deleteTravel(id: id))
     }

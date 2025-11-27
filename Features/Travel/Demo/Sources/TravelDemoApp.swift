@@ -3,27 +3,47 @@
 //  SseuDam
 //
 //  Created by SseuDam on2025.
-//  Copyright ©2025 com.testdev. All rights reserved.
 //
 
 import SwiftUI
-import TravelFeature
 import ComposableArchitecture
+import Data
+import Domain
+import NetworkService
+import TravelFeature
 
 @main
 struct TravelDemoApp: App {
+    private let store = Store(initialState: TravelListFeature.State()) {
+        TravelListFeature()
+    } withDependencies: {
+        $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
+        $0.createTravelUseCase = makeCreateTravelUseCase()
+    }
+
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                TravelView(
-                    store: Store(
-                        initialState: TravelListFeature.State(),
-                        reducer: {
-                            TravelListFeature()
-                        }
-                    )
-                )
+                TravelView(store: store)
             }
         }
+    }
+}
+
+private extension TravelDemoApp {
+    static func makeFetchTravelsUseCase() -> FetchTravelsUseCase {
+        FetchTravelsUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeCreateTravelUseCase() -> CreateTravelUseCase {
+        CreateTravelUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
     }
 }
