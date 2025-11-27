@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol SessionUseCaseProtocol {
-  func checkAuthSession(
+  func checkSession(
     sessionId: String
-  ) async throws -> SessionEntity
+  ) async throws -> SessionResult
 }

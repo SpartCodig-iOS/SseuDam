@@ -1,5 +1,5 @@
 //
-//  SessionEntity.swift
+//  SessionResult.swift
 //  Domain
 //
 //  Created by Wonji Suh  on 11/25/25.

@@ -12,12 +12,12 @@ public struct MockSessionRepository: SessionRepositoryProtocol {
   public struct Configuration {
     public let shouldSucceed: Bool
     public let delay: TimeInterval
-    public let session: SessionEntity
+    public let session: SessionResult
 
     public init(
       shouldSucceed: Bool = true,
       delay: TimeInterval = 0.0,
-      session: SessionEntity = SessionEntity(
+      session: SessionResult = SessionResult(
         provider: .apple,
         sessionId: "mock-session-id",
         status: "active"
@@ -35,7 +35,7 @@ public struct MockSessionRepository: SessionRepositoryProtocol {
     self.configuration = configuration
   }
 
-  public func checkLoginSession(sessionId: String) async throws -> SessionEntity {
+  public func checkSession(sessionId: String) async throws -> SessionResult {
     if configuration.delay > 0 {
       try await Task.sleep(for: .seconds(configuration.delay))
     }
@@ -45,7 +45,7 @@ public struct MockSessionRepository: SessionRepositoryProtocol {
     }
 
     let baseSession = configuration.session
-    return SessionEntity(
+    return SessionResult(
       provider: baseSession.provider,
       sessionId: sessionId.isEmpty ? baseSession.sessionId : sessionId,
       status: baseSession.status
@@ -77,31 +77,11 @@ public extension MockSessionRepository {
     MockSessionRepository(configuration: Configuration(shouldSucceed: false))
   }
 
-  static func withSession(_ session: SessionEntity) -> MockSessionRepository {
+  static func withSession(_ session: SessionResult) -> MockSessionRepository {
     MockSessionRepository(configuration: Configuration(session: session))
   }
 
   static func withDelay(_ delay: TimeInterval) -> MockSessionRepository {
     MockSessionRepository(configuration: Configuration(delay: delay))
-  }
-}
-
-// MARK: - Dependencies
-
-extension MockSessionRepository: DependencyKey {
-  public static var liveValue: any SessionRepositoryProtocol = MockSessionRepository.success
-  public static var previewValue: any SessionRepositoryProtocol = MockSessionRepository.success
-  public static var testValue: any SessionRepositoryProtocol = MockSessionRepository.success
-}
-
-public extension DependencyValues {
-  var mockSessionRepository: MockSessionRepository {
-    get {
-      if let mock = self[MockSessionRepository.self] as? MockSessionRepository {
-        return mock
-      }
-      return MockSessionRepository.success
-    }
-    set { self[MockSessionRepository.self] = newValue }
   }
 }

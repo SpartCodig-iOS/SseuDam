@@ -18,10 +18,10 @@ public struct SessionUseCase: SessionUseCaseProtocol {
     self.repository = repository
   }
 
-  public func checkAuthSession(
+  public func checkSession(
     sessionId: String
-  ) async throws -> SessionEntity {
-    return try await repository.checkLoginSession(sessionId: sessionId)
+  ) async throws -> SessionResult {
+    return try await repository.checkSession(sessionId: sessionId)
   }
 }
 
@@ -44,3 +44,4 @@ public extension DependencyValues {
     set { self[SessionUseCase.self] = newValue }
   }
 }
+

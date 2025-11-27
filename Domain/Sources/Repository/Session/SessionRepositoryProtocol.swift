@@ -9,7 +9,7 @@ import Foundation
 import  Dependencies
 
 public protocol SessionRepositoryProtocol {
-  func checkLoginSession(sessionId: String) async throws -> SessionEntity
+  func checkSession(sessionId: String) async throws -> SessionResult
 }
 
 public struct SessionRepositoryDependency: DependencyKey {
