@@ -16,7 +16,7 @@ public struct ParticipantSelectorFeature {
     public struct State: Equatable {
         var payer: TravelMember?
         var participants: IdentifiedArrayOf<TravelMember> = []
-        let availableParticipants: IdentifiedArrayOf<TravelMember>
+        var availableParticipants: IdentifiedArrayOf<TravelMember>
 
         @Presents var payerDialog: ConfirmationDialogState<Action.PayerDialog>?
 

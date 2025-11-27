@@ -12,26 +12,30 @@ import IdentifiedCollections
 
 @Reducer
 public struct ExpenseFeature {
+    @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
+    
     @ObservableState
     public struct State: Equatable {
         var amount: String = ""
         var title: String = ""
         var expenseDate: Date = Date()
         var selectedCategory: ExpenseCategory? = nil
+        let travelId: String
+        
+        // Travel info
+        var baseCurrency: String = ""
+        var baseExchangeRate: Double = 1.0
+        var convertedAmountKRW: String = ""
+        var travelStartDate: Date?
+        var travelEndDate: Date?
         
         // ParticipantSelector Feature
         var participantSelector: ParticipantSelectorFeature.State
         
-        public init() {
-            let availableParticipants = IdentifiedArray(uniqueElements: [
-                TravelMember(id: "1", name: "홍석현", role: "owner"),
-                TravelMember(id: "2", name: "김철수", role: "member"),
-                TravelMember(id: "3", name: "이영희", role: "member"),
-                TravelMember(id: "4", name: "박민수", role: "member")
-            ])
-            self.participantSelector = ParticipantSelectorFeature.State(
-                availableParticipants: availableParticipants
-            )
+        public init(_ travelId: String) {
+            self.travelId = travelId
+            // Start with empty participants; will be filled after loading travel detail
+            self.participantSelector = ParticipantSelectorFeature.State(availableParticipants: [])
         }
     }
     
@@ -45,18 +49,20 @@ public struct ExpenseFeature {
         
         @CasePathable
         public enum ViewAction {
+            case onAppear
             case saveButtonTapped
         }
         
         @CasePathable
         public enum InnerAction {
-            
+            case loadTravelDetailResponse(Result<Travel, Error>)
+            case saveExpenseResponse(Result<Travel, Error>)
         }
         
         @CasePathable
         public enum AsyncAction {
+            case loadTravelDetail
             case saveExpense
-            case saveExpenseResponse(Result<Void, Error>)
         }
         
         @CasePathable
@@ -75,10 +81,16 @@ public struct ExpenseFeature {
         BindingReducer()
         
         Reduce { state, action in
+            // Trigger loading travel detail on first appearance
+            if state.baseCurrency.isEmpty {
+                // Dispatch load action only once
+                return .send(.async(.loadTravelDetail))
+            }
             switch action {
             case .binding(\.amount):
                 // amount 변경 시 추가 로직 (예: 유효성 검사, 로그 등)
                 print("금액 변경됨: \(state.amount)")
+                recalculateConvertedAmount(&state)
                 return .none
                 
             case .binding(\.selectedCategory):
@@ -109,6 +121,8 @@ extension ExpenseFeature {
     // MARK: - View Action Handler
     private func handleViewAction(state: inout State, action: Action.ViewAction) -> Effect<Action> {
         switch action {
+        case .onAppear:
+            return .send(.async(.loadTravelDetail))
         case .saveButtonTapped:
             return .send(.async(.saveExpense))
         }
@@ -117,23 +131,20 @@ extension ExpenseFeature {
     // MARK: - Inner Action Handler
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
-        }
-    }
-    
-    // MARK: - Async Action Handler
-    private func handleAsyncAction(state: inout State, action: Action.AsyncAction) -> Effect<Action> {
-        switch action {
-        case .saveExpense:
-            // TODO: Repository 연동하여 실제 저장 로직 구현
-            return .run { send in
-                do {
-                    // 임시 저장 로직
-                    try await Task.sleep(for: .seconds(1))
-                    await send(.async(.saveExpenseResponse(.success(()))))
-                } catch {
-                    await send(.async(.saveExpenseResponse(.failure(error))))
-                }
-            }
+        case .loadTravelDetailResponse(.success(let travel)):
+            // Populate travel info
+            state.baseCurrency = travel.baseCurrency
+            state.baseExchangeRate = travel.baseExchangeRate
+            state.travelStartDate = travel.startDate
+            state.travelEndDate = travel.endDate
+            state.participantSelector.availableParticipants = IdentifiedArray(uniqueElements: travel.members)
+            // Recalculate amount conversion if amount already entered
+            recalculateConvertedAmount(&state)
+            return .none
+            
+        case .loadTravelDetailResponse(.failure(let error)):
+            print("Travel detail 로드 실패: \(error)")
+            return .none
             
         case .saveExpenseResponse(.success):
             // TODO: 성공 처리 (화면 닫기, 토스트 표시 등)
@@ -144,5 +155,52 @@ extension ExpenseFeature {
             print("저장 실패: \(error)")
             return .none
         }
+    }
+    
+    // MARK: - Async Action Handler
+        private func handleAsyncAction(state: inout State, action: Action.AsyncAction) -> Effect<Action> {
+            switch action {
+            case .loadTravelDetail:
+                return .run { [travelId = state.travelId] send in
+                    do {
+                        let travel = try await fetchTravelDetailUseCase.execute(id: travelId)
+                        await send(.inner(.loadTravelDetailResponse(.success(travel))))
+                    } catch {
+                        await send(.inner(.loadTravelDetailResponse(.failure(error))))
+                    }
+                }
+            case .saveExpense:
+                return .run { [travelId = state.travelId] send in
+                    do {
+                        let detail = try await fetchTravelDetailUseCase.execute(id: travelId)
+                        await send(.inner(.saveExpenseResponse(.success(detail))))
+                    } catch {
+                        await send(.inner(.saveExpenseResponse(.failure(error))))
+                    }
+                }
+            }
+        }
+    
+    // MARK: - Helper Methods
+    private func recalculateConvertedAmount(_ state: inout State) {
+        // KRW 기준이면 환산 불필요
+        guard state.baseCurrency != "KRW" else {
+            state.convertedAmountKRW = ""
+            return
+        }
+
+        guard let amount = Double(state.amount), amount > 0 else {
+            state.convertedAmountKRW = ""
+            return
+        }
+
+        // 외국 통화 → KRW 환산
+        let convertedKRW = amount * state.baseExchangeRate
+
+        // NumberFormatter로 천단위 콤마 추가
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        state.convertedAmountKRW = formatter.string(from: NSNumber(value: convertedKRW)) ?? ""
     }
 }

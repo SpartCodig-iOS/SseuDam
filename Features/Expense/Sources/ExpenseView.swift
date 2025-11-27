@@ -32,12 +32,18 @@ public struct ExpenseView: View {
                     )
                     
                     // 2. 지출 금액
-                    AmountInputField(amount: $store.amount)
+                    AmountInputField(
+                        amount: $store.amount,
+                        baseCurrency: store.baseCurrency,
+                        convertedAmountKRW: store.convertedAmountKRW
+                    )
                    
                     // 3. 지출일
                     DatePickerField(
                         label: "지출일",
-                        date: $store.expenseDate
+                        date: $store.expenseDate,
+                        startDate: store.travelStartDate,
+                        endDate: store.travelEndDate
                     )
                     
                     // 4. 카테고리
@@ -58,7 +64,9 @@ public struct ExpenseView: View {
             PrimaryButton(title: "저장") {
                 send(.saveButtonTapped)
             }
-            .background(Color.clear)
+        }
+        .onAppear {
+            send(.onAppear)
         }
         .padding(.horizontal, 16)
         .navigationTitle("지출 추가")
@@ -70,7 +78,7 @@ public struct ExpenseView: View {
 #Preview {
     NavigationStack {
         ExpenseView(
-            store: Store(initialState: ExpenseFeature.State()) {
+            store: Store(initialState: ExpenseFeature.State("")) {
                 ExpenseFeature()
             }
         )
