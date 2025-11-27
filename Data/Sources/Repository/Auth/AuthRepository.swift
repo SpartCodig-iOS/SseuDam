@@ -13,7 +13,7 @@ final public class AuthRepository: AuthRepositoryProtocol {
     private var provider: MoyaProvider<AuthAPITarget>
 
     public init(
-        provider: MoyaProvider<AuthAPITarget> = MoyaProvider<AuthAPITarget>.default,
+      provider: MoyaProvider<AuthAPITarget> = MoyaProvider<AuthAPITarget>.withSession(AuthInterceptor.shared),
     ) {
         self.provider = provider
     }

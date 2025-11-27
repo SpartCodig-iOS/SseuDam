@@ -24,6 +24,7 @@ public struct LoginFeature {
         var authResult: AuthResult?
         var currentNonce: String = ""
         @Shared(.appStorage("socialType''"))  var socialType: SocialType? = nil
+        @Shared(.appStorage("sessionId")) var sessionId: String? = ""
 
         @Presents var destination: Destination.State?
 
