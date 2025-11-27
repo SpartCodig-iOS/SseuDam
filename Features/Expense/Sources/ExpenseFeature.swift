@@ -24,10 +24,10 @@ public struct ExpenseFeature {
         
         public init() {
             let availableParticipants = IdentifiedArray(uniqueElements: [
-                Expense.Participant(memberId: "1", name: "홍석현"),
-                Expense.Participant(memberId: "2", name: "김철수"),
-                Expense.Participant(memberId: "3", name: "이영희"),
-                Expense.Participant(memberId: "4", name: "박민수")
+                TravelMember(id: "1", name: "홍석현", role: "owner"),
+                TravelMember(id: "2", name: "김철수", role: "member"),
+                TravelMember(id: "3", name: "이영희", role: "member"),
+                TravelMember(id: "4", name: "박민수", role: "member")
             ])
             self.participantSelector = ParticipantSelectorFeature.State(
                 availableParticipants: availableParticipants

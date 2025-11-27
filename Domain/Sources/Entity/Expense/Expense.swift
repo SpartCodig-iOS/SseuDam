@@ -18,24 +18,8 @@ public struct Expense: Identifiable, Equatable {
     public let category: ExpenseCategory
     public let payerId: String
     public let payerName: String
-    public let participants: [Participant]
-    
-    public struct Participant: Identifiable, Equatable {
-        public var id: String {
-            return memberId
-        }
-        public let memberId: String
-        public let name: String
-        
-        public init(
-            memberId: String,
-            name: String
-        ) {
-            self.memberId = memberId
-            self.name = name
-        }
-    }
-    
+    public let participants: [TravelMember]
+
     public init(
         id: String,
         title: String,
@@ -47,7 +31,7 @@ public struct Expense: Identifiable, Equatable {
         category: ExpenseCategory,
         payerId: String,
         payerName: String,
-        participants: [Participant]
+        participants: [TravelMember]
     ) {
         self.id = id
         self.title = title
@@ -86,7 +70,7 @@ extension Expense {
         }
         
         // 지불자가 참가자 목록에 있는지 검증
-        guard participants.contains(where: { $0.memberId == payerId }) else {
+        guard participants.contains(where: { $0.id == payerId }) else {
             throw ExpenseError.payerNotInParticipants
         }
     }

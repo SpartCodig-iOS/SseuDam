@@ -50,12 +50,12 @@ public struct ParticipantSelectorView: View {
                 FormLabel("참여자")
                 
                 VStack(spacing: 12) {
-                    ForEach(store.availableParticipants, id: \.memberId) { participant in
+                    ForEach(store.availableParticipants, id: \.id) { participant in
                         ParticipantRowView(
                             participant: participant,
                             isSelected: store.participants.contains(participant),
-                            isPayer: store.payer?.memberId == participant.memberId,
-                            showDivider: participant.memberId != store.availableParticipants.last?.memberId,
+                            isPayer: store.payer?.id == participant.id,
+                            showDivider: participant.id != store.availableParticipants.last?.id,
                             action: { send(.participantToggled(participant)) }
                         )
                     }
@@ -73,7 +73,7 @@ public struct ParticipantSelectorView: View {
 }
 
 private struct ParticipantRowView: View {
-    let participant: Expense.Participant
+    let participant: TravelMember
     let isSelected: Bool
     let isPayer: Bool
     let showDivider: Bool
@@ -117,11 +117,11 @@ private struct ParticipantRowView: View {
 
 #Preview {
     let sampleParticipants = IdentifiedArray(uniqueElements: [
-        Expense.Participant(memberId: "1", name: "김민수"),
-        Expense.Participant(memberId: "2", name: "이영희"),
-        Expense.Participant(memberId: "3", name: "박철수")
+        TravelMember(id: "1", name: "김민수", role: "owner"),
+        TravelMember(id: "2", name: "이영희", role: "member"),
+        TravelMember(id: "3", name: "박철수", role: "member")
     ])
-    
+
     ParticipantSelectorView(
         store: Store(initialState: ParticipantSelectorFeature.State(availableParticipants: sampleParticipants)) {
             ParticipantSelectorFeature()

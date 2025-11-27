@@ -14,13 +14,13 @@ import IdentifiedCollections
 public struct ParticipantSelectorFeature {
     @ObservableState
     public struct State: Equatable {
-        var payer: Expense.Participant?
-        var participants: IdentifiedArrayOf<Expense.Participant> = []
-        let availableParticipants: IdentifiedArrayOf<Expense.Participant>
-        
+        var payer: TravelMember?
+        var participants: IdentifiedArrayOf<TravelMember> = []
+        let availableParticipants: IdentifiedArrayOf<TravelMember>
+
         @Presents var payerDialog: ConfirmationDialogState<Action.PayerDialog>?
-        
-        public init(availableParticipants: IdentifiedArrayOf<Expense.Participant>) {
+
+        public init(availableParticipants: IdentifiedArrayOf<TravelMember>) {
             self.availableParticipants = availableParticipants
         }
     }
@@ -34,23 +34,23 @@ public struct ParticipantSelectorFeature {
         @CasePathable
         public enum ViewAction: Equatable {
             case payerButtonTapped
-            case participantToggled(Expense.Participant)
+            case participantToggled(TravelMember)
         }
-        
+
         @CasePathable
         public enum InnerAction: Equatable {
-            case updatePayer(Expense.Participant)
-            case updateParticipants(IdentifiedArrayOf<Expense.Participant>)
+            case updatePayer(TravelMember)
+            case updateParticipants(IdentifiedArrayOf<TravelMember>)
         }
-        
+
         @CasePathable
         public enum ScopeAction: Equatable {
             case payerDialog(PresentationAction<PayerDialog>)
         }
-        
+
         @CasePathable
         public enum PayerDialog: Equatable {
-            case selectPayer(Expense.Participant)
+            case selectPayer(TravelMember)
         }
     }
     
