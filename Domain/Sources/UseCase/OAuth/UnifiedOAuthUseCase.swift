@@ -56,11 +56,11 @@ public extension UnifiedOAuthUseCase {
         with oAuthData: AuthData
     ) async -> Result<AuthResult, AuthError> {
         let loginResult = await attemptLogin(with: oAuthData)
-        
+
         if case .success(let authEntity) = loginResult {
-            await saveTokensAndComplete(authEntity: authEntity)
+            saveTokensAndComplete(authEntity: authEntity)
         }
-        
+
         return loginResult
     }
     
@@ -76,36 +76,43 @@ public extension UnifiedOAuthUseCase {
         appleCredential: ASAuthorizationAppleIDCredential? = nil,
         nonce: String? = nil
     ) async -> Result<AuthResult, AuthError> {
+        Log.info("🔐 Starting unified OAuth flow for: \(socialType.rawValue)")
 
-        let oAuthResult = await getOAuthCredentials(
+        // 1단계: OAuth Provider 인증
+        let oAuthData = await getOAuthCredentials(
             socialType: socialType,
             appleCredential: appleCredential,
             nonce: nonce
         )
-
-        switch oAuthResult {
-        case .success(let oAuthData):
-            // OAuth 완료 후 가입 여부 확인 → 로그인/회원가입 분기
-            let checkResult = await checkUserRegistrationStatus(with: oAuthData)
-            switch checkResult {
-            case .failure(let error):
+        guard case .success(let authData) = oAuthData else {
+            if case .failure(let error) = oAuthData {
                 return .failure(error)
-
-            case .success(let checkUser):
-                if checkUser.registered {
-                    let loginResult = await attemptLogin(with: oAuthData)
-                    if case .success(let authEntity) = loginResult {
-                        await saveTokensAndComplete(authEntity: authEntity)
-                    }
-                    return loginResult
-                } else {
-                    return await attemptSignUp(with: oAuthData)
-                }
+            } else {
+                return .failure(.unknownError("OAuth 인증 실패"))
             }
-
-        case .failure(let error):
-            return .failure(error)
         }
+
+        // 2단계: 사용자 등록 상태 확인
+        let registrationStatus = await checkUserRegistrationStatus(with: authData)
+        guard case .success(let checkUser) = registrationStatus else {
+            if case .failure(let error) = registrationStatus {
+                return .failure(error)
+            } else {
+                return .failure(.unknownError("등록 상태 확인 실패"))
+            }
+        }
+
+        // 3단계: 등록 여부에 따른 분기 처리
+        let authResult = checkUser.registered
+            ? await attemptLogin(with: authData)
+            : await attemptSignUp(with: authData)
+
+        // 4단계: 성공 시 토큰 저장 (회원가입은 attemptSignUp에서 이미 처리)
+        if case .success(let authEntity) = authResult, checkUser.registered {
+            saveTokensAndComplete(authEntity: authEntity)
+        }
+
+        return authResult
     }
 }
 
@@ -218,7 +225,7 @@ private extension UnifiedOAuthUseCase {
             )
             var authEntity = try await signUpRepository.signUp(input: checkInput)
             authEntity.token.authToken = oAuthData.authToken
-            await saveTokensAndComplete(authEntity: authEntity)
+            saveTokensAndComplete(authEntity: authEntity)
             return .success(authEntity)
         } catch {
             let authError = error as? AuthError ?? .unknownError(error.localizedDescription)
@@ -229,16 +236,15 @@ private extension UnifiedOAuthUseCase {
     /// 토큰 저장 및 로깅
     func saveTokensAndComplete(
         authEntity: AuthResult
-    ) async {
+    ) {
         // Keychain에 토큰 저장
         KeychainManager.shared.saveTokens(
             accessToken: authEntity.token.accessToken,
             refreshToken: authEntity.token.refreshToken
         )
-        
-        // 저장 확인 로깅
-        let savedTokens = KeychainManager.shared.loadTokens()
-        Log.info("💾 Tokens saved to Keychain: \(savedTokens)")
+
+        // 완료 로깅 (저장 확인을 위한 불필요한 재로드 제거)
+        Log.info("💾 Tokens saved to Keychain successfully")
         Log.info("🎉 OAuth flow completed for \(authEntity.provider.rawValue)")
     }
 }
@@ -248,12 +254,10 @@ private extension UnifiedOAuthUseCase {
 // MARK: - Dependencies Registration
 
 extension UnifiedOAuthUseCase: DependencyKey {
-    public static let liveValue = UnifiedOAuthUseCase(
-        oAuthUseCase: OAuthUseCase.liveValue,
-        signUpRepository: MockSignUpRepository(),
-        loginRepository: MockLoginRepository()
-    )
-    
+    /// 기본값 - Mock 객체 사용 (실제 구현체는 앱 레벨에서 주입)
+    public static let liveValue = UnifiedOAuthUseCase()
+
+    /// 테스트에서 사용할 Mock 구현체들
     public static let testValue = UnifiedOAuthUseCase(
         oAuthUseCase: OAuthUseCase.testValue,
         signUpRepository: MockSignUpRepository(),

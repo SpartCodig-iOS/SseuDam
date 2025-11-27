@@ -8,7 +8,6 @@
 import ComposableArchitecture
 import AuthenticationServices
 
-/// Coordinates every dependency needed to perform an OAuth based login.
 public struct LoginUseCase: LoginUseCaseProtocol {
 
     private let repository: LoginRepositoryProtocol
