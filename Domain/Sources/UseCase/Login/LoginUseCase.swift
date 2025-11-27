@@ -28,20 +28,20 @@ public struct LoginUseCase: LoginUseCaseProtocol {
 }
 
 extension LoginUseCase: DependencyKey {
-    public static var liveValue: LoginUseCase = .mockedDependency()
-    public static var previewValue: LoginUseCase { .mockedDependency() }
-    public static var testValue: LoginUseCase = .mockedDependency()
+    public static var liveValue: LoginUseCaseProtocol = mockedDependency()
+    public static var previewValue: LoginUseCaseProtocol { mockedDependency() }
+    public static var testValue: LoginUseCaseProtocol = mockedDependency()
 }
 
 public extension DependencyValues {
-    var loginUseCase: LoginUseCase {
+    var loginUseCase: LoginUseCaseProtocol {
         get { self[LoginUseCase.self] }
         set { self[LoginUseCase.self] = newValue }
     }
 }
 
 private extension LoginUseCase {
-    static func mockedDependency() -> LoginUseCase {
+    static func mockedDependency() -> LoginUseCaseProtocol {
         let repo = MockLoginRepository()
         return LoginUseCase(repository: repo)
     }

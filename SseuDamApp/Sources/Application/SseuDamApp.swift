@@ -31,12 +31,12 @@ struct SseuDamApp: App {
 }
 
 private extension SseuDamApp {
-    static func makeLoginUseCase() -> LoginUseCase {
+    static func makeLoginUseCase() -> LoginUseCaseProtocol {
        LoginUseCase(repository: LoginRepository())
 
     }
 
-  static func makeOAuthUseCase() -> OAuthUseCase {
+  static func makeOAuthUseCase() -> OAuthUseCaseProtocol {
     OAuthUseCase(
       repository: OAuthRepository(),
         googleRepository: GoogleOAuthRepository(),
@@ -44,7 +44,7 @@ private extension SseuDamApp {
     )
   }
 
-  static func makeSignUpUseCase() -> SignUpUseCase {
+  static func makeSignUpUseCase() -> SignUpUseCaseProtocol {
     SignUpUseCase(
       repository: SignUpRepository()
     )

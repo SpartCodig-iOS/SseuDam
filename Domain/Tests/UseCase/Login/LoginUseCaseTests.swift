@@ -22,7 +22,7 @@ struct LoginUseCaseTests {
         let useCase = LoginUseCase(repository: mockRepository)
 
         // When
-        let result = try await useCase.loginUser(
+        let result = try await useCase.login(
             accessToken: "google-access-token",
             socialType: Domain.SocialType.google
         )
@@ -40,7 +40,7 @@ struct LoginUseCaseTests {
         let useCase = LoginUseCase(repository: mockRepository)
 
         // When
-        let result = try await useCase.loginUser(
+        let result = try await useCase.login(
             accessToken: "apple-access-token",
             socialType: Domain.SocialType.apple
         )
@@ -59,7 +59,7 @@ struct LoginUseCaseTests {
 
         // When & Then
         await #expect(throws: MockLoginRepositoryError.self) {
-            _ = try await useCase.loginUser(
+            _ = try await useCase.login(
                 accessToken: "invalid-token",
                 socialType: Domain.SocialType.google
             )
@@ -74,7 +74,7 @@ struct LoginUseCaseTests {
 
         // When & Then
         await #expect(throws: MockLoginRepositoryError.self) {
-            _ = try await useCase.loginUser(
+            _ = try await useCase.login(
                 accessToken: "apple-token",
                 socialType: Domain.SocialType.apple
             )
@@ -89,7 +89,7 @@ struct LoginUseCaseTests {
         let startTime = Date()
 
         // When
-        let result = try await useCase.loginUser(
+        let result = try await useCase.login(
             accessToken: "delayed-token",
             socialType: Domain.SocialType.google
         )
@@ -110,7 +110,7 @@ struct LoginUseCaseTests {
         let useCase = LoginUseCase(repository: mockRepository)
 
         // When
-        let result = try await useCase.loginUser(
+        let result = try await useCase.login(
             accessToken: "custom-access-token",
             socialType: Domain.SocialType.apple
         )
@@ -125,15 +125,16 @@ struct LoginUseCaseTests {
 
     @Test("Dependencies를 통한 UseCase 생성 테스트")
     func testUseCaseCreationThroughDependencies() async throws {
-        await withDependencies { dependencies in
-            // Mock dependencies 설정 - 기본값 사용
+        let mockRepository = MockLoginRepository.googleUser
+        let result = try await withDependencies {
+            $0.loginUseCase = LoginUseCase(repository: mockRepository)
         } operation: {
-            // When
-            let useCase = LoginUseCase.mockedDependency()
-
-            // Then - useCase가 정상적으로 생성되는지 확인
-            #expect(true) // 생성만 확인하는 간단한 테스트
+            try await LoginUseCaseDependencyConsumer()
+                .run(accessToken: "dep-token", socialType: .google)
         }
+
+        #expect(result.provider == .google)
+        #expect(result.token.accessToken == "dep-token")
     }
 }
 
@@ -143,5 +144,13 @@ private extension LoginUseCase {
     static func mockedDependency() -> LoginUseCase {
         let repo = MockLoginRepository()
         return LoginUseCase(repository: repo)
+    }
+}
+
+private struct LoginUseCaseDependencyConsumer {
+    @Dependency(\.loginUseCase) var loginUseCase
+
+    func run(accessToken: String, socialType: SocialType) async throws -> AuthResult {
+        try await loginUseCase.login(accessToken: accessToken, socialType: socialType)
     }
 }
