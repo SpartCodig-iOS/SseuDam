@@ -182,26 +182,20 @@ extension LoginFeature {
             return .none
 
         case .appleCompletion(let result):
-            state.isLoading = true
-            state.statusMessage = "\(SocialType.apple.rawValue) 로그인 중..."
-            return .run { [nonce = state.currentNonce] send in
-                guard
-                    case .success(let auth) = result,
-                    let credential = auth.credential as? ASAuthorizationAppleIDCredential,
-                    !nonce.isEmpty
-                else {
-                    await send(.inner(.oAuthResult(.failure(.invalidCredential("Apple 인증 정보가 없습니다")))))
-                    return
-                }
-
-                let loginResult = await unifiedOAuthUseCase.loginOrSignUp(
-                    with: .apple,
-                    appleCredential: credential,
-                    nonce: nonce
-                )
-                await send(.inner(.oAuthResult(loginResult)))
+            guard
+                case .success(let auth) = result,
+                let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                !state.currentNonce.isEmpty
+            else {
+                return .send(.inner(.oAuthResult(.failure(.invalidCredential("Apple 인증 정보가 없습니다")))))
             }
-            .cancellable(id: CancelID.appleOAuth, cancelInFlight: true)
+
+            return startOAuthFlow(
+                state: &state,
+                socialType: .apple,
+                appleCredential: credential,
+                nonce: state.currentNonce
+            )
         }
     }
 
@@ -226,7 +220,9 @@ private extension LoginFeature {
 
     func startOAuthFlow(
         state: inout State,
-        socialType: SocialType
+        socialType: SocialType,
+        appleCredential: ASAuthorizationAppleIDCredential? = nil,
+        nonce: String? = nil
     ) -> Effect<Action> {
         state.isLoading = true
         state.statusMessage = "\(socialType.rawValue) 로그인 중..."
@@ -234,7 +230,11 @@ private extension LoginFeature {
         let cancelID: CancelID = socialType == .google ? .googleOAuth : .appleOAuth
 
         return .run { send in
-            let result = await unifiedOAuthUseCase.loginOrSignUp(with: socialType)
+            let result = await unifiedOAuthUseCase.loginOrSignUp(
+                with: socialType,
+                appleCredential: appleCredential,
+                nonce: nonce
+            )
             await send(.inner(.oAuthResult(result)))
         }
         .cancellable(id: cancelID, cancelInFlight: true)
