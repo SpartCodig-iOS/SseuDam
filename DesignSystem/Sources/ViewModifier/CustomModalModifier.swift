@@ -173,7 +173,7 @@ public struct CustomModalModifier<Item: Identifiable, ModalContent: View>: ViewM
 }
 
 public extension View {
-    func customModal<Item: Identifiable, ModalContent: View>(
+    func presentDSModal<Item: Identifiable, ModalContent: View>(
         item: Binding<Item?>,
         height: ModalHeight = .auto,
         showDragIndicator: Bool = true,
