@@ -15,7 +15,7 @@ struct ExpenseDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                ExpenseView(store: Store(initialState: ExpenseFeature.State(), reducer: {
+                ExpenseView(store: Store(initialState: ExpenseFeature.State("travel_id"), reducer: {
                     ExpenseFeature()
                 }))
             }
