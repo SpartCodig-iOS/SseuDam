@@ -42,7 +42,7 @@ struct CreateTravelView: View {
                             set: { store.send(.titleChanged($0)) }
                         ),
                         selectedCountry: Binding(
-                            get: { store.selectedCurrency },
+                            get: { store.selectedCountry },
                             set: { store.send(.countryChanged($0)) }
                         ),
                         startDate: Binding(
@@ -62,10 +62,17 @@ struct CreateTravelView: View {
                                 get: { store.currency },
                                 set: { store.send(.currencyChanged($0)) }
                             ),
+                            selectedCurrency: Binding(
+                                get: { store.selectedCurrency },
+                                set: { store.send(.currencySelected($0 ?? "")) }
+                            ),
                             rate: Binding(
                                 get: { store.rate },
                                 set: { store.send(.rateChanged($0)) }
-                            )
+                            ),
+                            onCurrencyFieldTapped: {
+                                store.send(.currencyFieldTapped)
+                            }
                         )
                     }
                 }

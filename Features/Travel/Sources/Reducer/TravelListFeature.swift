@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 @Reducer
 public struct TravelListFeature {
+    public init() {}
     @ObservableState
     public struct State: Equatable {
         var travels: [Travel] = []

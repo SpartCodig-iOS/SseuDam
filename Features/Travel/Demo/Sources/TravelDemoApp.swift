@@ -8,13 +8,21 @@
 
 import SwiftUI
 import TravelFeature
+import ComposableArchitecture
 
 @main
 struct TravelDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                TravelView()
+                TravelView(
+                    store: Store(
+                        initialState: TravelListFeature.State(),
+                        reducer: {
+                            TravelListFeature()
+                        }
+                    )
+                )
             }
         }
     }

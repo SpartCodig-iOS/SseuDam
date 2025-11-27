@@ -27,7 +27,7 @@ public struct TravelCreateFeature {
         var isSaveEnabled: Bool {
             guard !title.isEmpty else { return false }
             guard startDate != nil, endDate != nil else { return false }
-            guard let country = selectedCurrency, !country.isEmpty else { return false }
+            guard let country = selectedCountry, !country.isEmpty else { return false }
 
             if country == "한국" {
                 return true
@@ -44,6 +44,9 @@ public struct TravelCreateFeature {
         case countryChanged(String?)
         case startDateChanged(Date?)
         case endDateChanged(Date?)
+
+        case currencyFieldTapped
+        case currencySelected(String)
 
         case saveButtonTapped
         case saveResponse(Result<Travel, Error>)
@@ -70,6 +73,20 @@ public struct TravelCreateFeature {
 
             case .countryChanged(let value):
                 state.selectedCountry = value
+
+                let mockCurrency: [String: [String]] = [
+                    "한국": ["KRW"],
+                    "미국": ["USD"],
+                    "일본": ["JPY"],
+                    "아르헨티나": ["ARS", "USD"],
+                    "영국": ["GBP", "USD"],
+                    "호주": ["AUD"]
+                ]
+
+                // 선택된 나라에 해당되는 화폐를 넣어줌
+                state.currency = mockCurrency[value ?? ""] ?? []
+                state.selectedCurrency = state.currency.first
+                state.rate = ""
                 return .none
 
             case .startDateChanged(let value):
@@ -78,6 +95,13 @@ public struct TravelCreateFeature {
 
             case .endDateChanged(let value):
                 state.endDate = value
+                return .none
+
+            case .currencyFieldTapped:
+                return .none
+
+            case .currencySelected(let value):
+                state.selectedCurrency = value
                 return .none
 
             case .saveButtonTapped:
@@ -103,6 +127,7 @@ public struct TravelCreateFeature {
 
                 return .run { send in
                     do {
+                        print("저장")
                         let travel = try await createTravelUseCase.excute(input: input)
                         await send(.saveResponse(.success(travel)))
                     } catch {

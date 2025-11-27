@@ -54,6 +54,11 @@ public struct TravelView: View {
                 .padding(.trailing, 20)
                 .padding(.bottom, 54)
             }
+            .navigationDestination(
+                store: store.scope(state: \.$create, action: \.create)
+            ) { createStore in
+                CreateTravelView(store: createStore)
+            }
         }
     }
 }

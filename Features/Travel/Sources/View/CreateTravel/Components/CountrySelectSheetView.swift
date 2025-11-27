@@ -47,6 +47,8 @@ struct CountrySelectSheetView: View {
                     countryRow("미국")
                     countryRow("아르헨티나")
                     countryRow("일본")
+                    countryRow("영국")
+                    countryRow("호주")
                 }
             }
             .scrollIndicators(.hidden)

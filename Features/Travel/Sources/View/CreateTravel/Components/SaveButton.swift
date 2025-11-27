@@ -23,7 +23,7 @@ struct SaveButton: View {
                 .padding(.vertical, 16)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(Color.primary500)
+                        .foregroundStyle(isEnabled ? Color.primary500 : Color.gray2)
                 )
         }
         .disabled(!isEnabled)
