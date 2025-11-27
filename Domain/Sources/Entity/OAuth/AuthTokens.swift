@@ -13,7 +13,7 @@ public struct AuthTokens: Equatable {
   public let accessToken: String
   public let refreshToken: String?
   public let sessionID: String
-
+  
   public init(
     authToken: String,
     accessToken: String,

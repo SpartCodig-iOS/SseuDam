@@ -56,7 +56,7 @@ public actor MockSignUpRepository: SignUpRepositoryProtocol {
     
     // MARK: - SignUpRepositoryProtocol Implementation
     
-  public func checkSignUpUser(
+  public func checkSignUp(
     input: OAuthUserInput
   ) async throws -> OAuthCheckUser {
         // Simulate network delay
@@ -79,7 +79,7 @@ public actor MockSignUpRepository: SignUpRepositoryProtocol {
         return OAuthCheckUser(registered: configuration.mockCheckResult.isRegistered)
     }
 
-  public func signUpUser(input: OAuthUserInput) async throws -> AuthEntity {
+  public func signUp(input: OAuthUserInput) async throws -> AuthResult {
     // Simulate network delay
     if configuration.delay > 0 {
         try await Task.sleep(for: .seconds(configuration.delay))
@@ -107,7 +107,7 @@ public actor MockSignUpRepository: SignUpRepositoryProtocol {
     // Generate mock user name based on provider
     let mockUserName = "MockUser_\(input.socialType.description)_\(Int.random(in: 1000...9999))"
 
-    return AuthEntity(
+    return AuthResult(
         name: mockUserName,
         provider: input.socialType,
         token: mockTokens

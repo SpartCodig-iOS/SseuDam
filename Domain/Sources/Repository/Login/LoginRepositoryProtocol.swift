@@ -6,5 +6,5 @@
 //
 
 public protocol LoginRepositoryProtocol {
-  func loginUser(input: OAuthUserInput) async throws -> AuthEntity
+  func login(input: OAuthUserInput) async throws -> AuthResult
 }

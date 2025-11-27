@@ -37,10 +37,10 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
         case googleUser
         case customUser(name: String, provider: SocialType)
 
-        func createAuthEntity() -> AuthEntity {
+        func createAuthEntity() -> AuthResult {
             switch self {
             case .success:
-                return AuthEntity(
+                return AuthResult(
                     name: "MockUser",
                     provider: .apple,
                     token: AuthTokens(
@@ -51,7 +51,7 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
                     )
                 )
             case .appleUser:
-                return AuthEntity(
+                return AuthResult(
                     name: "Apple User",
                     provider: .apple,
                     token: AuthTokens(
@@ -62,7 +62,7 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
                     )
                 )
             case .googleUser:
-                return AuthEntity(
+                return AuthResult(
                     name: "Google User",
                     provider: .google,
                     token: AuthTokens(
@@ -73,7 +73,7 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
                     )
                 )
             case .customUser(let name, let provider):
-                return AuthEntity(
+                return AuthResult(
                     name: name,
                     provider: provider,
                     token: AuthTokens(
@@ -95,7 +95,7 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
 
     // MARK: - LoginRepositoryProtocol Implementation
 
-    public func loginUser(input: OAuthUserInput) async throws -> AuthEntity {
+    public func login(input: OAuthUserInput) async throws -> AuthResult {
         // Simulate network delay
         if configuration.delay > 0 {
             try await Task.sleep(for: .seconds(configuration.delay))
@@ -116,7 +116,7 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
         let authEntity = configuration.mockResult.createAuthEntity()
 
         // Override provider if input specifies different one
-        return AuthEntity(
+        return AuthResult(
             name: authEntity.name,
             provider: input.socialType,
             token: AuthTokens(

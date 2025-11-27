@@ -1,5 +1,5 @@
 //
-//  AuthEntity.swift
+//  AuthResult.swift
 //  Domain
 //
 //  Created by Wonji Suh  on 11/24/25.
@@ -21,6 +21,5 @@ public struct AuthResult: Equatable {
         self.provider = provider
         self.token = token
     }
-    
 }
 

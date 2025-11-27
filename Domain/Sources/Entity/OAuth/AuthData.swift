@@ -10,7 +10,7 @@ import Foundation
 public struct AuthData {
     let socialType: SocialType
     let accessToken: String
-    let idToken: String
+    let authToken: String
     let displayName: String?
     let authorizationCode: String
 }
