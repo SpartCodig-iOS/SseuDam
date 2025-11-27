@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Expense: Identifiable {
+public struct Expense: Identifiable, Equatable {
     public let id: String
     public let title: String
     public let note: String?
@@ -20,7 +20,7 @@ public struct Expense: Identifiable {
     public let payerName: String
     public let participants: [Participant]
     
-    public struct Participant: Identifiable {
+    public struct Participant: Identifiable, Equatable {
         public var id: String {
             return memberId
         }
