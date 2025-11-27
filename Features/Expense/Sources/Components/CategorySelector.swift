@@ -16,23 +16,14 @@ public struct CategorySelector: View {
         self._selectedCategory = selectedCategory
     }
     
+    @State private var showDialog = false
+    
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             FormLabel("카테고리")
             
-            Menu {
-                ForEach(ExpenseCategory.allCases, id: \.self) { category in
-                    Button {
-                        selectedCategory = category
-                    } label: {
-                        HStack {
-                            Text(category.displayName)
-                            if selectedCategory == category {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                }
+            Button {
+                showDialog = true
             } label: {
                 InputContainer {
                     HStack {
@@ -46,6 +37,14 @@ public struct CategorySelector: View {
                             .font(.system(size: 14))
                     }
                 }
+            }
+            .confirmationDialog("카테고리 선택", isPresented: $showDialog) {
+                ForEach(ExpenseCategory.allCases, id: \.self) { category in
+                    Button(category.displayName) {
+                        selectedCategory = category
+                    }
+                }
+                Button("취소", role: .cancel) {}
             }
         }
     }
