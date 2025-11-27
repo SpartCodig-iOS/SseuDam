@@ -1,5 +1,5 @@
 //
-//  SessionService.swift
+//  SessionAPITarget.swift
 //  Data
 //
 //  Created by Wonji Suh  on 11/25/25.
@@ -8,12 +8,12 @@
 import Moya
 import NetworkService
 
-public enum SessionService {
+public enum SessionAPITarget  {
   case checkSession(body: SessionRequestDTO)
 }
 
 
-extension SessionService: BaseTargetType {
+extension SessionAPITarget : BaseTargetType {
   public typealias Domain = SseuDamDomain
 
   public var domain: SseuDamDomain {

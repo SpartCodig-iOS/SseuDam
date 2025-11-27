@@ -9,9 +9,9 @@ import Foundation
 import Domain
 
 public extension SessionResponseDTO {
-  func toDomain() -> SessionEntity {
+  func toDomain() -> SessionResult {
     let socialType = SocialType(rawValue: self.loginType) ?? .none
-    return SessionEntity(
+    return SessionResult(
       provider: socialType,
       sessionId: self.sessionID,
       status: self.status

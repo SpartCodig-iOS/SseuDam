@@ -6,23 +6,31 @@
 //
 
 import Foundation
+
 import Domain
+import NetworkService
+
+import Moya
 
 final public class SessionRepository: SessionRepositoryProtocol {
-
-
-  private let dataSource: SessionRemoteDataSourceProtocol
+  private var provider: MoyaProvider<SessionAPITarget>
 
   public init(
-    dataSource: SessionRemoteDataSourceProtocol
+      provider: MoyaProvider<SessionAPITarget> = MoyaProvider<SessionAPITarget>.default,
   ) {
-    self.dataSource = dataSource
+      self.provider = provider
   }
 
-  public func checkLoginSession(
+  public func checkSession(
     sessionId: String
-  ) async throws -> Domain.SessionEntity {
-    let data = try await dataSource.checkLoginSession(body: SessionRequestDTO(sessionId: sessionId))
+  ) async throws -> Domain.SessionResult {
+    let body = SessionRequestDTO(sessionId: sessionId)
+    let response: BaseResponse<SessionResponseDTO> = try await provider.request(.checkSession(body: body))
+
+    guard let data = response.data else {
+      throw NetworkError.noData
+    }
+
     return data.toDomain()
   }
 }
