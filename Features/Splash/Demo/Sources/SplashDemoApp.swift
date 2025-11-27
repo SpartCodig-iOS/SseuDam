@@ -14,7 +14,9 @@ struct SplashDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                SplashView()
+              SplashView(store: .init(initialState: SplashFeature.State(), reducer: {
+                SplashFeature()
+              }))
             }
         }
     }
