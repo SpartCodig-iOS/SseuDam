@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol LoginUseCaseProtocol {
-  func loginUser(accessToken: String, socialType: SocialType) async throws -> AuthEntity
+  func login(accessToken: String, socialType: SocialType) async throws -> AuthResult
 }

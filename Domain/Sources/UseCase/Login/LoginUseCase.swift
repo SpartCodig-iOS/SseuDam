@@ -19,11 +19,11 @@ public struct LoginUseCase: LoginUseCaseProtocol {
         self.repository = repository
     }
 
-    public func loginUser(
+    public func login(
       accessToken: String,
       socialType: SocialType
-    ) async throws -> AuthEntity {
-      return try await repository.loginUser(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: ""))
+    ) async throws -> AuthResult {
+      return try await repository.login(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: ""))
     }
 }
 

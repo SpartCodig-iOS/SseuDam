@@ -28,7 +28,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
   public func signInWithApple(
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
-  ) async throws -> UserEntity {
+  ) async throws -> UserProfile {
     guard let identityTokenData = credential.identityToken,
           let identityToken = String(data: identityTokenData, encoding: .utf8),
           let authCode = String(data: credential.authorizationCode ?? Data(), encoding: .utf8)
@@ -61,7 +61,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     return name.isEmpty ? nil : name
   }
 
-  public func signUp(with provider: SocialType) async throws -> UserEntity {
+  public func signUp(with provider: SocialType) async throws -> UserProfile {
     let payload = try await fetchPayload(for: provider)
     Log.info("\(provider.rawValue) sign-in succeeded for \(payload.displayName ?? "unknown user")")
 

@@ -152,7 +152,7 @@ struct OAuthIntegrationTests {
             let mockRepo = MockSignUpRepository()
 
             // When
-            let result = try await mockRepo.checkSignUpUser(
+            let result = try await mockRepo.checkSignUp(
                 input: OAuthUserInput(
                     accessToken: "test-token",
                     socialType: Domain.SocialType.google,

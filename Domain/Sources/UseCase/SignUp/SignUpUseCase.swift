@@ -21,7 +21,7 @@ public struct SignUpUseCase: SignUpUseCaseProtocol {
         accessToken: String,
         socialType: SocialType
     ) async throws -> OAuthCheckUser {
-      return try await repository.checkSignUpUser(
+      return try await repository.checkSignUp(
         input: OAuthUserInput(
           accessToken: accessToken,
           socialType: socialType,
@@ -31,12 +31,12 @@ public struct SignUpUseCase: SignUpUseCaseProtocol {
     }
 
 
-  public func signUpUser(
+  public func signUp(
     accessToken: String,
     socialType: SocialType,
     authCode: String
-  ) async throws -> AuthEntity {
-    return try await repository.signUpUser(
+  ) async throws -> AuthResult {
+    return try await repository.signUp(
       input: OAuthUserInput(
         accessToken: accessToken,
         socialType: socialType,
