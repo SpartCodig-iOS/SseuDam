@@ -37,7 +37,7 @@ public struct LoginFeature {
         case view(View)
         case async(AsyncAction)
         case inner(InnerAction)
-        case navigation(NavigationAction)
+        case delegate(DelegateAction)
     }
 
     @Reducer
@@ -64,8 +64,8 @@ public struct LoginFeature {
         case oAuthResult(Result<AuthResult, AuthError>)
     }
 
-    // MARK: - NavigationAction
-    public enum NavigationAction: Equatable {
+    // MARK: - DelegateAction
+    public enum DelegateAction: Equatable {
         case presentTravelList
         case presentTermsAgreement
     }
@@ -100,8 +100,8 @@ public struct LoginFeature {
             case .inner(let innerAction):
                 return handleInnerAction(state: &state, action: innerAction)
 
-            case .navigation(let navigationAction):
-                return handleNavigationAction(state: &state, action: navigationAction)
+            case .delegate(let navigationAction):
+                return handleDelegateAction(state: &state, action: navigationAction)
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -118,16 +118,14 @@ extension LoginFeature {
     ) -> Effect<Action> {
         switch action {
         case .presented(.termsService(.scope(.close))):
-            // 약관 동의 완료 - 회원가입은 이미 UseCase에서 처리됨
             state.destination = nil
-            return .send(.navigation(.presentTravelList))
+            return .send(.delegate(.presentTravelList))
         default:
             return .none
         }
     }
 
     // MARK: ViewAction 처리 (버튼/뷰 이벤트)
-
     private func handleViewAction(
         state: inout State,
         action: View
@@ -163,7 +161,7 @@ extension LoginFeature {
                 Log.info("🎉 OAuth authentication completed successfully")
 
                 // 인증 완료 - 메인 화면으로 이동
-                return .send(.navigation(.presentTravelList))
+                return .send(.delegate(.presentTravelList))
 
             case .failure(let error):
                 state.statusMessage = "인증 실패: \(error.localizedDescription)"
@@ -207,9 +205,9 @@ extension LoginFeature {
         }
     }
 
-    private func handleNavigationAction(
+    private func handleDelegateAction(
         state: inout State,
-        action: NavigationAction
+        action: DelegateAction
     ) -> Effect<Action> {
         switch action {
         case .presentTravelList:
