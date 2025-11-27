@@ -28,27 +28,33 @@ public struct LoginView: View {
 
                 loginLogoText()
 
-        Spacer()
+                Spacer()
 
-        loginSocialButton()
+                loginSocialButton()
 
-        Spacer()
-          .frame(height: 58)
+                Spacer()
+                    .frame(height: 58)
 
-        }
-        .background(.primary50)
-        .presentDSModal(
-            item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService),
-            height: .fraction(0.36),
-            showDragIndicator: false
-        ) { termServiceStore in
-            TermsAgreementView(store: termServiceStore)
+            }
+            .background(.primary50)
+            .presentDSModal(
+                item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService),
+                height: .fraction(0.36),
+                showDragIndicator: false
+            ) { termServiceStore in
+                TermsAgreementView(store: termServiceStore)
+            }
+            .onAppear {
+                store.send(.view(.onAppear))
+            }
         }
     }
 }
 
 
 extension LoginView {
+    var socialButtonSize: CGFloat { 44 }
+    var socialButtonSpacing: CGFloat { 24 }
 
     @ViewBuilder
     private func loginLogoText() -> some View {
@@ -97,37 +103,34 @@ extension LoginView {
     }
 
 
-  @ViewBuilder
-  private func loginSocialButton() -> some View {
-    VStack(spacing: 12) {
-      HStack(alignment: .center, spacing: socialButtonSpacing) {
-        ForEach(SocialType.allCases.filter { $0 != .none }) { type in
-          SocialCircleButtonView(
-            store: store,
-            type: type
-          ) {
-            store.send(.view(.signInWithSocial(social: type)))
-          }
+    @ViewBuilder
+    private func loginSocialButton() -> some View {
+        VStack(spacing: 12) {
+            HStack(alignment: .center, spacing: socialButtonSpacing) {
+                ForEach(SocialType.allCases.filter { $0 != .none }) { type in
+                    SocialCircleButtonView(
+                        store: store,
+                        type: type
+                    ) {
+                        store.send(.view(.signInWithSocial(social: type)))
+                    }
+                }
+            }
+
+            if let recentSocial = store.sessionResult?.provider, recentSocial != .none {
+                RecentLoginTooltip(
+                    socialType: recentSocial,
+                    isVisible: true,
+                    circleSize: socialButtonSize,
+                    spacing: socialButtonSpacing
+                )
+                .padding(.top, 8)
+            }
         }
-      }
-
-//      if let recentSocial = store.recentLoginSocialType, recentSocial != .none {
-//        RecentLoginTooltip(
-//          socialType: recentSocial,
-//          isVisible: true,
-//          circleSize: socialButtonSize,
-//          spacing: socialButtonSpacing
-//        )
-//        .padding(.top, 4)
-//      }
     }
-  }
 }
 
-// MARK: - Layout Constants
-  var socialButtonSize: CGFloat { 44 }
-  var socialButtonSpacing: CGFloat { 24 }
-}
+
 
 #Preview {
     LoginView(store:  Store(

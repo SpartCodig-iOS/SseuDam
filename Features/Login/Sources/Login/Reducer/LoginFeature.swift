@@ -23,6 +23,9 @@ public struct LoginFeature {
         var statusMessage: String?
         var authResult: AuthResult?
         var currentNonce: String = ""
+        var sessionResult : SessionResult?
+
+      @Shared(.appStorage("sessionId")) var sessionId: String? = ""
         @Presents var destination: Destination.State?
 
         public init() {}
@@ -49,6 +52,7 @@ public struct LoginFeature {
     // MARK: - ViewAction
     @CasePathable
     public enum View {
+        case onAppear
         case googleButtonTapped
         case appleButtonTapped
         case signInWithSocial(social: SocialType)
@@ -57,11 +61,13 @@ public struct LoginFeature {
     public enum AsyncAction {
         case prepareAppleRequest(ASAuthorizationAppleIDRequest)
         case appleCompletion(Result<ASAuthorization, Error>)
+        case checkSession
     }
 
     // MARK: - InnerAction (결과 처리만)
     public enum InnerAction {
         case oAuthResult(Result<AuthResult, AuthError>)
+      case checkSessionResponse(Result<SessionResult, AuthError>)
     }
 
     // MARK: - DelegateAction
@@ -72,11 +78,14 @@ public struct LoginFeature {
 
     // MARK: - Dependencies (하나로 통합!)
 
-    @Dependency(\.unifiedOAuthUseCase) var unifiedOAuthUseCase
+    @Dependency(UnifiedOAuthUseCase.self) var unifiedOAuthUseCase
+    @Dependency(SessionUseCase.self) var sessionUseCase
+
 
     nonisolated enum CancelID: Hashable {
         case googleOAuth
         case appleOAuth
+        case session
     }
 
     // MARK: - Body
@@ -131,6 +140,13 @@ extension LoginFeature {
         action: View
     ) -> Effect<Action> {
         switch action {
+          case .onAppear:
+            return .run { [sessionId = state.sessionId] send in
+              if let sessionId = sessionId, !sessionId.isEmpty {
+                await send(.async(.checkSession))
+              }
+            }
+
         case .googleButtonTapped:
             return startOAuthFlow(state: &state, socialType: .google)
 
@@ -158,16 +174,22 @@ extension LoginFeature {
             case .success(let authEntity):
                 state.authResult = authEntity
                 state.statusMessage = "\(authEntity.provider.rawValue) 인증 성공!"
-                Log.info("🎉 OAuth authentication completed successfully")
-
-                // 인증 완료 - 메인 화면으로 이동
+                state.$sessionId.withLock { $0 = authEntity.token.sessionID }
                 return .send(.delegate(.presentTravelList))
 
             case .failure(let error):
                 state.statusMessage = "인증 실패: \(error.localizedDescription)"
-                Log.error("❌ OAuth authentication failed: \(error)")
                 return .none
             }
+
+          case .checkSessionResponse(let result):
+            switch result {
+              case .success(let sessionData):
+                state.sessionResult = sessionData
+              case .failure(let error):
+                state.statusMessage = "세션 조회 실패 : \(error.localizedDescription)"
+            }
+            return .none
         }
     }
 
@@ -196,6 +218,22 @@ extension LoginFeature {
                 appleCredential: credential,
                 nonce: state.currentNonce
             )
+
+          case .checkSession:
+            return .run { [sessionId = state.sessionId] send in
+              let result = await Result {
+                try await sessionUseCase.checkSession(sessionId: sessionId ?? "")
+              }
+                .mapError { error -> AuthError in
+                  if let authError = error as? AuthError {
+                    return authError
+                  } else {
+                    return .unknownError(error.localizedDescription)
+                  }
+                }
+              await send(.inner(.checkSessionResponse(result)))
+            }
+            .cancellable(id: CancelID.session, cancelInFlight: true)
         }
     }
 
