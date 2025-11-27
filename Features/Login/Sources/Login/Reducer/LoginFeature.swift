@@ -23,9 +23,8 @@ public struct LoginFeature {
         var statusMessage: String?
         var authResult: AuthResult?
         var currentNonce: String = ""
-        var sessionResult: SessionStatus?
+        @Shared(.appStorage("socialType''"))  var socialType: SocialType? = nil
 
-      @Shared(.appStorage("sessionId")) var sessionId: String? = ""
         @Presents var destination: Destination.State?
 
         public init() {}
@@ -52,22 +51,20 @@ public struct LoginFeature {
     // MARK: - ViewAction
     @CasePathable
     public enum View {
-        case onAppear
         case googleButtonTapped
         case appleButtonTapped
         case signInWithSocial(social: SocialType)
     }
 
+    @CasePathable
     public enum AsyncAction {
         case prepareAppleRequest(ASAuthorizationAppleIDRequest)
         case appleCompletion(Result<ASAuthorization, Error>)
-        case checkSession
     }
 
     // MARK: - InnerAction (결과 처리만)
     public enum InnerAction {
         case oAuthResult(Result<AuthResult, AuthError>)
-      case checkSessionResponse(Result<SessionStatus, AuthError>)
     }
 
     // MARK: - DelegateAction
@@ -140,12 +137,6 @@ extension LoginFeature {
         action: View
     ) -> Effect<Action> {
         switch action {
-          case .onAppear:
-            return .run { [sessionId = state.sessionId] send in
-              if let sessionId = sessionId, !sessionId.isEmpty {
-                await send(.async(.checkSession))
-              }
-            }
 
         case .googleButtonTapped:
             return startOAuthFlow(state: &state, socialType: .google)
@@ -181,15 +172,6 @@ extension LoginFeature {
                 state.statusMessage = "인증 실패: \(error.localizedDescription)"
                 return .none
             }
-
-          case .checkSessionResponse(let result):
-            switch result {
-              case .success(let sessionData):
-                state.sessionResult = sessionData
-              case .failure(let error):
-                state.statusMessage = "세션 조회 실패 : \(error.localizedDescription)"
-            }
-            return .none
         }
     }
 
@@ -218,22 +200,6 @@ extension LoginFeature {
                 appleCredential: credential,
                 nonce: state.currentNonce
             )
-
-          case .checkSession:
-            return .run { [sessionId = state.sessionId] send in
-              let result = await Result {
-                try await sessionUseCase.checkSession(sessionId: sessionId ?? "")
-              }
-                .mapError { error -> AuthError in
-                  if let authError = error as? AuthError {
-                    return authError
-                  } else {
-                    return .unknownError(error.localizedDescription)
-                  }
-                }
-              await send(.inner(.checkSessionResponse(result)))
-            }
-            .cancellable(id: CancelID.session, cancelInFlight: true)
         }
     }
 

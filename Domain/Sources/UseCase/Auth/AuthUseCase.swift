@@ -9,8 +9,7 @@ import  ComposableArchitecture
 
 public struct AuthUseCase: AuthUseCaseProtocol {
     private let repository: AuthRepositoryProtocol
-    
-    
+
     public init(
         repository: AuthRepositoryProtocol
     ) {
@@ -19,7 +18,14 @@ public struct AuthUseCase: AuthUseCaseProtocol {
     
     public func refresh() async throws -> TokenResult {
         let token = KeychainManager.shared.loadRefreshToken() ?? ""
-        return try await repository.refresh(token: token)
+        let result = try await repository.refresh(token: token)
+
+        KeychainManager.shared.saveTokens(
+            accessToken: result.token.accessToken,
+            refreshToken: result.token.refreshToken
+        )
+
+        return result
     }
 }
 

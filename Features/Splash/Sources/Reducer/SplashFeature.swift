@@ -18,7 +18,9 @@ public struct SplashFeature {
         var isAnimated: Bool = false
         var tokenResult: TokenResult?
         var errorMessage: String? = ""
-      @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+        @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+        @Shared(.appStorage("socialType''"))  var socialType: SocialType? = nil
+        var sessionResult : SessionResult?
 
         public init() {}
     }
@@ -35,7 +37,7 @@ public struct SplashFeature {
     //MARK: - ViewAction
     @CasePathable
     public enum View {
-        case onApper
+        case onAppear
         case startAnimation
         case animationCompleted
     }
@@ -45,11 +47,13 @@ public struct SplashFeature {
     //MARK: - AsyncAction 비동기 처리 액션
     public enum AsyncAction: Equatable {
         case refreshToken
+        case checkSession
     }
 
     //MARK: - 앱내에서 사용하는 액션
     public enum InnerAction: Equatable {
         case refreshResponse(Result<TokenResult, AuthError>)
+        case checkSessionResponse(Result<SessionResult, AuthError>)
     }
 
     //MARK: - NavigationAction
@@ -61,9 +65,11 @@ public struct SplashFeature {
 
     nonisolated enum CancelID: Hashable {
         case refreshToken
+        case session
     }
 
     @Dependency(AuthUseCase.self) var authUseCase
+    @Dependency(SessionUseCase.self) var sessionUseCase
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
@@ -94,8 +100,10 @@ extension SplashFeature {
         action: View
     ) -> Effect<Action> {
         switch action {
-            case .onApper:
-                return .send(.async(.refreshToken))
+            case .onAppear:
+            return .run { send in
+              await send(.async(.refreshToken))
+            }
 
             case .startAnimation:
                 return .run { send in
@@ -105,7 +113,7 @@ extension SplashFeature {
 
             case .animationCompleted:
                 state.isAnimated = true
-                return .send(.view(.onApper))
+                return .send(.view(.onAppear))
         }
     }
 
@@ -128,6 +136,22 @@ extension SplashFeature {
                         }
                     return await send(.inner(.refreshResponse(result)))
                 }
+
+          case .checkSession:
+            return .run { [sessionId = state.sessionId] send in
+              let result = await Result {
+                try await sessionUseCase.checkSession(sessionId: sessionId ?? "")
+              }
+                .mapError { error -> AuthError in
+                  if let authError = error as? AuthError {
+                    return authError
+                  } else {
+                    return .unknownError(error.localizedDescription)
+                  }
+                }
+              await send(.inner(.checkSessionResponse(result)))
+            }
+            .cancellable(id: CancelID.session, cancelInFlight: true)
         }
     }
 
@@ -153,12 +177,30 @@ extension SplashFeature {
                     case .success(let refreshData):
                         state.tokenResult = refreshData
                         state.$sessionId.withLock { $0 = refreshData.token.sessionID }
-                        return .send(.delegate(.presentMain))
+                    return .merge (
+                      .run { [sessionId = state.sessionId] send in
+                        if let sessionId = sessionId, !sessionId.isEmpty {
+                          await send(.async(.checkSession))
+                        }
+                      },
+                      .run { await $0(.delegate(.presentMain)) }
+                    )
 
                     case .failure(let error):
                         state.errorMessage = "토큰 재발급 실패 :\(error.localizedDescription)"
                         return .send(.delegate(.presentLogin))
                 }
+
+          case .checkSessionResponse(let result):
+            switch result {
+              case .success(let sessionData):
+                state.sessionResult = sessionData
+                state.$sessionId.withLock { $0 = sessionData.sessionId }
+                state.$socialType.withLock { $0 = sessionData.provider }
+              case .failure(let error):
+                state.errorMessage = "세션 조회 실패 : \(error.localizedDescription)"
+            }
+            return .none
         }
     }
 }

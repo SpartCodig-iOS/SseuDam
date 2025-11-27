@@ -44,9 +44,7 @@ public struct LoginView: View {
             ) { termServiceStore in
                 TermsAgreementView(store: termServiceStore)
             }
-            .onAppear {
-                store.send(.view(.onAppear))
-            }
+
         }
     }
 }
@@ -117,7 +115,7 @@ extension LoginView {
                 }
             }
 
-            if let recentSocial = store.sessionResult?.provider, recentSocial != .none {
+            if let recentSocial = store.socialType, recentSocial != .none {
                 RecentLoginTooltip(
                     socialType: recentSocial,
                     isVisible: true,

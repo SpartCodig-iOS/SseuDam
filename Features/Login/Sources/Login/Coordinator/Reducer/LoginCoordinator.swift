@@ -16,7 +16,6 @@ public struct LoginCoordinator {
   @ObservableState
   public struct State: Equatable {
     var routes: [Route<LoginScreen.State>]
-    var login : LoginFeature.State = .init()
     public init() {
       self.routes = [.root(.login(.init()), embedInNavigationView: true)]
     }
@@ -31,7 +30,6 @@ public struct LoginCoordinator {
 
   @CasePathable
   public enum View {
-    case onAppear
     case backAction
     case backToRootAction
   }
@@ -43,7 +41,7 @@ public struct LoginCoordinator {
 
   @CasePathable
   public enum ScopeAction {
-    case login(LoginFeature.Action)
+//    case login(LoginFeature.Action)
   }
 
   nonisolated enum CancelID: Hashable {
@@ -67,9 +65,6 @@ public struct LoginCoordinator {
       }
     }
     .forEachRoute(\.routes, action: \.router, cancellationId: CancelID.coordinator)
-    Scope(state: \.login, action: \.scope.login) {
-      LoginFeature()
-    }
   }
 }
 
@@ -97,8 +92,6 @@ extension LoginCoordinator {
     action: View
   ) -> Effect<Action> {
     switch action {
-      case .onAppear:
-        return .none
     case .backAction:
       state.routes.goBack()
       return .none
@@ -124,9 +117,6 @@ extension LoginCoordinator {
       action: ScopeAction
   ) -> Effect<Action> {
       switch action {
-        case .login(.view(.onAppear)):
-          return .send(.view(.onAppear))
-
         default:
           return .none
       }

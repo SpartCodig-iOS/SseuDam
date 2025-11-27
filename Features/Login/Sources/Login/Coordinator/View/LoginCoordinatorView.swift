@@ -23,11 +23,8 @@ public struct LoginCoordinatorView: View {
   public var body: some View {
     TCARouter(store.scope(state: \.routes, action: \.router)) { screens in
       switch screens.case {
-        case .login:
-          LoginView(store: self.store.scope(state: \.login, action: \.scope.login))
-            .onAppear {
-              store.send(.view(.onAppear))
-            }
+        case .login(let loginStore):
+          LoginView(store: loginStore)
       }
     }
   }

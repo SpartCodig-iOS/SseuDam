@@ -31,24 +31,33 @@ struct AppFeature {
 
   enum Action: ViewAction {
     case view(View)
+    case inner(InnerAction)
     case scope(ScopeAction)
   }
 
   @CasePathable
   enum View {
-    case appearSession
     case presentLogin
     case presentMain
+  }
+
+  enum InnerAction {
+    case setLoginState
+    case setMainState
   }
 
   @CasePathable
   enum ScopeAction {
     case login(LoginCoordinator.Action)
     case splash(SplashFeature.Action)
-    // case main(MainFeature.Action)
   }
 
   @Dependency(\.continuousClock) var clock
+
+  nonisolated enum CancelID: Hashable {
+    case transitionToLogin
+    case transitionToMain
+  }
 
   // MARK: - body
 
@@ -57,6 +66,9 @@ struct AppFeature {
       switch action {
       case .view(let viewAction):
         return handleViewAction(&state, action: viewAction)
+
+      case .inner(let innerAction):
+        return handleInnerAction(&state, action: innerAction)
 
       case .scope(let scopeAction):
         return handleScopeAction(&state, action: scopeAction)
@@ -77,14 +89,37 @@ extension AppFeature {
     action: View
   ) -> Effect<Action> {
     switch action {
-      case .appearSession:
-        return .send(.scope(.login(.view(.onAppear))))
-
     case .presentLogin:
-        state = .login(.init())
-      return .none
+        return .concatenate(
+          .merge(
+            .cancel(id: CancelID.transitionToLogin),
+            .cancel(id: CancelID.transitionToMain)
+          ),
+          .send(.inner(.setLoginState))
+        )
 
     case .presentMain:
+        return .concatenate(
+          .merge(
+            .cancel(id: CancelID.transitionToLogin),
+            .cancel(id: CancelID.transitionToMain)
+          ),
+          .send(.inner(.setMainState))
+        )
+    }
+  }
+
+  func handleInnerAction(
+    _ state: inout State,
+    action: InnerAction
+  ) -> Effect<Action> {
+    switch action {
+    case .setLoginState:
+      state = .login(.init())
+      // login view 로드 전에 바로 checkSession 실행
+        return .none
+
+    case .setMainState:
       // 추후 main 탭 상태로 전환 로직 작성
       // state = .main(MainFeature.State())
       return .none
@@ -101,22 +136,20 @@ extension AppFeature {
 
       case .splash(.delegate(.presentLogin)):
         return .run { send in
-          await send(.view(.appearSession))
-          try await clock.sleep(for: .seconds(0.5))
+          try await clock.sleep(for: .seconds(1))
           await send(.view(.presentLogin))
         }
+        .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
 
       case .splash(.delegate(.presentMain)):
         return .run { send in
-          await send(.view(.appearSession))
-          try await clock.sleep(for: .seconds(0.5))
+          try await clock.sleep(for: .seconds(1))
           await send(.view(.presentLogin))
         }
-
+        .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
 
       default:
         return .none
-
     }
   }
 }
