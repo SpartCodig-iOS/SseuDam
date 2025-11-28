@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Domain
 import AuthenticationServices
 import LogMacro
+import DesignSystem
 
 @Reducer
 public struct LoginFeature {
@@ -171,7 +172,12 @@ extension LoginFeature {
 
             case .failure(let error):
                 state.statusMessage = "인증 실패: \(error.localizedDescription)"
-                return .none
+                // Toast로 에러 메시지 표시
+                return .run { _ in
+                    await MainActor.run {
+                        ToastManager.shared.showError("인증에 실패했어요. 다시 시도해주세요.")
+                    }
+                }
             }
         }
     }

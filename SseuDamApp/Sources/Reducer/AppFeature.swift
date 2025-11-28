@@ -136,14 +136,12 @@ extension AppFeature {
 
       case .splash(.delegate(.presentLogin)):
         return .run { send in
-          try await clock.sleep(for: .seconds(1))
           await send(.view(.presentLogin))
         }
         .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
 
       case .splash(.delegate(.presentMain)):
         return .run { send in
-          try await clock.sleep(for: .seconds(1))
           await send(.view(.presentLogin))
         }
         .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
