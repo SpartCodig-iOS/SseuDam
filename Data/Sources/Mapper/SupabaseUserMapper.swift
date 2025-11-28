@@ -2,7 +2,7 @@
 //  SupabaseUserMapper.swift
 //  Data
 //
-//  Created by Codex on 2/7/25.
+//  Created by Wonji Suh on 11/28/25.
 //
 
 import Domain
