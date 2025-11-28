@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Domain
 import Moya
 import NetworkService
 

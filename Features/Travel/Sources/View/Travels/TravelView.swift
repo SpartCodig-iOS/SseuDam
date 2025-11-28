@@ -24,7 +24,7 @@ public struct TravelView: View {
                 VStack {
                     TravelListHeaderView()
 
-                    TabBarView(selectedTab: $store.selectedTab.sending(\.tabChanged))
+                    TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
 
                     ScrollView {
                         LazyVStack(spacing: 18) {

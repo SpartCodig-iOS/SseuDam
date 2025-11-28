@@ -34,7 +34,7 @@ private extension SseuDamApp {
         )
     }
 
-    static func makeFetchTravelsUseCase() -> FetchTravelsUseCase {
+    static func makeFetchTravelsUseCase() -> FetchTravelsUseCaseProtocol {
         FetchTravelsUseCase(
             repository: TravelRepository(
                 remote: TravelRemoteDataSource()
@@ -42,7 +42,7 @@ private extension SseuDamApp {
         )
     }
 
-    static func makeCreateTravelUseCase() -> CreateTravelUseCase {
+    static func makeCreateTravelUseCase() -> CreateTravelUseCaseProtocol {
         CreateTravelUseCase(
             repository: TravelRepository(
                 remote: TravelRemoteDataSource()

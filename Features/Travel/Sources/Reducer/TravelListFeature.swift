@@ -34,9 +34,9 @@ public struct TravelListFeature {
         case fetch
         case fetchNextPageIfNeeded(currentItemID: String?)
 
-        case fetchResponse(Result<[Travel], Error>)
+        case fetchTravelsResponse(Result<[Travel], Error>)
 
-        case tabChanged(TravelTab)
+        case travelTabSelected(TravelTab)
 
         case createButtonTapped
         case create(PresentationAction<TravelCreateFeature.Action>)
@@ -53,7 +53,7 @@ public struct TravelListFeature {
                 }
                 return .none
 
-            case .tabChanged(let newTab):
+            case .travelTabSelected(let newTab):
                 state.selectedTab = newTab
                 return .send(.refresh)
 
@@ -71,14 +71,14 @@ public struct TravelListFeature {
                     state.isLoadingNextPage = true
                 }
 
-                let input = FetchTravelsInput(limit: 20, page: state.page)
+                let input = FetchTravelsInput(page: state.page)
 
                 return .run { send in
                     do { 
                         let result = try await fetchTravelsUseCase.excute(input: input)
-                        await send(.fetchResponse(.success(result)))
+                        await send(.fetchTravelsResponse(.success(result)))
                     } catch {
-                        await send(.fetchResponse(.failure(error)))
+                        await send(.fetchTravelsResponse(.failure(error)))
                     }
                 }
 
@@ -91,7 +91,7 @@ public struct TravelListFeature {
                 state.page += 1
                 return .send(.fetch)
 
-            case .fetchResponse(.success(let items)):
+            case .fetchTravelsResponse(.success(let items)):
                 state.isLoading = false
                 state.isLoadingNextPage = false
 
@@ -108,7 +108,7 @@ public struct TravelListFeature {
 
                 return .none
 
-            case .fetchResponse(.failure(let error)):
+            case .fetchTravelsResponse(.failure(let error)):
                 state.isLoading = false
                 state.isLoadingNextPage = false
                 state.uiError = error.localizedDescription

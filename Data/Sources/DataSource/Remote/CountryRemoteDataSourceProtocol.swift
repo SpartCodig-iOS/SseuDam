@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Domain
 import Moya
 import NetworkService
 
@@ -22,9 +21,7 @@ public final class CountryRemoteDataSource: CountryRemoteDataSourceProtocol {
     }
 
     public func fetchCountries() async throws -> [CountryResponseDTO] {
-        let response: BaseResponse<[CountryResponseDTO]> =
-        try await provider.request(.fetchCountries)
-
+        let response: BaseResponse<[CountryResponseDTO]> = try await provider.request(.fetchCountries)
         return response.data ?? []
     }
 }

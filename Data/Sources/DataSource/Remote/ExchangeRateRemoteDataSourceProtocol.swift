@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Domain
 import Moya
 import NetworkService
 
@@ -25,6 +24,10 @@ public final class ExchangeRateRemoteDataSource: ExchangeRateRemoteDataSourcePro
         let response: BaseResponse<ExchangeRateResponseDTO> =
         try await provider.request(.fetchRate(quote: quote))
 
-        return response.data!
+        guard let data = response.data else {
+            throw NetworkError.noData
+        }
+
+        return data
     }
 }

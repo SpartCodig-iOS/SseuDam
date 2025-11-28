@@ -38,9 +38,10 @@ public struct TravelCreateFeature {
 
         // 저장 여부
         var isSaveEnabled: Bool {
-            guard !title.isEmpty else { return false }
-            guard startDate != nil, endDate != nil else { return false }
-            guard let code = selectedCountryCode else { return false }
+            guard !title.isEmpty,
+                  let code = selectedCountryCode,
+                  startDate != nil,
+                  endDate != nil else { return false }
 
             if code == "KR" { return true }
 
@@ -65,7 +66,7 @@ public struct TravelCreateFeature {
         case titleChanged(String)
 
         case saveButtonTapped
-        case saveResponse(Result<Travel, Error>)
+        case saveTravelResponse(Result<Travel, Error>)
 
         case dismiss
     }
@@ -200,18 +201,18 @@ public struct TravelCreateFeature {
                     [createTravelUseCase = self.createTravelUseCase, input] send in
                     do {
                         let travel = try await createTravelUseCase.excute(input: input)
-                        await send(.saveResponse(.success(travel)))
+                        await send(.saveTravelResponse(.success(travel)))
                     } catch {
-                        await send(.saveResponse(.failure(error)))
+                        await send(.saveTravelResponse(.failure(error)))
                     }
                 }
 
 
-            case .saveResponse(.success):
+            case .saveTravelResponse(.success):
                 state.isSubmitting = false
                 return .send(.dismiss)
 
-            case .saveResponse(.failure(let error)):
+            case .saveTravelResponse(.failure(let error)):
                 state.isSubmitting = false
                 state.submitError = "저장 실패: \(error.localizedDescription)"
                 return .none
