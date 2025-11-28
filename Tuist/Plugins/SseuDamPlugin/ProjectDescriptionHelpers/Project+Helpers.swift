@@ -131,38 +131,21 @@ public extension Project {
           ]
         )
       )
-        var schemes: [Scheme] = [
-            // Scheme for Feature Framework
-            Environment.makeScheme(
-                name: "\(name)Feature",
-                targets: hasTests ? ["\(name)Feature", "\(name)FeatureTests"] : ["\(name)Feature"]
-            ),
-            // Scheme for Demo App
-            Environment.makeDemoScheme(
-                name: "\(name)FeatureDemo",
-                executableTarget: "\(name)FeatureDemo"
-            )
-        ]
-
-        return Project(name: "\(name)Feature", targets: targets, schemes: schemes)
-        if hasTests {
-            targets.append(
-                .target(
-                    name: "\(name)FeatureTests",
-                    destinations: Environment.destinations,
-                    product: .unitTests,
-                    bundleId: Environment.bundleId(for: "\(name)FeatureTests"),
-                    deploymentTargets: Environment.deploymentTarget,
-                    sources: ["Tests/**"],
-                    dependencies: [
-                        .target(name: "\(name)Feature")
-                    ]
-                )
-            )
-        }
-
     }
 
-    return Project(name: "\(name)Feature", targets: targets)
+    let schemes: [Scheme] = [
+      // Scheme for Feature Framework
+      Environment.makeScheme(
+        name: "\(name)Feature",
+        targets: hasTests ? ["\(name)Feature", "\(name)FeatureTests"] : ["\(name)Feature"]
+      ),
+      // Scheme for Demo App
+      Environment.makeDemoScheme(
+        name: "\(name)FeatureDemo",
+        executableTarget: "\(name)FeatureDemo"
+      )
+    ]
+
+    return Project(name: "\(name)Feature", targets: targets, schemes: schemes)
   }
 }
