@@ -59,6 +59,7 @@ public struct ExpenseView: View {
                 }
                 .padding(.bottom, 16)
             }
+            .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)
             
             PrimaryButton(title: "저장") {
@@ -69,6 +70,7 @@ public struct ExpenseView: View {
             send(.onAppear)
         }
         .padding(.horizontal, 16)
+        .padding(.bottom, 16)
         .navigationTitle("지출 추가")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.white)

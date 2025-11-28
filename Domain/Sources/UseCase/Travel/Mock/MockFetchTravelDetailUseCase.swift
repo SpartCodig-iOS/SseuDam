@@ -61,8 +61,8 @@ public extension Travel {
         Travel(
             id: "mock-travel-1",
             title: "일본 도쿄 여행",
-            startDate: Date(),
-            endDate: Date().addingTimeInterval(86400 * 7), // 7일 후
+            startDate: Date().addingTimeInterval(-86400 * 3), // 3일 전
+            endDate: Date().addingTimeInterval(86400 * 3), // 3일 후
             countryCode: "JP",
             baseCurrency: "JPY",
             baseExchangeRate: 900.0, // 1 JPY = 900 KRW

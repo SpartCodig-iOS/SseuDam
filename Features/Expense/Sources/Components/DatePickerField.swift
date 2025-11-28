@@ -35,7 +35,7 @@ public struct DatePickerField: View {
     
     private var dateRange: ClosedRange<Date> {
         let start = startDate ?? Date.distantPast
-        let end = min(endDate ?? Date(), Date()) // 여행 종료일과 오늘 중 더 이른 날짜
+        let end = endDate ?? Date()
         return start...end
     }
     
