@@ -1,5 +1,5 @@
 //
-//  SessionResult.swift
+//  SessionStatus.swift
 //  Domain
 //
 //  Created by Wonji Suh  on 11/25/25.
@@ -7,7 +7,8 @@
 
 import Foundation
 
-public struct SessionResult: Equatable {
+/// Session status returned from backend session validation.
+public struct SessionStatus: Equatable {
   public let provider: SocialType
   public let sessionId: String
   public let status: String

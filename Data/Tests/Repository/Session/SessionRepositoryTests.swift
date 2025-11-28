@@ -32,7 +32,7 @@ struct SessionRepositoryTests {
 
     // MARK: - Repository 동작 검증 (stubbed)
 
-    @Test("세션 조회 성공 시 Domain.SessionResult를 반환한다")
+    @Test("세션 조회 성공 시 Domain.SessionStatus를 반환한다")
     func testSessionRepositorySuccess() async throws {
         // Given
         let sampleData = try makeResponseData(

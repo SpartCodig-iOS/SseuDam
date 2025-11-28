@@ -12,12 +12,12 @@ public struct MockSessionRepository: SessionRepositoryProtocol {
   public struct Configuration {
     public let shouldSucceed: Bool
     public let delay: TimeInterval
-    public let session: SessionResult
+    public let session: SessionStatus
 
     public init(
       shouldSucceed: Bool = true,
       delay: TimeInterval = 0.0,
-      session: SessionResult = SessionResult(
+      session: SessionStatus = SessionStatus(
         provider: .apple,
         sessionId: "mock-session-id",
         status: "active"
@@ -35,7 +35,7 @@ public struct MockSessionRepository: SessionRepositoryProtocol {
     self.configuration = configuration
   }
 
-  public func checkSession(sessionId: String) async throws -> SessionResult {
+  public func checkSession(sessionId: String) async throws -> SessionStatus {
     if configuration.delay > 0 {
       try await Task.sleep(for: .seconds(configuration.delay))
     }
@@ -45,7 +45,7 @@ public struct MockSessionRepository: SessionRepositoryProtocol {
     }
 
     let baseSession = configuration.session
-    return SessionResult(
+    return SessionStatus(
       provider: baseSession.provider,
       sessionId: sessionId.isEmpty ? baseSession.sessionId : sessionId,
       status: baseSession.status
@@ -77,7 +77,7 @@ public extension MockSessionRepository {
     MockSessionRepository(configuration: Configuration(shouldSucceed: false))
   }
 
-  static func withSession(_ session: SessionResult) -> MockSessionRepository {
+  static func withSession(_ session: SessionStatus) -> MockSessionRepository {
     MockSessionRepository(configuration: Configuration(session: session))
   }
 

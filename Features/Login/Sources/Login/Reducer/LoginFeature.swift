@@ -23,7 +23,7 @@ public struct LoginFeature {
         var statusMessage: String?
         var authResult: AuthResult?
         var currentNonce: String = ""
-        var sessionResult : SessionResult?
+        var sessionResult: SessionStatus?
 
       @Shared(.appStorage("sessionId")) var sessionId: String? = ""
         @Presents var destination: Destination.State?
@@ -67,7 +67,7 @@ public struct LoginFeature {
     // MARK: - InnerAction (결과 처리만)
     public enum InnerAction {
         case oAuthResult(Result<AuthResult, AuthError>)
-      case checkSessionResponse(Result<SessionResult, AuthError>)
+      case checkSessionResponse(Result<SessionStatus, AuthError>)
     }
 
     // MARK: - DelegateAction

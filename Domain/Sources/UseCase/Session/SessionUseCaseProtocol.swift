@@ -10,5 +10,5 @@ import Foundation
 public protocol SessionUseCaseProtocol {
   func checkSession(
     sessionId: String
-  ) async throws -> SessionResult
+  ) async throws -> SessionStatus
 }

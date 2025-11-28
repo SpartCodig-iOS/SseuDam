@@ -20,7 +20,7 @@ public struct SessionUseCase: SessionUseCaseProtocol {
     
     public func checkSession(
         sessionId: String
-    ) async throws -> SessionResult {
+    ) async throws -> SessionStatus {
         return try await repository.checkSession(sessionId: sessionId)
     }
 }
@@ -44,4 +44,3 @@ public extension DependencyValues {
         set { self[SessionUseCase.self] = newValue }
     }
 }
-

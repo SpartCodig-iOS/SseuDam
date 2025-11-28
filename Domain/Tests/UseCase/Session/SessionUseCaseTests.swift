@@ -20,7 +20,7 @@ struct SessionUseCaseTests {
         let useCase = SessionUseCase(repository: repo)
 
         // When
-        let result: Domain.SessionResult = try await useCase.checkSession(sessionId: "session-123")
+        let result: Domain.SessionStatus = try await useCase.checkSession(sessionId: "session-123")
 
         // Then
         #expect(result.provider == Domain.SocialType.apple)
@@ -43,7 +43,7 @@ struct SessionUseCaseTests {
     @Test("커스텀 세션 반환")
     func testCheckSessionWithCustomSession() async throws {
         // Given
-        let custom: Domain.SessionResult = .init(
+        let custom: Domain.SessionStatus = .init(
             provider: Domain.SocialType.google,
             sessionId: "custom-session",
             status: "expired"
@@ -81,7 +81,7 @@ struct SessionUseCaseTests {
     func testSessionUseCaseWithDependencies() async throws {
         // Given
         let repo = MockSessionRepository.withSession(
-            Domain.SessionResult(provider: Domain.SocialType.google, sessionId: "dep-session", status: "active")
+            Domain.SessionStatus(provider: Domain.SocialType.google, sessionId: "dep-session", status: "active")
         )
 
         // When
@@ -101,7 +101,7 @@ struct SessionUseCaseTests {
 private struct SessionUseCaseDependencyConsumer {
     @Dependency(\.sessionUseCase) var sessionUseCase
 
-    func run(sessionId: String) async throws -> SessionResult {
+    func run(sessionId: String) async throws -> SessionStatus {
         try await sessionUseCase.checkSession(sessionId: sessionId)
     }
 }

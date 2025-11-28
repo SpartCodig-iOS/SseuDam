@@ -97,9 +97,9 @@ struct RecentLoginTooltip: View {
     return targetX + bubbleWidth / 2 - pointerOffset
   }
 
-  private var bubbleWidth: CGFloat { 150 }
-  private var pointerWidth: CGFloat { 14 }
-  private var pointerHeight: CGFloat { 8 }
+  private var bubbleWidth: CGFloat  = 150
+  private var pointerWidth: CGFloat  = 14
+  private var pointerHeight: CGFloat  = 8
 }
 
 // Triangle shape for the tooltip tail.

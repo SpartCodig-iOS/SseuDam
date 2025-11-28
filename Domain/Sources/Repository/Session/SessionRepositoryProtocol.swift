@@ -9,7 +9,8 @@ import Foundation
 import  Dependencies
 
 public protocol SessionRepositoryProtocol {
-  func checkSession(sessionId: String) async throws -> SessionResult
+  /// Validate a stored session id and return its status from backend.
+  func checkSession(sessionId: String) async throws -> SessionStatus
 }
 
 public struct SessionRepositoryDependency: DependencyKey {

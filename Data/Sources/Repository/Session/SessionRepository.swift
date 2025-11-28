@@ -23,7 +23,7 @@ final public class SessionRepository: SessionRepositoryProtocol {
 
   public func checkSession(
     sessionId: String
-  ) async throws -> Domain.SessionResult {
+  ) async throws -> Domain.SessionStatus {
     let body = SessionRequestDTO(sessionId: sessionId)
     let response: BaseResponse<SessionResponseDTO> = try await provider.request(.checkSession(body: body))
 
