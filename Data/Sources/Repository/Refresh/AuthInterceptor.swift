@@ -27,13 +27,24 @@ public final actor AuthInterceptor: RequestInterceptor {
       return
     }
 
-    let accessToken = KeychainManager.shared.loadAccessToken() ?? ""
-    var urlRequest = urlRequest
+    // 토큰 만료 임박 체크 및 사전 갱신
+    typealias Task = _Concurrency.Task
+    Task {
+      let tokenManager =  TokenManager.shared
+      let isValid = await tokenManager.validateCurrentToken()
 
-    urlRequest.setValue(accessToken, forHTTPHeaderField: "Authorization")
+      if !isValid {
+        Log.error("Token validation failed, but proceeding with current token")
+      }
 
-    Log.debug("Adapted request with headers: ", urlRequest.headers)
-    completion(.success(urlRequest))
+      let accessToken = KeychainManager.shared.loadAccessToken() ?? ""
+      var urlRequest = urlRequest
+
+      urlRequest.setValue(accessToken, forHTTPHeaderField: "Authorization")
+
+      Log.debug("Adapted request with headers: ", urlRequest.headers)
+      completion(.success(urlRequest))
+    }
   }
 
   public nonisolated func retry(
@@ -63,7 +74,7 @@ public final actor AuthInterceptor: RequestInterceptor {
       case 400, 401:
         Log.debug("401 Unauthorized detected, attempting to refresh token...")
         Task {
-          let retryResult = await RequestInterceptorManger.shared.refreshToken()
+          let retryResult = await TokenManager.shared.refreshTokenForRetry()
           completion(retryResult)
         }
       default:
