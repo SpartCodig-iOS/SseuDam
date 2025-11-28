@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Supabase
 
 
 public enum SocialType: String, CaseIterable, Identifiable, Hashable {
@@ -37,14 +36,6 @@ public enum SocialType: String, CaseIterable, Identifiable, Hashable {
         return "google"
       case .none:
         return ""
-    }
-  }
-
-  public var method: Auth.Provider {
-    switch self {
-      case .google: return .google
-      case .apple: return .apple
-      case .none: return .email
     }
   }
 }

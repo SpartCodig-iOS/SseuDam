@@ -42,7 +42,7 @@ public extension Project {
       .target(
         name: name,
         destinations: Environment.destinations,
-        product: .framework,
+        product: .staticFramework,
         bundleId: Environment.bundleId(for: name),
         deploymentTargets: Environment.deploymentTarget,
         sources: ["Sources/**"],
@@ -95,7 +95,7 @@ public extension Project {
       .target(
         name: "\(name)Feature",
         destinations: Environment.destinations,
-        product: .framework,
+        product: .staticFramework,
         bundleId: Environment.bundleId(for: "\(name)Feature"),
         deploymentTargets: Environment.deploymentTarget,
         sources: ["Sources/**"],
