@@ -24,7 +24,7 @@ public struct AmountInputField: View {
     }
 
     private var shouldShowConversion: Bool {
-        baseCurrency != "KRW" && !baseCurrency.isEmpty && !convertedAmountKRW.isEmpty
+        baseCurrency != "KRW" 
     }
 
     public var body: some View {

@@ -81,11 +81,6 @@ public struct ExpenseFeature {
         BindingReducer()
         
         Reduce { state, action in
-            // Trigger loading travel detail on first appearance
-            if state.baseCurrency.isEmpty {
-                // Dispatch load action only once
-                return .send(.async(.loadTravelDetail))
-            }
             switch action {
             case .binding(\.amount):
                 // amount 변경 시 추가 로직 (예: 유효성 검사, 로그 등)
