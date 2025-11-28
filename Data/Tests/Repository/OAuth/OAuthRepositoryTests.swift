@@ -58,7 +58,7 @@ struct OAuthRepositoryTests {
 
     // MARK: - Repository 메소드 테스트
 
-    @Test("Google OAuth 로그인이 Supabase Session을 반환한다")
+    @Test("Google OAuth 로그인이 UserProfile을 반환한다")
     func testOAuthRepository_SuccessfulGoogleSignIn() async throws {
         // Given
         let repository = OAuthRepository()
@@ -68,7 +68,7 @@ struct OAuthRepositoryTests {
         #expect(true) // placeholder for now
     }
 
-    @Test("Apple OAuth 로그인이 Supabase Session을 반환한다")
+    @Test("Apple OAuth 로그인이 UserProfile을 반환한다")
     func testOAuthRepository_SuccessfulAppleSignIn() async throws {
         // Given
         let repository = OAuthRepository()

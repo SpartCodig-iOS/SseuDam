@@ -39,16 +39,15 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     let displayName = formatDisplayName(credential.fullName)
     Log.info("Apple sign-in credential received for \(displayName ?? "unknown user")")
 
-    let session = try await repository.signIn(
+    let profile = try await repository.signIn(
       provider: .apple,
       idToken: identityToken,
       nonce: nonce,
-      displayName: displayName
+      displayName: displayName,
+      authorizationCode: authCode
     )
     Log.info("Supabase sign-in with Apple succeeded")
-
-    let user = session.user
-    return user.toDomain(session: session, authCode: authCode)
+    return profile
   }
 
   // MARK: - Helper Methods
@@ -67,16 +66,16 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     let payload = try await fetchPayload(for: provider)
     Log.info("\(provider.rawValue) sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
-    let session = try await repository.signIn(
+    let profile = try await repository.signIn(
       provider: payload.provider,
       idToken: payload.idToken,
       nonce: payload.nonce,
-      displayName: payload.displayName
+      displayName: payload.displayName,
+      authorizationCode: payload.authorizationCode
     )
     Log.info("Supabase sign-in with \(provider.rawValue) succeeded")
 
-    let user = session.user
-    return user.toDomain(session: session, authCode: payload.authorizationCode)
+    return profile
   }
 
   private func fetchPayload(
