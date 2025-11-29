@@ -16,7 +16,7 @@ public protocol CountryRemoteDataSourceProtocol {
 public final class CountryRemoteDataSource: CountryRemoteDataSourceProtocol {
     private let provider: MoyaProvider<CountryAPI>
 
-    public init(provider: MoyaProvider<CountryAPI> = .init()) {
+    public init(provider: MoyaProvider<CountryAPI> = MoyaProvider<CountryAPI>.default) {
         self.provider = provider
     }
 

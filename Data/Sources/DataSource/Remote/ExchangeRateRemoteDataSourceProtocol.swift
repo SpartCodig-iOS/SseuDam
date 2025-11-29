@@ -16,7 +16,7 @@ public protocol ExchangeRateRemoteDataSourceProtocol {
 public final class ExchangeRateRemoteDataSource: ExchangeRateRemoteDataSourceProtocol {
     private let provider: MoyaProvider<ExchangeRateAPI>
 
-    public init(provider: MoyaProvider<ExchangeRateAPI> = .init()) {
+    public init(provider: MoyaProvider<ExchangeRateAPI> = MoyaProvider<ExchangeRateAPI>.default) {
         self.provider = provider
     }
 

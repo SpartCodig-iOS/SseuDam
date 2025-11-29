@@ -17,9 +17,9 @@ public protocol TravelRemoteDataSourceProtocol {
 }
 
 public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
-    private let provider: MoyaProvider<TravelAPI>
+    private let provider: MoyaProvider<TravelAPI> 
 
-    public init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>()) {
+    public init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>.default) {
         self.provider = provider
     }
 
