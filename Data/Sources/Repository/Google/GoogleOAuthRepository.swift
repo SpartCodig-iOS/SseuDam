@@ -7,7 +7,6 @@
 
 import Foundation
 import GoogleSignIn
-import Supabase
 import LogMacro
 import Domain
 import UIKit

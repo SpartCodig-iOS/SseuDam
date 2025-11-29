@@ -9,8 +9,9 @@ let packageSettings = PackageSettings(
         "ComposableArchitecture": .framework,
         "TCACoordinators": .framework,
         "Moya": .framework,
-        "Supabase" :.framework,
-        "LogMacro": .framework
+        "LogMacro": .framework,
+        "AppAuth": .framework,
+//        "GoogleSignIn": .framework
 
     ]
 )

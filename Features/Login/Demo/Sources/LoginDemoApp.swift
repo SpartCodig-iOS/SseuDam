@@ -9,23 +9,24 @@
 import SwiftUI
 import LoginFeature
 import Dependencies
+import ComposableArchitecture
 import Domain
-import Data
 
 @main
 struct LoginDemoApp: App {
     var body: some Scene {
         WindowGroup {
             withDependencies {
-                $0.oAuthRepository = OAuthRepository()
-                $0.googleOAuthService = GoogleOAuthService()
-                $0.oAuthUseCase = OAuthUseCase(
-                    repository: OAuthRepository(),
-                    googleService: GoogleOAuthService()
-                )
+              $0.oAuthUseCase = OAuthUseCase(
+                repository: MockOAuthRepository(),
+                googleRepository: MockGoogleOAuthRepository(),
+                appleRepository: MockAppleOAuthRepository()
+              )
             } operation: {
                 NavigationView {
-                    LoginView()
+                  LoginView(store: .init(initialState: LoginFeature.State(), reducer: {
+                    LoginFeature()
+                  }))
                 }
             }
         }

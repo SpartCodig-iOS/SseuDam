@@ -19,8 +19,7 @@ struct SseuDamApp: App {
         $0.oAuthUseCase = makeOAuthUseCase()
         $0.signUpUseCase = makeSignUpUseCase()
         $0.unifiedOAuthUseCase = makeUnifiedOAuthUseCase()
-        
-        //Travel
+        $0.sessionUseCase = makeSessionUseCase()
         $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
         $0.createTravelUseCase = makeCreateTravelUseCase()
     }
@@ -32,20 +31,19 @@ struct SseuDamApp: App {
             )
         }
     }
-}
+  }
+
 
 private extension SseuDamApp {
-    static func makeLoginUseCase() -> LoginUseCaseProtocol {
-       LoginUseCase(repository: LoginRepository())
-
+  static func makeLoginUseCase() -> LoginUseCaseProtocol {
+    LoginUseCase(repository: LoginRepository())
     }
-}
 
   static func makeOAuthUseCase() -> OAuthUseCaseProtocol {
     OAuthUseCase(
       repository: OAuthRepository(),
-        googleRepository: GoogleOAuthRepository(),
-        appleRepository: AppleOAuthRepository()
+      googleRepository: GoogleOAuthRepository(),
+      appleRepository: AppleOAuthRepository()
     )
   }
 
@@ -63,6 +61,10 @@ private extension SseuDamApp {
     )
   }
 
+
+  static func makeSessionUseCase() -> SessionUseCaseProtocol {
+    SessionUseCase(repository: SessionRepository())
+  }
   //Travel
   static func makeFetchTravelsUseCase() -> FetchTravelsUseCaseProtocol {
         FetchTravelsUseCase(

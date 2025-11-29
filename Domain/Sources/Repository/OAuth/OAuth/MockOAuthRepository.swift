@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Supabase
 import Dependencies
 
 /// Mock implementation of OAuthRepositoryProtocol for testing and preview purposes
@@ -122,9 +121,16 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
     provider: SocialType,
     idToken: String,
     nonce: String?,
-    displayName: String?
-  ) async throws -> Supabase.Session {
-    return try await performMockSignIn(provider: provider, displayName: displayName)
+    displayName: String?,
+    authorizationCode: String?
+  ) async throws -> UserProfile {
+    _ = idToken
+    _ = nonce
+    return try await performMockSignIn(
+      provider: provider,
+      displayName: displayName,
+      authorizationCode: authorizationCode
+    )
   }
 
   public func updateUserDisplayName(_ name: String) async throws {
@@ -162,8 +168,9 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
   // MARK: - Private Methods
   private func performMockSignIn(
     provider: SocialType,
-    displayName: String?
-  ) async throws -> Supabase.Session {
+    displayName: String?,
+    authorizationCode: String?
+  ) async throws -> UserProfile {
     // Simulate network delay
     if configuration.delay > 0 {
       try await Task.sleep(for: .seconds(configuration.delay))
@@ -174,65 +181,49 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
       throw MockOAuthError.signInFailed(provider)
     }
 
-    // Create mock Supabase.User
-    let mockUser = createMockSupabaseUser(
-      provider: provider,
-      displayName: displayName
+    let mockUser = createMockUser(provider: provider, displayName: displayName)
+    let tokens = AuthTokens(
+      authToken: configuration.mockSession.accessToken,
+      accessToken: configuration.mockSession.accessToken,
+      refreshToken: configuration.mockSession.refreshToken,
+      sessionID: configuration.mockSession.user.id.uuidString
     )
 
-    // Create mock Supabase.Session
-    return Supabase.Session(
-      accessToken: configuration.mockSession.accessToken,
-      tokenType: configuration.mockSession.tokenType,
-      expiresIn: TimeInterval(configuration.mockSession.expiresIn),
-      expiresAt: Date().addingTimeInterval(TimeInterval(configuration.mockSession.expiresIn)).timeIntervalSince1970,
-      refreshToken: configuration.mockSession.refreshToken,
-      user: mockUser
+    return UserProfile(
+      id: mockUser.id.uuidString,
+      email: mockUser.email,
+      displayName: mockUser.displayName,
+      provider: mockUser.provider,
+      tokens: tokens,
+      authCode: authorizationCode
     )
   }
 
-  private func createMockSupabaseUser(
+  private func createMockUser(
     provider: SocialType,
     displayName: String?
-  ) -> Supabase.User {
+  ) -> MockUser {
+    let baseUser = configuration.mockSession.user
     let email: String
-    let finalDisplayName: String
+    let resolvedDisplayName: String?
 
     switch provider {
     case .apple:
       email = "apple.user@icloud.com"
-      finalDisplayName = displayName ?? "Apple User"
+      resolvedDisplayName = displayName ?? baseUser.displayName ?? "Mock Apple User"
     case .google:
       email = "google.user@gmail.com"
-      finalDisplayName = displayName ?? "Google User"
+      resolvedDisplayName = displayName ?? baseUser.displayName ?? "Mock Google User"
     case .none:
       email = "anonymous@example.com"
-      finalDisplayName = displayName ?? "Anonymous User"
+      resolvedDisplayName = displayName ?? baseUser.displayName ?? "Anonymous User"
     }
 
-    return Supabase.User(
-      id: configuration.mockSession.user.id,
-      appMetadata: ["provider": AnyJSON.string(provider.rawValue)],
-      userMetadata: ["display_name": AnyJSON.string(finalDisplayName)],
-      aud: email,
-      confirmationSentAt: nil,
-      recoverySentAt: nil,
-      emailChangeSentAt: nil,
-      newEmail: nil,
-      invitedAt: nil,
-      actionLink: nil,
+    return MockUser(
+      id: baseUser.id,
       email: email,
-      phone: nil,
-      createdAt: Date(),
-      confirmedAt: Date(),
-      emailConfirmedAt: Date(),
-      phoneConfirmedAt: nil,
-      lastSignInAt: Date(),
-      role: "authenticated",
-      updatedAt: Date(),
-      identities: [],
-      isAnonymous: false,
-      factors: nil
+      displayName: resolvedDisplayName,
+      provider: provider
     )
   }
 }

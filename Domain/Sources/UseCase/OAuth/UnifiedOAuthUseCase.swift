@@ -254,10 +254,8 @@ private extension UnifiedOAuthUseCase {
 // MARK: - Dependencies Registration
 
 extension UnifiedOAuthUseCase: DependencyKey {
-    /// 기본값 - Mock 객체 사용 (실제 구현체는 앱 레벨에서 주입)
     public static let liveValue = UnifiedOAuthUseCase()
 
-    /// 테스트에서 사용할 Mock 구현체들
     public static let testValue = UnifiedOAuthUseCase(
         oAuthUseCase: OAuthUseCase.testValue,
         signUpRepository: MockSignUpRepository(),
