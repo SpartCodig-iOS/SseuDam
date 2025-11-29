@@ -21,6 +21,8 @@ extension AuthAPITarget: BaseTargetType {
         return .auth
     }
 
+    public var requiresAuthorization: Bool { false }
+
     public var urlPath: String {
         switch self {
             case .refreshToken:

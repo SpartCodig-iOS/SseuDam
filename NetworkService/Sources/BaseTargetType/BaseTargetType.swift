@@ -19,14 +19,20 @@ public protocol BaseTargetType: TargetType {
    var urlPath: String { get }
   var error: [Int: NetworkError]? { get }
    var parameters: [String: Any]? { get }
+  var requiresAuthorization: Bool { get }
 }
 
 public extension BaseTargetType {
+  var requiresAuthorization: Bool { true }
    var baseURL: URL { URL(string: domain.baseURLString)! }
     var path: String { domain.url + urlPath }
 
 
-  var headers: [String: String]? { APIHeaders.cached }
+  var headers: [String: String]? {
+    requiresAuthorization
+    ? APIHeaders.authorizedOrCached
+    : APIHeaders.cached
+  }
 
   var task: Moya.Task {
     if let parameters {
@@ -40,7 +46,29 @@ public extension BaseTargetType {
 
 // 순수 캐시
 public enum APIHeaders {
-  static var cached: [String: String] = [
+  public typealias TokenProvider = () -> String?
+
+  private static var tokenProvider: TokenProvider?
+
+  public static func setTokenProvider(_ provider: TokenProvider?) {
+    tokenProvider = provider
+  }
+
+  public static var cached: [String: String] = [
     "Content-Type": "application/json"
   ]
+
+  public static var authorizedOrCached: [String: String] {
+    guard
+      let token = tokenProvider?(),
+      token.isEmpty == false
+    else {
+      return cached
+    }
+
+    return [
+      "Content-Type": "application/json",
+      "Authorization": "Bearer \(token)"
+    ]
+  }
 }

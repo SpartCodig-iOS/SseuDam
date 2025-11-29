@@ -24,6 +24,8 @@ extension TravelAPI: BaseTargetType {
         return .travels
     }
 
+  public var requiresAuthorization: Bool { true }
+
     public var urlPath: String {
         switch self {
         case .fetchTravels:
@@ -61,7 +63,4 @@ extension TravelAPI: BaseTargetType {
 
     public var error: [Int : NetworkError]? { nil }
 
-  public var headers: [String : String]? {
-    return APIHeaders.accessTokenHeader
-  }
 }
