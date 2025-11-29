@@ -9,5 +9,9 @@ let project = Project.makeFeature(
         .Domain,
         .DesignSystem
     ],
+    demoDependencies: [
+        .Data,
+        .NetworkService
+    ],
     hasTests: true
 )

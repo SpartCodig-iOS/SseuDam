@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum TravelStatus: String {
+public enum TravelStatus: String, Equatable {
     case active
     case inactive
     case unknown
