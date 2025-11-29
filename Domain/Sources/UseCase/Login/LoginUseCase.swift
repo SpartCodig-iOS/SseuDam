@@ -5,51 +5,43 @@
 //  Created by Wonji Suh  on 11/20/25.
 //
 
-import Domain
 import ComposableArchitecture
 import AuthenticationServices
 
-/// Coordinates every dependency needed to perform an OAuth based login.
-public struct LoginUseCase {
-  private let oAuth: OAuthUseCase
+public struct LoginUseCase: LoginUseCaseProtocol {
 
-  public init(oAuth: OAuthUseCase) {
-    self.oAuth = oAuth
-  }
+    private let repository: LoginRepositoryProtocol
 
-  public func signInWithApple(
-    credential: ASAuthorizationAppleIDCredential,
-    nonce: String
-  ) async throws -> UserEntity {
-    try await oAuth.signInWithApple(credential: credential, nonce: nonce)
-  }
+    public init(
+        repository: LoginRepositoryProtocol
+    ) {
+        self.repository = repository
+    }
 
-  public func signUp(with provider: SocialType) async throws -> UserEntity {
-    try await oAuth.signUp(with: provider)
-  }
+    public func login(
+      accessToken: String,
+      socialType: SocialType
+    ) async throws -> AuthResult {
+      return try await repository.login(input: OAuthUserInput(accessToken: accessToken, socialType: socialType, authorizationCode: ""))
+    }
 }
 
 extension LoginUseCase: DependencyKey {
-  public static var liveValue: LoginUseCase = .mockedDependency()
-  public static var previewValue: LoginUseCase { .mockedDependency() }
-  public static var testValue: LoginUseCase = .mockedDependency()
+    public static var liveValue: LoginUseCaseProtocol = mockedDependency()
+    public static var previewValue: LoginUseCaseProtocol { mockedDependency() }
+    public static var testValue: LoginUseCaseProtocol = mockedDependency()
 }
 
 public extension DependencyValues {
-  var loginUseCase: LoginUseCase {
-    get { self[LoginUseCase.self] }
-    set { self[LoginUseCase.self] = newValue }
-  }
+    var loginUseCase: LoginUseCaseProtocol {
+        get { self[LoginUseCase.self] }
+        set { self[LoginUseCase.self] = newValue }
+    }
 }
 
 private extension LoginUseCase {
-  static func mockedDependency() -> LoginUseCase {
-    let oauth = OAuthUseCase(
-      repository: MockOAuthRepository(),
-      googleRepository: MockGoogleOAuthRepository(),
-      appleRepository: MockAppleOAuthRepository()
-    )
-    return LoginUseCase(oAuth: oauth)
-  }
+    static func mockedDependency() -> LoginUseCaseProtocol {
+        let repo = MockLoginRepository()
+        return LoginUseCase(repository: repo)
+    }
 }
-

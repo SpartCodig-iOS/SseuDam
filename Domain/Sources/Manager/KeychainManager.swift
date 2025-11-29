@@ -44,7 +44,7 @@ public struct KeychainManager {
   }
 
   /// 둘 다 한 번에 저장
-  func saveTokens(
+  public func saveTokens(
     accessToken: String?,
     refreshToken: String?
   ) {
@@ -62,12 +62,12 @@ public struct KeychainManager {
   }
 
   /// 둘 다 한 번에 불러오기
-  func loadTokens() -> (accessToken: String?, refreshToken: String?) {
+  public func loadTokens() -> (accessToken: String?, refreshToken: String?) {
     (loadAccessToken(), loadRefreshToken())
   }
 
   /// 모두 삭제 (로그아웃 시 등)
-  func clearAll() {
+  public func clearAll() {
     deleteAccessToken()
     deleteRefreshToken()
   }

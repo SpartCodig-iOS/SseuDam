@@ -28,7 +28,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
   public func signInWithApple(
     credential: ASAuthorizationAppleIDCredential,
     nonce: String
-  ) async throws -> UserEntity {
+  ) async throws -> UserProfile {
     guard let identityTokenData = credential.identityToken,
           let identityToken = String(data: identityTokenData, encoding: .utf8),
           let authCode = String(data: credential.authorizationCode ?? Data(), encoding: .utf8)
@@ -61,7 +61,9 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
     return name.isEmpty ? nil : name
   }
 
-  public func signUp(with provider: SocialType) async throws -> UserEntity {
+  public func signUp(
+    with provider: SocialType
+  ) async throws -> UserProfile {
     let payload = try await fetchPayload(for: provider)
     Log.info("\(provider.rawValue) sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
@@ -107,9 +109,21 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
 
 // MARK: - Dependencies
 extension OAuthUseCase: DependencyKey {
-  public static var liveValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
-  public static var previewValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
-  public static var testValue:  OAuthUseCaseProtocol = MockOAuthUseCase()
+  public static var liveValue:  OAuthUseCaseProtocol = {
+    return OAuthUseCase(
+      repository: MockOAuthRepository(),
+      googleRepository: MockGoogleOAuthRepository(),
+      appleRepository: MockAppleOAuthRepository()
+    )
+  }()
+  public static var previewValue:  OAuthUseCaseProtocol = liveValue
+  public static var testValue:  OAuthUseCaseProtocol = {
+    return OAuthUseCase(
+      repository: MockOAuthRepository(),
+      googleRepository: MockGoogleOAuthRepository(),
+      appleRepository: MockAppleOAuthRepository()
+    )
+  }()
 }
 
 public extension DependencyValues {

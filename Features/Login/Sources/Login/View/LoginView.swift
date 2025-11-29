@@ -2,8 +2,7 @@
 //  LoginView.swift
 //  TestApp
 //
-//  Created by TestDev on 09-11-25.
-//  Copyright © 2025 TestDev. All rights reserved.
+// Created by Wonji Suh on 11/18/25.
 //
 
 import SwiftUI
@@ -36,7 +35,14 @@ public struct LoginView: View {
                 .frame(height: 58)
 
         }
-        .background(Color.primary50)
+        .background(.primary50)
+        .presentDSModal(
+            item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService),
+            height: .fraction(0.36),
+            showDragIndicator: false
+        ) { termServiceStore in
+            TermsAgreementView(store: termServiceStore)
+        }
     }
 }
 
@@ -64,8 +70,7 @@ extension LoginView {
             VStack(spacing: 11) {
                 HStack {
                     Text("쓰담에 오신것을 환영합니다")
-                        .font(.system(size: 24))
-                        .fontWeight(.semibold)
+                        .font(.app(.largeTitle, weight: .semibold))
                         .foregroundStyle(.black)
 
                     Spacer()
@@ -73,13 +78,11 @@ extension LoginView {
 
                 HStack(spacing: .zero) {
                     Text("쓰담")
-                        .font(.system(size: 14))
-                        .fontWeight(.semibold)
+                        .font(.app(.body, weight: .regular))
                         .foregroundStyle(.primary500)
 
                     Text("에서 공금 정산을 빠르고 쉽게 확인해보세요")
-                        .font(.system(size: 14))
-                        .fontWeight(.semibold)
+                        .font(.app(.body, weight: .regular))
                         .foregroundStyle(.black)
 
                     Spacer()
@@ -97,12 +100,12 @@ extension LoginView {
     private func loginSocialButton() -> some View {
         HStack (alignment: .center, spacing: 24){
             ForEach(SocialType.allCases.filter { $0 != .none } ) { type in
-              SocialCircleButtonView(
-                store: store,
-                type: type
-              ) {
-                store.send(.view(.signInWithSocial(social: type)))
-              }
+                SocialCircleButtonView(
+                    store: store,
+                    type: type
+                ) {
+                    store.send(.view(.signInWithSocial(social: type)))
+                }
             }
         }
     }
