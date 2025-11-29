@@ -15,6 +15,9 @@ public struct TravelCreateFeature {
     public struct State: Equatable {
         var title = ""
 
+        // 국가 검색
+        var searchText: String = ""
+
         // 국가 데이터
         var countries: [Country] = []
         var selectedCountryName: String?
@@ -47,13 +50,26 @@ public struct TravelCreateFeature {
 
             return !currency.isEmpty && selectedCurrency != nil && !rate.isEmpty
         }
+
+        // 필터링된 국가 목록
+        var filteredCountries: [Country] {
+            if searchText.isEmpty { return countries }
+            return countries.filter {
+                $0.koreanName.contains(searchText) ||
+                $0.englishName.lowercased().contains(searchText.lowercased())
+            }
+        }
     }
 
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+
         case onAppear
 
         case countriesResponse(Result<[Country], Error>)
         case countryNameChanged(String?)
+
+        case searchTextChanged(String)
 
         case startDateChanged(Date?)
         case endDateChanged(Date?)
@@ -76,6 +92,8 @@ public struct TravelCreateFeature {
     @Dependency(\.fetchExchangeRateUseCase) var fetchExchangeRateUseCase
 
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
 
@@ -127,6 +145,11 @@ public struct TravelCreateFeature {
                     return .send(.currencySelected(firstCurrency))
                 }
 
+                return .none
+
+                // MARK: 국가 검색
+            case .searchTextChanged(let text):
+                state.searchText = text
                 return .none
 
                 // MARK: 날짜 선택
@@ -218,6 +241,9 @@ public struct TravelCreateFeature {
                 return .none
 
             case .dismiss:
+                return .none
+
+            case .binding:
                 return .none
             }
         }

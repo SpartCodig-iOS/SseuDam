@@ -12,8 +12,7 @@ import Domain
 
 struct CountrySelectSheetView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var searchText = ""
-    let store: StoreOf<TravelCreateFeature>
+    @Bindable var store: StoreOf<TravelCreateFeature>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -24,8 +23,11 @@ struct CountrySelectSheetView: View {
                     .padding(.bottom, 30)
 
                 HStack {
-                    TextField("찾으시는 국가를 검색해보세요", text: $searchText)
-                        .font(.app(.body))
+                    TextField(
+                        "찾으시는 국가를 검색해보세요",
+                        text: $store.searchText.sending(\.searchTextChanged)
+                    )
+                    .font(.app(.body))
                     Image(assetName: "search")
                         .resizable()
                         .scaledToFit()
@@ -45,7 +47,7 @@ struct CountrySelectSheetView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 2) {
-                    ForEach(filteredCountries, id: \.code) { country in
+                    ForEach(store.filteredCountries, id: \.code) { country in
                         countryRow(country)
                     }
                 }
@@ -55,17 +57,6 @@ struct CountrySelectSheetView: View {
         .background(Color.primary50)
     }
 
-    // MARK: Filter
-    private var filteredCountries: [Country] {
-        let list = store.countries
-        if searchText.isEmpty { return list }
-        return list.filter {
-            $0.koreanName.contains(searchText) ||
-            $0.englishName.lowercased().contains(searchText.lowercased())
-        }
-    }
-
-    // MARK: Row
     private func countryRow(_ country: Country) -> some View {
         Text(country.koreanName)
             .font(.app(.title3, weight: .medium))
