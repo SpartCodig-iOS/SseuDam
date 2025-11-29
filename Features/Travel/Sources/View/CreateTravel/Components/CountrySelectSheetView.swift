@@ -60,20 +60,20 @@ struct CountrySelectSheetView: View {
         let list = store.countries
         if searchText.isEmpty { return list }
         return list.filter {
-            $0.nameKo.contains(searchText) ||
-            $0.nameEn.lowercased().contains(searchText.lowercased())
+            $0.koreanName.contains(searchText) ||
+            $0.englishName.lowercased().contains(searchText.lowercased())
         }
     }
 
     // MARK: Row
     private func countryRow(_ country: Country) -> some View {
-        Text(country.nameKo)
+        Text(country.koreanName)
             .font(.app(.title3, weight: .medium))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 30)
             .padding(.vertical, 12)
             .onTapGesture {
-                store.send(.countryNameChanged(country.nameKo))
+                store.send(.countryNameChanged(country.koreanName))
                 dismiss()
             }
     }

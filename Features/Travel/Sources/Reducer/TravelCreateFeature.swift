@@ -108,7 +108,7 @@ public struct TravelCreateFeature {
                 state.selectedCountryName = name
 
                 guard let name,
-                      let selected = state.countries.first(where: { $0.nameKo == name }) else {
+                      let selected = state.countries.first(where: { $0.koreanName == name }) else {
                     state.selectedCountryCode = nil
                     state.currency = []
                     state.selectedCurrency = nil

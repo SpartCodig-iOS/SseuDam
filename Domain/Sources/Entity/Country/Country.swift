@@ -9,19 +9,19 @@ import Foundation
 
 public struct Country: Equatable {
     public let code: String
-    public let nameKo: String
-    public let nameEn: String
+    public let koreanName: String
+    public let englishName: String
     public let currencies: [String]
 
     public init(
         code: String,
-        nameKo: String,
-        nameEn: String,
+        koreanName: String,
+        englishName: String,
         currencies: [String]
     ) {
         self.code = code
-        self.nameKo = nameKo
-        self.nameEn = nameEn
+        self.koreanName = koreanName
+        self.englishName = englishName
         self.currencies = currencies
     }
 }
