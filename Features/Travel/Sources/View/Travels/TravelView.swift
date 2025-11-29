@@ -20,36 +20,34 @@ public struct TravelView: View {
 
     public var body: some View {
         GestureNavigationStack {
-            ZStack(alignment: .bottomTrailing) {
-                VStack {
-                    TravelListHeaderView()
+            VStack {
+                TravelListHeaderView()
 
-                    TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
+                TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
 
-                    ScrollView {
-                        LazyVStack(spacing: 18) {
-                            ForEach(store.travels, id: \.id) { travel in
-                                TravelCardView(travel: travel)
-                                    .onAppear {
-                                        store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
-                                    }
-                                    .onTapGesture {
-                                        //디테일로 이동
-                                    }
-                            }
-                            if store.isLoadingNextPage {
-                                ProgressView().padding(.vertical, 20)
-                            }
+                ScrollView {
+                    LazyVStack(spacing: 18) {
+                        ForEach(store.travels, id: \.id) { travel in
+                            TravelCardView(travel: travel)
+                                .onAppear {
+                                    store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
+                                }
+                                .onTapGesture {
+                                    // detail 이동
+                                }
                         }
-                        .padding(16)
-                    }
-                }
-                .background(Color.primary50)
 
-                Button {
+                        if store.isLoadingNextPage {
+                            ProgressView().padding(.vertical, 20)
+                        }
+                    }
+                    .padding(16)
+                }
+            }
+            .background(Color.primary50)
+            .overlay(alignment: .bottomTrailing) {
+                FloatingPlusButton {
                     store.send(.createButtonTapped)
-                } label: {
-                    FloatingPlusButton()
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 54)
