@@ -35,8 +35,12 @@ struct RecentLoginTooltip: View {
         .offset(x: bubbleOffset)
         .opacity(showTooltip ? 1 : 0)
         .offset(y: showTooltip ? 0 : -6)
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: showTooltip)
-        .onAppear { showTooltip = true }
+        .animation(.spring(response: 0.35, dampingFraction: 0.9), value: showTooltip)
+        .onAppear {
+          Task { @MainActor in
+            showTooltip = true
+          }
+        }
     }
   }
 
@@ -70,13 +74,6 @@ struct RecentLoginTooltip: View {
           UpTriangle()
             .stroke(.gray2, lineWidth: 1)
         )
-
-      Image(systemName: "sparkles")
-        .resizable()
-        .scaledToFit()
-        .frame(width: 8, height: 8)
-        .foregroundStyle(.black)
-        .offset(x: pointerWidth / 2 + 6, y: -2)
     }
   }
 

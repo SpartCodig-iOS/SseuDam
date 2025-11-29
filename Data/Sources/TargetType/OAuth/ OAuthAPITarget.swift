@@ -21,6 +21,8 @@ extension OAuthAPITarget: BaseTargetType {
     return .oauth
   }
 
+  public var requiresAuthorization: Bool { false }
+
   public var urlPath: String {
     switch self {
       case .checkSignUpUser:

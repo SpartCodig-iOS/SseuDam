@@ -3,6 +3,8 @@ import SseuDamPlugin
 
 let project = Project.makeFramework(
     name: "DesignSystem",
-    dependencies: [],
+    dependencies: [
+      .SPM.ComposableArchitecture
+    ],
     resources: ["Resources/**"]
 )

@@ -26,7 +26,9 @@ extension SessionAPITarget : BaseTargetType {
         return SessionAPI.checkSessionLogin.description
     }
   }
-  
+
+  public var requiresAuthorization: Bool { false }
+
   public var error: [Int : NetworkService.NetworkError]? {
     return nil
   }

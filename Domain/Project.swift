@@ -5,7 +5,7 @@ let project = Project.makeFramework(
     name: "Domain",
     dependencies: [
       .SPM.ComposableArchitecture,
-      .SPM.LogMacro
+      .SPM.LogMacro,
     ],
     hasTests: true,
 )

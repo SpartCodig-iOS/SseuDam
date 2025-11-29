@@ -22,8 +22,9 @@ struct SseuDamApp: App {
         $0.sessionUseCase = makeSessionUseCase()
         $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
         $0.createTravelUseCase = makeCreateTravelUseCase()
+        $0.authUseCase = makeAuthUseCase()
     }
-    
+
     var body: some Scene {
         WindowGroup {
             AppView(
@@ -31,42 +32,45 @@ struct SseuDamApp: App {
             )
         }
     }
-  }
+}
 
 
 private extension SseuDamApp {
-  static func makeLoginUseCase() -> LoginUseCaseProtocol {
-    LoginUseCase(repository: LoginRepository())
+    static func makeLoginUseCase() -> LoginUseCaseProtocol {
+        LoginUseCase(repository: LoginRepository())
     }
 
-  static func makeOAuthUseCase() -> OAuthUseCaseProtocol {
-    OAuthUseCase(
-      repository: OAuthRepository(),
-      googleRepository: GoogleOAuthRepository(),
-      appleRepository: AppleOAuthRepository()
-    )
-  }
+    static func makeOAuthUseCase() -> OAuthUseCaseProtocol {
+        OAuthUseCase(
+            repository: OAuthRepository(),
+            googleRepository: GoogleOAuthRepository(),
+            appleRepository: AppleOAuthRepository()
+        )
+    }
 
-  static func makeSignUpUseCase() -> SignUpUseCaseProtocol {
-    SignUpUseCase(
-      repository: SignUpRepository()
-    )
-  }
+    static func makeSignUpUseCase() -> SignUpUseCaseProtocol {
+        SignUpUseCase(
+            repository: SignUpRepository()
+        )
+    }
 
-  static func makeUnifiedOAuthUseCase() -> UnifiedOAuthUseCase {
-    UnifiedOAuthUseCase(
-      oAuthUseCase: makeOAuthUseCase(),
-      signUpRepository: SignUpRepository(),
-      loginRepository: LoginRepository()
-    )
-  }
+    static func makeUnifiedOAuthUseCase() -> UnifiedOAuthUseCase {
+        UnifiedOAuthUseCase(
+            oAuthUseCase: makeOAuthUseCase(),
+            signUpRepository: SignUpRepository(),
+            loginRepository: LoginRepository()
+        )
+    }
 
+    static func makeSessionUseCase() -> SessionUseCaseProtocol {
+        SessionUseCase(repository: SessionRepository())
+    }
 
-  static func makeSessionUseCase() -> SessionUseCaseProtocol {
-    SessionUseCase(repository: SessionRepository())
-  }
-  //Travel
-  static func makeFetchTravelsUseCase() -> FetchTravelsUseCaseProtocol {
+    static func makeAuthUseCase() -> AuthUseCaseProtocol {
+        AuthUseCase(repository: AuthRepository())
+    }
+
+    static func makeFetchTravelsUseCase() -> FetchTravelsUseCaseProtocol {
         FetchTravelsUseCase(
             repository: TravelRepository(
                 remote: TravelRemoteDataSource()
