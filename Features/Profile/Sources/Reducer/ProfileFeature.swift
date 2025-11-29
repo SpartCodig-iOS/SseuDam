@@ -31,7 +31,7 @@ public struct ProfileFeature {
   //MARK: - ViewAction
   @CasePathable
   public enum View {
-
+    case editProfileImageTapped
   }
 
 
@@ -81,7 +81,8 @@ extension ProfileFeature {
     action: View
   ) -> Effect<Action> {
     switch action {
-
+      case .editProfileImageTapped:
+        return .none
     }
   }
 
@@ -112,4 +113,3 @@ extension ProfileFeature {
     }
   }
 }
-

@@ -16,28 +16,57 @@ public struct ProfileView: View {
     self.store = store
   }
 
-    public var body: some View {
-        VStack {
-            Image(systemName: "star.fill")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Profile Feature")
-                .font(.title)
-                .fontWeight(.bold)
-        }
-        .padding()
-        .navigationTitle("Profile")
+  public var body: some View {
+    ScrollView {
+      VStack(spacing: 24) {
+        profileHeaderView()
+
+        Text("Profile Feature")
+          .font(.title)
+          .fontWeight(.bold)
+          .foregroundStyle(.primary700)
+      }
+      .frame(maxWidth: .infinity)
+      .padding(.vertical, 32)
     }
+    .padding(.horizontal, 24)
+  }
+}
+
+extension ProfileView {
+  fileprivate func profileHeaderView() -> some View {
+    VStack {
+      EditProfileImage() {
+        store.send(.view(.editProfileImageTapped))
+      }
+
+      Spacer()
+        .frame(height: 16)
+
+      Text("테스터")
+        .font(.app(.title3, weight: .semibold))
+        .foregroundStyle(.appBlack)
+
+      Spacer()
+        .frame(height: 5)
+
+      Text("test @test.com")
+        .font(.app(.body, weight: .medium))
+        .foregroundStyle(.gray6)
+
+
+    }
+  }
 }
 
 #Preview {
-    NavigationView {
-      ProfileView(
-        store: .init(
-          initialState: ProfileFeature.State(),
-          reducer: {
-            ProfileFeature()
-          })
-      )
-    }
+  NavigationView {
+    ProfileView(
+      store: .init(
+        initialState: ProfileFeature.State(),
+        reducer: {
+          ProfileFeature()
+        })
+    )
+  }
 }
