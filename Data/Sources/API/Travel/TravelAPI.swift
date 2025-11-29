@@ -60,4 +60,8 @@ extension TravelAPI: BaseTargetType {
     }
 
     public var error: [Int : NetworkError]? { nil }
+
+  public var headers: [String : String]? {
+    return APIHeaders.accessTokenHeader
+  }
 }

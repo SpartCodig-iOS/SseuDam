@@ -36,7 +36,8 @@ public struct LoginCoordinator {
 
   @CasePathable
   public enum DelegateAction {
-    
+    case presentTravel
+
   }
 
   @CasePathable
@@ -82,6 +83,8 @@ extension LoginCoordinator {
     action: IndexedRouterActionOf<LoginScreen>
   ) -> Effect<Action> {
     switch action {
+      case .routeAction(id: _, action: .login(.delegate(.presentTravelList))):
+        return .send(.delegate(.presentTravel))
       default:
         return .none
     }
@@ -108,6 +111,8 @@ extension LoginCoordinator {
       action: DelegateAction
   ) -> Effect<Action> {
       switch action {
+        case .presentTravel:
+          return .none
 
       }
   }

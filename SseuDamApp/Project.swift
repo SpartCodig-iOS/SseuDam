@@ -8,6 +8,7 @@ let project = Project.makeApp(
         .SPM.TCACoordinators,
         .Features.Login,
         .Features.Splash,
+        .Features.Travel,
         .Data
     ],
     infoPlist: .defaultSwiftUIApp,

@@ -20,7 +20,7 @@ public struct SplashFeature {
         var errorMessage: String? = ""
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
         @Shared(.appStorage("socialType''"))  var socialType: SocialType? = nil
-        var sessionResult : SessionResult?
+        var sessionResult : SessionStatus?
 
         public init() {}
     }
@@ -53,7 +53,7 @@ public struct SplashFeature {
     //MARK: - 앱내에서 사용하는 액션
     public enum InnerAction: Equatable {
         case refreshResponse(Result<TokenResult, AuthError>)
-        case checkSessionResponse(Result<SessionResult, AuthError>)
+        case checkSessionResponse(Result<SessionStatus, AuthError>)
     }
 
     //MARK: - NavigationAction

@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import LoginFeature
 import SplashFeature
+import TravelFeature
 
 struct AppView: View {
     var store: StoreOf<AppFeature>
@@ -27,6 +28,12 @@ struct AppView: View {
                       LoginCoordinatorView(store: store)
                     }
 
+
+
+              case .travel:
+                if let store  = store.scope(state: \.travel, action: \.scope.travel) {
+                  TravelView(store: store)
+                }
             }
         }
     }

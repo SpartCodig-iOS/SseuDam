@@ -9,7 +9,8 @@ import ComposableArchitecture
 import Data
 import LoginFeature
 import SplashFeature
-
+import TravelFeature
+import Domain
 @Reducer
 struct AppFeature {
 
@@ -19,6 +20,7 @@ struct AppFeature {
   enum State: Equatable {
     case login(LoginCoordinator.State)
     case splash(SplashFeature.State)
+    case travel(TravelListFeature.State)
     // 나중에 메인 탭 추가하면:
     // case main(MainFeature.State)
 
@@ -50,6 +52,7 @@ struct AppFeature {
   enum ScopeAction {
     case login(LoginCoordinator.Action)
     case splash(SplashFeature.Action)
+    case travel(TravelListFeature.Action)
   }
 
   @Dependency(\.continuousClock) var clock
@@ -79,6 +82,9 @@ struct AppFeature {
     }
     .ifCaseLet(\.splash, action: \.scope.splash) {
       SplashFeature()
+    }
+    .ifCaseLet(\.travel, action: \.scope.travel) {
+      TravelListFeature()
     }
   }
 }
@@ -116,12 +122,10 @@ extension AppFeature {
     switch action {
     case .setLoginState:
       state = .login(.init())
-      // login view 로드 전에 바로 checkSession 실행
         return .none
 
     case .setMainState:
-      // 추후 main 탭 상태로 전환 로직 작성
-      // state = .main(MainFeature.State())
+        state = .travel(.init())
       return .none
     }
   }
@@ -131,9 +135,6 @@ extension AppFeature {
     action: ScopeAction
   ) -> Effect<Action> {
     switch action {
-    case .login:
-      return .none
-
       case .splash(.delegate(.presentLogin)):
         return .run { send in
           await send(.view(.presentLogin))
@@ -142,7 +143,13 @@ extension AppFeature {
 
       case .splash(.delegate(.presentMain)):
         return .run { send in
-          await send(.view(.presentLogin))
+          await send(.view(.presentMain), animation: .easeIn)
+        }
+        .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+
+      case .login(.delegate(.presentTravel)):
+        return .run { send in
+          await send(.view(.presentMain), animation: .easeIn)
         }
         .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
 
