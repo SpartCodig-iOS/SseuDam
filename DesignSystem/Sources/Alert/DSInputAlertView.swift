@@ -89,7 +89,7 @@ public struct DSInputAlertView<Action: Equatable>: View {
     Button(action: onConfirm) {
       Text(state.confirmButton.title)
         .font(.app(.title3, weight: .semibold))
-        .foregroundStyle(Color.white)
+        .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
         .frame(height: 56)
         .background(Color(red: 0.31, green: 0.12, blue: 1.0))
