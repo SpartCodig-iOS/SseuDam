@@ -102,9 +102,14 @@ extension SplashFeature {
     ) -> Effect<Action> {
         switch action {
             case .onAppear:
-                return .run { send in
-                    await send(.async(.refreshToken))
-                }
+            return .run {  [sessionId = state.sessionId] send in
+              if sessionId?.isEmpty  == nil {
+                KeychainManager.shared.clearAll()
+                await send(.delegate(.presentLogin))
+              } else {
+                await send(.async(.refreshToken))
+              }
+            }
 
             case .startAnimation:
                 return .run { send in
