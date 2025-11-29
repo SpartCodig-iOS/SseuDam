@@ -19,7 +19,7 @@ struct DateFieldView: View {
                 Image(assetName: "calendar")
                     .foregroundColor(Color.gray7)
 
-                Text(dateText(date))
+                Text(dateFormatters(date))
                     .font(.app(.body, weight: .medium))
                     .foregroundColor(date == nil ? .gray4 : .appBlack)
 
@@ -35,7 +35,7 @@ struct DateFieldView: View {
     }
 }
 
-private func dateText(_ date: Date?) -> String {
+private func dateFormatters(_ date: Date?) -> String {
     guard let date else { return "yyyy.mm.dd" }
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy.MM.dd"
