@@ -6,8 +6,15 @@
 //
 
 import Foundation
+import Domain
 
 public struct FetchTravelsRequestDTO: Encodable {
     let limit: Int
     let page: Int
+}
+
+extension FetchTravelsInput {
+    func toDTO() -> FetchTravelsRequestDTO {
+        FetchTravelsRequestDTO(limit: limit, page: page)
+    }
 }

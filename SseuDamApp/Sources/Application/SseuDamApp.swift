@@ -19,6 +19,10 @@ struct SseuDamApp: App {
         $0.oAuthUseCase = makeOAuthUseCase()
         $0.signUpUseCase = makeSignUpUseCase()
         $0.unifiedOAuthUseCase = makeUnifiedOAuthUseCase()
+        
+        //Travel
+        $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
+        $0.createTravelUseCase = makeCreateTravelUseCase()
     }
     
     var body: some Scene {
@@ -35,6 +39,7 @@ private extension SseuDamApp {
        LoginUseCase(repository: LoginRepository())
 
     }
+}
 
   static func makeOAuthUseCase() -> OAuthUseCaseProtocol {
     OAuthUseCase(
@@ -57,4 +62,21 @@ private extension SseuDamApp {
       loginRepository: LoginRepository()
     )
   }
+
+  //Travel
+  static func makeFetchTravelsUseCase() -> FetchTravelsUseCaseProtocol {
+        FetchTravelsUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeCreateTravelUseCase() -> CreateTravelUseCaseProtocol {
+        CreateTravelUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
+    }
 }
