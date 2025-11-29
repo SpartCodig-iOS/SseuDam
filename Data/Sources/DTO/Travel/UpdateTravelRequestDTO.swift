@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Domain
 
 public struct UpdateTravelRequestDTO: Encodable {
     let title: String
@@ -14,4 +15,19 @@ public struct UpdateTravelRequestDTO: Encodable {
     let countryCode: String
     let baseCurrency: String
     let baseExchangeRate: Double
+}
+
+extension UpdateTravelInput {
+    func toDTO() -> UpdateTravelRequestDTO {
+        let formatter = DateFormatters.apiDate
+
+        return UpdateTravelRequestDTO(
+            title: title,
+            startDate: formatter.string(from: startDate),
+            endDate: formatter.string(from: endDate),
+            countryCode: countryCode,
+            baseCurrency: baseCurrency,
+            baseExchangeRate: baseExchangeRate
+        )
+    }
 }

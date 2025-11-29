@@ -19,8 +19,8 @@ public final class CountryRepository: CountryRepositoryProtocol {
         try await remote.fetchCountries().map {
             Country(
                 code: $0.code,
-                koreanName: $0.koreanName,
-                englishName: $0.englishName,
+                koreanName: $0.nameKo,
+                englishName: $0.nameEn,
                 currencies: $0.currencies
             )
         }

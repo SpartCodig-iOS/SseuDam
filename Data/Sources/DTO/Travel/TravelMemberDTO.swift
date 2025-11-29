@@ -13,3 +13,13 @@ struct TravelMemberDTO: Decodable {
     let name: String
     let role: String
 }
+
+extension TravelMemberDTO {
+    func toDomain() -> TravelMember {
+        TravelMember(
+            id: userId,
+            name: name,
+            role: role
+        )
+    }
+}
