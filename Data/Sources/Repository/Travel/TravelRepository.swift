@@ -46,4 +46,11 @@ public final class TravelRepository: TravelRepositoryProtocol {
     ) async throws {
         try await remote.deleteTravel(id: id)
     }
+    
+    public func fetchTravelDetail(
+        id: String
+    ) async throws -> Travel {
+        let responseDTO = try await remote.fetchTravelDetail(id: id)
+        return responseDTO.toDomain()
+    }
 }
