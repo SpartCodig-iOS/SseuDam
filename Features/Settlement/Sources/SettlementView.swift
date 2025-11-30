@@ -11,7 +11,7 @@ import ComposableArchitecture
 import DesignSystem
 
 public struct SettlementView: View {
-    let store: StoreOf<SettlementFeature>
+    @Bindable var store: StoreOf<SettlementFeature>
 
     @State private var selectedTab: Int = 0 // 0: 지출 내역, 1: 정산 하기
 
@@ -30,26 +30,40 @@ public struct SettlementView: View {
                     selectedTab = 1
                 }
             }
-            
-            // 헤더
-            SettlementHeaderView(
-                currentDate: "2024.12.20",
-                totalAmount: 255450,
-                startDate: "2024.12.20",
-                endDate: "2024.12.25",
-                myExpenseAmount: 255450
-            )
 
             // 컨텐츠 영역
-            ScrollView {
+            Group {
                 if selectedTab == 0 {
+                    // 헤더
+                    SettlementHeaderView(
+                        totalAmount: store.totalAmount,
+                        startDate: store.startDate,
+                        endDate: store.endDate,
+                        myExpenseAmount: store.myExpenseAmount,
+                        selectedDate: $store.selectedDate
+                    )
+                    
                     // 지출 내역 리스트
-                    LazyVStack(spacing: 16) {
-                        ForEach(Expense.mockList) { expense in
-                            ExpenseCardView(expense: expense)
+                    ScrollView {
+                        Group {
+                            if !store.currentExpense.isEmpty {
+                                LazyVStack(spacing: 16) {
+                                    ForEach(store.currentExpense) { expense in
+                                        ExpenseCardView(expense: expense)
+                                    }
+                                }
+                                .padding(.vertical, 10)
+                            } else {
+                                VStack {
+                                    Spacer()
+                                    Text("지출이 없습니다.")
+                                        .foregroundStyle(.gray)
+                                    Spacer()
+                                }
+                                .frame(height: 300)
+                            }
                         }
                     }
-                    .padding(.vertical, 10)
                 } else {
                     // 정산 하기 뷰 (아직 미구현)
                     VStack {
@@ -59,11 +73,12 @@ public struct SettlementView: View {
                         Spacer()
                     }
                     .frame(height: 300)
+                    .frame(maxHeight: .infinity)
                 }
             }
             .scrollIndicators(.hidden)
         }
-        .navigationTitle("오사카 여행")
+        .navigationTitle(store.travelTitle)
         .toolbarTitleDisplayMode(.inline)
         .onAppear {
             store.send(.onAppear)
@@ -99,7 +114,7 @@ struct TabButton: View {
     NavigationView {
         SettlementView(
             store: Store(
-                initialState: SettlementFeature.State(),
+                initialState: SettlementFeature.State("travel_01"),
                 reducer: { SettlementFeature() }
             )
         )

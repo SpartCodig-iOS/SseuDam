@@ -153,5 +153,75 @@ extension Expense {
         participants: [mockMembers[0], mockMembers[1]]
     )
 
-    public static let mockList = [mock1, mock2, mock3, mock4, mock5]
+    public static let mock6 = Expense(
+        id: "expense6",
+        title: "편의점 간식",
+        note: "맥주랑 안주",
+        amount: 1200,
+        currency: "JPY",
+        convertedAmount: 10800,
+        expenseDate: Date().addingTimeInterval(-86400 * 2 + 3600), // 2일 전
+        category: .foodAndDrink,
+        payerId: "user1",
+        payerName: "김민수",
+        participants: mockMembers
+    )
+    
+    public static let mock7 = Expense(
+        id: "expense7",
+        title: "지하철 패스",
+        note: "2일권",
+        amount: 2000,
+        currency: "JPY",
+        convertedAmount: 18000,
+        expenseDate: Date().addingTimeInterval(-86400 * 2 - 3600), // 2일 전
+        category: .transportation,
+        payerId: "user2",
+        payerName: "이지은",
+        participants: mockMembers
+    )
+    
+    public static let mock8 = Expense(
+        id: "expense8",
+        title: "규카츠 저녁",
+        note: "모토무라 규카츠",
+        amount: 4500,
+        currency: "JPY",
+        convertedAmount: 40500,
+        expenseDate: Date().addingTimeInterval(-86400), // 1일 전
+        category: .foodAndDrink,
+        payerId: "user3",
+        payerName: "박서준",
+        participants: mockMembers
+    )
+    
+    public static let mock9 = Expense(
+        id: "expense9",
+        title: "카페",
+        note: "스타벅스",
+        amount: 1500,
+        currency: "JPY",
+        convertedAmount: 13500,
+        expenseDate: Date().addingTimeInterval(-3600 * 2), // 오늘
+        category: .foodAndDrink,
+        payerId: "user1",
+        payerName: "김민수",
+        participants: [mockMembers[0], mockMembers[1]]
+    )
+    
+    public static let mock10 = Expense(
+        id: "expense10",
+        title: "공항 버스",
+        note: "간사이 공항행",
+        amount: 3200,
+        currency: "JPY",
+        convertedAmount: 28800,
+        expenseDate: Date().addingTimeInterval(3600), // 오늘 (미래?) -> 테스트용으로 오늘로 간주
+        category: .transportation,
+        payerId: "user2",
+        payerName: "이지은",
+        participants: mockMembers
+    )
+
+    public static let mockList = [mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8, mock9, mock10]
 }
