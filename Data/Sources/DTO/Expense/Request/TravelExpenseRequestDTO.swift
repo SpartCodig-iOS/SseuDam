@@ -6,3 +6,15 @@
 //
 
 import Foundation
+
+struct TravelExpenseRequestDTO: Encodable {
+    private let travelId: String
+    private let limit: Int
+    private let page: Int
+    
+    init(travelId: String, limit: Int, page: Int) {
+        self.travelId = travelId
+        self.limit = limit
+        self.page = page
+    }
+}
