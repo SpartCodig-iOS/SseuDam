@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Travel: Equatable {
+public struct Travel: Equatable, Hashable {
     public let id: String
     public let title: String
     public let startDate: Date

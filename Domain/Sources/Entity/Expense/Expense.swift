@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Expense: Identifiable, Equatable {
+public struct Expense: Identifiable, Equatable, Hashable {
     public let id: String
     public let title: String
     public let note: String?
