@@ -27,9 +27,6 @@ public extension InfoPlist {
             ])
           ])
         ]),
-        "UIAppFonts": .array([
-          .string("PretendardVariable.ttf")
-        ]),
         "UISupportedInterfaceOrientations": .array([
           .string("UIInterfaceOrientationPortrait")
         ])

@@ -12,4 +12,5 @@ public protocol TravelRepositoryProtocol {
     func createTravel(input: CreateTravelInput) async throws -> Travel
     func updateTravel(id: String, input: UpdateTravelInput) async throws -> Travel
     func deleteTravel(id: String) async throws
+    func fetchTravelDetail(id: String) async throws -> Travel
 }

@@ -14,6 +14,7 @@ public enum TravelAPI {
     case createTravel(body: CreateTravelRequestDTO)
     case updateTravel(id: String, body: UpdateTravelRequestDTO)
     case deleteTravel(id: String)
+    case fetchTravelDetail(id: String)
 }
 
 extension TravelAPI: BaseTargetType {
@@ -34,6 +35,8 @@ extension TravelAPI: BaseTargetType {
             return "/\(id)"
         case .deleteTravel(let id):
             return "/\(id)"
+        case .fetchTravelDetail(let id):
+            return "/\(id)"
         }
     }
 
@@ -43,6 +46,7 @@ extension TravelAPI: BaseTargetType {
         case .createTravel: return .post
         case .updateTravel: return .patch
         case .deleteTravel: return .delete
+        case .fetchTravelDetail: return .get
         }
     }
 
@@ -54,7 +58,7 @@ extension TravelAPI: BaseTargetType {
             return body.toDictionary
         case .updateTravel(_, let body):
             return body.toDictionary
-        case .deleteTravel:
+        case .deleteTravel, .fetchTravelDetail:
             return nil
         }
     }

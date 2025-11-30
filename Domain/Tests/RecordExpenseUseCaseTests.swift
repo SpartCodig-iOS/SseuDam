@@ -27,7 +27,7 @@ struct RecordExpenseUseCaseTests {
             payerId: "user1",
             payerName: "홍석현",
             participants: [
-                Expense.Participant(memberId: "user1", name: "홍석현")
+                TravelMember(id: "user1", name: "홍석현", role: "owner")
             ]
         )
         
