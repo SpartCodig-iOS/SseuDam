@@ -66,7 +66,7 @@ public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
         try await provider.request(.deleteTravel(id: id))
     }
     
-    func fetchTravelDetail(id: String) async throws -> TravelResponseDTO {
+    public func fetchTravelDetail(id: String) async throws -> TravelResponseDTO {
         let response: BaseResponse<TravelResponseDTO> =
         try await provider.request(.fetchTravelDetail(id: id))
         

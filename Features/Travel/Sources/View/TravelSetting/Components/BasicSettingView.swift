@@ -53,6 +53,7 @@ struct BasicSettingView: View {
 
                 InfoRow(title: "초대 코드", value: "1A1A1A", imageName: "files")
             }
+            .padding(16)
             .background(RoundedRectangle(cornerRadius: 8).fill(Color(.appWhite)))
         }
     }
