@@ -87,7 +87,7 @@ extension AppFeature {
     action: ScopeAction
   ) -> Effect<Action> {
     switch action {
-    case .login(.view(.loginSuccess)):
+    case .login(.delegate(.presentTravelList)):
       // 로그인 성공 시 메인 화면으로 전환
       return .send(.view(.presentMain))
 
