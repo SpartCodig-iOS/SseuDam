@@ -1,12 +1,13 @@
 //
 //  ExpenseCategoryTag.swift
-//  DesignSystem
+//  SettlementFeature
 //
 //  Created by 홍석현 on 11/28/25.
 //
 
 import SwiftUI
 import Domain
+import DesignSystem
 
 public struct ExpenseCategoryTag: View {
     private let category: ExpenseCategory
@@ -17,12 +18,12 @@ public struct ExpenseCategoryTag: View {
 
     public var body: some View {
         Text(category.displayName)
-            .font(.system(size: 12, weight: .medium))
+            .font(.app(.caption1, weight: .medium))
             .foregroundStyle(foregroundColor)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
             .background(backgroundColor)
-            .cornerRadius(12)
+            .clipShape(Capsule())
     }
 
     private var backgroundColor: Color {
