@@ -34,7 +34,18 @@ final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
         saveErrorReason = nil
     }
     
-    public func save(expense: Expense) async throws {
+    public func fetchTravelExpenses(
+        travelId: String,
+        page: Int,
+        limit: Int
+    ) async throws -> [Expense] {
+        return Expense.mockList
+    }
+    
+    public func save(
+        travelId: String,
+        expense: Expense
+    ) async throws {
         if shouldFailSave {
             let reason = saveErrorReason ?? "Unknown error"
             throw ExpenseRepositoryError.saveFailed(reason: reason)
@@ -43,7 +54,10 @@ final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
         storage[expense.id] = expense
     }
     
-    public func update(expense: Expense) async throws {
+    public func update(
+        travelId: String,
+        expense: Expense
+    ) async throws {
         if shouldFailUpdate {
             throw ExpenseRepositoryError.updateFailed(reason: "업데이트 실패")
         }

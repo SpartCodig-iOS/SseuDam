@@ -6,20 +6,37 @@
 //
 
 import Foundation
+import ComposableArchitecture
 
 public protocol RecordExpenseUseCaseProtocol {
-    func execute(expense: Expense) async throws
+    func execute(travelId: String, expense: Expense) async throws
 }
 
 public struct RecordExpenseUseCase: RecordExpenseUseCaseProtocol {
     private let repository: ExpenseRepositoryProtocol
-    
+
     public init(repository: ExpenseRepositoryProtocol) {
         self.repository = repository
     }
-    
-    public func execute(expense: Expense) async throws {
+
+    public func execute(travelId: String, expense: Expense) async throws {
         try expense.validate()
-        try await repository.save(expense: expense)
+        try await repository.save(travelId: travelId, expense: expense)
+    }
+}
+
+// MARK: - DependencyKey
+public enum RecordExpenseUseCaseDependencyKey: DependencyKey {
+    public static var liveValue: any RecordExpenseUseCaseProtocol = MockRecordExpenseUseCase()
+
+    public static var testValue: any RecordExpenseUseCaseProtocol = MockRecordExpenseUseCase()
+
+    public static var previewValue: any RecordExpenseUseCaseProtocol = MockRecordExpenseUseCase()
+}
+
+public extension DependencyValues {
+    var recordExpenseUseCase: any RecordExpenseUseCaseProtocol {
+        get { self[RecordExpenseUseCaseDependencyKey.self] }
+        set { self[RecordExpenseUseCaseDependencyKey.self] = newValue }
     }
 }
