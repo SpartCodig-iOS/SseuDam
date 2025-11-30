@@ -8,11 +8,15 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct CreateTravelView: View {
+public struct CreateTravelView: View {
     @Bindable var store: StoreOf<TravelCreateFeature>
     @Environment(\.dismiss) private var dismiss
 
-    var body: some View {
+    public init(store: StoreOf<TravelCreateFeature>) {
+        self.store = store
+    }
+    
+    public var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Button {

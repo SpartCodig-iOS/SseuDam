@@ -15,7 +15,7 @@ public protocol ExpenseRemoteDataSourceProtocol {
     func createExpense(travelId: String, body: CreateExpenseRequestDTO) async throws
 }
 
-final class ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
+public struct ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
 
     private let provider: MoyaProvider<ExpenseAPI>
 
@@ -23,7 +23,7 @@ final class ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
         self.provider = provider
     }
 
-    func fetchTravelExpenses(
+    public func fetchTravelExpenses(
         travelId: String,
         page: Int,
         limit: Int
@@ -38,9 +38,8 @@ final class ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
         return data
     }
 
-    func createExpense(travelId: String, body: CreateExpenseRequestDTO) async throws {
-        let _: BaseResponse<EmptyDTO> =
-        try await provider.request(.createExpense(travelId: travelId, body: body))
+    public func createExpense(travelId: String, body: CreateExpenseRequestDTO) async throws {
+        let _: BaseResponse<EmptyDTO> = try await provider.request(.createExpense(travelId: travelId, body: body))
     }
 }
 

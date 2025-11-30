@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct TravelExpenseResponseDTO: Decodable {
+public struct TravelExpenseResponseDTO: Decodable {
     let total: Int
     let page: Int
     let limit: Int

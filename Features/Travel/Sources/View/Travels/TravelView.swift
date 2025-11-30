@@ -33,7 +33,7 @@ public struct TravelView: View {
                                     store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
                                 }
                                 .onTapGesture {
-                                    // detail 이동
+                                    store.send(.travelSelected(travelId: travel.id))
                                 }
                         }
 
