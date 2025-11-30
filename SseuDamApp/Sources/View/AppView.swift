@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
-
 import ComposableArchitecture
 import LoginFeature
+import MainFeature
 
 struct AppView: View {
     var store: StoreOf<AppFeature>
@@ -16,10 +16,15 @@ struct AppView: View {
     var body: some View {
         SwitchStore(store) { state in
             switch state {
-                case .login:
-                    if let store = store.scope(state: \.login, action: \.scope.login) {
-                        LoginView(store: store)
-                    }
+            case .login:
+                if let store = store.scope(state: \.login, action: \.scope.login) {
+                    LoginView(store: store)
+                }
+
+            case .main:
+                if let store = store.scope(state: \.main, action: \.scope.main) {
+                    MainCoordinatorView(store: store)
+                }
             }
         }
     }

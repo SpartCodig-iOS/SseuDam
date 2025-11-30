@@ -6,9 +6,8 @@
 //
 
 import ComposableArchitecture
-import Data
 import LoginFeature
-import AuthenticationServices
+import MainFeature
 
 @Reducer
 struct AppFeature {
@@ -18,8 +17,7 @@ struct AppFeature {
   @ObservableState
   enum State: Equatable {
     case login(LoginFeature.State)
-    // 나중에 메인 탭 추가하면:
-    // case main(MainFeature.State)
+    case main(MainCoordinator.State)
 
     init() {
       self = .login(.init())
@@ -42,7 +40,7 @@ struct AppFeature {
   @CasePathable
   enum ScopeAction {
     case login(LoginFeature.Action)
-    // case main(MainFeature.Action)
+    case main(MainCoordinator.Action)
   }
 
   @Dependency(\.continuousClock) var clock
@@ -62,6 +60,9 @@ struct AppFeature {
     .ifCaseLet(\.login, action: \.scope.login) {
       LoginFeature()
     }
+    .ifCaseLet(\.main, action: \.scope.main) {
+      MainCoordinator()
+    }
   }
 }
 
@@ -72,12 +73,11 @@ extension AppFeature {
   ) -> Effect<Action> {
     switch action {
     case .presentLogin:
-      // 지금은 이미 login 상태라서 아무 것도 안 해도 됨
+      state = .login(.init())
       return .none
 
     case .presentMain:
-      // 추후 main 탭 상태로 전환 로직 작성
-      // state = .main(MainFeature.State())
+      state = .main(.init())
       return .none
     }
   }
@@ -87,7 +87,14 @@ extension AppFeature {
     action: ScopeAction
   ) -> Effect<Action> {
     switch action {
+    case .login(.view(.loginSuccess)):
+      // 로그인 성공 시 메인 화면으로 전환
+      return .send(.view(.presentMain))
+
     case .login:
+      return .none
+
+    case .main:
       return .none
     }
   }

@@ -12,7 +12,7 @@ import ComposableArchitecture
 public struct TravelListFeature {
     public init() {}
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var travels: [Travel] = []
         var selectedTab: TravelTab = .ongoing
 
@@ -38,6 +38,7 @@ public struct TravelListFeature {
 
         case travelTabSelected(TravelTab)
 
+        case travelSelected(travelId: String)
         case createButtonTapped
         case create(PresentationAction<TravelCreateFeature.Action>)
     }
@@ -112,6 +113,9 @@ public struct TravelListFeature {
                 state.isLoading = false
                 state.isLoadingNextPage = false
                 state.uiError = error.localizedDescription
+                return .none
+                
+            case .travelSelected:
                 return .none
 
             case .createButtonTapped:
