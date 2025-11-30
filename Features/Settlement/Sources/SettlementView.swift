@@ -10,8 +10,9 @@ import Domain
 import ComposableArchitecture
 import DesignSystem
 
+@ViewAction(for: SettlementFeature.self)
 public struct SettlementView: View {
-    @Bindable var store: StoreOf<SettlementFeature>
+    @Bindable public var store: StoreOf<SettlementFeature>
 
     @State private var selectedTab: Int = 0 // 0: 지출 내역, 1: 정산 하기
 
@@ -42,7 +43,7 @@ public struct SettlementView: View {
                         myExpenseAmount: store.myExpenseAmount,
                         selectedDate: $store.selectedDate
                     )
-                    
+
                     // 지출 내역 리스트
                     ScrollView {
                         Group {
@@ -78,10 +79,19 @@ public struct SettlementView: View {
             }
             .scrollIndicators(.hidden)
         }
+        .overlay(alignment: .bottomTrailing) {
+            if selectedTab == 0 {
+                FloatingActionButton {
+                    send(.addExpenseButtonTapped)
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 20)
+            }
+        }
         .navigationTitle(store.travelTitle)
         .toolbarTitleDisplayMode(.inline)
         .onAppear {
-            store.send(.onAppear)
+            send(.onAppear)
         }
     }
 }
