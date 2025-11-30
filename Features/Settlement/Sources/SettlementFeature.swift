@@ -17,7 +17,7 @@ public struct SettlementFeature {
     public init() {}
 
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         public var currentExpense: [Expense] = []
         public var startDate: Date = Date()
         public var endDate: Date = Date()

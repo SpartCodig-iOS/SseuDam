@@ -15,7 +15,7 @@ public struct ExpenseFeature {
     @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
     
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var amount: String = ""
         var title: String = ""
         var expenseDate: Date = Date()
