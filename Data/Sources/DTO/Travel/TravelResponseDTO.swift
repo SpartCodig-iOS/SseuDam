@@ -23,3 +23,26 @@ public struct TravelResponseDTO: Decodable {
     let ownerName: String
     let members: [TravelMemberDTO]
 }
+
+extension TravelResponseDTO {
+    func toDomain() -> Travel {
+        let dateFormatter = DateFormatters.apiDate
+        let dateTimeFormatter = DateFormatters.apiDateTime
+
+        return Travel(
+            id: id,
+            title: title,
+            startDate: dateFormatter.date(from: startDate) ?? Date(),
+            endDate: dateFormatter.date(from: endDate) ?? Date(),
+            countryCode: countryCode,
+            baseCurrency: baseCurrency,
+            baseExchangeRate: baseExchangeRate,
+            inviteCode: inviteCode,
+            status: TravelStatus(rawValue: status) ?? .unknown,
+            role: role,
+            createdAt: dateTimeFormatter.date(from: createdAt) ?? Date(),
+            ownerName: ownerName,
+            members: members.map { $0.toDomain() }
+        )
+    }
+}

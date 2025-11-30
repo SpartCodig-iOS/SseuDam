@@ -75,11 +75,13 @@ public extension Project {
   static func makeFeature(
     name: FeatureName,
     dependencies: [TargetDependency] = [],
+    demoDependencies: [TargetDependency] = [],
     hasTests: Bool = false
   ) -> Project {
     return makeFeature(
       name: name.rawValue,
       dependencies: dependencies,
+      demoDependencies: demoDependencies,
       hasTests: hasTests
     )
   }
@@ -88,6 +90,7 @@ public extension Project {
   static func makeFeature(
     name: String,
     dependencies: [TargetDependency] = [],
+    demoDependencies: [TargetDependency] = [],
     hasTests: Bool = false
   ) -> Project {
     var targets: [Target] = [
@@ -113,7 +116,7 @@ public extension Project {
         resources: ["Demo/Resources/**"],
         dependencies: [
           .target(name: "\(name)Feature")
-        ]
+        ] + demoDependencies
       )
     ]
 
