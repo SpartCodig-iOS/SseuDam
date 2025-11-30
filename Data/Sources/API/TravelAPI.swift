@@ -15,6 +15,10 @@ public enum TravelAPI {
     case updateTravel(id: String, body: UpdateTravelRequestDTO)
     case deleteTravel(id: String)
     case fetchTravelDetail(id: String)
+    case deleteMember(travelId: String, memberId: String)
+    case joinTravel(body: JoinTravelRequestDTO)
+    case delegateOwner(travelId: String, body: DelegateOwnerRequestDTO)
+    case leaveTravel(travelId: String)
 }
 
 extension TravelAPI: BaseTargetType {
@@ -37,6 +41,14 @@ extension TravelAPI: BaseTargetType {
             return "/\(id)"
         case .fetchTravelDetail(let id):
             return "/\(id)"
+        case .deleteMember(let travelId, let memberId):
+            return "/\(travelId)/members/\(memberId)"
+        case .joinTravel:
+            return "/join"
+        case .delegateOwner(let travelId, _):
+            return "/\(travelId)/owner"
+        case .leaveTravel(let travelId):
+            return "/\(travelId)/leave"
         }
     }
 
@@ -47,6 +59,10 @@ extension TravelAPI: BaseTargetType {
         case .updateTravel: return .patch
         case .deleteTravel: return .delete
         case .fetchTravelDetail: return .get
+        case .deleteMember: return .delete
+        case .joinTravel: return .post
+        case .delegateOwner: return .patch
+        case .leaveTravel: return .delete
         }
     }
 
@@ -59,6 +75,14 @@ extension TravelAPI: BaseTargetType {
         case .updateTravel(_, let body):
             return body.toDictionary
         case .deleteTravel, .fetchTravelDetail:
+            return nil
+        case .deleteMember:
+            return nil
+        case .joinTravel(let body):
+            return body.toDictionary
+        case .delegateOwner(_, let body):
+            return body.toDictionary
+        case .leaveTravel:
             return nil
         }
     }
