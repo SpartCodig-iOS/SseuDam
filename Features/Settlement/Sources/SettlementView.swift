@@ -31,10 +31,11 @@ public struct SettlementView: View {
                     selectedTab = 1
                 }
             }
+            .padding(.horizontal, 16)
 
             // 컨텐츠 영역
-            Group {
-                if selectedTab == 0 {
+            if selectedTab == 0 {
+                VStack(spacing: 0) {
                     // 헤더
                     SettlementHeaderView(
                         totalAmount: store.totalAmount,
@@ -45,39 +46,32 @@ public struct SettlementView: View {
                     )
 
                     // 지출 내역 리스트
-                    ScrollView {
-                        Group {
-                            if !store.currentExpense.isEmpty {
-                                LazyVStack(spacing: 16) {
-                                    ForEach(store.currentExpense) { expense in
-                                        ExpenseCardView(expense: expense)
-                                    }
+                    if !store.currentExpense.isEmpty {
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                ForEach(store.currentExpense) { expense in
+                                    ExpenseCardView(expense: expense)
                                 }
-                                .padding(.vertical, 10)
-                            } else {
-                                VStack {
-                                    Spacer()
-                                    Text("지출이 없습니다.")
-                                        .foregroundStyle(.gray)
-                                    Spacer()
-                                }
-                                .frame(height: 300)
                             }
+                            .padding(.vertical, 10)
                         }
-                    }
-                } else {
-                    // 정산 하기 뷰 (아직 미구현)
-                    VStack {
+                        .scrollIndicators(.hidden)
+                    } else {
                         Spacer()
-                        Text("정산 하기 화면 준비 중")
+                        Text("지출이 없습니다.")
                             .foregroundStyle(.gray)
                         Spacer()
                     }
-                    .frame(height: 300)
-                    .frame(maxHeight: .infinity)
+                }
+            } else {
+                // 정산 하기 뷰 (아직 미구현)
+                VStack {
+                    Spacer()
+                    Text("정산 하기 화면 준비 중")
+                        .foregroundStyle(.gray)
+                    Spacer()
                 }
             }
-            .scrollIndicators(.hidden)
         }
         .overlay(alignment: .bottomTrailing) {
             if selectedTab == 0 {
