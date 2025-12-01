@@ -62,7 +62,10 @@ public struct ExpenseView: View {
             .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)
             
-            PrimaryButton(title: "저장") {
+            PrimaryButton(
+                title: "저장",
+                isEnabled: store.canSave
+            ) {
                 send(.saveButtonTapped)
             }
         }

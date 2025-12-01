@@ -13,6 +13,8 @@ import IdentifiedCollections
 @Reducer
 public struct ExpenseFeature {
     @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
+    @Dependency(\.createExpenseUseCase) var createExpenseUseCase
+    @Dependency(\.dismiss) var dismiss
     
     @ObservableState
     public struct State: Equatable, Hashable {
@@ -21,21 +23,40 @@ public struct ExpenseFeature {
         var expenseDate: Date = Date()
         var selectedCategory: ExpenseCategory? = nil
         let travelId: String
-        
+
         // Travel info
         var baseCurrency: String = ""
         var baseExchangeRate: Double = 1.0
         var convertedAmountKRW: String = ""
         var travelStartDate: Date?
         var travelEndDate: Date?
-        
+
         // ParticipantSelector Feature
         var participantSelector: ParticipantSelectorFeature.State
-        
+
         public init(_ travelId: String) {
             self.travelId = travelId
-            // Start with empty participants; will be filled after loading travel detail
             self.participantSelector = ParticipantSelectorFeature.State(availableParticipants: [])
+        }
+
+        // 저장 버튼 활성화 조건
+        var canSave: Bool {
+            // 1. 제목이 비어있지 않아야 함
+            guard !title.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
+
+            // 2. 금액이 0보다 커야 함
+            guard let amountValue = Double(amount), amountValue > 0 else { return false }
+
+            // 3. 카테고리가 선택되어야 함
+            guard selectedCategory != nil else { return false }
+
+            // 4. 결제자가 선택되어야 함
+            guard participantSelector.payer != nil else { return false }
+
+            // 5. 참여자가 1명 이상이어야 함
+            guard !participantSelector.participants.isEmpty else { return false }
+
+            return true
         }
     }
     
@@ -46,6 +67,7 @@ public struct ExpenseFeature {
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
+        case delegate(DelegateAction)
         
         @CasePathable
         public enum ViewAction {
@@ -56,7 +78,7 @@ public struct ExpenseFeature {
         @CasePathable
         public enum InnerAction {
             case loadTravelDetailResponse(Result<Travel, Error>)
-            case saveExpenseResponse(Result<Travel, Error>)
+            case saveExpenseResponse(Result<Void, Error>)
         }
         
         @CasePathable
@@ -68,6 +90,11 @@ public struct ExpenseFeature {
         @CasePathable
         public enum ScopeAction {
             case participantSelector(ParticipantSelectorFeature.Action)
+        }
+        
+        @CasePathable
+        public enum DelegateAction {
+            case finishSaveExpense
         }
     }
     
@@ -87,14 +114,6 @@ public struct ExpenseFeature {
                 print("금액 변경됨: \(state.amount)")
                 recalculateConvertedAmount(&state)
                 return .none
-                
-            case .binding(\.selectedCategory):
-                // 카테고리 변경 시 추가 로직
-                if let category = state.selectedCategory {
-                    print("카테고리 선택됨: \(category.displayName)")
-                }
-                return .none
-                
             case .binding:
                 // 다른 바인딩 변경은 BindingReducer가 자동 처리
                 return .none
@@ -106,6 +125,8 @@ public struct ExpenseFeature {
             case .async(let asyncAction):
                 return handleAsyncAction(state: &state, action: asyncAction)
             case .scope:
+                return .none
+            case .delegate:
                 return .none
             }
         }
@@ -142,8 +163,7 @@ extension ExpenseFeature {
             return .none
             
         case .saveExpenseResponse(.success):
-            // TODO: 성공 처리 (화면 닫기, 토스트 표시 등)
-            return .none
+            return .send(.delegate(.finishSaveExpense))
             
         case .saveExpenseResponse(.failure(let error)):
             // TODO: 에러 처리 (알림 표시 등)
@@ -165,10 +185,28 @@ extension ExpenseFeature {
                     }
                 }
             case .saveExpense:
+                guard let category = state.selectedCategory,
+                      let payer = state.participantSelector.payer,
+                      let amountValue = Double(state.amount) else {
+                    return .none
+                }
+
+                let input = CreateExpenseInput(
+                    title: state.title,
+                    amount: amountValue,
+                    currency: state.baseCurrency,
+                    convertedAmount: state.baseCurrency == "KRW" ? amountValue : amountValue * state.baseExchangeRate,
+                    expenseDate: state.expenseDate,
+                    category: category,
+                    payerId: payer.id,
+                    payerName: payer.name,
+                    participants: Array(state.participantSelector.participants)
+                )
+
                 return .run { [travelId = state.travelId] send in
                     do {
-                        let detail = try await fetchTravelDetailUseCase.execute(id: travelId)
-                        await send(.inner(.saveExpenseResponse(.success(detail))))
+                        try await createExpenseUseCase.execute(travelId: travelId, input: input)
+                        await send(.inner(.saveExpenseResponse(.success(()))))
                     } catch {
                         await send(.inner(.saveExpenseResponse(.failure(error))))
                     }
