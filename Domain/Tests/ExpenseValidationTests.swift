@@ -26,7 +26,7 @@ struct ExpenseValidationTests {
             payerId: "user1",
             payerName: "홍석현",
             participants: [
-                Expense.Participant(memberId: "user1", name: "홍석현")
+                TravelMember(id: "user1", name: "홍석현", role: "owner")
             ]
         )
         
@@ -49,7 +49,7 @@ struct ExpenseValidationTests {
             payerId: "user1",
             payerName: "홍석현",
             participants: [
-                Expense.Participant(memberId: "user1", name: "홍석현")
+                TravelMember(id: "user1", name: "홍석현", role: "owner")
             ]
         )
 
@@ -74,7 +74,7 @@ struct ExpenseValidationTests {
             payerId: "user1",
             payerName: "홍석현",
             participants: [
-                Expense.Participant(memberId: "user1", name: "홍석현")
+                TravelMember(id: "user1", name: "홍석현", role: "owner")
             ]
         )
         
@@ -118,8 +118,8 @@ struct ExpenseValidationTests {
             payerId: "user1",  // ❌ 참가자 목록에 없음
             payerName: "홍석현",
             participants: [
-                Expense.Participant(memberId: "user2", name: "김철수"),
-                Expense.Participant(memberId: "user3", name: "이영희")
+                TravelMember(id: "user2", name: "김철수", role: "member"),
+                TravelMember(id: "user3", name: "이영희", role: "member")
             ]
         )
         
@@ -142,8 +142,8 @@ struct ExpenseValidationTests {
             payerId: "user1",
             payerName: "홍석현",
             participants: [
-                Expense.Participant(memberId: "user1", name: "홍석현"),
-                Expense.Participant(memberId: "user2", name: "김철수")
+                TravelMember(id: "user1", name: "홍석현", role: "owner"),
+                TravelMember(id: "user2", name: "김철수", role: "member")
             ]
         )
         

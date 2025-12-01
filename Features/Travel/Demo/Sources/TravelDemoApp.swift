@@ -28,7 +28,8 @@ struct TravelDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                TravelView(store: store)
+//                TravelView(store: store)
+                TravelSettingView()
             }
         }
     }

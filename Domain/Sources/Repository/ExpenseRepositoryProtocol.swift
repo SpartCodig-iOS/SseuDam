@@ -8,10 +8,12 @@
 import Foundation
 
 public protocol ExpenseRepositoryProtocol {
+    // 여행의 지출 내역 조회
+    func fetchTravelExpenses(travelId: String, page: Int, limit: Int) async throws -> [Expense]
+
     // 지출 내역 저장
-    func save(expense: Expense) async throws
-    
+    func save(travelId: String, expense: Expense) async throws
+
     // 지출 내역 수정
-    func update(expense: Expense) async throws
-    
+    func update(travelId: String, expense: Expense) async throws
 }
