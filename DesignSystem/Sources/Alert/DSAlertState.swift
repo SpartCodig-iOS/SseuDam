@@ -2,30 +2,43 @@
 //  DSAlertState.swift
 //  DesignSystem
 //
-//  Created by Wonji Suh  on 11/29/25.
+//  Created by Wonji Suh on 12/01/25.
 //
 
 import SwiftUI
-import ComposableArchitecture
 
 public struct DSAlertState<Action: Equatable>: Equatable, Identifiable {
-  public let id: UUID
-  public let title: String
-  public let message: String
-  public let primaryButton: DSAlertButton<Action>
-  public let secondaryButton: DSAlertButton<Action>
+    public struct ButtonAction: Equatable {
+        public let title: String
+        public let role: ButtonRole?
+        public let action: Action
 
-  public init(
-    id: UUID = UUID(),
-    title: String,
-    message: String,
-    primaryButton: DSAlertButton<Action>,
-    secondaryButton: DSAlertButton<Action>
-  ) {
-    self.id = id
-    self.title = title
-    self.message = message
-    self.primaryButton = primaryButton
-    self.secondaryButton = secondaryButton
-  }
+        public init(
+            title: String,
+            role: ButtonRole? = nil,
+            action: Action
+        ) {
+            self.title = title
+            self.role = role
+            self.action = action
+        }
+    }
+
+    public let id = UUID()
+    public let title: String
+    public let message: String
+    public let primary: ButtonAction
+    public let secondary: ButtonAction?
+
+    public init(
+        title: String,
+        message: String,
+        primary: ButtonAction,
+        secondary: ButtonAction? = nil
+    ) {
+        self.title = title
+        self.message = message
+        self.primary = primary
+        self.secondary = secondary
+    }
 }
