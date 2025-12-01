@@ -20,27 +20,19 @@ public struct ProfileView: View {
     public var body: some View {
         ZStack {
             if store.isLoadingProfile {
-                Color.primary50.ignoresSafeArea()
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(.appBlack)
-                    .scaleEffect(1.2)
+                ProfileSkeletonView()
             } else {
                 VStack {
-
 
                     navigationHeader()
 
                     profileHeader()
 
-                    accountSettingsSection()
+                    termsSection()
 
-                    Spacer()
+                  accountSection()
 
-                    signOutButton()
-
-                    Spacer()
-                        .frame(height: 43)
+                  Spacer()
 
                 }
                 .navigationBarBackButtonHidden(true)
@@ -136,27 +128,27 @@ extension ProfileView {
     }
 
     @ViewBuilder
-    fileprivate func accountSettingsSection() -> some View {
+    fileprivate func termsSection() -> some View {
         VStack(alignment: .leading) {
             Spacer()
-                .frame(height: 8)
+                .frame(height: 16)
 
             HStack {
 
-                Text("계정관리")
-                    .font(.app(.title3, weight: .medium))
+                Text("이용약관")
+                    .font(.app(.title3, weight: .semibold))
                     .foregroundStyle(.appBlack)
 
                 Spacer()
             }
 
             Spacer()
-                .frame(height: 19)
+                .frame(height: 10)
 
             VStack {
                 SettingRow(
-                    image: .terms,
-                    title: "이용약관",
+                    image: .lock,
+                    title: "개인정보 처리 방침",
                     showArrow: true,
                     action: {},
                     tapTermAction: {}
@@ -167,9 +159,9 @@ extension ProfileView {
                     .frame(height: 1)
 
                 SettingRow(
-                    image: .userDelete,
-                    title: "회원탈퇴",
-                    showArrow: false,
+                    image: .list,
+                    title: "서비스 이용",
+                    showArrow: true,
                     action: {},
                     tapTermAction: {}
                 )
@@ -183,25 +175,55 @@ extension ProfileView {
         .padding(.horizontal, 16)
     }
 
-    @ViewBuilder
-    fileprivate func signOutButton() -> some View {
-        HStack(alignment: .center) {
-            Image(asset: .signOut)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 15, height: 15)
+  @ViewBuilder
+  fileprivate func accountSection() -> some View {
+      VStack(alignment: .leading) {
+          Spacer()
+              .frame(height: 20)
 
-            Spacer()
-                .frame(width: 8)
+          HStack {
 
-            Text("로그아웃")
-                .font(.app(.body))
-                .foregroundStyle(.error)
-                .onTapGesture {
+              Text("계정관리")
+                  .font(.app(.title3, weight: .semibold))
+                  .foregroundStyle(.appBlack)
+
+              Spacer()
+          }
+
+          Spacer()
+              .frame(height: 10)
+
+          VStack {
+              SettingRow(
+                  image: .signOut,
+                  title: "로그아웃",
+                  showArrow: false,
+                  action: {
                     store.send(.async(.logout))
-                }
-        }
-    }
+                  },
+                  tapTermAction: {}
+              )
+
+              Divider()
+                  .background(.gray1)
+                  .frame(height: 1)
+
+              SettingRow(
+                  image: .userDelete,
+                  title: "회원탈퇴",
+                  showArrow: false,
+                  action: {},
+                  tapTermAction: {}
+              )
+
+          }
+          .padding(.horizontal, 16)
+          .background(.white)
+          .cornerRadius(8)
+          .shadow(color: .shadow ,radius: 5, x: 2, y: 2)
+      }
+      .padding(.horizontal, 16)
+  }
 
 }
 

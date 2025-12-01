@@ -16,5 +16,7 @@ public enum ImageAsset: String {
     case signOut
     case terms
     case chevronRight
+    case list
+    case lock
     case none
 }
