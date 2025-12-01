@@ -22,6 +22,8 @@ extension ExchangeRateAPI: BaseTargetType {
         return .meta
     }
 
+  public var requiresAuthorization: Bool { false }
+
     public var urlPath: String {
         return "/exchange-rate"
     }
