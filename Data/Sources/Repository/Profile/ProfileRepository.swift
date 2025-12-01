@@ -13,7 +13,7 @@ import NetworkService
 final public class ProfileRepository: ProfileRepositoryProtocol {
   private let provider: MoyaProvider<ProfileTarget>
 
-  public init(provider: MoyaProvider<ProfileTarget> = MoyaProvider<ProfileTarget>.withSession(AuthInterceptor.shared)) {
+  public init(provider: MoyaProvider<ProfileTarget> = MoyaProvider<ProfileTarget>.authorized) {
     self.provider = provider
   }
 

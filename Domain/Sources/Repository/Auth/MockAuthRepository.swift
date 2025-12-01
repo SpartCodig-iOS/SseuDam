@@ -9,6 +9,7 @@ import Foundation
 
 public actor MockAuthRepository: AuthRepositoryProtocol {
 
+
   // 테스트 시나리오를 위한 설정
   public var shouldThrowError: Bool = false
   public var errorToThrow: Error?
@@ -87,6 +88,20 @@ public actor MockAuthRepository: AuthRepositoryProtocol {
       sessionID: sessionID
     )
     mockTokenResult = TokenResult(token: tokens)
+  }
+
+  public func logout(
+    sessionId: String
+  ) async throws -> LogoutStatus {
+    if delay > 0 {
+      try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+    }
+
+    if shouldThrowError {
+      throw errorToThrow ?? MockAuthError.networkError
+    }
+
+    return LogoutStatus(revoked: true)
   }
 }
 

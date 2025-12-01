@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-struct CreateExpenseRequestDTO: Encodable {
+public struct CreateExpenseRequestDTO: Encodable {
     let title: String
     let note: String?
     let amount: Double
