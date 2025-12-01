@@ -9,6 +9,7 @@
 import SwiftUI
 import DesignSystem
 import ComposableArchitecture
+import PhotosUI
 
 public struct ProfileView: View {
   @Bindable var store: StoreOf<ProfileFeature>
@@ -17,28 +18,76 @@ public struct ProfileView: View {
   }
 
   public var body: some View {
-    ScrollView {
-      VStack(spacing: 24) {
-        profileHeaderView()
+    VStack {
+      
 
-        Text("Profile Feature")
-          .font(.title)
-          .fontWeight(.bold)
-          .foregroundStyle(.primary700)
-      }
-      .frame(maxWidth: .infinity)
-      .padding(.vertical, 32)
+      navigationHeader()
+
+      profileHeader()
+
+      accountSettingsSection()
+
+      Spacer()
+
     }
-    .padding(.horizontal, 24)
+    .background(.primary50)
+    .padding(.horizontal, 16)
+    .photosPicker(
+      isPresented: $store.isPhotoPickerPresented,
+      selection: $store.selectedPhotoItem,
+      matching: .images,
+      photoLibrary: .shared()
+    )
+    .onChange(of: store.selectedPhotoItem) { newItem, oldValue in
+      guard let newItem else { return }
+
+      Task { @MainActor in
+        if let data = try? await newItem.loadTransferable(type: Data.self) {
+          store.send(.view(.profileImageSelected(data)))
+        } else {
+          store.send(.view(.profileImageSelected(nil)))
+        }
+      }
+    }
   }
 }
 
 extension ProfileView {
-  fileprivate func profileHeaderView() -> some View {
+  @ViewBuilder
+  fileprivate func navigationHeader() -> some View {
     VStack {
-      EditProfileImage() {
-        store.send(.view(.editProfileImageTapped))
+      Spacer()
+        .frame(height: 20)
+
+      HStack {
+        Image(assetName: "chevronLeft")
+          .resizable()
+          .scaledToFit()
+          .frame(height: 24)
+          .foregroundColor(.appBlack)
+
+        Text("프로필")
+          .font(.app(.title1, weight: .semibold))
+          .foregroundStyle(.appBlack)
+
+        Spacer()
       }
+      .onTapGesture {
+        store.send(.delegate(.backToTravel))
+      }
+    }
+  }
+
+  @ViewBuilder
+  fileprivate func profileHeader() -> some View {
+    VStack {
+      Spacer()
+        .frame(height: 20)
+
+      EditProfileImage() {
+        store.send(.view(.photoPickerButtonTapped))
+      }
+      .buttonStyle(.plain)
 
       Spacer()
         .frame(height: 16)
@@ -54,9 +103,63 @@ extension ProfileView {
         .font(.app(.body, weight: .medium))
         .foregroundStyle(.gray6)
 
+      Spacer()
+        .frame(height: 20)
+
+      Divider()
+        .frame(height: 1)
+        .background(.gray2)
 
     }
   }
+
+  @ViewBuilder
+  fileprivate func accountSettingsSection() -> some View {
+    VStack(alignment: .leading) {
+      Spacer()
+        .frame(height: 8)
+
+      HStack {
+
+        Text("계정관리")
+          .font(.app(.title3, weight: .medium))
+          .foregroundStyle(.appBlack)
+
+        Spacer()
+      }
+
+      Spacer()
+        .frame(height: 19)
+
+      VStack {
+        SettingRow(
+          image: .terms,
+          title: "이용약관",
+          showArrow: true,
+          action: {},
+          tapTermAction: {}
+        )
+
+        Divider()
+          .background(.gray1)
+          .frame(height: 1)
+
+        SettingRow(
+          image: .signOut,
+          title: "회원탈퇴",
+          showArrow: false,
+          action: {},
+          tapTermAction: {}
+        )
+
+      }
+      .padding(.horizontal, 16)
+      .background(.white)
+      .cornerRadius(8)
+      .shadow(color: .shadow ,radius: 5, x: 2, y: 2)
+    }
+  }
+
 }
 
 #Preview {

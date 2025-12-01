@@ -7,7 +7,8 @@
 
 import Foundation
 import ComposableArchitecture
-
+import SwiftUI
+import PhotosUI
 
 @Reducer
 public struct ProfileFeature {
@@ -15,8 +16,13 @@ public struct ProfileFeature {
 
   @ObservableState
   public struct State: Equatable {
+     var profileImageData: Data?
+     var isPhotoPickerPresented = false
+     var selectedPhotoItem: PhotosPickerItem?
 
-    public init() {}
+    public init(profileImageData: Data? = nil) {
+      self.profileImageData = profileImageData
+    }
   }
 
   public enum Action: ViewAction, BindableAction {
@@ -24,14 +30,15 @@ public struct ProfileFeature {
     case view(View)
     case async(AsyncAction)
     case inner(InnerAction)
-    case navigation(NavigationAction)
+    case delegate(DelegateAction)
 
   }
 
   //MARK: - ViewAction
   @CasePathable
   public enum View {
-    case editProfileImageTapped
+    case photoPickerButtonTapped
+    case profileImageSelected(Data?)
   }
 
 
@@ -46,8 +53,8 @@ public struct ProfileFeature {
   }
 
   //MARK: - NavigationAction
-  public enum NavigationAction: Equatable {
-
+  public enum DelegateAction: Equatable {
+    case backToTravel
 
   }
 
@@ -68,8 +75,8 @@ public struct ProfileFeature {
         case .inner(let innerAction):
           return handleInnerAction(state: &state, action: innerAction)
 
-        case .navigation(let navigationAction):
-          return handleNavigationAction(state: &state, action: navigationAction)
+        case .delegate(let navigationAction):
+          return handleDelegateAction(state: &state, action: navigationAction)
       }
     }
   }
@@ -81,7 +88,13 @@ extension ProfileFeature {
     action: View
   ) -> Effect<Action> {
     switch action {
-      case .editProfileImageTapped:
+      case .photoPickerButtonTapped:
+        state.isPhotoPickerPresented = true
+        return .none
+
+      case let .profileImageSelected(data):
+        state.profileImageData = data
+        state.isPhotoPickerPresented = false
         return .none
     }
   }
@@ -95,12 +108,13 @@ extension ProfileFeature {
     }
   }
 
-  private func handleNavigationAction(
+  private func handleDelegateAction(
     state: inout State,
-    action: NavigationAction
+    action: DelegateAction
   ) -> Effect<Action> {
     switch action {
-
+      case .backToTravel:
+        return .none
     }
   }
 
@@ -112,4 +126,5 @@ extension ProfileFeature {
 
     }
   }
+
 }

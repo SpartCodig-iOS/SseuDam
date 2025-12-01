@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 public struct EditProfileImage: View {
   private let size: CGFloat
@@ -47,7 +48,6 @@ public struct EditProfileImage: View {
         .foregroundStyle(.primary500)
 
       editBadge()
-
     }
     .frame(width: size, height: size)
     .clipShape(Circle())
