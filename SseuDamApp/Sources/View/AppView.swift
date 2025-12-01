@@ -9,21 +9,25 @@ import SwiftUI
 import ComposableArchitecture
 import LoginFeature
 import MainFeature
+import SplashFeature
 
 struct AppView: View {
     var store: StoreOf<AppFeature>
-
+    
     var body: some View {
         SwitchStore(store) { state in
             switch state {
             case .login:
                 if let store = store.scope(state: \.login, action: \.scope.login) {
-                    LoginView(store: store)
+                    LoginCoordinatorView(store: store)
                 }
-
             case .main:
                 if let store = store.scope(state: \.main, action: \.scope.main) {
                     MainCoordinatorView(store: store)
+                }
+            case .splash:
+                if let store = store.scope(state: \.splash, action: \.scope.splash) {
+                    SplashView(store: store)
                 }
             }
         }

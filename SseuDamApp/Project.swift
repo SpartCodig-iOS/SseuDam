@@ -6,6 +6,7 @@ let project = Project.makeApp(
     dependencies: [
         .Features.Login,
         .Features.Main,
+        .Features.Splash,
         .Data
     ],
     infoPlist: .defaultSwiftUIApp,

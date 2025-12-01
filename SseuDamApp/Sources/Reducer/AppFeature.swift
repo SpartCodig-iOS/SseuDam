@@ -8,93 +8,150 @@
 import ComposableArchitecture
 import LoginFeature
 import MainFeature
+import SplashFeature
 
 @Reducer
 struct AppFeature {
-
-  // MARK: - State
-
-  @ObservableState
-  enum State: Equatable {
-    case login(LoginFeature.State)
-    case main(MainCoordinator.State)
-
-    init() {
-      self = .main(.init())
+    
+    // MARK: - State
+    
+    @ObservableState
+    enum State: Equatable {
+        case login(LoginCoordinator.State)
+        case splash(SplashFeature.State)
+        case main(MainCoordinator.State)
+        
+        init() {
+            self = .splash(.init())
+        }
     }
-  }
-
-  // MARK: - Action
-
-  enum Action: ViewAction {
-    case view(View)
-    case scope(ScopeAction)
-  }
-
-  @CasePathable
-  enum View {
-    case presentLogin
-    case presentMain
-  }
-
-  @CasePathable
-  enum ScopeAction {
-    case login(LoginFeature.Action)
-    case main(MainCoordinator.Action)
-  }
-
-  // MARK: - body
-
-  var body: some ReducerOf<Self> {
-    Reduce { state, action in
-      switch action {
-      case .view(let viewAction):
-        return handleViewAction(&state, action: viewAction)
-
-      case .scope(let scopeAction):
-        return handleScopeAction(&state, action: scopeAction)
-      }
+    
+    // MARK: - Action
+    
+    enum Action: ViewAction {
+        case view(View)
+        case inner(InnerAction)
+        case scope(ScopeAction)
     }
-    .ifCaseLet(\.login, action: \.scope.login) {
-      LoginFeature()
+    
+    @CasePathable
+    enum View {
+        case presentLogin
+        case presentMain
     }
-    .ifCaseLet(\.main, action: \.scope.main) {
-      MainCoordinator()
+    
+    enum InnerAction {
+        case setLoginState
+        case setMainState
     }
-  }
+    
+    @CasePathable
+    enum ScopeAction {
+        case login(LoginCoordinator.Action)
+        case splash(SplashFeature.Action)
+        case main(MainCoordinator.Action)
+    }
+    
+    nonisolated enum CancelID: Hashable {
+        case transitionToLogin
+        case transitionToMain
+    }
+    
+    // MARK: - body
+    
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .view(let viewAction):
+                return handleViewAction(&state, action: viewAction)
+                
+            case .inner(let innerAction):
+                return handleInnerAction(&state, action: innerAction)
+                
+            case .scope(let scopeAction):
+                return handleScopeAction(&state, action: scopeAction)
+            }
+        }
+        .ifCaseLet(\.login, action: \.scope.login) {
+            LoginCoordinator()
+        }
+        .ifCaseLet(\.splash, action: \.scope.splash) {
+            SplashFeature()
+        }
+        .ifCaseLet(\.main, action: \.scope.main) {
+            MainCoordinator()
+        }
+    }
 }
 
 extension AppFeature {
-  func handleViewAction(
-    _ state: inout State,
-    action: View
-  ) -> Effect<Action> {
-    switch action {
-    case .presentLogin:
-      state = .login(.init())
-      return .none
-
-    case .presentMain:
-      state = .main(.init())
-      return .none
+    func handleViewAction(
+        _ state: inout State,
+        action: View
+    ) -> Effect<Action> {
+        switch action {
+        case .presentLogin:
+            return .concatenate(
+                .merge(
+                    .cancel(id: CancelID.transitionToLogin),
+                    .cancel(id: CancelID.transitionToMain)
+                ),
+                .send(.inner(.setLoginState))
+            )
+            
+        case .presentMain:
+            return .concatenate(
+                .merge(
+                    .cancel(id: CancelID.transitionToLogin),
+                    .cancel(id: CancelID.transitionToMain)
+                ),
+                .send(.inner(.setMainState))
+            )
+        }
     }
-  }
-
-  func handleScopeAction(
-    _ state: inout State,
-    action: ScopeAction
-  ) -> Effect<Action> {
-    switch action {
-    case .login(.delegate(.presentTravelList)):
-      // 로그인 성공 시 메인 화면으로 전환
-      return .send(.view(.presentMain))
-
-    case .login:
-      return .none
-
-    case .main:
-      return .none
+    
+    func handleInnerAction(
+        _ state: inout State,
+        action: InnerAction
+    ) -> Effect<Action> {
+        switch action {
+        case .setLoginState:
+            state = .login(.init())
+            return .none
+            
+        case .setMainState:
+            state = .main(.init())
+            return .none
+        }
     }
-  }
+    
+    func handleScopeAction(
+        _ state: inout State,
+        action: ScopeAction
+    ) -> Effect<Action> {
+        switch action {
+        case .main:
+            return .none
+        case .splash(.delegate(.presentLogin)):
+            return .run { send in
+                await send(.view(.presentLogin))
+            }
+            .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+            
+        case .splash(.delegate(.presentMain)):
+            return .run { send in
+                await send(.view(.presentMain), animation: .easeIn)
+            }
+            .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+            
+        case .login(.delegate(.presentMain)):
+            return .run { send in
+                await send(.view(.presentMain), animation: .easeIn)
+            }
+            .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+        default:
+            return .none
+        }
+    }
 }
 

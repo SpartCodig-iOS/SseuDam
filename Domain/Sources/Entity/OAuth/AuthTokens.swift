@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct AuthTokens: Equatable {
+public struct AuthTokens: Equatable, Hashable {
   public var authToken: String
   public let accessToken: String
   public let refreshToken: String?

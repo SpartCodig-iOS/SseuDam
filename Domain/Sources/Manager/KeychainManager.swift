@@ -59,6 +59,8 @@ public struct KeychainManager {
     } else {
       deleteRefreshToken()
     }
+
+    NotificationCenter.default.post(name: .tokensDidUpdate, object: nil)
   }
 
   /// 둘 다 한 번에 불러오기
@@ -70,6 +72,7 @@ public struct KeychainManager {
   public func clearAll() {
     deleteAccessToken()
     deleteRefreshToken()
+    NotificationCenter.default.post(name: .tokensDidClear, object: nil)
   }
 
   // MARK: - Private helpers
@@ -132,4 +135,9 @@ public struct KeychainManager {
       Log.info("Keychain: Failed to delete token for key \(key.rawValue), status: \(status)")
     }
   }
+}
+
+public extension Notification.Name {
+  static let tokensDidUpdate = Notification.Name("tokensDidUpdate")
+  static let tokensDidClear = Notification.Name("tokensDidClear")
 }

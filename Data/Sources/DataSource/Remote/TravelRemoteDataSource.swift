@@ -15,12 +15,16 @@ public protocol TravelRemoteDataSourceProtocol {
     func updateTravel(id: String, body: UpdateTravelRequestDTO) async throws -> TravelDTO
     func deleteTravel(id: String) async throws
     func fetchTravelDetail(id: String) async throws -> TravelDTO
+    func deleteMember(travelId: String, memberId: String) async throws
+    func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelDTO
+    func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelDTO
+    func leaveTravel(travelId: String) async throws
 }
 
 public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
     private let provider: MoyaProvider<TravelAPI> 
 
-    public init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>.default) {
+    public init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>.authorized) {
         self.provider = provider
     }
 
@@ -65,8 +69,7 @@ public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
     }
 
     public func deleteTravel(id: String) async throws {
-        let _: BaseResponse<EmptyDTO> =
-        try await provider.request(.deleteTravel(id: id))
+        let _: BaseResponse<EmptyDTO> = try await provider.request(.deleteTravel(id: id))
     }
     
     public func fetchTravelDetail(id: String) async throws -> TravelDTO {
@@ -79,5 +82,20 @@ public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
         
         return data
     }
-}
 
+    public func deleteMember(travelId: String, memberId: String) async throws {
+        let _: BaseResponse<EmptyDTO> = try await provider.request(.deleteMember(travelId: travelId, memberId: memberId))
+    }
+
+    public func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelDTO {
+        try await provider.request(.joinTravel(body: body))
+    }
+
+    public func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelDTO {
+        try await provider.request(.delegateOwner(travelId: travelId, body: body))
+    }
+
+    public func leaveTravel(travelId: String) async throws {
+        let _: BaseResponse<EmptyDTO> = try await provider.request(.leaveTravel(travelId: travelId))
+    }
+}

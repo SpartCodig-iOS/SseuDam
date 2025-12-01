@@ -15,39 +15,36 @@ import Domain
 
 public struct LoginView: View {
     @Bindable var store: StoreOf<LoginFeature>
-
+    
     public init(
         store: StoreOf<LoginFeature>
     ) {
         self.store = store
     }
-
+    
     public var body: some View {
-        ZStack {
-            VStack {
-
-                loginLogoText()
-
-                Spacer()
-
-                loginSocialButton()
-
-                Spacer()
-                    .frame(height: 58)
-
-            }
-            .background(.primary50)
-            .presentDSModal(
-                item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService),
-                height: .fraction(0.36),
-                showDragIndicator: false
-            ) { termServiceStore in
-                TermsAgreementView(store: termServiceStore)
-            }
-            .onAppear {
-                store.send(.view(.onAppear))
-            }
+        VStack {
+            
+            loginLogoText()
+            
+            Spacer()
+            
+            loginSocialButton()
+            
+            Spacer()
+                .frame(height: 58)
+            
         }
+        .background(.primary50)
+        .presentDSModal(
+            item: $store.scope(state: \.destination?.termsService, action: \.destination.termsService),
+            height: .fraction(0.36),
+            showDragIndicator: false
+        ) { termServiceStore in
+            TermsAgreementView(store: termServiceStore)
+        }
+        
+        .toastOverlay()
     }
 }
 
@@ -55,54 +52,54 @@ public struct LoginView: View {
 extension LoginView {
     var socialButtonSize: CGFloat { 44 }
     var socialButtonSpacing: CGFloat { 24 }
-
+    
     @ViewBuilder
     private func loginLogoText() -> some View {
         VStack(alignment: .leading) {
             Spacer()
                 .frame(height: 105)
-
+            
             HStack {
-              Image(asset: .logo)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 100, height: 45)
-
+                Image(asset: .logo)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 45)
+                
                 Spacer()
             }
-
+            
             Spacer()
                 .frame(height: 34)
-
+            
             VStack(spacing: 11) {
                 HStack {
                     Text("쓰담에 오신것을 환영합니다")
                         .font(.app(.largeTitle, weight: .semibold))
                         .foregroundStyle(.black)
-
+                    
                     Spacer()
                 }
-
+                
                 HStack(spacing: .zero) {
                     Text("쓰담")
                         .font(.app(.body, weight: .regular))
                         .foregroundStyle(.primary500)
-
+                    
                     Text("에서 공금 정산을 빠르고 쉽게 확인해보세요")
                         .font(.app(.body, weight: .regular))
                         .foregroundStyle(.black)
-
+                    
                     Spacer()
-
+                    
                 }
-
+                
             }
-
+            
         }
         .padding(.horizontal, 20)
     }
-
-
+    
+    
     @ViewBuilder
     private func loginSocialButton() -> some View {
         VStack(spacing: 12) {
@@ -116,8 +113,8 @@ extension LoginView {
                     }
                 }
             }
-
-            if let recentSocial = store.sessionResult?.provider, recentSocial != .none {
+            
+            if let recentSocial = store.socialType, recentSocial != .none {
                 RecentLoginTooltip(
                     socialType: recentSocial,
                     isVisible: true,
