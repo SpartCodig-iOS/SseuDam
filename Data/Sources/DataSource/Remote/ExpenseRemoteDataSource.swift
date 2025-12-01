@@ -19,7 +19,7 @@ public struct ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
 
     private let provider: MoyaProvider<ExpenseAPI>
 
-    init(provider: MoyaProvider<ExpenseAPI> = MoyaProvider<ExpenseAPI>()) {
+    public init(provider: MoyaProvider<ExpenseAPI> = MoyaProvider<ExpenseAPI>()) {
         self.provider = provider
     }
 

@@ -10,29 +10,11 @@ import Domain
 
 public struct CreateExpenseRequestDTO: Encodable {
     let title: String
-    let note: String?
     let amount: Double
     let currency: String
     let expenseDate: String
     let category: String
     let participantIds: [String]
-
-    var toDictionary: [String: Any] {
-        var dict: [String: Any] = [
-            "title": title,
-            "amount": amount,
-            "currency": currency,
-            "expenseDate": expenseDate,
-            "category": category,
-            "participantIds": participantIds
-        ]
-        
-        if let note = note {
-            dict["note"] = note
-        }
-        
-        return dict
-    }
 }
 
 extension Expense {
@@ -43,7 +25,6 @@ extension Expense {
         
         return CreateExpenseRequestDTO(
             title: title,
-            note: note,
             amount: amount,
             currency: currency,
             expenseDate: dateString,
