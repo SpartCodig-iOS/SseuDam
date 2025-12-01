@@ -21,29 +21,13 @@ public struct SettlementCoordinatorView: View {
 
     public var body: some View {
         TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-            SwitchStore(screen) { state in
-                switch state {
-                case .settlement:
-                    CaseLet(
-                        /SettlementScreen.State.settlement,
-                        action: SettlementScreen.Action.settlement,
-                        then: SettlementView.init(store:)
-                    )
-
-                case .expense:
-                    CaseLet(
-                        /SettlementScreen.State.expense,
-                        action: SettlementScreen.Action.expense,
-                        then: ExpenseView.init(store:)
-                    )
-
-                case .travelDetail:
-                    CaseLet(
-                        /SettlementScreen.State.travelDetail,
-                        action: SettlementScreen.Action.travelDetail,
-                        then: CreateTravelView.init(store:)
-                    )
-                }
+            switch screen.case {
+            case .expense(let store):
+                ExpenseView(store: store)
+            case .settlement(let store):
+                SettlementView(store: store)
+            case .travelDetail(let store):
+                CreateTravelView(store: store)
             }
         }
     }
