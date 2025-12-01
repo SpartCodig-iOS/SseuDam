@@ -7,6 +7,5 @@
 
 import Foundation
 
-public protocol AuthUseCaseProtocol {
-  func refresh() async throws  -> TokenResult
-}
+/// Reserved for future logout / withdrawal flows.
+public protocol AuthUseCaseProtocol {}

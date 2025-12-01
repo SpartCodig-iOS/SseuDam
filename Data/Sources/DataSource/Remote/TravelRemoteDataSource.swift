@@ -19,7 +19,7 @@ public protocol TravelRemoteDataSourceProtocol {
 public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
     private let provider: MoyaProvider<TravelAPI> 
 
-    public init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>.default) {
+    public init(provider: MoyaProvider<TravelAPI> = MoyaProvider<TravelAPI>.authorized) {
         self.provider = provider
     }
 
@@ -65,4 +65,3 @@ public final class TravelRemoteDataSource: TravelRemoteDataSourceProtocol {
         try await provider.request(.deleteTravel(id: id))
     }
 }
-

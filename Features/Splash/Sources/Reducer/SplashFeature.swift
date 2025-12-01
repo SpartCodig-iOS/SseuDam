@@ -16,10 +16,9 @@ public struct SplashFeature {
     @ObservableState
     public struct State: Equatable {
         var isAnimated: Bool = false
-        var tokenResult: TokenResult?
         var errorMessage: String? = ""
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
-        @Shared(.appStorage("socialType''"))  var socialType: SocialType? = nil
+        @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
         var sessionResult : SessionStatus?
 
         public init() {}
@@ -46,13 +45,11 @@ public struct SplashFeature {
 
     //MARK: - AsyncAction 비동기 처리 액션
     public enum AsyncAction: Equatable {
-        case refreshToken
         case checkSession
     }
 
     //MARK: - 앱내에서 사용하는 액션
     public enum InnerAction: Equatable {
-        case refreshResponse(Result<TokenResult, AuthError>)
         case checkSessionResponse(Result<SessionStatus, AuthError>)
     }
 
@@ -64,11 +61,9 @@ public struct SplashFeature {
     }
 
     nonisolated enum CancelID: Hashable {
-        case refreshToken
         case session
     }
 
-    @Dependency(AuthUseCase.self) var authUseCase
     @Dependency(SessionUseCase.self) var sessionUseCase
     @Dependency(\.continuousClock) var clock
 
@@ -103,12 +98,11 @@ extension SplashFeature {
         switch action {
             case .onAppear:
             return .run {  [sessionId = state.sessionId] send in
-              if sessionId?.isEmpty  == nil {
-                KeychainManager.shared.clearAll()
+              guard let sessionId = sessionId, !sessionId.isEmpty else {
                 await send(.delegate(.presentLogin))
-              } else {
-                await send(.async(.refreshToken))
+                return
               }
+              await send(.async(.checkSession))
             }
 
             case .startAnimation:
@@ -128,21 +122,6 @@ extension SplashFeature {
         action: AsyncAction
     ) -> Effect<Action> {
         switch action {
-            case .refreshToken:
-                return .run { send in
-                    let  result = await Result {
-                        try await authUseCase.refresh()
-                    }
-                        .mapError { error -> AuthError in
-                            if let authError = error as? AuthError {
-                                return authError
-                            } else {
-                                return .unknownError(error.localizedDescription)
-                            }
-                        }
-                    return await send(.inner(.refreshResponse(result)))
-                }
-
             case .checkSession:
                 return .run { [sessionId = state.sessionId] send in
                     let result = await Result {
@@ -178,40 +157,22 @@ extension SplashFeature {
         action: InnerAction
     ) -> Effect<Action> {
         switch action {
-            case .refreshResponse(let result):
-                switch result {
-                    case .success(let refreshData):
-                        state.tokenResult = refreshData
-                        state.$sessionId.withLock { $0 = refreshData.token.sessionID }
-                        return .concatenate (
-                            .run { [sessionId = state.sessionId] send in
-                                if let sessionId = sessionId, !sessionId.isEmpty {
-                                    await send(.async(.checkSession))
-                                }
-                            },
-                            .run { _ in try await clock.sleep(for: .seconds(1)) } ,
-                            .run { await $0(.delegate(.presentMain)) }
-                        )
-
-                    case .failure(let error):
-                        state.errorMessage = "토큰 재발급 실패 :\(error.localizedDescription)"
-                        return .send(.delegate(.presentLogin))
-                }
-
             case .checkSessionResponse(let result):
                 switch result {
                     case .success(let sessionData):
                         state.sessionResult = sessionData
                         state.$sessionId.withLock { $0 = sessionData.sessionId }
                         state.$socialType.withLock { $0 = sessionData.provider }
+                        return .concatenate(
+                            .run { _ in try await clock.sleep(for: .seconds(1)) },
+                            .send(.delegate(.presentMain))
+                        )
                     case .failure(let error):
                         state.$socialType.withLock { $0 = nil }
                         state.errorMessage = "세션 조회 실패 : \(error.localizedDescription)"
+                        return .send(.delegate(.presentLogin))
                 }
-                return .none
         }
     }
 }
-
-
 
