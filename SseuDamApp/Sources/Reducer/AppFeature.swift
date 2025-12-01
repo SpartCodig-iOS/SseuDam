@@ -89,6 +89,17 @@ struct AppFeature {
   }
 }
 
+extension AppFeature.State {
+  var caseKey: String {
+    switch self {
+    case .splash: return "splash"
+    case .login: return "login"
+    case .travel: return "travel"
+    case .profile: return "profile"
+    }
+  }
+}
+
 extension AppFeature {
   func handleViewAction(
     _ state: inout State,
@@ -153,9 +164,28 @@ extension AppFeature {
         }
         .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
 
+      case .travel(.presentToLogin):
+        return .run { send in
+          await send(.view(.presentLogin), animation: .interactiveSpring(
+            response: 0.5,
+            dampingFraction: 0.9,
+            blendDuration: 0.1
+          ))
+        }
+        .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+        
+      case .profile(.delegate(.presentLogin)):
+        return .run { send in
+          await send(.view(.presentLogin), animation: .interactiveSpring(
+            response: 0.5,
+            dampingFraction: 0.9,
+            blendDuration: 0.1
+          ))
+        }
+        .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+
       default:
         return .none
     }
   }
 }
-

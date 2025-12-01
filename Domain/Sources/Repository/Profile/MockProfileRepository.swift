@@ -33,6 +33,7 @@ public actor MockProfileRepository: ProfileRepositoryProtocol {
       userId: "mock_user_\(UUID().uuidString.prefix(6))",
       email: "mock@example.com",
       name: "Mock User",
+      profileImage: "",
       provider: .google
     )
   }

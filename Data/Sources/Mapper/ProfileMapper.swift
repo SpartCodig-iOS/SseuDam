@@ -16,6 +16,7 @@ extension ProfileResponseDTO {
       userId: self.userID,
       email: self.email,
       name: self.name,
+      profileImage: self.avatarURL,
       provider: socialType
     )
   }
