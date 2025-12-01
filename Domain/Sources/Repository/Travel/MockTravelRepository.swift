@@ -5,7 +5,6 @@
 //  Created by 김민희 on 11/26/25.
 //
 
-
 import Foundation
 
 public final class MockTravelRepository: TravelRepositoryProtocol {
@@ -93,120 +92,6 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
         }
         return travel
     }
-
-    public func deleteMember(travelId: String, memberId: String) async throws {
-        guard let index = travels.firstIndex(where: { $0.id == travelId }) else {
-            throw NSError(domain: "Mock", code: 404, userInfo: [NSLocalizedDescriptionKey: "Travel not found"])
-        }
-
-        let current = travels[index]
-        let updatedMembers = current.members.filter { $0.id != memberId }
-        let updated = Travel(
-            id: current.id,
-            title: current.title,
-            startDate: current.startDate,
-            endDate: current.endDate,
-            countryCode: current.countryCode,
-            baseCurrency: current.baseCurrency,
-            baseExchangeRate: current.baseExchangeRate,
-            inviteCode: current.inviteCode,
-            status: current.status,
-            role: current.role,
-            createdAt: current.createdAt,
-            ownerName: current.ownerName,
-            members: updatedMembers
-        )
-        travels[index] = updated
-    }
-
-    public func joinTravel(inviteCode: String) async throws -> Travel {
-        guard let index = travels.firstIndex(where: { $0.inviteCode == inviteCode }) else {
-            throw NSError(domain: "Mock", code: 404, userInfo: [NSLocalizedDescriptionKey: "Invalid invite code"])
-        }
-
-        let current = travels[index]
-
-        let newMember = TravelMember(
-            id: "MOCK_JOIN_\(UUID().uuidString.prefix(6))",
-            name: "NewMember-\(counter)",
-            role: "member"
-        )
-        counter += 1
-
-        var updatedMembers = current.members
-        updatedMembers.append(newMember)
-
-        let updated = Travel(
-            id: current.id,
-            title: current.title,
-            startDate: current.startDate,
-            endDate: current.endDate,
-            countryCode: current.countryCode,
-            baseCurrency: current.baseCurrency,
-            baseExchangeRate: current.baseExchangeRate,
-            inviteCode: current.inviteCode,
-            status: current.status,
-            role: current.role,
-            createdAt: current.createdAt,
-            ownerName: current.ownerName,
-            members: updatedMembers
-        )
-        travels[index] = updated
-        return updated
-    }
-
-    public func delegateOwner(travelId: String, newOwnerId: String) async throws -> Travel {
-        guard let index = travels.firstIndex(where: { $0.id == travelId }) else {
-            throw NSError(domain: "Mock", code: 404, userInfo: [NSLocalizedDescriptionKey: "Travel not found"])
-        }
-
-        let current = travels[index]
-        let newOwnerName: String = current.members.first(where: { $0.id == newOwnerId })?.name ?? current.ownerName
-
-        let updated = Travel(
-            id: current.id,
-            title: current.title,
-            startDate: current.startDate,
-            endDate: current.endDate,
-            countryCode: current.countryCode,
-            baseCurrency: current.baseCurrency,
-            baseExchangeRate: current.baseExchangeRate,
-            inviteCode: current.inviteCode,
-            status: current.status,
-            role: current.role,
-            createdAt: current.createdAt,
-            ownerName: newOwnerName,
-            members: current.members
-        )
-        travels[index] = updated
-        return updated
-    }
-
-    public func leaveTravel(travelId: String) async throws {
-        guard let index = travels.firstIndex(where: { $0.id == travelId }) else {
-            throw NSError(domain: "Mock", code: 404, userInfo: [NSLocalizedDescriptionKey: "Travel not found"])
-        }
-
-        let current = travels[index]
-        // 본인이 member라고 가정하고 id를 "MOCK_LEAVE"라고 가정 (실제 구현에서는 사용자 id 필요)
-        let updatedMembers = current.members.filter { $0.id != "MOCK_LEAVE" }
-        let updated = Travel(
-            id: current.id,
-            title: current.title,
-            startDate: current.startDate,
-            endDate: current.endDate,
-            countryCode: current.countryCode,
-            baseCurrency: current.baseCurrency,
-            baseExchangeRate: current.baseExchangeRate,
-            inviteCode: current.inviteCode,
-            status: current.status,
-            role: current.role,
-            createdAt: current.createdAt,
-            ownerName: current.ownerName,
-            members: updatedMembers
-        )
-        travels[index] = updated
-    }
 }
 
 private extension MockTravelRepository {
@@ -232,21 +117,21 @@ private extension MockTravelRepository {
             )
         }
     }
-}
 
-enum DateFormatters {
-    static let apiDate: DateFormatter = {
-        let f = DateFormatter()
-        f.calendar = .init(identifier: .gregorian)
-        f.locale = Locale(identifier: "ko_KR")
-        f.timeZone = TimeZone(secondsFromGMT: 0)
-        f.dateFormat = "yyyy-MM-dd"
-        return f
-    }()
+    enum DateFormatters {
+        static let apiDate: DateFormatter = {
+            let f = DateFormatter()
+            f.calendar = .init(identifier: .gregorian)
+            f.locale = Locale(identifier: "ko_KR")
+            f.timeZone = TimeZone(secondsFromGMT: 0)
+            f.dateFormat = "yyyy-MM-dd"
+            return f
+        }()
 
-    static let apiDateTime: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return f
-    }()
+        static let apiDateTime: ISO8601DateFormatter = {
+            let f = ISO8601DateFormatter()
+            f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            return f
+        }()
+    }
 }

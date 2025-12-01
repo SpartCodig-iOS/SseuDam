@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import Dependencies
 
-protocol UpdateTravelUseCase {
+public protocol UpdateTravelUseCaseProtocol {
     func execute(id: String, input: UpdateTravelInput) async throws -> Travel
 }
 
-final class UpdateTravelUseCaseImpl: UpdateTravelUseCase {
+final class UpdateTravelUseCase: UpdateTravelUseCaseProtocol {
     private let repository: TravelRepositoryProtocol
 
     init(repository: TravelRepositoryProtocol) {
@@ -20,5 +21,26 @@ final class UpdateTravelUseCaseImpl: UpdateTravelUseCase {
 
     func execute(id: String, input: UpdateTravelInput) async throws -> Travel {
         try await repository.updateTravel(id: id, input: input)
+    }
+}
+
+extension UpdateTravelUseCase: DependencyKey {
+    public static var liveValue: UpdateTravelUseCaseProtocol = {
+        UpdateTravelUseCase(repository: MockTravelRepository())
+    }()
+
+    public static var previewValue: UpdateTravelUseCaseProtocol = {
+        UpdateTravelUseCase(repository: MockTravelRepository())
+    }()
+
+    public static var testValue: UpdateTravelUseCaseProtocol = {
+        UpdateTravelUseCase(repository: MockTravelRepository())
+    }()
+}
+
+public extension DependencyValues {
+    var updateTravelUseCase: UpdateTravelUseCaseProtocol {
+        get { self[UpdateTravelUseCase.self] }
+        set { self[UpdateTravelUseCase.self] = newValue }
     }
 }

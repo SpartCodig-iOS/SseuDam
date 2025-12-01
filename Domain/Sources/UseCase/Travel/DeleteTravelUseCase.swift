@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import Dependencies
 
-protocol DeleteTravelUseCase {
+public protocol DeleteTravelUseCaseProtocol {
     func execute(id: String) async throws
 }
 
-final class DeleteTravelUseCaseImpl: DeleteTravelUseCase {
+final class DeleteTravelUseCase: DeleteTravelUseCaseProtocol {
     private let repository: TravelRepositoryProtocol
     
     init(repository: TravelRepositoryProtocol) {
@@ -20,5 +21,26 @@ final class DeleteTravelUseCaseImpl: DeleteTravelUseCase {
     
     func execute(id: String) async throws {
         try await repository.deleteTravel(id: id)
+    }
+}
+
+extension DeleteTravelUseCase: DependencyKey {
+    public static var liveValue: DeleteTravelUseCaseProtocol = {
+        DeleteTravelUseCase(repository: MockTravelRepository())
+    }()
+
+    public static var previewValue: DeleteTravelUseCaseProtocol = {
+        DeleteTravelUseCase(repository: MockTravelRepository())
+    }()
+
+    public static var testValue: DeleteTravelUseCaseProtocol = {
+        DeleteTravelUseCase(repository: MockTravelRepository())
+    }()
+}
+
+public extension DependencyValues {
+    var deleteTravelUseCase: DeleteTravelUseCaseProtocol {
+        get { self[DeleteTravelUseCase.self] }
+        set { self[DeleteTravelUseCase.self] = newValue }
     }
 }
