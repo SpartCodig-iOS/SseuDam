@@ -29,6 +29,11 @@ public struct ProfileView: View {
 
       Spacer()
 
+      signOutButton()
+
+      Spacer()
+        .frame(height: 43)
+
     }
     .background(.primary50)
     .padding(.horizontal, 16)
@@ -145,7 +150,7 @@ extension ProfileView {
           .frame(height: 1)
 
         SettingRow(
-          image: .signOut,
+          image: .userDelete,
           title: "회원탈퇴",
           showArrow: false,
           action: {},
@@ -157,6 +162,23 @@ extension ProfileView {
       .background(.white)
       .cornerRadius(8)
       .shadow(color: .shadow ,radius: 5, x: 2, y: 2)
+    }
+  }
+
+  @ViewBuilder
+  fileprivate func signOutButton() -> some View {
+    HStack(alignment: .center) {
+      Image(asset: .signOut)
+        .resizable()
+        .scaledToFit()
+        .frame(width: 15, height: 15)
+
+      Spacer()
+        .frame(width: 8)
+
+      Text("로그아웃")
+        .font(.app(.body))
+        .foregroundStyle(.error)
     }
   }
 
