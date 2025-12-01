@@ -20,7 +20,7 @@ struct AppFeature {
     case main(MainCoordinator.State)
 
     init() {
-      self = .login(.init())
+      self = .main(.init())
     }
   }
 
@@ -42,8 +42,6 @@ struct AppFeature {
     case login(LoginFeature.Action)
     case main(MainCoordinator.Action)
   }
-
-  @Dependency(\.continuousClock) var clock
 
   // MARK: - body
 
