@@ -17,8 +17,8 @@ public struct MainCoordinator {
     public struct State: Equatable {
         var routes: [Route<Screen.State>]
 
-        public init(routes: [Route<Screen.State>] = [.root(.travelList(.init()))]) {
-            self.routes = routes
+        public init() {
+            self.routes = [.root(.travelList(.init()), embedInNavigationView: true)]
         }
     }
 
@@ -31,7 +31,7 @@ public struct MainCoordinator {
             switch action {
             // TravelList에서 새 여행 추가 버튼
             case .router(.routeAction(_, .travelList(.createButtonTapped))):
-                state.routes.presentSheet(.createTravel(.init()), embedInNavigationView: true)
+                state.routes.push(.createTravel(.init()))
                 return .none
 
             // TravelList에서 여행 선택
