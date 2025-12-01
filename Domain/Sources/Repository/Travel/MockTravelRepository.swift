@@ -86,6 +86,10 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
     public func deleteTravel(id: String) async throws {
         travels.removeAll { $0.id == id }
     }
+
+    public func fetchTravelDetail(id: String) async throws -> Travel {
+        travels.first!
+    }
 }
 
 private extension MockTravelRepository {
