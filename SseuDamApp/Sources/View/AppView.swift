@@ -11,6 +11,7 @@ import ComposableArchitecture
 import LoginFeature
 import SplashFeature
 import TravelFeature
+import ProfileFeature
 
 struct AppView: View {
   var store: StoreOf<AppFeature>

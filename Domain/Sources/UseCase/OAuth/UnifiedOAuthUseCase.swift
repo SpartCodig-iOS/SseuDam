@@ -9,13 +9,15 @@ import Foundation
 import Dependencies
 import LogMacro
 import AuthenticationServices
+import ComposableArchitecture
 
 /// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합
 public struct UnifiedOAuthUseCase {
+  @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
     private let oAuthUseCase: any OAuthUseCaseProtocol
     private let signUpRepository: any SignUpRepositoryProtocol
     private let loginRepository: any LoginRepositoryProtocol
-    
+
     public init(
         oAuthUseCase: any OAuthUseCaseProtocol = OAuthUseCase.liveValue,
         signUpRepository: any SignUpRepositoryProtocol = MockSignUpRepository(),
@@ -30,7 +32,7 @@ public struct UnifiedOAuthUseCase {
 // MARK: - Public Interface
 
 public extension UnifiedOAuthUseCase {
-    
+
     /// OAuth Provider에서 토큰 획득 (Google/Apple SDK 호출)
     func socialLogin(
         with socialType: SocialType,
@@ -43,14 +45,14 @@ public extension UnifiedOAuthUseCase {
             nonce: nonce
         )
     }
-    
+
     /// 회원가입 상태 확인
     func checkSignUpUser(
         with oAuthData: AuthData
     ) async -> Result<OAuthCheckUser, AuthError> {
         return await checkUserRegistrationStatus(with: oAuthData)
     }
-    
+
     /// 로그인 처리
     func loginUser(
         with oAuthData: AuthData
@@ -63,7 +65,7 @@ public extension UnifiedOAuthUseCase {
 
         return loginResult
     }
-    
+
     /// 회원가입 처리
     func signUpUser(
         with oAuthData: AuthData
@@ -119,7 +121,7 @@ public extension UnifiedOAuthUseCase {
 // MARK: - Private Methods
 
 private extension UnifiedOAuthUseCase {
-    
+
     /// OAuth Provider에서 인증 정보 획득
     func getOAuthCredentials(
         socialType: SocialType,
@@ -183,12 +185,12 @@ private extension UnifiedOAuthUseCase {
                 socialType: oAuthData.socialType,
                 authorizationCode: oAuthData.authorizationCode
             )
-            
+
             var authEntity = try await loginRepository.login(input: input)
             authEntity.token.authToken = oAuthData.authToken
             Log.info("✅ Login successful for \(oAuthData.socialType.rawValue)")
             return .success(authEntity)
-            
+
         } catch {
             Log.info("⚠️ Login failed: \(error.localizedDescription)")
             return .failure(.networkError(error.localizedDescription))
@@ -243,6 +245,8 @@ private extension UnifiedOAuthUseCase {
             refreshToken: authEntity.token.refreshToken
         )
 
+        persistSocialType(authEntity.provider)
+
         // 완료 로깅 (저장 확인을 위한 불필요한 재로드 제거)
         Log.info("💾 Tokens saved to Keychain successfully")
         Log.info("🎉 OAuth flow completed for \(authEntity.provider.rawValue)")
@@ -261,6 +265,12 @@ extension UnifiedOAuthUseCase: DependencyKey {
         signUpRepository: MockSignUpRepository(),
         loginRepository: MockLoginRepository()
     )
+}
+
+private extension UnifiedOAuthUseCase {
+    func persistSocialType(_ socialType: SocialType) {
+      $socialType.withLock { $0 = socialType }
+    }
 }
 
 extension DependencyValues {

@@ -208,7 +208,7 @@ extension ProfileFeature {
             state.logoutStatus = loginData
             KeychainManager.shared.clearAll()
             return .send(.delegate(.presentLogin))
-            
+
           case .failure(let error):
             state.errorMessage = error.errorDescription
             return .none

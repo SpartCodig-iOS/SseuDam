@@ -10,7 +10,9 @@ import Data
 import LoginFeature
 import SplashFeature
 import TravelFeature
+import ProfileFeature
 import Domain
+
 @Reducer
 struct AppFeature {
 
@@ -21,6 +23,7 @@ struct AppFeature {
     case login(LoginCoordinator.State)
     case splash(SplashFeature.State)
     case travel(TravelListFeature.State)
+    case profile(ProfileCoordinator.State)
     // 나중에 메인 탭 추가하면:
     // case main(MainFeature.State)
 
@@ -53,6 +56,7 @@ struct AppFeature {
     case login(LoginCoordinator.Action)
     case splash(SplashFeature.Action)
     case travel(TravelListFeature.Action)
+    case profile(ProfileCoordinator.Action)
   }
 
   @Dependency(\.continuousClock) var clock
@@ -60,6 +64,7 @@ struct AppFeature {
   nonisolated enum CancelID: Hashable {
     case transitionToLogin
     case transitionToMain
+    case transitionToProfile
   }
 
   // MARK: - body
@@ -85,6 +90,9 @@ struct AppFeature {
     }
     .ifCaseLet(\.travel, action: \.scope.travel) {
       TravelListFeature()
+    }
+    .ifCaseLet(\.profile, action: \.scope.profile) {
+      ProfileCoordinator()
     }
   }
 }
@@ -173,7 +181,7 @@ extension AppFeature {
           ))
         }
         .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
-        
+
       case .profile(.delegate(.presentLogin)):
         return .run { send in
           await send(.view(.presentLogin), animation: .interactiveSpring(
