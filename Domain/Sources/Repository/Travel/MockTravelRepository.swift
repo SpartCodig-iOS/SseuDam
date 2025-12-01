@@ -9,6 +9,7 @@
 import Foundation
 
 public final class MockTravelRepository: TravelRepositoryProtocol {
+    
     private var travels: [Travel] = []
     private var counter: Int = 1
 
@@ -31,6 +32,10 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
         }
 
         return Array(travels[start..<end])
+    }
+    
+    public func fetchTravelDetail(id: String) async throws -> Travel {
+        return Travel.mockDefault
     }
 
     public func createTravel(
