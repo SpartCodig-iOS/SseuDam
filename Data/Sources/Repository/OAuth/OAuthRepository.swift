@@ -27,10 +27,11 @@ public final class OAuthRepository: OAuthRepositoryProtocol {
         provider: SocialType,
         idToken: String,
         nonce: String?,
-        displayName: String?
-    ) async throws -> Supabase.Session {
+        displayName: String?,
+        authorizationCode: String?
+    ) async throws -> UserProfile {
         let credentials = OpenIDConnectCredentials(
-            provider: provider == .apple ? .apple : .google,
+            provider: provider.openIDProvider,
             idToken: idToken,
             nonce: nonce
         )
@@ -39,7 +40,7 @@ public final class OAuthRepository: OAuthRepositoryProtocol {
         Log.info("\(provider.rawValue) signInWithIdToken completed. \(session.accessToken)")
         
         try await updateDisplayNameIfNeeded(displayName)
-        return session
+        return session.toDomain(authorizationCode: authorizationCode)
     }
     
     public func updateUserDisplayName(_ name: String) async throws {

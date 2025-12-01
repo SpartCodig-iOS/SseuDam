@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Supabase
 import ComposableArchitecture
 
 public protocol OAuthRepositoryProtocol {
@@ -14,8 +13,8 @@ public protocol OAuthRepositoryProtocol {
     provider: SocialType,
     idToken: String,
     nonce: String?,
-    displayName: String?
-  ) async throws -> Supabase.Session
+    displayName: String?,
+    authorizationCode: String?
+  ) async throws -> UserProfile
   func updateUserDisplayName(_ name: String) async throws
 }
-

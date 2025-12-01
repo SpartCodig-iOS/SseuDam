@@ -8,8 +8,9 @@
 import ComposableArchitecture
 import Data
 import LoginFeature
-import AuthenticationServices
-
+import SplashFeature
+import TravelFeature
+import Domain
 @Reducer
 struct AppFeature {
 
@@ -17,12 +18,14 @@ struct AppFeature {
 
   @ObservableState
   enum State: Equatable {
-    case login(LoginFeature.State)
+    case login(LoginCoordinator.State)
+    case splash(SplashFeature.State)
+    case travel(TravelListFeature.State)
     // 나중에 메인 탭 추가하면:
     // case main(MainFeature.State)
 
     init() {
-      self = .login(.init())
+      self = .splash(.init())
     }
   }
 
@@ -30,6 +33,7 @@ struct AppFeature {
 
   enum Action: ViewAction {
     case view(View)
+    case inner(InnerAction)
     case scope(ScopeAction)
   }
 
@@ -39,13 +43,24 @@ struct AppFeature {
     case presentMain
   }
 
+  enum InnerAction {
+    case setLoginState
+    case setMainState
+  }
+
   @CasePathable
   enum ScopeAction {
-    case login(LoginFeature.Action)
-    // case main(MainFeature.Action)
+    case login(LoginCoordinator.Action)
+    case splash(SplashFeature.Action)
+    case travel(TravelListFeature.Action)
   }
 
   @Dependency(\.continuousClock) var clock
+
+  nonisolated enum CancelID: Hashable {
+    case transitionToLogin
+    case transitionToMain
+  }
 
   // MARK: - body
 
@@ -55,12 +70,21 @@ struct AppFeature {
       case .view(let viewAction):
         return handleViewAction(&state, action: viewAction)
 
+      case .inner(let innerAction):
+        return handleInnerAction(&state, action: innerAction)
+
       case .scope(let scopeAction):
         return handleScopeAction(&state, action: scopeAction)
       }
     }
     .ifCaseLet(\.login, action: \.scope.login) {
-      LoginFeature()
+      LoginCoordinator()
+    }
+    .ifCaseLet(\.splash, action: \.scope.splash) {
+      SplashFeature()
+    }
+    .ifCaseLet(\.travel, action: \.scope.travel) {
+      TravelListFeature()
     }
   }
 }
@@ -72,12 +96,36 @@ extension AppFeature {
   ) -> Effect<Action> {
     switch action {
     case .presentLogin:
-      // 지금은 이미 login 상태라서 아무 것도 안 해도 됨
-      return .none
+        return .concatenate(
+          .merge(
+            .cancel(id: CancelID.transitionToLogin),
+            .cancel(id: CancelID.transitionToMain)
+          ),
+          .send(.inner(.setLoginState))
+        )
 
     case .presentMain:
-      // 추후 main 탭 상태로 전환 로직 작성
-      // state = .main(MainFeature.State())
+        return .concatenate(
+          .merge(
+            .cancel(id: CancelID.transitionToLogin),
+            .cancel(id: CancelID.transitionToMain)
+          ),
+          .send(.inner(.setMainState))
+        )
+    }
+  }
+
+  func handleInnerAction(
+    _ state: inout State,
+    action: InnerAction
+  ) -> Effect<Action> {
+    switch action {
+    case .setLoginState:
+      state = .login(.init())
+        return .none
+
+    case .setMainState:
+        state = .travel(.init())
       return .none
     }
   }
@@ -87,8 +135,26 @@ extension AppFeature {
     action: ScopeAction
   ) -> Effect<Action> {
     switch action {
-    case .login:
-      return .none
+      case .splash(.delegate(.presentLogin)):
+        return .run { send in
+          await send(.view(.presentLogin))
+        }
+        .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+
+      case .splash(.delegate(.presentMain)):
+        return .run { send in
+          await send(.view(.presentMain), animation: .easeIn)
+        }
+        .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+
+      case .login(.delegate(.presentTravel)):
+        return .run { send in
+          await send(.view(.presentMain), animation: .easeIn)
+        }
+        .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+
+      default:
+        return .none
     }
   }
 }

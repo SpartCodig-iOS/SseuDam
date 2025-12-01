@@ -6,14 +6,13 @@
 //
 
 import Foundation
-import Supabase
 
 public struct GoogleOAuthPayload {
     public let idToken: String
     public let accessToken: String?
     public let authorizationCode: String?
     public let displayName: String?
-    
+
     public init(
         idToken: String,
         accessToken: String?,
@@ -24,16 +23,5 @@ public struct GoogleOAuthPayload {
         self.accessToken = accessToken
         self.authorizationCode = authorizationCode
         self.displayName = displayName
-    }
-}
-
-
-extension GoogleOAuthPayload {
-    func toSupabaseGoogleCredentials() -> OpenIDConnectCredentials {
-        .init(
-            provider: .google,
-            idToken: idToken,
-            accessToken: accessToken
-        )
     }
 }

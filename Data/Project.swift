@@ -8,13 +8,8 @@ let project = Project.makeFramework(
     .project(target: "NetworkService", path: "../NetworkService"),
     .SPM.Supabase,
     .SPM.GoogleSignIn,
-    .SPM.LogMacro,
-    .SPM.ComposableArchitecture
+    .SPM.AppAuth,
+    .SPM.LogMacro
   ],
   hasTests: true,
-  settings: .settings(
-    base: SettingsDictionary()
-      .otherLinkerFlags(["-ObjC", "-all_load"])
-  )
-
 )

@@ -1,6 +1,6 @@
 import ProjectDescription
 
-let template = Template(
+fileprivate let template = Template(
     description: "A template for a new DesignSystem module.",
     attributes: [],
     items: [

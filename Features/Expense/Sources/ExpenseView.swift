@@ -10,75 +10,79 @@ import SwiftUI
 import DesignSystem
 import Domain
 import IdentifiedCollections
+import ComposableArchitecture
 
+@ViewAction(for: ExpenseFeature.self)
 public struct ExpenseView: View {
-    @State private var amount: String = ""
-    @State private var selectedCategory: ExpenseCategory? = nil
-    @State private var title: String = ""
-    @State private var expenseDate: Date = Date()
-    @State private var payer: Expense.Participant? = nil
-    @State private var participants: IdentifiedArrayOf<Expense.Participant> = []
+    @Bindable private(set) public var store: StoreOf<ExpenseFeature>
     
-    // 샘플 참가자 데이터
-    private let availableParticipants = IdentifiedArray(uniqueElements: [
-        Expense.Participant(memberId: "1", name: "홍석현"),
-        Expense.Participant(memberId: "2", name: "김철수"),
-        Expense.Participant(memberId: "3", name: "이영희"),
-        Expense.Participant(memberId: "4", name: "박민수")
-    ])
-    
-    public init() {}
+    public init(store: StoreOf<ExpenseFeature>) {
+        self.store = store
+    }
     
     public var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 20) {
                     // 1. 지출 제목
                     TextInputField(
                         label: "지출 제목",
                         placeholder: "ex) 점심 식사",
-                        text: $title
+                        text: $store.title
                     )
                     
                     // 2. 지출 금액
-                    AmountInputField(amount: $amount)
+                    AmountInputField(
+                        amount: $store.amount,
+                        baseCurrency: store.baseCurrency,
+                        convertedAmountKRW: store.convertedAmountKRW
+                    )
                    
                     // 3. 지출일
-                    DatePickerField(label: "지출일", date: $expenseDate)
+                    DatePickerField(
+                        label: "지출일",
+                        date: $store.expenseDate,
+                        startDate: store.travelStartDate,
+                        endDate: store.travelEndDate
+                    )
                     
                     // 4. 카테고리
-                    CategorySelector(selectedCategory: $selectedCategory)
+                    CategorySelector(selectedCategory: $store.selectedCategory)
                     
                     // 5. 결제자 & 참여자
-                    ParticipantSelector(
-                        payer: $payer,
-                        participants: $participants,
-                        availableParticipants: availableParticipants
+                    ParticipantSelectorView(
+                        store: store.scope(
+                            state: \.participantSelector,
+                            action: \.scope.participantSelector
+                        )
                     )
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                .padding(.bottom, 16)
             }
+            .scrollDismissesKeyboard(.immediately)
+            .scrollIndicators(.hidden)
             
             PrimaryButton(title: "저장") {
-                saveExpense()
+                send(.saveButtonTapped)
             }
-            .padding(.horizontal, 16)
-            .background(Color.clear)
         }
+        .onAppear {
+            send(.onAppear)
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
         .navigationTitle("지출 추가")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.white)
-    }
-    
-    private func saveExpense() {
-        // TODO: TCA Action 연동
-        print("Save expense")
     }
 }
 
 #Preview {
     NavigationStack {
-        ExpenseView()
+        ExpenseView(
+            store: Store(initialState: ExpenseFeature.State("")) {
+                ExpenseFeature()
+            }
+        )
     }
 }

@@ -8,13 +8,16 @@
 
 import SwiftUI
 import ExpenseFeature
+import ComposableArchitecture
 
 @main
 struct ExpenseDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                ExpenseView()
+                ExpenseView(store: Store(initialState: ExpenseFeature.State("travel_id"), reducer: {
+                    ExpenseFeature()
+                }))
             }
         }
     }

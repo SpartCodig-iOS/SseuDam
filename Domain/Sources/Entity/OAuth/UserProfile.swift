@@ -5,8 +5,6 @@
 //  Created by Wonji Suh  on 11/17/25.
 //
 
-import Supabase
-
 public struct UserProfile: Equatable, Identifiable {
 
     public let id: String
@@ -30,65 +28,5 @@ public struct UserProfile: Equatable, Identifiable {
         self.provider = provider
         self.tokens = tokens
         self.authCode = authCode
-    }
-}
-
-
-extension AnyJSON {
-    var stringValue: String? {
-        if case let .string(value) = self {
-            return value
-        }
-        return nil
-    }
-
-    var arrayValue: [AnyJSON]? {
-        if case let .array(value) = self {
-            return value
-        }
-        return nil
-    }
-}
-
-public extension User {
-    private var providerString: String? {
-        if let provider = appMetadata["provider"]?.stringValue {
-            return provider
-        }
-
-        if let providers = appMetadata["providers"]?.arrayValue,
-           let first = providers.first?.stringValue {
-            return first
-        }
-        return nil
-    }
-
-    private var displayNameValue: String? {
-        if let name = userMetadata["display_name"]?.stringValue, !name.isEmpty {
-            return name
-        }
-        if let name = userMetadata["full_name"]?.stringValue, !name.isEmpty {
-            return name
-        }
-        if let name = userMetadata["name"]?.stringValue, !name.isEmpty {
-            return name
-        }
-        return nil
-    }
-
-    func toDomain(session: Session, authCode: String?) -> UserProfile {
-        .init(
-            id: id.uuidString,
-            email: email,
-            displayName: displayNameValue,
-            provider: SocialType(rawValue: providerString ?? "") ?? .none,
-            tokens: .init(
-                authToken: session.accessToken,
-                accessToken: "",
-                refreshToken: "",
-                sessionID: ""
-            ),
-            authCode: authCode
-        )
     }
 }

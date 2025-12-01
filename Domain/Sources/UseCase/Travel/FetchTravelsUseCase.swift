@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Dependencies
 
 public protocol FetchTravelsUseCaseProtocol {
     func excute(input: FetchTravelsInput) async throws -> [Travel]
@@ -20,5 +21,26 @@ public final class FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
     
     public func excute(input: FetchTravelsInput) async throws -> [Travel] {
         try await repository.fetchTravels(input: input)
+    }
+}
+
+extension FetchTravelsUseCase: DependencyKey {
+    public static var liveValue: FetchTravelsUseCaseProtocol = {
+        FetchTravelsUseCase(repository: MockTravelRepository())
+    }()
+
+    public static var previewValue: FetchTravelsUseCaseProtocol = {
+        FetchTravelsUseCase(repository: MockTravelRepository())
+    }()
+
+    public static var testValue: FetchTravelsUseCaseProtocol = {
+        FetchTravelsUseCase(repository: MockTravelRepository())
+    }()
+}
+
+public extension DependencyValues {
+    var fetchTravelsUseCase: FetchTravelsUseCaseProtocol {
+        get { self[FetchTravelsUseCase.self] }
+        set { self[FetchTravelsUseCase.self] = newValue }
     }
 }

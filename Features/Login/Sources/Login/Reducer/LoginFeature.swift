@@ -10,6 +10,7 @@ import ComposableArchitecture
 import Domain
 import AuthenticationServices
 import LogMacro
+import DesignSystem
 
 @Reducer
 public struct LoginFeature {
@@ -23,6 +24,9 @@ public struct LoginFeature {
         var statusMessage: String?
         var authResult: AuthResult?
         var currentNonce: String = ""
+        @Shared(.appStorage("socialType'"))  var socialType: SocialType? = nil
+        @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+
         @Presents var destination: Destination.State?
 
         public init() {}
@@ -54,6 +58,7 @@ public struct LoginFeature {
         case signInWithSocial(social: SocialType)
     }
 
+    @CasePathable
     public enum AsyncAction {
         case prepareAppleRequest(ASAuthorizationAppleIDRequest)
         case appleCompletion(Result<ASAuthorization, Error>)
@@ -72,11 +77,14 @@ public struct LoginFeature {
 
     // MARK: - Dependencies (하나로 통합!)
 
-    @Dependency(\.unifiedOAuthUseCase) var unifiedOAuthUseCase
+    @Dependency(UnifiedOAuthUseCase.self) var unifiedOAuthUseCase
+    @Dependency(SessionUseCase.self) var sessionUseCase
+
 
     nonisolated enum CancelID: Hashable {
         case googleOAuth
         case appleOAuth
+        case session
     }
 
     // MARK: - Body
@@ -131,6 +139,7 @@ extension LoginFeature {
         action: View
     ) -> Effect<Action> {
         switch action {
+
         case .googleButtonTapped:
             return startOAuthFlow(state: &state, socialType: .google)
 
@@ -158,15 +167,17 @@ extension LoginFeature {
             case .success(let authEntity):
                 state.authResult = authEntity
                 state.statusMessage = "\(authEntity.provider.rawValue) 인증 성공!"
-                Log.info("🎉 OAuth authentication completed successfully")
-
-                // 인증 완료 - 메인 화면으로 이동
+                state.$sessionId.withLock { $0 = authEntity.token.sessionID }
                 return .send(.delegate(.presentTravelList))
 
             case .failure(let error):
                 state.statusMessage = "인증 실패: \(error.localizedDescription)"
-                Log.error("❌ OAuth authentication failed: \(error)")
-                return .none
+                // Toast로 에러 메시지 표시
+                return .run { _ in
+                    await MainActor.run {
+                        ToastManager.shared.showError("인증에 실패했어요. 다시 시도해주세요.")
+                    }
+                }
             }
         }
     }
