@@ -61,10 +61,17 @@ final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
         if shouldFailUpdate {
             throw ExpenseRepositoryError.updateFailed(reason: "업데이트 실패")
         }
-        
+
         storage[expense.id] = expense
     }
-    
+
+    public func delete(
+        travelId: String,
+        expenseId: String
+    ) async throws {
+        storage.removeValue(forKey: expenseId)
+    }
+
     // MARK: - Test Helpers
     
     public func fetch(id: String) -> Expense? {

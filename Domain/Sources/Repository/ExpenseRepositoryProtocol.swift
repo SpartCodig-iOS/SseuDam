@@ -17,6 +17,9 @@ public protocol ExpenseRepositoryProtocol {
 
     // 지출 내역 수정
     func update(travelId: String, expense: Expense) async throws
+
+    // 지출 내역 삭제
+    func delete(travelId: String, expenseId: String) async throws
 }
 
 // MARK: - Dependency
