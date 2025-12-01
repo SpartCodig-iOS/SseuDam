@@ -9,33 +9,31 @@ import Moya
 import Foundation
 
 public protocol DomainType {
-  var url: String { get }
-  var baseURLString: String { get }
+    var url: String { get }
+    var baseURLString: String { get }
 }
 
 public protocol BaseTargetType: TargetType {
-  associatedtype Domain: DomainType
-  var domain: Domain { get }
-   var urlPath: String { get }
-  var error: [Int: NetworkError]? { get }
-   var parameters: [String: Any]? { get }
+    associatedtype Domain: DomainType
+    var domain: Domain { get }
+    var urlPath: String { get }
+    var error: [Int: NetworkError]? { get }
+    var parameters: [String: Any]? { get }
 }
 
 public extension BaseTargetType {
-   var baseURL: URL { URL(string: domain.baseURLString)! }
+    var baseURL: URL { URL(string: domain.baseURLString)! }
     var path: String { domain.url + urlPath }
-
-
-  var headers: [String: String]? { APIHeaders.cached }
-
-  var task: Moya.Task {
-    if let parameters {
-      return method == .get
-        ? .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
-        : .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+    var headers: [String: String]? { APIHeaders.cached }
+    
+    var task: Moya.Task {
+        if let parameters {
+            return method == .get
+            ? .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+            : .requestParameters(parameters: parameters, encoding: JSONEncoding.default)
+        }
+        return .requestPlain
     }
-    return .requestPlain
-  }
 }
 
 // 순수 캐시

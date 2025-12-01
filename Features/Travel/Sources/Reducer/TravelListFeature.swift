@@ -119,7 +119,7 @@ public struct TravelListFeature {
                 return .none
 
             case .createButtonTapped:
-                state.create = TravelCreateFeature.State()
+//                state.create = TravelCreateFeature.State()
                 return .none
 
             case .create(.dismiss):
@@ -130,8 +130,8 @@ public struct TravelListFeature {
                 return .none
             }
         }
-        .ifLet(\.$create, action: \.create) {
-            TravelCreateFeature()
-        }
+//        .ifLet(\.$create, action: \.create) {
+//            TravelCreateFeature()
+//        }
     }
 }

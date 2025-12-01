@@ -8,13 +8,16 @@
 
 import SwiftUI
 import MainFeature
+import ComposableArchitecture
 
 @main
 struct MainDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                MainView()
+                MainCoordinatorView(store: Store(initialState: MainCoordinator.State(), reducer: {
+                    MainCoordinator()
+                }))
             }
         }
     }

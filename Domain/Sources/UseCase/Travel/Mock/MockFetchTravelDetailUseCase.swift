@@ -64,8 +64,9 @@ public extension Travel {
             startDate: Date().addingTimeInterval(-86400 * 3), // 3일 전
             endDate: Date().addingTimeInterval(86400 * 3), // 3일 후
             countryCode: "JP",
-            baseCurrency: "JPY",
+            baseCurrency: "KRW",
             baseExchangeRate: 900.0, // 1 JPY = 900 KRW
+            destinationCurrency: "JPY",
             inviteCode: "TOKYO2025",
             status: .active,
             role: "owner",
@@ -87,8 +88,9 @@ public extension Travel {
             startDate: Date().addingTimeInterval(86400 * 14), // 14일 후
             endDate: Date().addingTimeInterval(86400 * 21), // 21일 후
             countryCode: "US",
-            baseCurrency: "USD",
+            baseCurrency: "KRW",
             baseExchangeRate: 1350.0, // 1 USD = 1350 KRW
+            destinationCurrency: "USD",
             inviteCode: "NYC2025",
             status: .inactive,
             role: "member",
@@ -108,8 +110,9 @@ public extension Travel {
             startDate: Date().addingTimeInterval(-86400 * 7), // 7일 전 (진행 중)
             endDate: Date().addingTimeInterval(86400 * 14), // 14일 후
             countryCode: "FR",
-            baseCurrency: "EUR",
+            baseCurrency: "KRW",
             baseExchangeRate: 1450.0, // 1 EUR = 1450 KRW
+            destinationCurrency: "EUR",
             inviteCode: "EUROPE2025",
             status: .active,
             role: "owner",
@@ -132,6 +135,7 @@ public extension Travel {
             countryCode: "KR",
             baseCurrency: "KRW",
             baseExchangeRate: 1.0, // 원화는 환율 변환 불필요
+            destinationCurrency: "KRW",
             inviteCode: "JEJU2024",
             status: .active,
             role: "member",

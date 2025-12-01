@@ -14,4 +14,23 @@ public struct UpdateTravelInput {
     public let countryCode: String
     public let baseCurrency: String
     public let baseExchangeRate: Double
+    public let destinationCurrency: String?
+
+    public init(
+        title: String,
+        startDate: Date,
+        endDate: Date,
+        countryCode: String,
+        baseCurrency: String,
+        baseExchangeRate: Double,
+        destinationCurrency: String? = nil
+    ) {
+        self.title = title
+        self.startDate = startDate
+        self.endDate = endDate
+        self.countryCode = countryCode
+        self.baseCurrency = baseCurrency
+        self.baseExchangeRate = baseExchangeRate
+        self.destinationCurrency = destinationCurrency
+    }
 }
