@@ -55,11 +55,6 @@ extension Expense {
             throw ExpenseError.emptyTitle
         }
 
-        // 날짜 검증
-        guard expenseDate <= Date() else {
-            throw ExpenseError.invalidDate
-        }
-
         // 참가자 검증
         guard !participants.isEmpty else {
             throw ExpenseError.invalidParticipants
