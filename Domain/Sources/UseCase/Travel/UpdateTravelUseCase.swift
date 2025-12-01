@@ -12,14 +12,14 @@ public protocol UpdateTravelUseCaseProtocol {
     func execute(id: String, input: UpdateTravelInput) async throws -> Travel
 }
 
-final class UpdateTravelUseCase: UpdateTravelUseCaseProtocol {
+public final class UpdateTravelUseCase: UpdateTravelUseCaseProtocol {
     private let repository: TravelRepositoryProtocol
 
-    init(repository: TravelRepositoryProtocol) {
+    public init(repository: TravelRepositoryProtocol) {
         self.repository = repository
     }
 
-    func execute(id: String, input: UpdateTravelInput) async throws -> Travel {
+    public func execute(id: String, input: UpdateTravelInput) async throws -> Travel {
         try await repository.updateTravel(id: id, input: input)
     }
 }

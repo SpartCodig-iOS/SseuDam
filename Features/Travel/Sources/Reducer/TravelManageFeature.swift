@@ -11,12 +11,18 @@ import ComposableArchitecture
 
 @Reducer
 public struct TravelManageFeature {
+    public init() {}
     @ObservableState
     public struct State: Equatable {
         let travelId: String
         let isOwner: Bool   
         var isSubmitting = false
         var errorMessage: String?
+
+        public init(travelId: String, isOwner: Bool) {
+            self.travelId = travelId
+            self.isOwner = isOwner
+        }
     }
 
     public enum Action {

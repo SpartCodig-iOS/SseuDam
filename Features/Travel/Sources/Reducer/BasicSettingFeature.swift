@@ -11,6 +11,7 @@ import ComposableArchitecture
 
 @Reducer
 public struct BasicSettingFeature {
+    public init() {}
     @ObservableState
     public struct State: Equatable {
         var travel: Travel

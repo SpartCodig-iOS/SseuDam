@@ -12,14 +12,14 @@ public protocol DeleteTravelUseCaseProtocol {
     func execute(id: String) async throws
 }
 
-final class DeleteTravelUseCase: DeleteTravelUseCaseProtocol {
+public final class DeleteTravelUseCase: DeleteTravelUseCaseProtocol {
     private let repository: TravelRepositoryProtocol
     
-    init(repository: TravelRepositoryProtocol) {
+    public init(repository: TravelRepositoryProtocol) {
         self.repository = repository
     }
     
-    func execute(id: String) async throws {
+    public func execute(id: String) async throws {
         try await repository.deleteTravel(id: id)
     }
 }

@@ -10,8 +10,11 @@ import ComposableArchitecture
 
 public struct TravelSettingView: View {
     @Environment(\.dismiss) private var dismiss
+    @Bindable var store: StoreOf<TravelSettingFeature>
 
-    public init() {}
+    public init(store: StoreOf<TravelSettingFeature>) {
+        self.store = store
+    }
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -38,13 +41,28 @@ public struct TravelSettingView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     //기본 설정
-                    BasicSettingView()
+                    BasicSettingView(
+                        store: store.scope(
+                            state: \.basicInfo,
+                            action: \.basicInfo
+                        )
+                    )
 
                     //멤버
-                    MemberSettingView()
+                    MemberSettingView(
+                        store: store.scope(
+                            state: \.memberSetting,
+                            action: \.memberSetting
+                        )
+                    )
 
                     //여행 관리
-                    TravelManageView()
+                    TravelManageView(
+                        store: store.scope(
+                            state: \.manage,
+                            action: \.manage
+                        )
+                    )
                 }
                 .padding(16)
             }
@@ -52,9 +70,22 @@ public struct TravelSettingView: View {
         }
         .background(Color.primary50)
         .navigationBarBackButtonHidden(true)
+        // 여행 나가기 / 삭제 성공 시 dismiss
+        .onChange(of: store.shouldDismiss) { _, newValue in
+            if newValue {
+                dismiss()
+            }
+        }
     }
 }
 
-#Preview {
-    TravelSettingView()
-}
+//#Preview {
+//    TravelSettingView(
+//        store: Store(
+//            initialState: TravelSettingFeature.State(travel: travel),
+//            reducer: {
+//                TravelSettingFeature()
+//            }
+//        )
+//    )
+//}

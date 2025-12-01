@@ -7,13 +7,16 @@
 
 import SwiftUI
 import DesignSystem
+import ComposableArchitecture
 
 // MARK: - 여행 관리 섹션
 struct TravelManageView: View {
+    @Bindable var store: StoreOf<TravelManageFeature>
+    @State private var isEditing = false
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
 
-            SectionHeader(title: "여행 관리")
+            SectionHeader(title: "여행 관리", isEditing: $isEditing)
 
             VStack(spacing: 0) {
                 Button(action: {}) {
@@ -54,8 +57,4 @@ struct TravelManageView: View {
             .background(RoundedRectangle(cornerRadius: 8).fill(Color(.appWhite)))
         }
     }
-}
-
-#Preview {
-    TravelManageView()
 }
