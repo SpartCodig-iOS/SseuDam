@@ -16,6 +16,7 @@ public struct TravelResponseDTO: Decodable {
     let countryCode: String
     let baseCurrency: String
     let baseExchangeRate: Double
+    let destinationCurrency: String
     let inviteCode: String
     let status: String
     let role: String
@@ -35,7 +36,7 @@ extension TravelResponseDTO {
             startDate: dateFormatter.date(from: startDate) ?? Date(),
             endDate: dateFormatter.date(from: endDate) ?? Date(),
             countryCode: countryCode,
-            baseCurrency: baseCurrency,
+            baseCurrency: destinationCurrency,
             baseExchangeRate: baseExchangeRate,
             inviteCode: inviteCode,
             status: TravelStatus(rawValue: status) ?? .unknown,

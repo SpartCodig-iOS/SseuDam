@@ -53,34 +53,4 @@ public final class TravelRepository: TravelRepositoryProtocol {
         let responseDTO = try await remote.fetchTravelDetail(id: id)
         return responseDTO.toDomain()
     }
-
-    public func deleteMember(
-        travelId: String,
-        memberId: String
-    ) async throws {
-        try await remote.deleteMember(travelId: travelId, memberId: memberId)
-    }
-
-    public func joinTravel(
-        inviteCode: String
-    ) async throws -> Travel {
-        let dto = JoinTravelRequestDTO(inviteCode: inviteCode)
-        let response = try await remote.joinTravel(dto)
-        return response.toDomain()
-    }
-
-    public func delegateOwner(
-        travelId: String,
-        newOwnerId: String
-    ) async throws -> Travel {
-        let dto = DelegateOwnerRequestDTO(newOwnerId: newOwnerId)
-        let response = try await remote.delegateOwner(travelId: travelId, body: dto)
-        return response.toDomain()
-    }
-
-    public func leaveTravel(
-        travelId: String
-    ) async throws {
-        try await remote.leaveTravel(travelId: travelId)
-    }
 }
