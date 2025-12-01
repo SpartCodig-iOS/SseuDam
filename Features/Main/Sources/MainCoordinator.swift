@@ -29,12 +29,12 @@ public struct MainCoordinator {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            // TravelList에서 새 여행 추가 버튼
             case .router(.routeAction(_, .travelList(.createButtonTapped))):
                 state.routes.push(.createTravel(.init()))
                 return .none
-
-            // TravelList에서 여행 선택
+            case .router(.routeAction(_, .createTravel(.dismiss))):
+                state.routes.pop()
+                return .none
             case let .router(.routeAction(_, .travelList(.travelSelected(travelId)))):
                 state.routes.push(.settlementCoordinator(.init(travelId: travelId)))
                 return .none

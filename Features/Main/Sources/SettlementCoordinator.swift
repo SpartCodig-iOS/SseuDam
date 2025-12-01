@@ -36,13 +36,13 @@ public struct SettlementCoordinator {
             switch action {
             // 지출 추가 버튼
             case .router(.routeAction(_, .settlement(.view(.addExpenseButtonTapped)))):
-                state.routes.presentSheet(.expense(.init(state.travelId)))
+                state.routes.push(.expense(.init(state.travelId)))
                 return .none
 
             // 설정 버튼 (여행 상세/수정) - 추후 구현
-            // case .router(.routeAction(_, .settlement(.view(.settingsButtonTapped)))):
-            //     state.routes.push(.travelDetail(.init(state.travelId)))
-            //     return .none
+             case .router(.routeAction(_, .expense(.delegate(.finishSaveExpense)))):
+                 state.routes.pop()
+                 return .none
 
             default:
                 break
