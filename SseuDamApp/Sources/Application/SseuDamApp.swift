@@ -26,6 +26,8 @@ struct SseuDamApp: App {
         $0.fetchTravelDetailUseCase = makeFetchTravelDetailUseCase()
         $0.fetchTravelExpenseUseCase = makeFetchTravelExpenseUseCase()
         $0.createExpenseUseCase = makeCreateExpenseUseCase()
+        $0.updateExpenseUseCase = makeUpdateExpenseUseCase()
+        $0.deleteExpenseUseCase = makeDeleteExpenseUseCase()
         $0.expenseRepository = makeExpenseRepository()
     }
 
@@ -106,6 +108,18 @@ private extension SseuDamApp {
 
     static func makeCreateExpenseUseCase() -> CreateExpenseUseCase {
         CreateExpenseUseCase(
+            repository: makeExpenseRepository()
+        )
+    }
+
+    static func makeUpdateExpenseUseCase() -> UpdateExpenseUseCase {
+        UpdateExpenseUseCase(
+            repository: makeExpenseRepository()
+        )
+    }
+
+    static func makeDeleteExpenseUseCase() -> DeleteExpenseUseCase {
+        DeleteExpenseUseCase(
             repository: makeExpenseRepository()
         )
     }

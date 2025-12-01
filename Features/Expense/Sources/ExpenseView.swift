@@ -61,29 +61,57 @@ public struct ExpenseView: View {
             }
             .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)
-            
+
+            // 저장/수정 버튼
             PrimaryButton(
-                title: "저장",
+                title: store.isEditMode ? "수정" : "저장",
                 isEnabled: store.canSave
             ) {
                 send(.saveButtonTapped)
             }
         }
-        .onAppear {
-            send(.onAppear)
-        }
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
-        .navigationTitle("지출 추가")
+        .navigationTitle(store.isEditMode ? "지출 수정" : "지출 추가")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if store.isEditMode {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        send(.deleteButtonTapped)
+                    }) {
+                        Text("삭제")
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+        }
         .background(Color.white)
     }
 }
 
 #Preview {
+    let mockTravel = Travel(
+        id: "mock_travel_id",
+        title: "오사카 여행",
+        startDate: Date(),
+        endDate: Date().addingTimeInterval(86400 * 7),
+        countryCode: "JP",
+        baseCurrency: "JPY",
+        baseExchangeRate: 9.0,
+        destinationCurrency: "JPY",
+        status: .active,
+        createdAt: Date(),
+        ownerName: "홍길동",
+        members: [
+            TravelMember(id: "user1", name: "홍길동", role: "owner"),
+            TravelMember(id: "user2", name: "김철수", role: "member")
+        ]
+    )
+
     NavigationStack {
         ExpenseView(
-            store: Store(initialState: ExpenseFeature.State("")) {
+            store: Store(initialState: ExpenseFeature.State(travel: mockTravel)) {
                 ExpenseFeature()
             }
         )

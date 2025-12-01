@@ -17,10 +17,14 @@ public struct ParticipantSelectorFeature {
         var payer: TravelMember?
         var participants: IdentifiedArrayOf<TravelMember> = []
         var availableParticipants: IdentifiedArrayOf<TravelMember>
-
+        
         @Presents var payerDialog: ConfirmationDialogState<Action.PayerDialog>?
-
-        public init(availableParticipants: IdentifiedArrayOf<TravelMember>) {
+        
+        public init(
+            availableParticipants: IdentifiedArrayOf<TravelMember>,
+            payer: TravelMember? = nil,
+            participants: IdentifiedArrayOf<TravelMember> = []
+        ) {
             self.availableParticipants = availableParticipants
         }
     }

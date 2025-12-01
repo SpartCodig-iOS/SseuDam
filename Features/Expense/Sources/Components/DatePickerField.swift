@@ -35,7 +35,7 @@ public struct DatePickerField: View {
     
     private var dateRange: ClosedRange<Date> {
         let start = startDate ?? Date.distantPast
-        let end = endDate ?? Date()
+        let end = endDate ?? Date.distantFuture
         return start...end
     }
     
