@@ -1,0 +1,12 @@
+//
+//  DelegateOwnerRequestDTO.swift
+//  Data
+//
+//  Created by 김민희 on 11/30/25.
+//
+
+import Foundation
+
+public struct DelegateOwnerRequestDTO: Encodable {
+    public let newOwnerId: String
+}
