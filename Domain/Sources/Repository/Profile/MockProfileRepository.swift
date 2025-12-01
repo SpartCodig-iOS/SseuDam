@@ -6,10 +6,11 @@
 //
 
 import Combine
+import Foundation
 
 public actor MockProfileRepository: ProfileRepositoryProtocol {
   public var shouldThrowError = false
-  public var errorToThrow: Error = MockProfileError.fetchFailed
+  public var errorToThrow: Error = ProfileError.unknown("mock failure")
   public var delay: TimeInterval = 0
   public var mockProfile: Profile?
 
@@ -39,11 +40,11 @@ public actor MockProfileRepository: ProfileRepositoryProtocol {
   // MARK: - Helpers
   public func setupSuccess(profile: Profile? = nil) {
     shouldThrowError = false
-    errorToThrow = MockProfileError.fetchFailed
+    errorToThrow = ProfileError.unknown("mock failure")
     mockProfile = profile
   }
 
-  public func setupFailure(error: Error = MockProfileError.fetchFailed) {
+  public func setupFailure(error: Error = ProfileError.unknown("fetch failed")) {
     shouldThrowError = true
     errorToThrow = error
   }
@@ -51,8 +52,4 @@ public actor MockProfileRepository: ProfileRepositoryProtocol {
   public func setupDelay(_ delay: TimeInterval) {
     self.delay = delay
   }
-}
-
-public enum MockProfileError: Error, Equatable {
-  case fetchFailed
 }

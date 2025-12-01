@@ -23,6 +23,7 @@ struct SseuDamApp: App {
         $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
         $0.createTravelUseCase = makeCreateTravelUseCase()
         $0.authUseCase = makeAuthUseCase()
+        $0.profileUseCase = makeProfileUseCase()
     }
 
     var body: some Scene {
@@ -84,5 +85,9 @@ private extension SseuDamApp {
                 remote: TravelRemoteDataSource()
             )
         )
+    }
+
+    static func makeProfileUseCase() -> ProfileUseCaseProtocol {
+        ProfileUseCase(repository: ProfileRepository())
     }
 }

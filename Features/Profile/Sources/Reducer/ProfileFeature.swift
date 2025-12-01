@@ -21,8 +21,10 @@ public struct ProfileFeature {
      var profileImageData: Data?
      var isPhotoPickerPresented = false
      var selectedPhotoItem: PhotosPickerItem?
-      var logoutStatus: LogoutStatus?
-      var errorMessage: String? = ""
+     var logoutStatus: LogoutStatus?
+     var errorMessage: String? = ""
+      var profile: Profile?
+      var isLoadingProfile = true
     @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
 
     public init(profileImageData: Data? = nil) {
@@ -42,6 +44,7 @@ public struct ProfileFeature {
   //MARK: - ViewAction
   @CasePathable
   public enum View {
+    case onAppear
     case photoPickerButtonTapped
     case profileImageSelected(Data?)
   }
@@ -52,6 +55,7 @@ public struct ProfileFeature {
   public enum AsyncAction: Equatable {
     case logout
     case requestPhotoPermission
+    case fetchProfile
 
   }
 
@@ -59,6 +63,7 @@ public struct ProfileFeature {
   public enum InnerAction: Equatable {
     case logoutResponse(Result<LogoutStatus, AuthError>)
     case photoPermissionResult(Bool)
+    case profileResponse(Result<Profile, ProfileError>)
   }
 
   //MARK: - NavigationAction
@@ -70,9 +75,11 @@ public struct ProfileFeature {
 
   nonisolated enum CancelID : Hashable {
     case logout
+    case profile
   }
 
   @Dependency(AuthUseCase.self) var authUseCase
+  @Dependency(ProfileUseCase.self) var profileUseCase
 
   public var body: some Reducer<State, Action> {
     BindingReducer()
@@ -103,6 +110,12 @@ extension ProfileFeature {
     action: View
   ) -> Effect<Action> {
     switch action {
+      case .onAppear:
+        // Avoid refetching if already loading or data is present.
+        guard state.isLoadingProfile || state.profile == nil else { return .none }
+        state.isLoadingProfile = true
+        return .send(.async(.fetchProfile))
+
       case .photoPickerButtonTapped:
         return .send(.async(.requestPhotoPermission))
 
@@ -133,6 +146,23 @@ extension ProfileFeature {
             }
           return await send(.inner(.logoutResponse(result)))
         }
+
+      case .fetchProfile:
+        state.isLoadingProfile = true
+        return .run { send in
+          let result = await Result {
+            try await profileUseCase.getProfile()
+          }
+            .mapError { error -> ProfileError in
+                if let authError = error as? ProfileError {
+                    return authError
+                } else {
+                  return .unknown(error.localizedDescription)
+                }
+            }
+          return await send(.inner(.profileResponse(result)))
+        }
+        .cancellable(id: CancelID.profile, cancelInFlight: true)
 
       case .requestPhotoPermission:
         return .run { send in
@@ -192,7 +222,18 @@ extension ProfileFeature {
           state.errorMessage = "앨범 접근 권한이 필요합니다. 설정에서 허용해주세요."
         }
         return .none
+
+      case .profileResponse(let result):
+        switch result {
+          case .success(let profileData):
+            state.isLoadingProfile = false
+            state.profile = profileData
+            state.$socialType.withLock { $0 = profileData.provider}
+
+          case .failure(let error):
+            state.errorMessage = error.errorDescription
+        }
+        return .none
     }
   }
-
 }
