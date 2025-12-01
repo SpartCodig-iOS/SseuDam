@@ -8,7 +8,9 @@
 import Foundation
 import ComposableArchitecture
 import SwiftUI
+import Photos
 import PhotosUI
+import Domain
 
 @Reducer
 public struct ProfileFeature {
@@ -19,6 +21,9 @@ public struct ProfileFeature {
      var profileImageData: Data?
      var isPhotoPickerPresented = false
      var selectedPhotoItem: PhotosPickerItem?
+      var logoutStatus: LogoutStatus?
+      var errorMessage: String? = ""
+    @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
 
     public init(profileImageData: Data? = nil) {
       self.profileImageData = profileImageData
@@ -45,19 +50,29 @@ public struct ProfileFeature {
 
   //MARK: - AsyncAction 비동기 처리 액션
   public enum AsyncAction: Equatable {
+    case logout
+    case requestPhotoPermission
 
   }
 
   //MARK: - 앱내에서 사용하는 액션
   public enum InnerAction: Equatable {
+    case logoutResponse(Result<LogoutStatus, AuthError>)
+    case photoPermissionResult(Bool)
   }
 
   //MARK: - NavigationAction
   public enum DelegateAction: Equatable {
     case backToTravel
+    case presentLogin
 
   }
 
+  nonisolated enum CancelID : Hashable {
+    case logout
+  }
+
+  @Dependency(AuthUseCase.self) var authUseCase
 
   public var body: some Reducer<State, Action> {
     BindingReducer()
@@ -89,8 +104,7 @@ extension ProfileFeature {
   ) -> Effect<Action> {
     switch action {
       case .photoPickerButtonTapped:
-        state.isPhotoPickerPresented = true
-        return .none
+        return .send(.async(.requestPhotoPermission))
 
       case let .profileImageSelected(data):
         state.profileImageData = data
@@ -105,6 +119,37 @@ extension ProfileFeature {
   ) -> Effect<Action> {
     switch action {
 
+      case .logout:
+        return .run { send in
+          let result = await Result {
+            try await authUseCase.logout()
+          }
+            .mapError { error -> AuthError in
+                if let authError = error as? AuthError {
+                    return authError
+                } else {
+                    return .unknownError(error.localizedDescription)
+                }
+            }
+          return await send(.inner(.logoutResponse(result)))
+        }
+
+      case .requestPhotoPermission:
+        return .run { send in
+          let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+          switch status {
+            case .authorized, .limited:
+              await send(.inner(.photoPermissionResult(true)))
+
+            case .notDetermined:
+              let newStatus = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+              let allowed = (newStatus == .authorized || newStatus == .limited)
+              await send(.inner(.photoPermissionResult(allowed)))
+
+            default:
+              await send(.inner(.photoPermissionResult(false)))
+          }
+        }
     }
   }
 
@@ -115,6 +160,9 @@ extension ProfileFeature {
     switch action {
       case .backToTravel:
         return .none
+
+      case .presentLogin:
+        return .none
     }
   }
 
@@ -124,6 +172,26 @@ extension ProfileFeature {
   ) -> Effect<Action> {
     switch action {
 
+      case .logoutResponse(let result):
+        switch result {
+          case .success(let loginData):
+            state.logoutStatus = loginData
+            KeychainManager.shared.clearAll()
+            return .send(.delegate(.presentLogin))
+            
+          case .failure(let error):
+            state.errorMessage = error.errorDescription
+            return .none
+        }
+
+      case .photoPermissionResult(let allowed):
+        if allowed {
+          state.isPhotoPickerPresented = true
+          state.errorMessage = nil
+        } else {
+          state.errorMessage = "앨범 접근 권한이 필요합니다. 설정에서 허용해주세요."
+        }
+        return .none
     }
   }
 
