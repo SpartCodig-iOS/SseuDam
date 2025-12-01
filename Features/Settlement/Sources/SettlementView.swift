@@ -51,6 +51,9 @@ public struct SettlementView: View {
                             LazyVStack(spacing: 16) {
                                 ForEach(store.currentExpense) { expense in
                                     ExpenseCardView(expense: expense)
+                                        .onTapGesture {
+                                            send(.onTapExpense(expense))
+                                        }
                                 }
                             }
                             .padding(.vertical, 10)

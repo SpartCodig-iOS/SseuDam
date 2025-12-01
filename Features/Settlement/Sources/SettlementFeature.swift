@@ -25,6 +25,7 @@ public struct SettlementFeature {
         public var selectedDate: Date = Date()
         public var travelTitle: String = ""
         public let travelId: String
+        public var travel: Travel? = nil // ExpenseFeature 생성 시 전달용
 
         public var totalAmount: Int {
             Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
@@ -51,6 +52,7 @@ public struct SettlementFeature {
         public enum ViewAction {
             case onAppear
             case addExpenseButtonTapped
+            case onTapExpense(Expense)
         }
 
         @CasePathable
@@ -98,6 +100,8 @@ extension SettlementFeature {
             // TODO: 지출 추가 화면으로 네비게이션
             print("Add expense button tapped")
             return .none
+        case .onTapExpense:
+            return .none
         }
     }
 
@@ -105,6 +109,7 @@ extension SettlementFeature {
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
         case let .travelDetailResponse(.success(travel)):
+            state.travel = travel
             state.travelTitle = travel.title
             state.startDate = travel.startDate
             state.endDate = travel.endDate
