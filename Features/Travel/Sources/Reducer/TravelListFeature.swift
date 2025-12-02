@@ -7,7 +7,6 @@
 
 import Domain
 import ComposableArchitecture
-import ProfileFeature
 
 @Reducer
 public struct TravelListFeature {
@@ -25,7 +24,7 @@ public struct TravelListFeature {
         var uiError: String?
 
         @Presents var create: TravelCreateFeature.State?
-        @Presents var profile: ProfileCoordinator.State?
+//        @Presents var profile: ProfileCoordinator.State?
 
         public init() {}
     }
@@ -44,9 +43,9 @@ public struct TravelListFeature {
         case createButtonTapped
         case create(PresentationAction<TravelCreateFeature.Action>)
 
-        case profileButtonTapped
-        case profile(PresentationAction<ProfileCoordinator.Action>)
-        case presentToLogin
+//        case profileButtonTapped
+//        case profile(PresentationAction<ProfileCoordinator.Action>)
+//        case presentToLogin
     }
 
     @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase: FetchTravelsUseCaseProtocol
@@ -135,29 +134,29 @@ public struct TravelListFeature {
                 case .create:
                     return .none
 
-                case .profileButtonTapped:
-                    state.profile = ProfileCoordinator.State()
-                    return .none
+//                case .profileButtonTapped:
+//                    state.profile = ProfileCoordinator.State()
+//                    return .none
+//
+//                case .profile(.presented(.delegate(.backToTravel))):
+//                    state.profile = nil
+//                    return .send(.refresh)
+//
+//                case .profile(.presented(.delegate(.presentLogin))):
+//                    return .send(.presentToLogin)
+//
+//                case .profile:
+//                    return .none
 
-                case .profile(.presented(.delegate(.backToTravel))):
-                    state.profile = nil
-                    return .send(.refresh)
-
-                case .profile(.presented(.delegate(.presentLogin))):
-                    return .send(.presentToLogin)
-
-                case .profile:
-                    return .none
-
-                case .presentToLogin:
-                    return .none
+//                case .presentToLogin:
+//                    return .none
             }
         }
         .ifLet(\.$create, action: \.create) {
             TravelCreateFeature()
         }
-        .ifLet(\.$profile, action: \.profile) {
-            ProfileCoordinator()
-        }
+//        .ifLet(\.$profile, action: \.profile) {
+//            ProfileCoordinator()
+//        }
     }
 }

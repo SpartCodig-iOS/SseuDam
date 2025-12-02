@@ -9,7 +9,6 @@
 import SwiftUI
 import DesignSystem
 import Domain
-import ProfileFeature
 import ComposableArchitecture
 
 public struct TravelView: View {
@@ -22,7 +21,7 @@ public struct TravelView: View {
     public var body: some View {
         VStack {
             TravelListHeaderView {
-                store.send(.profileButtonTapped)
+//                store.send(.profileButtonTapped)
             }
 
             TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
@@ -54,15 +53,15 @@ public struct TravelView: View {
             .padding(.trailing, 20)
             .padding(.bottom, 54)
         }
-        .navigationDestination(
-            store: store.scope(state: \.$create, action: \.create)
-        ) { createStore in
-            CreateTravelView(store: createStore)
-        }
-        .navigationDestination(item: $store.scope(state: \.profile, action: \.profile)) { profilestore in
-            ProfileCoordinatorView(store: profilestore)
-                .navigationBarBackButtonHidden(true)
-        }
+//        .navigationDestination(
+//            store: store.scope(state: \.$create, action: \.create)
+//        ) { createStore in
+//            CreateTravelView(store: createStore)
+//        }
+//        .navigationDestination(item: $store.scope(state: \.profile, action: \.profile)) { profilestore in
+//            ProfileCoordinatorView(store: profilestore)
+//                .navigationBarBackButtonHidden(true)
+//        }
         .onAppear {
             store.send(.onAppear)
         }

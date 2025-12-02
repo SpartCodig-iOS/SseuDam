@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Profile: Equatable {
+public struct Profile: Equatable, Hashable {
     public let userId: String
     public let email: String
     public let name: String
