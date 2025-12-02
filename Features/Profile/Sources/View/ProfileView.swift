@@ -42,6 +42,10 @@ public struct ProfileView: View {
                     matching: .images,
                     photoLibrary: .shared()
                 )
+                .dsAlert(
+                    store.scope(state: \.alert, action: \.alert),
+                    dismissAction: .dismiss
+                )
 
             }
         }
@@ -202,7 +206,9 @@ extension ProfileView {
                   image: .userDelete,
                   title: "회원탈퇴",
                   showArrow: false,
-                  action: {},
+                  action: {
+                      store.send(.view(.showDeleteAlert))
+                  },
                   tapTermAction: {}
               )
 
