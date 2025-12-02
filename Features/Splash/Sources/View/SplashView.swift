@@ -41,7 +41,7 @@ public struct SplashView: View {
               Image(asset: store.isAnimated ? .logo : .whiteLogo)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 100, height: 48)
+                .frame(width: 157, height: 52)
                 .animation(.easeInOut(duration: 0.3), value: store.isAnimated)
 
               Spacer()
