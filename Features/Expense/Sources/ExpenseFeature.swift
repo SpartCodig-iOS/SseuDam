@@ -15,7 +15,6 @@ public struct ExpenseFeature {
     @Dependency(\.createExpenseUseCase) var createExpenseUseCase
     @Dependency(\.updateExpenseUseCase) var updateExpenseUseCase
     @Dependency(\.deleteExpenseUseCase) var deleteExpenseUseCase
-    @Dependency(\.dismiss) var dismiss
 
     @ObservableState
     public struct State: Equatable, Hashable {
@@ -27,6 +26,9 @@ public struct ExpenseFeature {
         var expenseDate: Date
         var selectedCategory: ExpenseCategory? = nil
         var convertedAmountKRW: String = ""
+        var isLoading: Bool = false
+
+        @Presents var deleteAlert: AlertState<Action.Alert>?
 
         // ParticipantSelector Feature
         var participantSelector: ParticipantSelectorFeature.State
@@ -143,11 +145,17 @@ public struct ExpenseFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        
+
         @CasePathable
         public enum ViewAction {
             case saveButtonTapped
             case deleteButtonTapped
+            case backButtonTapped
+        }
+
+        @CasePathable
+        public enum Alert {
+            case confirmDelete
         }
 
         @CasePathable
@@ -165,6 +173,7 @@ public struct ExpenseFeature {
         @CasePathable
         public enum ScopeAction {
             case participantSelector(ParticipantSelectorFeature.Action)
+            case deleteAlert(PresentationAction<Alert>)
         }
         
         @CasePathable
@@ -179,9 +188,9 @@ public struct ExpenseFeature {
         Scope(state: \.participantSelector, action: \.scope.participantSelector) {
             ParticipantSelectorFeature()
         }
-        
+
         BindingReducer()
-        
+
         Reduce { state, action in
             switch action {
             case .binding(\.amount):
@@ -192,19 +201,22 @@ public struct ExpenseFeature {
             case .binding:
                 // 다른 바인딩 변경은 BindingReducer가 자동 처리
                 return .none
-                
+
             case .view(let viewAction):
                 return handleViewAction(state: &state, action: viewAction)
             case .inner(let innerAction):
                 return handleInnerAction(state: &state, action: innerAction)
             case .async(let asyncAction):
                 return handleAsyncAction(state: &state, action: asyncAction)
+            case .scope(.deleteAlert(.presented(.confirmDelete))):
+                return .send(.async(.deleteExpense))
             case .scope:
                 return .none
             case .delegate:
                 return .none
             }
         }
+        .ifLet(\.$deleteAlert, action: \.scope.deleteAlert)
     }
 }
 
@@ -216,7 +228,23 @@ extension ExpenseFeature {
             return .send(.async(.saveExpense))
 
         case .deleteButtonTapped:
-            return .send(.async(.deleteExpense))
+            state.deleteAlert = AlertState {
+                TextState("이 지출 내역을 삭제하시겠어요?")
+            } actions: {
+                ButtonState(role: .destructive, action: .confirmDelete) {
+                    TextState("삭제하기")
+                }
+                ButtonState(role: .cancel) {
+                    TextState("취소")
+                }
+            } message: {
+                TextState("삭제된 지출 내역은 다시 복구할 수 없습니다.")
+            }
+            return .none
+
+        case .backButtonTapped:
+            // Coordinator가 pop을 처리하도록 delegate로 전달
+            return .send(.delegate(.finishSaveExpense))
         }
     }
 
@@ -224,17 +252,21 @@ extension ExpenseFeature {
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
         case .saveExpenseResponse(.success):
+            state.isLoading = false
             return .send(.delegate(.finishSaveExpense))
 
         case .saveExpenseResponse(.failure(let error)):
+            state.isLoading = false
             // TODO: 에러 처리 (알림 표시 등)
             print("저장 실패: \(error)")
             return .none
 
         case .deleteExpenseResponse(.success):
+            state.isLoading = false
             return .send(.delegate(.finishSaveExpense))
 
         case .deleteExpenseResponse(.failure(let error)):
+            state.isLoading = false
             // TODO: 에러 처리 (알림 표시 등)
             print("삭제 실패: \(error)")
             return .none
@@ -265,6 +297,7 @@ extension ExpenseFeature {
             )
 
             let isEditMode = state.isEditMode
+            state.isLoading = true
             return .run { [travelId = state.travelId] send in
                 do {
                     if isEditMode {
@@ -294,6 +327,7 @@ extension ExpenseFeature {
                 return .none
             }
 
+            state.isLoading = true
             return .run { [travelId = state.travelId] send in
                 do {
                     try await deleteExpenseUseCase.execute(travelId: travelId, expenseId: expenseId)

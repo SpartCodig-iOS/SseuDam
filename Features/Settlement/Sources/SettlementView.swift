@@ -22,6 +22,18 @@ public struct SettlementView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
+            // 네비게이션 바
+            NavigationBarView(
+                title: store.travelTitle,
+                onBackTapped: {
+                    send(.backButtonTapped)
+                }
+            ) {
+                TrailingButton(icon: .settings) {
+                    send(.settingsButtonTapped)
+                }
+            }
+            .padding(.horizontal, 16)
             // 탭 바 (Custom Segmented Control)
             HStack(spacing: 0) {
                 TabButton(title: "지출 내역", isSelected: selectedTab == 0) {
@@ -85,8 +97,7 @@ public struct SettlementView: View {
                 .padding(.bottom, 20)
             }
         }
-        .navigationTitle(store.travelTitle)
-        .toolbarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .onAppear {
             send(.onAppear)
         }

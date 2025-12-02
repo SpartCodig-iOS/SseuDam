@@ -47,12 +47,15 @@ public struct SettlementFeature {
         case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
+        case delegate(DelegateAction)
 
         @CasePathable
         public enum ViewAction {
             case onAppear
             case addExpenseButtonTapped
             case onTapExpense(Expense)
+            case backButtonTapped
+            case settingsButtonTapped
         }
 
         @CasePathable
@@ -64,6 +67,11 @@ public struct SettlementFeature {
         @CasePathable
         public enum AsyncAction {
             case fetchData
+        }
+        
+        @CasePathable
+        public enum DelegateAction {
+            case onTapSettingsButton(travelId: String)
         }
     }
 
@@ -78,6 +86,8 @@ public struct SettlementFeature {
                 return handleInnerAction(state: &state, action: innerAction)
             case .async(let asyncAction):
                 return handleAsyncAction(state: &state, action: asyncAction)
+            case .delegate:
+                return .none
             case .binding(\.selectedDate):
                 // 로컬 캐시에서 필터링
                 filterExpensesByDate(&state, date: state.selectedDate)
@@ -100,8 +110,15 @@ extension SettlementFeature {
             // TODO: 지출 추가 화면으로 네비게이션
             print("Add expense button tapped")
             return .none
+
         case .onTapExpense:
             return .none
+
+        case .backButtonTapped:
+            return .none
+
+        case .settingsButtonTapped:
+            return .send(.delegate(.onTapSettingsButton(travelId: state.travelId)))
         }
     }
 
