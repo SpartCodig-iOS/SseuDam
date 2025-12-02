@@ -97,6 +97,7 @@ public struct ExpenseView: View {
         startDate: Date(),
         endDate: Date().addingTimeInterval(86400 * 7),
         countryCode: "JP",
+        koreanCountryName: "일본",
         baseCurrency: "JPY",
         baseExchangeRate: 9.0,
         destinationCurrency: "JPY",

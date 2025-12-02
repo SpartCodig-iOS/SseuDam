@@ -11,8 +11,8 @@ import NetworkService
 
 public protocol TravelMemberRemoteDataSourceProtocol {
     func deleteMember(travelId: String, memberId: String) async throws
-    func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelResponseDTO
-    func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelResponseDTO
+    func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelDTO
+    func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelDTO
     func leaveTravel(travelId: String) async throws
 }
 
@@ -27,11 +27,11 @@ public final class TravelMemberRemoteDataSource: TravelMemberRemoteDataSourcePro
         let _: BaseResponse<EmptyDTO> = try await provider.request(.deleteMember(travelId: travelId, memberId: memberId))
     }
 
-    public func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelResponseDTO {
+    public func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelDTO {
         try await provider.request(.joinTravel(body: body))
     }
 
-    public func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelResponseDTO {
+    public func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelDTO {
         try await provider.request(.delegateOwner(travelId: travelId, body: body))
     }
 

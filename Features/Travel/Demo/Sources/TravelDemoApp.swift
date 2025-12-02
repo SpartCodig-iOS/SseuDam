@@ -38,6 +38,7 @@ struct TravelDemoApp: App {
         koreanCountryName: "일본",
         baseCurrency: "JPY",
         baseExchangeRate: 1.0,
+        destinationCurrency: "JPY",
         inviteCode: "INV-0001",
         status: .active,
         role: "owner",

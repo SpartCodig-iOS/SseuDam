@@ -260,7 +260,7 @@ struct BasicSettingView: View {
                                 .frame(height: 18)
                                 .foregroundStyle(Color.gray8)
 
-                            Text(store.travel.inviteCode)
+                            Text(store.travel.inviteCode ?? "초대코드 없음")
                                 .font(.app(.title3, weight: .medium))
                                 .foregroundStyle(Color.appBlack)
                         }
