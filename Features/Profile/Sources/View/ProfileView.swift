@@ -19,7 +19,7 @@ public struct ProfileView: View {
 
     public var body: some View {
         ZStack {
-            if store.isLoadingProfile {
+            if store.isLoadingProfile || store.isProfileImageLoading {
                 ProfileSkeletonView()
             } else {
                 VStack {
@@ -90,10 +90,14 @@ extension ProfileView {
                 .frame(height: 20)
 
             EditProfileImage(
-              imageURL: store.profile?.profileImage
-            ) {
-                store.send(.view(.photoPickerButtonTapped))
-            }
+                imageURL: store.profile?.profileImage,
+                action: {
+                    store.send(.view(.photoPickerButtonTapped))
+                },
+                onLoadingStateChanged: { isLoading in
+                    store.send(.view(.profileImageLoadingStateChanged(isLoading)))
+                }
+            )
             .buttonStyle(.plain)
 
             Spacer()
