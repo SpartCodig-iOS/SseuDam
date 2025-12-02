@@ -50,7 +50,7 @@ struct MemberRow: View {
             }
 
             // 편집 모드
-            if isEditing && !isOwner {
+            if isEditing && !isOwner && !isMe {
                 HStack(spacing: 0) {
                     Button(action: onDelegateOwner) {
                         Text("관리자")

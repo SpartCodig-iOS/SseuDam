@@ -20,7 +20,7 @@ struct MemberSettingView: View {
 
             let members = store.members
             //TODO: 내 아이디
-            let myId = "myID"
+            let myId = store.members.first?.id ?? ""
             let ownerId = store.ownerId
 
             MemberListView(
