@@ -58,6 +58,7 @@ extension MainCoordinator {
             case .routeAction(_, .travelList(.createButtonTapped)):
                 state.routes.push(.createTravel(.init()))
                 return .none
+
             case .routeAction(_, .createTravel(.dismiss)):
                 state.routes.pop()
                 return .none
@@ -74,8 +75,12 @@ extension MainCoordinator {
                 state.routes.goBack()
                 return .none
 
-          case .routeAction(id: _, action: .profile(.delegate(.presentLogin))):
-            return .send(.delegate(.presentLogin))
+            case .routeAction(id: _, action: .profile(.delegate(.presentLogin))):
+                return .send(.delegate(.presentLogin))
+
+            case .routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId)))):
+                print("\(travelId) 여행 설정 페이지로 넘어갑니다.")
+                return .none
 
             default:
                 return .none
