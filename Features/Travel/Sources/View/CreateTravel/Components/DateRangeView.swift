@@ -97,6 +97,7 @@ struct DateRangeView: View {
                     )
                     .datePickerStyle(.graphical)
                     .presentationDetents([.medium])
+                    .presentationBackground(Color.primary50)
                 }
             }
         }

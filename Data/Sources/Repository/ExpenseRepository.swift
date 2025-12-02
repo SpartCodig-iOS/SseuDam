@@ -36,7 +36,11 @@ public final class ExpenseRepository: ExpenseRepositoryProtocol {
     }
 
     public func update(travelId: String, expense: Expense) async throws {
-        // TODO: 구현 필요
-        fatalError("Not implemented yet")
+        let requestDTO = expense.toUpdateRequestDTO()
+        try await remote.updateExpense(travelId: travelId, expenseId: expense.id, body: requestDTO)
+    }
+
+    public func delete(travelId: String, expenseId: String) async throws {
+        try await remote.deleteExpense(travelId: travelId, expenseId: expenseId)
     }
 }

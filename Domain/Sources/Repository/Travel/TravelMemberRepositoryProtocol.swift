@@ -1,0 +1,15 @@
+//
+//  TravelMemberRepositoryProtocol.swift
+//  Domain
+//
+//  Created by 김민희 on 12/1/25.
+//
+
+import Foundation
+
+public protocol TravelMemberRepositoryProtocol {
+    func deleteMember(travelId: String, memberId: String) async throws
+    func joinTravel(inviteCode: String) async throws -> Travel
+    func delegateOwner(travelId: String, newOwnerId: String) async throws -> Travel
+    func leaveTravel(travelId: String) async throws
+}

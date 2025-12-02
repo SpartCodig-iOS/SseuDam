@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct TravelMember: Identifiable, Equatable {
+public struct TravelMember: Identifiable, Equatable, Hashable {
     public let id: String
     public let name: String
     public let role: String

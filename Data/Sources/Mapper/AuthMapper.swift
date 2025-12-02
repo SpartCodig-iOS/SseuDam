@@ -20,3 +20,17 @@ public extension RefreshResponseDTO {
     return TokenResult(token: token)
   }
 }
+
+
+public extension LogoutResponseDTO {
+  func toDomain() -> LogoutStatus {
+    return LogoutStatus(revoked: self.revoked)
+  }
+}
+
+
+public extension AuthDeleteResponseDTO {
+  func toDomain() -> AuthDeleteStatus {
+    return AuthDeleteStatus(isDeleted: self.supabaseDeleted)
+  }
+}

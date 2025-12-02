@@ -7,10 +7,9 @@
 
 import Foundation
 
-public struct Expense: Identifiable, Equatable {
+public struct Expense: Identifiable, Equatable, Hashable {
     public let id: String
     public let title: String
-    public let note: String?
     public let amount: Double
     public let currency: String
     public let convertedAmount: Double // 환산 금액
@@ -22,7 +21,6 @@ public struct Expense: Identifiable, Equatable {
     public init(
         id: String,
         title: String,
-        note: String?,
         amount: Double,
         currency: String,
         convertedAmount: Double,
@@ -34,7 +32,6 @@ public struct Expense: Identifiable, Equatable {
     ) {
         self.id = id
         self.title = title
-        self.note = note
         self.amount = amount
         self.currency = currency
         self.convertedAmount = convertedAmount
@@ -56,11 +53,6 @@ extension Expense {
         // 제목 검증
         guard !title.trimmingCharacters(in: .whitespaces).isEmpty else {
             throw ExpenseError.emptyTitle
-        }
-
-        // 날짜 검증
-        guard expenseDate <= Date() else {
-            throw ExpenseError.invalidDate
         }
 
         // 참가자 검증
@@ -86,7 +78,6 @@ extension Expense {
     public static let mock1 = Expense(
         id: "expense1",
         title: "오사카 호텔 숙박",
-        note: "3박 4일 숙박비",
         amount: 45000,
         currency: "JPY",
         convertedAmount: 405000,
@@ -100,7 +91,6 @@ extension Expense {
     public static let mock2 = Expense(
         id: "expense2",
         title: "라멘 맛집 점심",
-        note: "이치란 라멘",
         amount: 3600,
         currency: "JPY",
         convertedAmount: 32400,
@@ -114,7 +104,6 @@ extension Expense {
     public static let mock3 = Expense(
         id: "expense3",
         title: "유니버셜 스튜디오 입장권",
-        note: nil,
         amount: 27000,
         currency: "JPY",
         convertedAmount: 243000,
@@ -128,7 +117,6 @@ extension Expense {
     public static let mock4 = Expense(
         id: "expense4",
         title: "오사카역 택시",
-        note: "호텔까지 택시 요금",
         amount: 2500,
         currency: "JPY",
         convertedAmount: 22500,
@@ -142,7 +130,6 @@ extension Expense {
     public static let mock5 = Expense(
         id: "expense5",
         title: "기념품 쇼핑",
-        note: "키타 오사카 쇼핑몰",
         amount: 15000,
         currency: "JPY",
         convertedAmount: 135000,
@@ -156,7 +143,6 @@ extension Expense {
     public static let mock6 = Expense(
         id: "expense6",
         title: "편의점 간식",
-        note: "맥주랑 안주",
         amount: 1200,
         currency: "JPY",
         convertedAmount: 10800,
@@ -166,11 +152,10 @@ extension Expense {
         payerName: "김민수",
         participants: mockMembers
     )
-    
+
     public static let mock7 = Expense(
         id: "expense7",
         title: "지하철 패스",
-        note: "2일권",
         amount: 2000,
         currency: "JPY",
         convertedAmount: 18000,
@@ -180,11 +165,10 @@ extension Expense {
         payerName: "이지은",
         participants: mockMembers
     )
-    
+
     public static let mock8 = Expense(
         id: "expense8",
         title: "규카츠 저녁",
-        note: "모토무라 규카츠",
         amount: 4500,
         currency: "JPY",
         convertedAmount: 40500,
@@ -194,11 +178,10 @@ extension Expense {
         payerName: "박서준",
         participants: mockMembers
     )
-    
+
     public static let mock9 = Expense(
         id: "expense9",
         title: "카페",
-        note: "스타벅스",
         amount: 1500,
         currency: "JPY",
         convertedAmount: 13500,
@@ -208,11 +191,10 @@ extension Expense {
         payerName: "김민수",
         participants: [mockMembers[0], mockMembers[1]]
     )
-    
+
     public static let mock10 = Expense(
         id: "expense10",
         title: "공항 버스",
-        note: "간사이 공항행",
         amount: 3200,
         currency: "JPY",
         convertedAmount: 28800,

@@ -4,12 +4,11 @@ import SseuDamPlugin
 let project = Project.makeFramework(
   name: "Data",
   dependencies: [
-    .project(target: "Domain", path: "../Domain"),
-    .project(target: "NetworkService", path: "../NetworkService"),
+    .Domain,
+    .NetworkService,
     .SPM.Supabase,
     .SPM.GoogleSignIn,
-    .SPM.AppAuth,
-    .SPM.LogMacro
+    .SPM.AppAuth
   ],
   hasTests: true,
 )

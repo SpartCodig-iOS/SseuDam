@@ -41,7 +41,8 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
             switch self {
             case .success:
                 return AuthResult(
-                    name: "MockUser",
+                  userId: UUID().uuidString,
+                  name: "MockUser",
                     provider: .apple,
                     token: AuthTokens(
                         authToken: "mock_auth_token_\(UUID().uuidString.prefix(8))",
@@ -52,7 +53,8 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
                 )
             case .appleUser:
                 return AuthResult(
-                    name: "Apple User",
+                  userId: UUID().uuidString,
+                  name: "Apple User",
                     provider: .apple,
                     token: AuthTokens(
                         authToken: "mock_apple_auth_token",
@@ -63,7 +65,8 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
                 )
             case .googleUser:
                 return AuthResult(
-                    name: "Google User",
+                  userId: UUID().uuidString,
+                  name: "Google User",
                     provider: .google,
                     token: AuthTokens(
                         authToken: "mock_google_auth_token",
@@ -74,7 +77,8 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
                 )
             case .customUser(let name, let provider):
                 return AuthResult(
-                    name: name,
+                  userId: UUID().uuidString,
+                  name: name,
                     provider: provider,
                     token: AuthTokens(
                         authToken: "mock_custom_auth_token",
@@ -117,7 +121,8 @@ public actor MockLoginRepository: LoginRepositoryProtocol {
 
         // Override provider if input specifies different one
         return AuthResult(
-            name: authEntity.name,
+          userId: authEntity.userId,
+          name: authEntity.name,
             provider: input.socialType,
             token: AuthTokens(
                 authToken: authEntity.token.authToken,

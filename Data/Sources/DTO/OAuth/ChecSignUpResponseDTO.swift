@@ -8,6 +8,6 @@
 import Foundation
 
 public struct ChecSignUpResponseDTO: Decodable {
-  let registered: Bool
-  
+    let registered: Bool
+
 }

@@ -12,5 +12,15 @@ public enum ImageAsset: String {
     case logo
     case whiteLogo
     case xmark
+    case userDelete
+    case signOut
+    case terms
+    case chevronRight
+    case chevronLeft
+    case receipt
+    case users
+    case settings
+    case list
+    case lock
     case none
 }

@@ -5,32 +5,55 @@
 //  Created by Wonji Suh  on 11/27/25.
 //
 
-import ComposableArchitecture
+//
+//  AuthUseCase.swift
+//  Domain
+//
+//  Created by Wonji Suh  on 11/27/25.
+//
 
-/// Placeholder for logout / withdrawal use cases. Refresh is handled in the network layer.
+import  ComposableArchitecture
+
 public struct AuthUseCase: AuthUseCaseProtocol {
-  private let repository: AuthRepositoryProtocol
+  @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+  
+    private let repository: AuthRepositoryProtocol
+    public init(
+        repository: AuthRepositoryProtocol
+    ) {
+        self.repository = repository
+    }
 
-  public init(repository: AuthRepositoryProtocol) {
-    self.repository = repository
+  // MARK: - 로그아웃
+  public func logout() async throws -> LogoutStatus {
+    let sessionId = self.sessionId ?? ""
+    return try await repository.logout(sessionId: sessionId)
+  }
+
+  public func deleteUser() async throws -> AuthDeleteStatus {
+    let result = try await repository.delete()
+    KeychainManager.shared.clearAll()
+    return result
   }
 }
+
 
 extension AuthUseCase: DependencyKey {
-  public static var liveValue: AuthUseCaseProtocol {
-    AuthUseCase(repository: MockAuthRepository())
-  }
+    public static var liveValue: AuthUseCaseProtocol {
+        return AuthUseCase(repository: MockAuthRepository())
+    }
 
-  public static var previewValue: any AuthUseCaseProtocol { liveValue }
+    public static var previewValue: any AuthUseCaseProtocol { liveValue }
 
-  public static let testValue: AuthUseCaseProtocol = AuthUseCase(
-    repository: MockAuthRepository()
-  )
+    public static let testValue: AuthUseCaseProtocol = AuthUseCase(
+        repository: MockAuthRepository()
+    )
 }
 
+
 public extension DependencyValues {
-  var authUseCase: AuthUseCaseProtocol {
-    get { self[AuthUseCase.self] }
-    set { self[AuthUseCase.self] = newValue }
-  }
+    var authUseCase : AuthUseCaseProtocol {
+        get { self[AuthUseCase.self] }
+        set { self[AuthUseCase.self] = newValue }
+    }
 }

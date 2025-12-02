@@ -23,6 +23,13 @@ struct SseuDamApp: App {
         $0.fetchTravelsUseCase = makeFetchTravelsUseCase()
         $0.createTravelUseCase = makeCreateTravelUseCase()
         $0.authUseCase = makeAuthUseCase()
+        $0.fetchTravelDetailUseCase = makeFetchTravelDetailUseCase()
+        $0.fetchTravelExpenseUseCase = makeFetchTravelExpenseUseCase()
+        $0.createExpenseUseCase = makeCreateExpenseUseCase()
+        $0.updateExpenseUseCase = makeUpdateExpenseUseCase()
+        $0.deleteExpenseUseCase = makeDeleteExpenseUseCase()
+        $0.expenseRepository = makeExpenseRepository()
+        $0.profileUseCase = makeProfileUseCase()
     }
 
     var body: some Scene {
@@ -84,5 +91,47 @@ private extension SseuDamApp {
                 remote: TravelRemoteDataSource()
             )
         )
+    }
+
+    static func makeFetchTravelDetailUseCase() -> FetchTravelDetailUseCaseProtocol {
+        FetchTravelDetailUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeFetchTravelExpenseUseCase() -> FetchTravelExpenseUseCaseProtocol {
+        FetchTravelExpenseUseCase(
+            repository: makeExpenseRepository()
+        )
+    }
+
+    static func makeCreateExpenseUseCase() -> CreateExpenseUseCase {
+        CreateExpenseUseCase(
+            repository: makeExpenseRepository()
+        )
+    }
+
+    static func makeUpdateExpenseUseCase() -> UpdateExpenseUseCase {
+        UpdateExpenseUseCase(
+            repository: makeExpenseRepository()
+        )
+    }
+
+    static func makeDeleteExpenseUseCase() -> DeleteExpenseUseCase {
+        DeleteExpenseUseCase(
+            repository: makeExpenseRepository()
+        )
+    }
+
+    static func makeExpenseRepository() -> ExpenseRepositoryProtocol {
+        ExpenseRepository(
+            remote: ExpenseRemoteDataSource()
+        )
+    }
+
+    static func makeProfileUseCase() -> ProfileUseCaseProtocol {
+        ProfileUseCase(repository: ProfileRepository())
     }
 }

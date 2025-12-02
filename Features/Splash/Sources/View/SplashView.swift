@@ -26,7 +26,7 @@ public struct SplashView: View {
             .edgesIgnoringSafeArea(.all)
 
           // 전환될 색상이 옆에서 슬라이드
-          Color.white
+          Color.primary50
             .edgesIgnoringSafeArea(.all)
             .offset(x: store.isAnimated ? 0 : geometry.size.width)
             .animation(.easeInOut(duration: 0.6), value: store.isAnimated)
@@ -41,7 +41,7 @@ public struct SplashView: View {
               Image(asset: store.isAnimated ? .logo : .whiteLogo)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 100, height: 48)
+                .frame(width: 157, height: 52)
                 .animation(.easeInOut(duration: 0.3), value: store.isAnimated)
 
               Spacer()

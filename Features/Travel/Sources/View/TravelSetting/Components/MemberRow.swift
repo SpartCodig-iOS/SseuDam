@@ -10,10 +10,14 @@ import DesignSystem
 
 struct MemberRow: View {
     let name: String
-    var isMe: Bool = false
-    
+    let isMe: Bool
+    let isOwner: Bool
+    let isEditing: Bool
+    let onDelegateOwner: () -> Void
+    let onDelete: () -> Void
+
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             Image(assetName: "profile")
                 .resizable()
                 .scaledToFit()
@@ -26,9 +30,12 @@ struct MemberRow: View {
 
             Text(name)
                 .font(.app(.body, weight: .medium))
+                .foregroundColor(.appBlack)
+                .padding(.leading, 8)
 
             Spacer()
-            
+
+            // "나" 태그
             if isMe {
                 Text("나")
                     .font(.app(.body, weight: .medium))
@@ -39,11 +46,32 @@ struct MemberRow: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.primary100)
                     )
+                    .padding(.trailing, 6)
+            }
+
+            // 편집 모드
+            if isEditing && !isOwner && !isMe {
+                HStack(spacing: 0) {
+                    Button(action: onDelegateOwner) {
+                        Text("관리자")
+                            .underline(true, color: Color.gray7)
+                            .font(.app(.caption1, weight: .medium))
+                            .foregroundColor(.gray7)
+                    }
+
+                    Divider()
+                        .frame(width: 1, height: 12)
+                        .foregroundColor(.gray1)
+                        .padding(.horizontal, 4)
+
+                    Button(action: onDelete) {
+                        Text("삭제")
+                            .underline(true, color: .red)
+                            .font(.app(.caption1, weight: .medium))
+                            .foregroundColor(.red)
+                    }
+                }
             }
         }
     }
-}
-
-#Preview {
-    MemberRow(name: "김민수", isMe: true)
 }

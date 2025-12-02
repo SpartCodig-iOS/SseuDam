@@ -9,6 +9,8 @@ import SwiftUI
 import DesignSystem
 
 struct TravelListHeaderView: View {
+  var action: () -> Void
+
     var body: some View {
         HStack(spacing: 0) {
             Text("내 여행")
@@ -22,6 +24,9 @@ struct TravelListHeaderView: View {
                 .scaledToFit()
                 .frame(height: 24)
                 .foregroundStyle(Color.appBlack)
+                .onTapGesture {
+                  action()
+                }
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 16)
@@ -29,5 +34,5 @@ struct TravelListHeaderView: View {
 }
 
 #Preview {
-    TravelListHeaderView()
+  TravelListHeaderView(action: {})
 }

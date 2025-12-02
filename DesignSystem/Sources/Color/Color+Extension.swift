@@ -28,6 +28,8 @@ public extension ShapeStyle where Self == Color {
     static var gray8: Color { asset(#function) }
     static var gray9: Color { asset(#function) }
 
+  //MARK: shadow
+    static var shadow: Color { asset(#function) }
     // MARK: - Category Colors - Transportation
     static var transportation100: Color { asset(#function) }
     static var transportation500: Color { asset(#function) }
@@ -39,6 +41,9 @@ public extension ShapeStyle where Self == Color {
     // MARK: - Category Colors - Shopping
     static var shopping100: Color { asset(#function) }
 
+  // MARK: - red
+
+    static var error: Color { asset(#function) }
     private static func asset(_ name: String) -> Color {
         Color(name, bundle: .module)
     }

@@ -9,10 +9,13 @@ import Foundation
 
 public struct OAuthCheckUser: Equatable {
     public var registered: Bool
-    
+    public var needsTerms: Bool
+
     public init(
-        registered: Bool
+        registered: Bool,
+        needsTerms: Bool = false
     ) {
         self.registered = registered
+        self.needsTerms = needsTerms
     }
 }
