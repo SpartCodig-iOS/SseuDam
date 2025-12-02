@@ -52,7 +52,7 @@ public struct EditProfileImage: View {
           switch phase {
           case .empty:
             ProgressView()
-              .onAppear { onLoadingStateChanged?(true) }
+              .task { onLoadingStateChanged?(true) }
           case .success(let image):
             image
               .resizable()
@@ -60,10 +60,10 @@ public struct EditProfileImage: View {
               .onAppear { onLoadingStateChanged?(false) }
           case .failure:
             placeholder(iconSize: iconSize)
-              .onAppear { onLoadingStateChanged?(false) }
+              .task { onLoadingStateChanged?(false) }
           @unknown default:
             placeholder(iconSize: iconSize)
-              .onAppear { onLoadingStateChanged?(false) }
+              .task { onLoadingStateChanged?(false) }
           }
         }
         .frame(width: size, height: size)

@@ -76,7 +76,7 @@ extension LoginCoordinator {
   }
 }
 
-extension LoginCoordinator.LoginScreen.State: Equatable {}
+extension LoginCoordinator.LoginScreen.State: Equatable, Hashable {}
 
 extension LoginCoordinator {
   private func routerAction(
