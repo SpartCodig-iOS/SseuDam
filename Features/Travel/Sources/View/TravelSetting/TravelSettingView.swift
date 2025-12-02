@@ -40,29 +40,26 @@ public struct TravelSettingView: View {
 
             ScrollView {
                 VStack(spacing: 16) {
-                    //기본 설정
-                    BasicSettingView(
-                        store: store.scope(
-                            state: \.basicInfo,
-                            action: \.basicInfo
-                        )
-                    )
-
-                    //멤버
-                    MemberSettingView(
-                        store: store.scope(
-                            state: \.memberSetting,
-                            action: \.memberSetting
-                        )
-                    )
-
-                    //여행 관리
-                    TravelManageView(
-                        store: store.scope(
-                            state: \.manage,
-                            action: \.manage
-                        )
-                    )
+                    // 기본 설정
+                    IfLetStore(
+                        store.scope(state: \.basicInfo, action: \.basicInfo)
+                    ) { basicStore in
+                        BasicSettingView(store: basicStore)
+                    }
+                    
+                    // 멤버
+                    IfLetStore(
+                        store.scope(state: \.memberSetting, action: \.memberSetting)
+                    ) { memberStore in
+                        MemberSettingView(store: memberStore)
+                    }
+                    
+                    // 여행 관리
+                    IfLetStore(
+                        store.scope(state: \.manage, action: \.manage)
+                    ) { manageStore in
+                        TravelManageView(store: manageStore)
+                    }
                 }
                 .padding(16)
             }
@@ -75,6 +72,18 @@ public struct TravelSettingView: View {
             if newValue {
                 dismiss()
             }
+        }
+        .onAppear {
+            store.send(.onAppear)
+        }
+        .alert(
+            store.errorMessage ?? "",
+            isPresented: Binding(
+                get: { store.errorMessage != nil },
+                set: { _ in store.send(.clearError) }
+            )
+        ) {
+            Button("확인", role: .cancel) { }
         }
     }
 }

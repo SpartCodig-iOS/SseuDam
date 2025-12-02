@@ -28,6 +28,8 @@ public struct MainCoordinatorView: View {
                 TravelView(store: store)
             case .createTravel(let store):
                 CreateTravelView(store: store)
+            case .travelSetting(let store):
+                TravelSettingView(store: store)
             }
         }
     }

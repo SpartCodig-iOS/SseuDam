@@ -16,6 +16,7 @@ public enum Screen {
     case travelList(TravelListFeature)
     case createTravel(TravelCreateFeature)
     case settlementCoordinator(SettlementCoordinator)
+    case travelSetting(TravelSettingFeature)
 }
 
 extension Screen.State: Equatable {}

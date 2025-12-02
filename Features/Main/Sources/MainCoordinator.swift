@@ -43,8 +43,13 @@ public struct MainCoordinator {
                 state.routes.pop()
                 return .none
             case .router(.routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId))))):
-                print("\(travelId) 여행 설정 페이지로 넘어갑니다.")
+                state.routes.push(.travelSetting(.init(travelId: travelId)))
                 return .none
+            case .router(.routeAction(_, .travelSetting(.delegate(.done)))):
+                state.routes.pop()
+                state.routes.pop()
+                return .none
+
             default:
                 break
             }
