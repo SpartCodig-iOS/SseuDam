@@ -8,6 +8,7 @@
 import Foundation
 import TCACoordinators
 import ComposableArchitecture
+import SettlementFeature
 
 @Reducer
 public struct MainCoordinator {
@@ -38,7 +39,12 @@ public struct MainCoordinator {
             case let .router(.routeAction(_, .travelList(.travelSelected(travelId)))):
                 state.routes.push(.settlementCoordinator(.init(travelId: travelId)))
                 return .none
-
+            case .router(.routeAction(_, .settlementCoordinator(.delegate(.onTapBackButton)))):
+                state.routes.pop()
+                return .none
+            case .router(.routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId))))):
+                print("\(travelId) 여행 설정 페이지로 넘어갑니다.")
+                return .none
             default:
                 break
             }

@@ -22,6 +22,20 @@ public struct ExpenseView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
+            // 네비게이션 바
+            NavigationBarView(
+                title: store.isEditMode ? "지출 수정" : "지출 추가",
+                onBackTapped: {
+                    send(.backButtonTapped)
+                }
+            ) {
+                if store.isEditMode {
+                    TrailingButton(text: "삭제") {
+                        send(.deleteButtonTapped)
+                    }
+                }
+            }
+
             ScrollView {
                 VStack(spacing: 20) {
                     // 1. 지출 제목
@@ -30,14 +44,14 @@ public struct ExpenseView: View {
                         placeholder: "ex) 점심 식사",
                         text: $store.title
                     )
-                    
+
                     // 2. 지출 금액
                     AmountInputField(
                         amount: $store.amount,
                         baseCurrency: store.baseCurrency,
                         convertedAmountKRW: store.convertedAmountKRW
                     )
-                   
+
                     // 3. 지출일
                     DatePickerField(
                         label: "지출일",
@@ -45,10 +59,10 @@ public struct ExpenseView: View {
                         startDate: store.travelStartDate,
                         endDate: store.travelEndDate
                     )
-                    
+
                     // 4. 카테고리
                     CategorySelector(selectedCategory: $store.selectedCategory)
-                    
+
                     // 5. 결제자 & 참여자
                     ParticipantSelectorView(
                         store: store.scope(
@@ -72,21 +86,20 @@ public struct ExpenseView: View {
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
-        .navigationTitle(store.isEditMode ? "지출 수정" : "지출 추가")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if store.isEditMode {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        send(.deleteButtonTapped)
-                    }) {
-                        Text("삭제")
-                            .foregroundStyle(.red)
+        .navigationBarBackButtonHidden(true)
+        .background(Color.white)
+        .alert($store.scope(state: \.deleteAlert, action: \.scope.deleteAlert))
+        .overlay {
+            if store.isLoading {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .overlay {
+                        ProgressView()
+                            .tint(.white)
+                            .controlSize(.large)
                     }
-                }
             }
         }
-        .background(Color.white)
     }
 }
 

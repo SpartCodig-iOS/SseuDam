@@ -8,7 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
-import SettlementFeature
 import ExpenseFeature
 import TravelFeature
 
@@ -26,8 +25,6 @@ public struct SettlementCoordinatorView: View {
                 ExpenseView(store: store)
             case .settlement(let store):
                 SettlementView(store: store)
-            case .travelDetail(let store):
-                CreateTravelView(store: store)
             }
         }
     }
