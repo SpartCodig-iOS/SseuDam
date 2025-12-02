@@ -11,6 +11,7 @@ import NetworkService
 
 public enum AuthAPITarget {
     case refreshToken(body: RefreshRequestDTO)
+    case logout(body: SessionRequestDTO)
 }
 
 
@@ -21,12 +22,22 @@ extension AuthAPITarget: BaseTargetType {
         return .auth
     }
 
-    public var requiresAuthorization: Bool { false }
+    public var requiresAuthorization: Bool {
+      switch self {
+        case .refreshToken:
+          return false
+        case .logout:
+          return true
+      }
+    }
 
     public var urlPath: String {
         switch self {
             case .refreshToken:
                 return AuthAPI.refresh.description
+
+          case .logout:
+            return AuthAPI.logOut.description
         }
     }
 
@@ -38,12 +49,15 @@ extension AuthAPITarget: BaseTargetType {
         switch self {
             case .refreshToken(let body):
                 return body.toDictionary
+
+          case .logout(let body):
+            return body.toDictionary
         }
     }
 
     public var method: Moya.Method {
         switch self {
-            case .refreshToken:
+          case .refreshToken, .logout:
                 return .post
         }
     }

@@ -9,11 +9,13 @@ import Domain
 import Moya
 import NetworkService
 
+
+
 final public class AuthRepository: AuthRepositoryProtocol {
     private var provider: MoyaProvider<AuthAPITarget>
 
     public init(
-      provider: MoyaProvider<AuthAPITarget> = MoyaProvider<AuthAPITarget>.default
+      provider: MoyaProvider<AuthAPITarget> = MoyaProvider<AuthAPITarget>.authorized
     ) {
         self.provider = provider
     }
@@ -28,6 +30,15 @@ final public class AuthRepository: AuthRepositoryProtocol {
         return data.toDomain()
     }
 
+  public func logout(
+    sessionId: String
+  ) async throws -> Domain.LogoutStatus {
+    let body = SessionRequestDTO(sessionId: sessionId)
+    let response: BaseResponse<LogoutResponseDTO> = try await provider.request(.logout(body: body))
+    guard let data = response.data  else {
+      throw NetworkError.noData
+    }
+    return data.toDomain()
+  }
 }
-
 extension AuthRepository: @unchecked Sendable {}

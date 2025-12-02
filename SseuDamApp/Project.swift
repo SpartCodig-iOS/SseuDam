@@ -9,6 +9,7 @@ let project = Project.makeApp(
         .Features.Login,
         .Features.Splash,
         .Features.Travel,
+        .Features.Profile,
         .Data
     ],
     infoPlist: .defaultSwiftUIApp,

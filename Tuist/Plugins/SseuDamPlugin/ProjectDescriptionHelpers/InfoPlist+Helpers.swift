@@ -27,6 +27,7 @@ public extension InfoPlist {
             ])
           ])
         ]),
+        "NSPhotoLibraryUsageDescription": .string("We use your photo library to update your profile image."),
         "UISupportedInterfaceOrientations": .array([
           .string("UIInterfaceOrientationPortrait")
         ])

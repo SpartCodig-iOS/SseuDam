@@ -20,3 +20,10 @@ public extension RefreshResponseDTO {
     return TokenResult(token: token)
   }
 }
+
+
+public extension LogoutResponseDTO {
+  func toDomain() -> LogoutStatus {
+    return LogoutStatus(revoked: self.revoked)
+  }
+}
