@@ -27,18 +27,18 @@ private struct SupabaseConfiguration {
     init(
         bundle: Bundle = .supabaseConfiguration
     ) {
-        guard let key = bundle.object(forInfoDictionaryKey: "SUPERBASE_KEY") as? String,
+        guard let key = bundle.object(forInfoDictionaryKey: "SUPABASE_KEY") as? String,
               !key.isEmpty else {
-            fatalError("SUPERBASE_KEY is missing. Check xcconfig or Info.plist settings.")
+            fatalError("SUPABASE_KEY is missing. Check xcconfig or Info.plist settings.")
         }
 
-        guard let urlString = bundle.object(forInfoDictionaryKey: "SUPERBASE_URL") as? String,
+        guard let urlString = bundle.object(forInfoDictionaryKey: "SUPABASE_URL") as? String,
               !urlString.isEmpty else {
-            fatalError("SUPERBASE_URL is missing. Check xcconfig or Info.plist settings.")
+            fatalError("SUPABASE_URL is missing. Check xcconfig or Info.plist settings.")
         }
 
         guard let url = URL(string: urlString.hasPrefix("http") ? urlString : "https://\(urlString)") else {
-            fatalError("SUPERBASE_URL is invalid: \(urlString)")
+            fatalError("SUPABASE_URL is invalid: \(urlString)")
         }
 
         self.key = key

@@ -7,5 +7,8 @@
 
 import Foundation
 
-/// Reserved for future logout / withdrawal flows.
-public protocol AuthUseCaseProtocol {}
+import Foundation
+
+public protocol AuthUseCaseProtocol {
+  func logout() async throws ->  LogoutStatus
+}

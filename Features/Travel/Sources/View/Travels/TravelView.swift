@@ -19,45 +19,49 @@ public struct TravelView: View {
     }
 
     public var body: some View {
-        GestureNavigationStack {
-            VStack {
-                TravelListHeaderView()
+        VStack {
+            TravelListHeaderView {
+//                store.send(.profileButtonTapped)
+            }
 
-                TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
+            TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
 
-                ScrollView {
-                    LazyVStack(spacing: 18) {
-                        ForEach(store.travels, id: \.id) { travel in
-                            TravelCardView(travel: travel)
-                                .onAppear {
-                                    store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
-                                }
-                                .onTapGesture {
-                                    // detail 이동
-                                }
-                        }
-
-                        if store.isLoadingNextPage {
-                            ProgressView().padding(.vertical, 20)
-                        }
+            ScrollView {
+                LazyVStack(spacing: 18) {
+                    ForEach(store.travels, id: \.id) { travel in
+                        TravelCardView(travel: travel)
+                            .onAppear {
+                                store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
+                            }
+                            .onTapGesture {
+                                store.send(.travelSelected(travelId: travel.id))
+                            }
                     }
-                    .padding(16)
+
+                    if store.isLoadingNextPage {
+                        ProgressView().padding(.vertical, 20)
+                    }
                 }
-            }
-            .background(Color.primary50)
-            .overlay(alignment: .bottomTrailing) {
-                FloatingPlusButton {
-                    store.send(.createButtonTapped)
-                }
-                .padding(.trailing, 20)
-                .padding(.bottom, 54)
-            }
-            .navigationDestination(
-                store: store.scope(state: \.$create, action: \.create)
-            ) { createStore in
-                CreateTravelView(store: createStore)
+                .padding(16)
             }
         }
+        .background(Color.primary50)
+        .overlay(alignment: .bottomTrailing) {
+            FloatingPlusButton {
+                store.send(.createButtonTapped)
+            }
+            .padding(.trailing, 20)
+            .padding(.bottom, 54)
+        }
+//        .navigationDestination(
+//            store: store.scope(state: \.$create, action: \.create)
+//        ) { createStore in
+//            CreateTravelView(store: createStore)
+//        }
+//        .navigationDestination(item: $store.scope(state: \.profile, action: \.profile)) { profilestore in
+//            ProfileCoordinatorView(store: profilestore)
+//                .navigationBarBackButtonHidden(true)
+//        }
         .onAppear {
             store.send(.onAppear)
         }
