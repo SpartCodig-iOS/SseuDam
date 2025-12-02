@@ -11,12 +11,12 @@ import Domain
 import NetworkService
 
 final public class ProfileRepository: ProfileRepositoryProtocol {
-  private let provider: MoyaProvider<ProfileTarget>
-
-  public init(provider: MoyaProvider<ProfileTarget> = MoyaProvider<ProfileTarget>.authorized) {
-    self.provider = provider
-  }
-
+    private let provider: MoyaProvider<ProfileTarget>
+    
+    public init(provider: MoyaProvider<ProfileTarget> = MoyaProvider<ProfileTarget>.authorized) {
+        self.provider = provider
+    }
+    
     public func getProfile() async throws -> Domain.Profile {
         let response: BaseResponse<ProfileResponseDTO> = try await provider.request(.getProfile)
         guard let data = response.data else {
@@ -24,7 +24,7 @@ final public class ProfileRepository: ProfileRepositoryProtocol {
         }
         return data.toDomain()
     }
-
+    
     public func editProfile(
         name: String?,
         avatarData: Data?,
@@ -38,5 +38,5 @@ final public class ProfileRepository: ProfileRepositoryProtocol {
         }
         return data.toDomain()
     }
-
+    
 }

@@ -24,9 +24,10 @@ extension AuthResponseDTO {
             refreshToken: self.refreshToken,
             sessionID: self.sessionID
         )
-        let socialtype = SocialType(rawValue: self.loginType)
+        let socialtype = SocialType(rawValue: self.loginType ?? "")
         return AuthResult(
-            name: self.user.name,
+          userId: self.user.id,
+          name: self.user.name,
             provider: socialtype ?? .none,
             token: token
         )

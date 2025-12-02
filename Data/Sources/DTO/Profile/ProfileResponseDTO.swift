@@ -13,7 +13,7 @@ struct ProfileResponseDTO: Decodable {
     let role, createdAt, updatedAt: String
     let loginType: String?
     let avatarURL: String?
-
+    
     enum CodingKeys: String, CodingKey {
         case id
         case userID = "userId"
