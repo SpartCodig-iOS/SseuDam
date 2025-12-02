@@ -21,7 +21,7 @@ public struct TravelView: View {
     public var body: some View {
         VStack {
             TravelListHeaderView {
-//                store.send(.profileButtonTapped)
+                store.send(.profileButtonTapped)
             }
 
             TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))

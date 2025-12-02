@@ -7,7 +7,8 @@ let project = Project.makeFeature(
         .SPM.TCACoordinators,
         .Features.Travel,
         .Features.Expense,
-        .Features.Settlement
+        .Features.Settlement,
+        .Features.Profile
     ],
     hasTests: true
 )

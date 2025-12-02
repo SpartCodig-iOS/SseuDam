@@ -14,7 +14,7 @@ public struct LoginCoordinator {
   public init() {}
 
   @ObservableState
-  public struct State: Equatable, Hashable {
+  public struct State: Equatable {
     var routes: [Route<LoginScreen.State>]
     public init() {
       self.routes = [.root(.login(.init()), embedInNavigationView: true)]
@@ -76,7 +76,7 @@ extension LoginCoordinator {
   }
 }
 
-extension LoginCoordinator.LoginScreen.State: Equatable, Hashable {}
+extension LoginCoordinator.LoginScreen.State: Equatable {}
 
 extension LoginCoordinator {
   private func routerAction(

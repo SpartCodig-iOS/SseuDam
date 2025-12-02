@@ -23,6 +23,18 @@ public struct GestureNavigationStack<Content: View>: View {
     }
 }
 
+extension UINavigationController: UIKit.UIGestureRecognizerDelegate {
+  override open func viewDidLoad() {
+    super.viewDidLoad()
+
+    interactivePopGestureRecognizer?.delegate = self
+  }
+
+  public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+    return viewControllers.count > 1
+  }
+}
+
 /// UIKit UINavigationController의 interactivePopGestureRecognizer를 활성화하는 Helper
 struct GestureNavigationStackHelper: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {

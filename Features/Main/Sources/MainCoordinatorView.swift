@@ -11,6 +11,7 @@ import TCACoordinators
 import TravelFeature
 import SettlementFeature
 import ExpenseFeature
+import ProfileFeature
 
 public struct MainCoordinatorView: View {
     let store: StoreOf<MainCoordinator>
@@ -28,6 +29,9 @@ public struct MainCoordinatorView: View {
                 TravelView(store: store)
             case .createTravel(let store):
                 CreateTravelView(store: store)
+              case .profile(let store):
+                ProfileCoordinatorView(store: store)
+                  .navigationBarBackButtonHidden()
             }
         }
     }
