@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import TCACoordinators
+import DesignSystem
 
 public struct ProfileCoordinatorView: View {
   let store: StoreOf<ProfileCoordinator>

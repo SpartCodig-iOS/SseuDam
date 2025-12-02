@@ -25,13 +25,17 @@ public struct MainCoordinatorView: View {
             switch screen.case {
             case .settlementCoordinator(let store):
                 SettlementCoordinatorView(store: store)
+                  .enableSwipeBack()
             case .travelList(let store):
                 TravelView(store: store)
+                  .enableSwipeBack()
             case .createTravel(let store):
                 CreateTravelView(store: store)
+                  .enableSwipeBack()
               case .profile(let store):
                 ProfileCoordinatorView(store: store)
                   .navigationBarBackButtonHidden()
+                  .enableSwipeBack()
             }
         }
     }
