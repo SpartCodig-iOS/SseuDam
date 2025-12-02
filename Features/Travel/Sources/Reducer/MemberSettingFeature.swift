@@ -72,10 +72,9 @@ public struct MemberSettingFeature {
             case .deleteMemberTapped(let id):
                 state.isSubmitting = true
                 state.deletingMemberId = id
-                return .run {
-                    [travelId = state.travel.id,
-                     deleteTravelMemberUseCase,
-                     id] send in
+                let travelId = state.travel.id
+
+                return .run { send in
                     do {
                         try await deleteTravelMemberUseCase.execute(travelId: travelId, memberId: id)
                         await send(.deleteMemberResponse(.success(())))
