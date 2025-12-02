@@ -13,13 +13,21 @@ import ComposableArchitecture
 struct TravelManageView: View {
     @Bindable var store: StoreOf<TravelManageFeature>
     @State private var isEditing = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Text("여행 관리")
+                    .font(.app(.title3, weight: .medium))
+                    .foregroundStyle(Color.appBlack)
 
-            SectionHeader(title: "여행 관리", isEditing: $isEditing)
+                Spacer()
+            }
 
             VStack(spacing: 0) {
-                Button(action: {}) {
+                Button {
+                    store.send(.leaveTapped)
+                } label: {
                     HStack {
                         Image(assetName: "logout")
                             .resizable()
@@ -33,24 +41,29 @@ struct TravelManageView: View {
                     }
                     .foregroundStyle(Color.appBlack)
                 }
+                .disabled(store.isSubmitting)
 
-                Divider()
-                    .foregroundStyle(Color.gray1)
-                    .padding(.vertical, 12)
+                if store.isOwner {
+                    Divider()
+                        .foregroundStyle(Color.gray1)
+                        .padding(.vertical, 12)
 
-                Button(action: {}) {
-                    HStack {
-                        Image(assetName: "trash")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 20)
+                    Button {
+                        store.send(.deleteTapped)
+                    } label: {
+                        HStack {
+                            Image(assetName: "trash")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 20)
 
-                        Text("여행 삭제")
-                            .font(.app(.title3))
+                            Text("여행 삭제")
+                                .font(.app(.title3))
 
-                        Spacer()
+                            Spacer()
+                        }
+                        .foregroundStyle(.red)
                     }
-                    .foregroundStyle(.red)
                 }
             }
             .padding(16)

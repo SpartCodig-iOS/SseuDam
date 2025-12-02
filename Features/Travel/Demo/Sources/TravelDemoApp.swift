@@ -43,6 +43,7 @@ struct TravelDemoApp: App {
         createdAt: Date(),
         ownerName: "김민희",
         members: [
+            TravelMember(id: "MOCKmember-0", name: "김민희", role: "owner"),
             TravelMember(id: "MOCKmember-1", name: "친구1", role: "member"),
             TravelMember(id: "MOCKmember-2", name: "친구2", role: "member"),
             TravelMember(id: "MOCKmember-3", name: "친구3", role: "member")

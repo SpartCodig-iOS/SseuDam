@@ -16,7 +16,7 @@ struct MemberSettingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
 
-            SectionHeader(title: "멤버", isEditing: $isEditing)
+            SectionHeader(title: "멤버", isOWner: store.travel.role == "owner", isEditing: $isEditing)
 
             let members = store.members
             //TODO: 내 아이디

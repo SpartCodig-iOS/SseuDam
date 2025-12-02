@@ -10,6 +10,7 @@ import DesignSystem
 
 struct SectionHeader: View {
     let title: String
+    let isOWner: Bool
     @Binding var isEditing: Bool
 
     var body: some View {
@@ -19,15 +20,17 @@ struct SectionHeader: View {
                 .foregroundStyle(Color.appBlack)
             Spacer()
 
-            Button {
-                withAnimation {
-                    isEditing.toggle()
+            if isOWner {
+                Button {
+                    withAnimation {
+                        isEditing.toggle()
+                    }
+                } label: {
+                    Text(isEditing ? "완료" : "수정")
+                        .underline(true, color: Color.gray7)
+                        .font(.app(.caption1, weight: .medium))
+                        .foregroundColor(Color.gray7)
                 }
-            } label: {
-                Text(isEditing ? "완료" : "수정")
-                    .underline(true, color: Color.gray7)
-                    .font(.app(.caption1, weight: .medium))
-                    .foregroundColor(Color.gray7)
             }
         }
     }
