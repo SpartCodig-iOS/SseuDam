@@ -27,3 +27,10 @@ public extension LogoutResponseDTO {
     return LogoutStatus(revoked: self.revoked)
   }
 }
+
+
+public extension AuthDeleteResponseDTO {
+  func toDomain() -> AuthDeleteStatus {
+    return AuthDeleteStatus(isDeleted: self.supabaseDeleted)
+  }
+}
