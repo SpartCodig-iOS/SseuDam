@@ -26,7 +26,7 @@ public struct SplashView: View {
             .edgesIgnoringSafeArea(.all)
 
           // 전환될 색상이 옆에서 슬라이드
-          Color.white
+          Color.primary50
             .edgesIgnoringSafeArea(.all)
             .offset(x: store.isAnimated ? 0 : geometry.size.width)
             .animation(.easeInOut(duration: 0.6), value: store.isAnimated)

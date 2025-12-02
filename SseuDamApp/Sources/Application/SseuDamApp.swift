@@ -29,6 +29,7 @@ struct SseuDamApp: App {
         $0.updateExpenseUseCase = makeUpdateExpenseUseCase()
         $0.deleteExpenseUseCase = makeDeleteExpenseUseCase()
         $0.expenseRepository = makeExpenseRepository()
+        $0.profileUseCase = makeProfileUseCase()
     }
 
     var body: some Scene {
@@ -45,7 +46,7 @@ private extension SseuDamApp {
     static func makeLoginUseCase() -> LoginUseCaseProtocol {
         LoginUseCase(repository: LoginRepository())
     }
-    
+
     static func makeOAuthUseCase() -> OAuthUseCaseProtocol {
         OAuthUseCase(
             repository: OAuthRepository(),
@@ -53,13 +54,13 @@ private extension SseuDamApp {
             appleRepository: AppleOAuthRepository()
         )
     }
-    
+
     static func makeSignUpUseCase() -> SignUpUseCaseProtocol {
         SignUpUseCase(
             repository: SignUpRepository()
         )
     }
-    
+
     static func makeUnifiedOAuthUseCase() -> UnifiedOAuthUseCase {
         UnifiedOAuthUseCase(
             oAuthUseCase: makeOAuthUseCase(),
@@ -67,15 +68,15 @@ private extension SseuDamApp {
             loginRepository: LoginRepository()
         )
     }
-    
+
     static func makeSessionUseCase() -> SessionUseCaseProtocol {
         SessionUseCase(repository: SessionRepository())
     }
-    
+
     static func makeAuthUseCase() -> AuthUseCaseProtocol {
         AuthUseCase(repository: AuthRepository())
     }
-    
+
     static func makeFetchTravelsUseCase() -> FetchTravelsUseCaseProtocol {
         FetchTravelsUseCase(
             repository: TravelRepository(
@@ -83,7 +84,7 @@ private extension SseuDamApp {
             )
         )
     }
-    
+
     static func makeCreateTravelUseCase() -> CreateTravelUseCaseProtocol {
         CreateTravelUseCase(
             repository: TravelRepository(
@@ -91,7 +92,7 @@ private extension SseuDamApp {
             )
         )
     }
-    
+
     static func makeFetchTravelDetailUseCase() -> FetchTravelDetailUseCaseProtocol {
         FetchTravelDetailUseCase(
             repository: TravelRepository(
@@ -99,7 +100,7 @@ private extension SseuDamApp {
             )
         )
     }
-    
+
     static func makeFetchTravelExpenseUseCase() -> FetchTravelExpenseUseCaseProtocol {
         FetchTravelExpenseUseCase(
             repository: makeExpenseRepository()
@@ -128,5 +129,9 @@ private extension SseuDamApp {
         ExpenseRepository(
             remote: ExpenseRemoteDataSource()
         )
+    }
+
+    static func makeProfileUseCase() -> ProfileUseCaseProtocol {
+        ProfileUseCase(repository: ProfileRepository())
     }
 }
