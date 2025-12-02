@@ -25,4 +25,18 @@ final public class ProfileRepository: ProfileRepositoryProtocol {
         return data.toDomain()
     }
 
+    public func editProfile(
+        name: String?,
+        avatarData: Data?,
+        fileName: String? = nil
+    ) async throws -> Domain.Profile {
+        let response: BaseResponse<ProfileResponseDTO> = try await provider.request(
+            .editProfile(name: name, image: avatarData, fileName: fileName)
+        )
+        guard let data = response.data else {
+            throw NetworkError.noData
+        }
+        return data.toDomain()
+    }
+
 }

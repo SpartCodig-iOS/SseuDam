@@ -9,4 +9,5 @@ import Foundation
 
 public protocol ProfileRepositoryProtocol {
   func getProfile() async throws -> Profile
+  func editProfile(name: String?, avatarData: Data?, fileName: String?) async throws -> Profile
 }

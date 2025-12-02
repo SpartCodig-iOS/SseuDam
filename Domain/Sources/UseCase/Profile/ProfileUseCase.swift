@@ -18,6 +18,20 @@ public struct ProfileUseCase: ProfileUseCaseProtocol {
   public func getProfile() async throws -> Profile {
     return try await repository.getProfile()
   }
+
+  public func editProfile(_ payload: ProfileEditPayload) async throws -> Profile {
+    let resolvedFileName: String? = {
+      // 파일이 있을 때만 기본 파일명을 지정하고, 없으면 그대로 nil 전달
+      guard payload.avatarData != nil else { return nil }
+      return payload.fileName ?? "avatar.jpg"
+    }()
+
+    return try await repository.editProfile(
+      name: payload.name,
+      avatarData: payload.avatarData,
+      fileName: resolvedFileName
+    )
+  }
 }
 
 

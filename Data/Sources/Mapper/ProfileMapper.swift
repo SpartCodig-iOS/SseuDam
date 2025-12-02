@@ -10,7 +10,7 @@ import Domain
 extension ProfileResponseDTO {
   func toDomain() -> Profile {
     
-    let socialType = SocialType(rawValue: self.loginType) ?? .none
+    let socialType = SocialType(rawValue: self.loginType ?? "") ?? .none
 
     return Profile(
       userId: self.userID,

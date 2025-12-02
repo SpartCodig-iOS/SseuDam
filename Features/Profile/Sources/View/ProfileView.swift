@@ -43,18 +43,6 @@ public struct ProfileView: View {
                     photoLibrary: .shared()
                 )
 
-
-                .onChange(of: store.selectedPhotoItem) { newItem, oldValue in
-                    guard let newItem else { return }
-
-                    Task { @MainActor in
-                        if let data = try? await newItem.loadTransferable(type: Data.self) {
-                            store.send(.view(.profileImageSelected(data)))
-                        } else {
-                            store.send(.view(.profileImageSelected(nil)))
-                        }
-                    }
-                }
             }
         }
         .onAppear {
@@ -97,7 +85,9 @@ extension ProfileView {
             Spacer()
                 .frame(height: 20)
 
-            EditProfileImage() {
+            EditProfileImage(
+              imageURL: store.profile?.profileImage
+            ) {
                 store.send(.view(.photoPickerButtonTapped))
             }
             .buttonStyle(.plain)

@@ -10,13 +10,16 @@ import UIKit
 
 public struct EditProfileImage: View {
   private let size: CGFloat
+  private let imageURL: String?
   private let action: (() -> Void)?
 
   public init(
     size: CGFloat = 100,
+    imageURL: String? = nil,
     action: (() -> Void)? = nil
   ) {
     self.size = size
+    self.imageURL = imageURL
     self.action = action
   }
 
@@ -41,11 +44,26 @@ public struct EditProfileImage: View {
         .fill(.appWhite)
         .frame(width: size, height: size)
 
-      Image(systemName: "person.fill")
-        .resizable()
-        .scaledToFit()
-        .frame(width: iconSize, height: 90)
-        .foregroundStyle(.primary500)
+      if let imageURL, let url = URL(string: imageURL) {
+        AsyncImage(url: url) { phase in
+          switch phase {
+          case .empty:
+            ProgressView()
+          case .success(let image):
+            image
+              .resizable()
+              .scaledToFill()
+          case .failure:
+            placeholder(iconSize: iconSize)
+          @unknown default:
+            placeholder(iconSize: iconSize)
+          }
+        }
+        .frame(width: size, height: size)
+        .clipShape(Circle())
+      } else {
+        placeholder(iconSize: iconSize)
+      }
 
       editBadge()
     }
@@ -74,6 +92,14 @@ public struct EditProfileImage: View {
     }
     .frame(width: size, height: size)
     .clipShape(Circle())        // 전체를 다시 원 모양으로 잘라줌
+  }
+
+  private func placeholder(iconSize: CGFloat) -> some View {
+    Image(systemName: "person.fill")
+      .resizable()
+      .scaledToFit()
+      .frame(width: iconSize, height: 90)
+      .foregroundStyle(.primary500)
   }
 }
 
