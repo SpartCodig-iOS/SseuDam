@@ -30,6 +30,7 @@ struct SseuDamApp: App {
         $0.deleteExpenseUseCase = makeDeleteExpenseUseCase()
         $0.expenseRepository = makeExpenseRepository()
         $0.profileUseCase = makeProfileUseCase()
+        $0.joinTravelUseCase = makeJoinTravelUseCase()
     }
 
     var body: some Scene {
@@ -133,5 +134,13 @@ private extension SseuDamApp {
 
     static func makeProfileUseCase() -> ProfileUseCaseProtocol {
         ProfileUseCase(repository: ProfileRepository())
+    }
+
+    static func makeJoinTravelUseCase() -> JoinTravelUseCaseProtocol {
+        JoinTravelUseCase(
+            repository: TravelMemberRepository(
+                remote: TravelMemberRemoteDataSource()
+            )
+        )
     }
 }

@@ -181,6 +181,7 @@ public struct TravelListFeature {
                 case .joinTravelResponse(.success(let travel)):
                     state.inviteCode = ""
                     // TODO: TravelDetail 화면으로 이동
+                    print(travel.id)
                     return .none
 
                 case .joinTravelResponse(.failure(let error)):
