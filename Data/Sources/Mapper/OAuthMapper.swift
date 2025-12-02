@@ -11,7 +11,8 @@ import Domain
 extension ChecSignUpResponseDTO {
     func toDomain() -> OAuthCheckUser {
         return OAuthCheckUser(
-            registered: self.registered
+            registered: self.registered,
+            needsTerms: !self.registered  // 미등록 사용자는 항상 약관 동의 필요
         )
     }
 }
