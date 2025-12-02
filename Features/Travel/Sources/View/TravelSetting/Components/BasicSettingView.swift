@@ -56,7 +56,7 @@ struct BasicSettingView: View {
 
                         if isEditing {
                             Button {
-                                showStartPicker = true
+                                showStartPicker.toggle()
                             } label: {
                                 HStack {
                                     Image(assetName: "calendar")
@@ -90,7 +90,7 @@ struct BasicSettingView: View {
 
                         if isEditing {
                             Button {
-                                showEndPicker = true
+                                showEndPicker.toggle()
                             } label: {
                                 HStack {
                                     Image(assetName: "calendar")
@@ -118,24 +118,46 @@ struct BasicSettingView: View {
                         "여행 시작",
                         selection: Binding(
                             get: { store.startDate },
-                            set: { store.send(.startDateChanged($0)) }
+                            set: { newValue in
+                                store.send(.startDateChanged(newValue))
+
+                                // 종료일 자동 조정
+                                if store.endDate < newValue {
+                                    store.send(.endDateChanged(newValue))
+                                }
+
+                                showStartPicker = false
+                            }
                         ),
                         in: Date.now...,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
+                    .presentationDetents([.medium])
+                    .presentationBackground(Color.primary50)
                 }
                 .sheet(isPresented: $showEndPicker) {
                     DatePicker(
                         "여행 종료",
                         selection: Binding(
                             get: { store.endDate },
-                            set: { store.send(.endDateChanged($0)) }
+                            set: { newValue in
+                                // 종료일이 시작일보다 이전이면 자동 조정
+                                if newValue < store.startDate {
+                                    store.send(.endDateChanged(store.startDate))
+                                } else {
+                                    store.send(.endDateChanged(newValue))
+                                }
+
+                                showEndPicker = false
+                            }
                         ),
                         in: store.startDate...,
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
+                    .presentationDetents([.medium])
+                    .presentationBackground(Color.primary50)
                 }
 
                 Divider()

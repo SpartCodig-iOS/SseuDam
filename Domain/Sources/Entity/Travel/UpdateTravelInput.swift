@@ -12,6 +12,7 @@ public struct UpdateTravelInput {
     public let startDate: Date
     public let endDate: Date
     public let countryCode: String
+    public let koreanCountryName: String
     public let baseCurrency: String
     public let baseExchangeRate: Double
 
@@ -20,6 +21,7 @@ public struct UpdateTravelInput {
         startDate: Date,
         endDate: Date,
         countryCode: String,
+        koreanCountryName: String,
         baseCurrency: String,
         baseExchangeRate: Double
     ) {
@@ -27,6 +29,7 @@ public struct UpdateTravelInput {
         self.startDate = startDate
         self.endDate = endDate
         self.countryCode = countryCode
+        self.koreanCountryName = koreanCountryName
         self.baseCurrency = baseCurrency
         self.baseExchangeRate = baseExchangeRate
     }

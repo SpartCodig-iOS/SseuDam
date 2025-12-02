@@ -29,6 +29,7 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             startDate: current.startDate,
             endDate: current.endDate,
             countryCode: current.countryCode,
+            koreanCountryName: current.koreanCountryName,
             baseCurrency: current.baseCurrency,
             baseExchangeRate: current.baseExchangeRate,
             inviteCode: current.inviteCode,
@@ -64,6 +65,7 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             startDate: current.startDate,
             endDate: current.endDate,
             countryCode: current.countryCode,
+            koreanCountryName: current.koreanCountryName,
             baseCurrency: current.baseCurrency,
             baseExchangeRate: current.baseExchangeRate,
             inviteCode: current.inviteCode,
@@ -91,6 +93,7 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             startDate: current.startDate,
             endDate: current.endDate,
             countryCode: current.countryCode,
+            koreanCountryName: current.koreanCountryName,
             baseCurrency: current.baseCurrency,
             baseExchangeRate: current.baseExchangeRate,
             inviteCode: current.inviteCode,
@@ -118,6 +121,7 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             startDate: current.startDate,
             endDate: current.endDate,
             countryCode: current.countryCode,
+            koreanCountryName: current.koreanCountryName,
             baseCurrency: current.baseCurrency,
             baseExchangeRate: current.baseExchangeRate,
             inviteCode: current.inviteCode,
@@ -135,14 +139,21 @@ private extension MockTravelMemberRepository {
     static func mockTravelList() -> [Travel] {
         _ = DateFormatters.apiDate
         let today = Date()
+        let countryNameMap: [String: String] = [
+            "KR": "대한민국",
+            "JP": "일본",
+            "US": "미국"
+        ]
 
         return (1...25).map { i in
-            Travel(
+            let code = ["KR", "JP", "US"].randomElement()!
+            return Travel(
                 id: "MOCK-\(i)",
                 title: "여행 \(i)",
                 startDate: today,
                 endDate: Calendar.current.date(byAdding: .day, value: 5, to: today)!,
-                countryCode: ["KR", "JP", "US"].randomElement()!,
+                countryCode: code,
+                koreanCountryName: countryNameMap[code] ?? "알 수 없음",
                 baseCurrency: "KRW",
                 baseExchangeRate: 1.0,
                 inviteCode: "INV-000\(i)",
@@ -150,12 +161,7 @@ private extension MockTravelMemberRepository {
                 role: "owner",
                 createdAt: today,
                 ownerName: "김민희",
-                members: [
-                    TravelMember(id: "MOCKmember-\(i)", name: "친구\(i)", role: "member"),
-                    TravelMember(id: "MOCKmember-\(i)", name: "친구\(i)", role: "member"),
-                    TravelMember(id: "MOCKmember-\(i)", name: "친구\(i)", role: "member"),
-                    TravelMember(id: "MOCKmember-\(i)", name: "친구\(i)", role: "member")
-                ]
+                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")]
             )
         }
     }

@@ -13,6 +13,7 @@ public struct UpdateTravelRequestDTO: Encodable {
     let startDate: String
     let endDate: String
     let countryCode: String
+    let countryNameKr: String
     let baseCurrency: String
     let baseExchangeRate: Double
 }
@@ -26,6 +27,7 @@ extension UpdateTravelInput {
             startDate: formatter.string(from: startDate),
             endDate: formatter.string(from: endDate),
             countryCode: countryCode,
+            countryNameKr: koreanCountryName,
             baseCurrency: baseCurrency,
             baseExchangeRate: baseExchangeRate
         )

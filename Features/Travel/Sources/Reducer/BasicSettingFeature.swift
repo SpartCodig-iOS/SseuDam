@@ -45,6 +45,7 @@ public struct BasicSettingFeature {
             self.endDate = travel.endDate
 
             self.selectedCountryCode = travel.countryCode
+            self.selectedCountryName = travel.koreanCountryName
             self.selectedCurrency = travel.baseCurrency
             self.exchangeRate = "\(travel.baseExchangeRate)"
         }
@@ -219,6 +220,7 @@ public struct BasicSettingFeature {
                     startDate: state.startDate,
                     endDate: state.endDate,
                     countryCode: state.selectedCountryCode ?? "KR",
+                    koreanCountryName: state.selectedCountryName ?? "한국",
                     baseCurrency: state.selectedCurrency ?? "KRW",
                     baseExchangeRate: state.selectedCountryCode == "KR" ? 1 : rate
                 )

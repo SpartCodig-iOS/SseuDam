@@ -64,6 +64,7 @@ public extension Travel {
             startDate: Date().addingTimeInterval(-86400 * 3), // 3일 전
             endDate: Date().addingTimeInterval(86400 * 3), // 3일 후
             countryCode: "JP",
+            koreanCountryName: "일본",
             baseCurrency: "JPY",
             baseExchangeRate: 900.0, // 1 JPY = 900 KRW
             inviteCode: "TOKYO2025",
@@ -87,6 +88,7 @@ public extension Travel {
             startDate: Date().addingTimeInterval(86400 * 14), // 14일 후
             endDate: Date().addingTimeInterval(86400 * 21), // 21일 후
             countryCode: "US",
+            koreanCountryName: "미국",
             baseCurrency: "USD",
             baseExchangeRate: 1350.0, // 1 USD = 1350 KRW
             inviteCode: "NYC2025",
@@ -108,6 +110,7 @@ public extension Travel {
             startDate: Date().addingTimeInterval(-86400 * 7), // 7일 전 (진행 중)
             endDate: Date().addingTimeInterval(86400 * 14), // 14일 후
             countryCode: "FR",
+            koreanCountryName: "프랑스",
             baseCurrency: "EUR",
             baseExchangeRate: 1450.0, // 1 EUR = 1450 KRW
             inviteCode: "EUROPE2025",
@@ -130,6 +133,7 @@ public extension Travel {
             startDate: Date().addingTimeInterval(-86400 * 14), // 14일 전
             endDate: Date().addingTimeInterval(-86400 * 7), // 7일 전 (완료)
             countryCode: "KR",
+            koreanCountryName: "한국",
             baseCurrency: "KRW",
             baseExchangeRate: 1.0, // 원화는 환율 변환 불필요
             inviteCode: "JEJU2024",

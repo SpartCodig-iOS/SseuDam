@@ -13,6 +13,7 @@ public struct Travel: Equatable {
     public let startDate: Date
     public let endDate: Date
     public let countryCode: String
+    public let koreanCountryName: String
     public let baseCurrency: String
     public let baseExchangeRate: Double
     public let inviteCode: String
@@ -28,6 +29,7 @@ public struct Travel: Equatable {
         startDate: Date,
         endDate: Date,
         countryCode: String,
+        koreanCountryName:String,
         baseCurrency: String,
         baseExchangeRate: Double,
         inviteCode: String,
@@ -42,6 +44,7 @@ public struct Travel: Equatable {
         self.startDate = startDate
         self.endDate = endDate
         self.countryCode = countryCode
+        self.koreanCountryName = koreanCountryName
         self.baseCurrency = baseCurrency
         self.baseExchangeRate = baseExchangeRate
         self.inviteCode = inviteCode

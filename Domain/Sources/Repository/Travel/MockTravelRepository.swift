@@ -47,6 +47,7 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
             startDate: input.startDate,
             endDate: input.endDate,
             countryCode: input.countryCode,
+            koreanCountryName: input.koreanCountryName,
             baseCurrency: input.baseCurrency,
             baseExchangeRate: input.baseExchangeRate,
             inviteCode: "INV\(Int.random(in: 1000...9999))",
@@ -73,6 +74,7 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
             startDate: input.startDate,
             endDate: input.endDate,
             countryCode: input.countryCode,
+            koreanCountryName: input.koreanCountryName,
             baseCurrency: input.baseCurrency,
             baseExchangeRate: input.baseExchangeRate,
             inviteCode: travels[index].inviteCode,
@@ -96,14 +98,21 @@ private extension MockTravelRepository {
     static func mockTravelList() -> [Travel] {
         _ = DateFormatters.apiDate
         let today = Date()
+        let countryNameMap: [String: String] = [
+            "KR": "대한민국",
+            "JP": "일본",
+            "US": "미국"
+        ]
 
         return (1...25).map { i in
-            Travel(
+            let code = ["KR", "JP", "US"].randomElement()!
+            return Travel(
                 id: "MOCK-\(i)",
                 title: "여행 \(i)",
                 startDate: today,
                 endDate: Calendar.current.date(byAdding: .day, value: 5, to: today)!,
-                countryCode: ["KR", "JP", "US"].randomElement()!,
+                countryCode: code,
+                koreanCountryName: countryNameMap[code] ?? "알 수 없음",
                 baseCurrency: "KRW",
                 baseExchangeRate: 1.0,
                 inviteCode: "INV-000\(i)",
