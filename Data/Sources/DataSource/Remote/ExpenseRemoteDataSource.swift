@@ -13,17 +13,19 @@ import NetworkService
 public protocol ExpenseRemoteDataSourceProtocol {
     func fetchTravelExpenses(travelId: String, page: Int, limit: Int) async throws -> TravelExpenseResponseDTO
     func createExpense(travelId: String, body: CreateExpenseRequestDTO) async throws
+    func updateExpense(travelId: String, expenseId: String, body: UpdateExpenseRequestDTO) async throws
+    func deleteExpense(travelId: String, expenseId: String) async throws
 }
 
-final class ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
+public struct ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
 
     private let provider: MoyaProvider<ExpenseAPI>
 
-    init(provider: MoyaProvider<ExpenseAPI> = MoyaProvider<ExpenseAPI>()) {
+    public init(provider: MoyaProvider<ExpenseAPI> = MoyaProvider<ExpenseAPI>()) {
         self.provider = provider
     }
 
-    func fetchTravelExpenses(
+    public func fetchTravelExpenses(
         travelId: String,
         page: Int,
         limit: Int
@@ -38,9 +40,16 @@ final class ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
         return data
     }
 
-    func createExpense(travelId: String, body: CreateExpenseRequestDTO) async throws {
-        let _: BaseResponse<EmptyDTO> =
-        try await provider.request(.createExpense(travelId: travelId, body: body))
+    public func createExpense(travelId: String, body: CreateExpenseRequestDTO) async throws {
+        let _: BaseResponse<EmptyDTO> = try await provider.request(.createExpense(travelId: travelId, body: body))
+    }
+
+    public func updateExpense(travelId: String, expenseId: String, body: UpdateExpenseRequestDTO) async throws {
+        let _: BaseResponse<EmptyDTO> = try await provider.request(.updateExpense(travelId: travelId, expenseId: expenseId, body: body))
+    }
+
+    public func deleteExpense(travelId: String, expenseId: String) async throws {
+        let _: BaseResponse<EmptyDTO> = try await provider.request(.deleteExpense(travelId: travelId, expenseId: expenseId))
     }
 }
 
@@ -48,6 +57,8 @@ final class ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
 public enum ExpenseAPI {
     case fetchTravelExpenses(travelId: String, page: Int, limit: Int)
     case createExpense(travelId: String, body: CreateExpenseRequestDTO)
+    case updateExpense(travelId: String, expenseId: String, body: UpdateExpenseRequestDTO)
+    case deleteExpense(travelId: String, expenseId: String)
 }
 
 extension ExpenseAPI: BaseTargetType {
@@ -64,6 +75,10 @@ extension ExpenseAPI: BaseTargetType {
             return "/\(travelId)/expenses"
         case .createExpense(let travelId, _):
             return "/\(travelId)/expenses"
+        case .updateExpense(let travelId, let expenseId, let _):
+            return "/\(travelId)/expenses/\(expenseId)"
+        case .deleteExpense(let travelId, let expenseId):
+            return "/\(travelId)/expenses/\(expenseId)"
         }
     }
 
@@ -71,6 +86,8 @@ extension ExpenseAPI: BaseTargetType {
         switch self {
         case .fetchTravelExpenses: return .get
         case .createExpense: return .post
+        case .updateExpense: return .patch
+        case .deleteExpense: return .delete
         }
     }
 
@@ -83,6 +100,10 @@ extension ExpenseAPI: BaseTargetType {
             ]
         case .createExpense(_, let body):
             return body.toDictionary
+        case .updateExpense(_, _, let body):
+            return body.toDictionary
+        case .deleteExpense(_, _):
+            return nil
         }
     }
 

@@ -7,9 +7,8 @@ public extension InfoPlist {
         "UILaunchScreen": .dictionary([
           "UILaunchScreen": .dictionary([:])
         ]),
-
-        "SUPERBASE_URL": .string("$(SUPERBASE_URL)"),
-        "SUPERBASE_KEY": .string("$(SUPERBASE_KEY)"),
+        "SUPABASE_URL": .string("$(SUPABASE_URL)"),
+        "SUPABASE_KEY": .string("$(SUPABASE_KEY)"),
         "GOOGLE_IOS_CLIENT_ID": .string("$(GOOGLE_IOS_CLIENT_ID)"),
         "GOOGLE_SERVER_CLIENT_ID": .string("$(GOOGLE_SERVER_CLIENT_ID)"),
         "GOOGLE_REVERSED_IOS_CLIENT_ID": .string("$(GOOGLE_REVERSED_IOS_CLIENT_ID)"),

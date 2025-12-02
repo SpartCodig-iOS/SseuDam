@@ -24,7 +24,7 @@ public struct LoginFeature {
         var statusMessage: String?
         var authResult: AuthResult?
         var currentNonce: String = ""
-        @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
+        @Shared(.appStorage("socialType")) var socialType: SocialType? = nil
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
 
         @Presents var destination: Destination.State?
@@ -48,7 +48,6 @@ public struct LoginFeature {
     public enum Destination {
       case termsService(TermsAgreementFeature)
     }
-
 
     // MARK: - ViewAction
     @CasePathable
@@ -113,6 +112,18 @@ public struct LoginFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+    }
+}
+
+extension LoginFeature.Destination.State: Hashable {}
+
+extension LoginFeature.State: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(isLoading)
+        hasher.combine(statusMessage)
+        hasher.combine(authResult)
+        hasher.combine(currentNonce)
+        hasher.combine(destination)
     }
 }
 

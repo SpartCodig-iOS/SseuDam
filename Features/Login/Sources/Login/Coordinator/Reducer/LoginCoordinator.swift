@@ -14,7 +14,7 @@ public struct LoginCoordinator {
   public init() {}
 
   @ObservableState
-  public struct State: Equatable {
+  public struct State: Equatable, Hashable {
     var routes: [Route<LoginScreen.State>]
     public init() {
       self.routes = [.root(.login(.init()), embedInNavigationView: true)]
@@ -36,7 +36,7 @@ public struct LoginCoordinator {
 
   @CasePathable
   public enum DelegateAction {
-    case presentTravel
+    case presentMain
 
   }
 
@@ -70,12 +70,13 @@ public struct LoginCoordinator {
 }
 
 extension LoginCoordinator {
-  @Reducer(state: .equatable)
+  @Reducer
   public enum LoginScreen {
     case login(LoginFeature)
   }
 }
 
+extension LoginCoordinator.LoginScreen.State: Equatable, Hashable {}
 
 extension LoginCoordinator {
   private func routerAction(
@@ -84,7 +85,7 @@ extension LoginCoordinator {
   ) -> Effect<Action> {
     switch action {
       case .routeAction(id: _, action: .login(.delegate(.presentTravelList))):
-        return .send(.delegate(.presentTravel))
+        return .send(.delegate(.presentMain))
       default:
         return .none
     }
@@ -111,7 +112,7 @@ extension LoginCoordinator {
       action: DelegateAction
   ) -> Effect<Action> {
       switch action {
-        case .presentTravel:
+        case .presentMain:
           return .none
 
       }

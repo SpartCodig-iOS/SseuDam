@@ -20,7 +20,7 @@ public final class TravelRepository: TravelRepositoryProtocol {
         input: FetchTravelsInput
     ) async throws -> [Travel] {
         let requestDTO = input.toDTO()
-        let dtoList = try await remote.fetchTravels(body: requestDTO)
+        let dtoList = try await remote.fetchTravels(body: requestDTO).items
         return dtoList.map { $0.toDomain() }
     }
 

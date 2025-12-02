@@ -13,14 +13,18 @@ import IdentifiedCollections
 @Reducer
 public struct ParticipantSelectorFeature {
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var payer: TravelMember?
         var participants: IdentifiedArrayOf<TravelMember> = []
         var availableParticipants: IdentifiedArrayOf<TravelMember>
-
+        
         @Presents var payerDialog: ConfirmationDialogState<Action.PayerDialog>?
-
-        public init(availableParticipants: IdentifiedArrayOf<TravelMember>) {
+        
+        public init(
+            availableParticipants: IdentifiedArrayOf<TravelMember>,
+            payer: TravelMember? = nil,
+            participants: IdentifiedArrayOf<TravelMember> = []
+        ) {
             self.availableParticipants = availableParticipants
         }
     }
@@ -49,7 +53,7 @@ public struct ParticipantSelectorFeature {
         }
 
         @CasePathable
-        public enum PayerDialog: Equatable {
+        public enum PayerDialog: Equatable, Hashable {
             case selectPayer(TravelMember)
         }
     }

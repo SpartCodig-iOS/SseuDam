@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ExpenseCategory: String, CaseIterable, Codable {
+public enum ExpenseCategory: String, CaseIterable, Codable, Hashable {
     case accommodation = "accommodation"    // 숙박
     case foodAndDrink  = "food_and_drink"   // 식비
     case transportation = "transportation"  // 교통

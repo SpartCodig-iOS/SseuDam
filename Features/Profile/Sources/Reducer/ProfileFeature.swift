@@ -5,6 +5,13 @@
 //  Created by Wonji Suh  on 11/28/25.
 //
 
+//
+//  ProfileFeature.swift
+//  ProfileFeature
+//
+//  Created by Wonji Suh  on 11/28/25.
+//
+
 import Foundation
 import ComposableArchitecture
 import SwiftUI
@@ -302,4 +309,16 @@ extension ProfileFeature {
         return .none
     }
   }
+}
+
+extension ProfileFeature.State: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(profileImageData)
+        hasher.combine(isPhotoPickerPresented)
+        hasher.combine(selectedPhotoItem)
+        hasher.combine(logoutStatus)
+        hasher.combine(errorMessage)
+        hasher.combine(profile)
+        hasher.combine(isLoadingProfile)
+    }
 }

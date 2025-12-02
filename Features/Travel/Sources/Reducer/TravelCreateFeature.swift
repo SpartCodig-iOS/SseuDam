@@ -12,7 +12,7 @@ import ComposableArchitecture
 @Reducer
 public struct TravelCreateFeature {
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var title = ""
 
         // 국가 검색
@@ -59,6 +59,8 @@ public struct TravelCreateFeature {
                 $0.englishName.lowercased().contains(searchText.lowercased())
             }
         }
+        
+        public init() {}
     }
 
     public enum Action: BindableAction {
@@ -86,6 +88,8 @@ public struct TravelCreateFeature {
 
         case dismiss
     }
+    
+    public init() {}
 
     @Dependency(\.createTravelUseCase) var createTravelUseCase
     @Dependency(\.fetchCountriesUseCase) var fetchCountriesUseCase
