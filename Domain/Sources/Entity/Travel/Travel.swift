@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Travel: Equatable {
+public struct Travel: Equatable, Hashable {
     public let id: String
     public let title: String
     public let startDate: Date
@@ -15,9 +15,10 @@ public struct Travel: Equatable {
     public let countryCode: String
     public let baseCurrency: String
     public let baseExchangeRate: Double
-    public let inviteCode: String
+    public let destinationCurrency: String
+    public let inviteCode: String?
     public let status: TravelStatus
-    public let role: String
+    public let role: String?
     public let createdAt: Date
     public let ownerName: String
     public let members: [TravelMember]
@@ -30,9 +31,10 @@ public struct Travel: Equatable {
         countryCode: String,
         baseCurrency: String,
         baseExchangeRate: Double,
-        inviteCode: String,
+        destinationCurrency: String,
+        inviteCode: String? = nil,
         status: TravelStatus,
-        role: String,
+        role: String? = nil,
         createdAt: Date,
         ownerName: String,
         members: [TravelMember]
@@ -44,6 +46,7 @@ public struct Travel: Equatable {
         self.countryCode = countryCode
         self.baseCurrency = baseCurrency
         self.baseExchangeRate = baseExchangeRate
+        self.destinationCurrency = destinationCurrency
         self.inviteCode = inviteCode
         self.status = status
         self.role = role

@@ -15,7 +15,7 @@ public struct TermsAgreementFeature {
     public init() {}
 
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Hashable {
         var privacyAgreed: Bool = false
         var serviceAgreed: Bool = false
         var allAgreed: Bool {

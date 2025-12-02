@@ -17,13 +17,15 @@ public struct SettlementFeature {
     public init() {}
 
     @ObservableState
-    public struct State: Equatable {
-        public var currentExpense: [Expense] = []
+    public struct State: Equatable, Hashable {
+        public var allExpenses: [Expense] = [] // 전체 지출 데이터 (캐싱)
+        public var currentExpense: [Expense] = [] // 현재 선택된 날짜의 지출
         public var startDate: Date = Date()
         public var endDate: Date = Date()
         public var selectedDate: Date = Date()
         public var travelTitle: String = ""
         public let travelId: String
+        public var travel: Travel? = nil // ExpenseFeature 생성 시 전달용
 
         public var totalAmount: Int {
             Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
@@ -50,6 +52,7 @@ public struct SettlementFeature {
         public enum ViewAction {
             case onAppear
             case addExpenseButtonTapped
+            case onTapExpense(Expense)
         }
 
         @CasePathable
@@ -61,7 +64,6 @@ public struct SettlementFeature {
         @CasePathable
         public enum AsyncAction {
             case fetchData
-            case fetchExpenses(Date)
         }
     }
 
@@ -77,8 +79,9 @@ public struct SettlementFeature {
             case .async(let asyncAction):
                 return handleAsyncAction(state: &state, action: asyncAction)
             case .binding(\.selectedDate):
-                let date = state.selectedDate
-                return .send(.async(.fetchExpenses(date)))
+                // 로컬 캐시에서 필터링
+                filterExpensesByDate(&state, date: state.selectedDate)
+                return .none
             case .binding:
                 return .none
             }
@@ -97,6 +100,8 @@ extension SettlementFeature {
             // TODO: 지출 추가 화면으로 네비게이션
             print("Add expense button tapped")
             return .none
+        case .onTapExpense:
+            return .none
         }
     }
 
@@ -104,6 +109,7 @@ extension SettlementFeature {
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
         case let .travelDetailResponse(.success(travel)):
+            state.travel = travel
             state.travelTitle = travel.title
             state.startDate = travel.startDate
             state.endDate = travel.endDate
@@ -117,7 +123,10 @@ extension SettlementFeature {
             return .none
 
         case let .expensesResponse(.success(expenses)):
-            state.currentExpense = expenses
+            // 전체 지출 데이터를 캐싱
+            state.allExpenses = expenses
+            // 현재 선택된 날짜로 필터링
+            filterExpensesByDate(&state, date: state.selectedDate)
             return .none
 
         case let .expensesResponse(.failure(error)):
@@ -136,19 +145,23 @@ extension SettlementFeature {
                 async let travelDetailResult = Result {
                     try await fetchTravelDetailUseCase.execute(id: travelId)
                 }
-                // 지출 내역 조회 (Prefetching)
-                let _ = try await fetchTravelExpenseUseCase.execute(travelId: travelId, date: nil)
-                await send(.inner(.travelDetailResponse(travelDetailResult)))
-            }
 
-        case let .fetchExpenses(date):
-            let travelId = state.travelId
-            return .run { send in
-                let result = await Result {
-                    try await fetchTravelExpenseUseCase.execute(travelId: travelId, date: date)
+                // 전체 지출 내역 조회 (date: nil로 전체 조회)
+                async let expensesResult = Result {
+                    try await fetchTravelExpenseUseCase.execute(travelId: travelId, date: nil)
                 }
-                await send(.inner(.expensesResponse(result)))
+
+                await send(.inner(.travelDetailResponse(travelDetailResult)))
+                await send(.inner(.expensesResponse(expensesResult)))
             }
+        }
+    }
+
+    // MARK: - Helper Methods
+    private func filterExpensesByDate(_ state: inout State, date: Date) {
+        let calendar = Calendar.current
+        state.currentExpense = state.allExpenses.filter { expense in
+            calendar.isDate(expense.expenseDate, inSameDayAs: date)
         }
     }
 }

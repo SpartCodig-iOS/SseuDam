@@ -7,12 +7,12 @@
 
 import Foundation
 
-public struct LogoutStatus: Equatable {
-  public let revoked: Bool
-
-  public init(
-    revoked: Bool
-  ) {
-    self.revoked = revoked
-  }
+public struct LogoutStatus: Equatable, Hashable {
+    public let revoked: Bool
+    
+    public init(
+        revoked: Bool
+    ) {
+        self.revoked = revoked
+    }
 }

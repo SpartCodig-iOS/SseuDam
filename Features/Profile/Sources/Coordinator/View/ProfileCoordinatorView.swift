@@ -11,7 +11,7 @@ import ComposableArchitecture
 import TCACoordinators
 
 public struct ProfileCoordinatorView: View {
-  @Bindable var store: StoreOf<ProfileCoordinator>
+  let store: StoreOf<ProfileCoordinator>
 
   public init(store: StoreOf<ProfileCoordinator>) {
     self.store = store
