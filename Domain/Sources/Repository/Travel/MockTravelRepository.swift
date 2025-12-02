@@ -90,13 +90,6 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
     public func deleteTravel(id: String) async throws {
         travels.removeAll { $0.id == id }
     }
-
-    public func fetchTravelDetail(id: String) async throws -> Travel {
-        guard let travel = travels.first(where: { $0.id == id }) else {
-            throw NSError(domain: "Mock", code: 404, userInfo: [NSLocalizedDescriptionKey: "Travel not found"])
-        }
-        return travel
-    }
 }
 
 private extension MockTravelRepository {
