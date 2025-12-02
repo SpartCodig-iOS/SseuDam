@@ -30,7 +30,7 @@ public struct ProfileFeature {
         var isPhotoPickerPresented = false
         var errorMessage: String? = ""
         var isLoadingProfile = true
-        var isProfileImageLoading = false
+//        var isProfileImageLoading = false
 
         var selectedPhotoItem: PhotosPickerItem?
 
@@ -66,7 +66,7 @@ public struct ProfileFeature {
         case photoPickerButtonTapped
         case profileImageSelected(Data?, String?)
         case showDeleteAlert
-        case profileImageLoadingStateChanged(Bool)
+//        case profileImageLoadingStateChanged(Bool)
     }
 
     //MARK: - AlertAction
@@ -211,9 +211,9 @@ extension ProfileFeature {
                 )
                 return .none
 
-            case .profileImageLoadingStateChanged(let isLoading):
-                state.isProfileImageLoading = isLoading
-                return .none
+//            case .profileImageLoadingStateChanged(let isLoading):
+//                state.isProfileImageLoading = isLoading
+//                return .none
         }
     }
 
@@ -417,6 +417,6 @@ extension ProfileFeature.State: Hashable {
         hasher.combine(errorMessage)
         hasher.combine(profile)
         hasher.combine(isLoadingProfile)
-        hasher.combine(isProfileImageLoading)
+//        hasher.combine(isProfileImageLoading)
     }
 }
