@@ -75,6 +75,72 @@ public extension UnifiedOAuthUseCase {
         return await attemptSignUp(with: oAuthData)
     }
 
+    /// 약관 동의 후 회원가입 처리
+    func signUpWithTermsAgreement(
+        with oAuthData: AuthData
+    ) async -> Result<AuthResult, AuthError> {
+        Log.info("✅ Terms agreement completed, proceeding with signup")
+        return await attemptSignUp(with: oAuthData)
+    }
+
+    /// OAuth 플로우 처리 (AuthFlowOutcome 반환)
+    func processOAuthFlow(
+        with socialType: SocialType,
+        appleCredential: ASAuthorizationAppleIDCredential? = nil,
+        nonce: String? = nil
+    ) async -> AuthFlowOutcome {
+        Log.info("🔐 Starting OAuth flow for: \(socialType.rawValue)")
+
+        // 1단계: OAuth Provider 인증
+        let oAuthData = await getOAuthCredentials(
+            socialType: socialType,
+            appleCredential: appleCredential,
+            nonce: nonce
+        )
+        guard case .success(let authData) = oAuthData else {
+            if case .failure(let error) = oAuthData {
+                return .failure(error)
+            } else {
+                return .failure(.unknownError("OAuth 인증 실패"))
+            }
+        }
+
+        // 2단계: 사용자 등록 상태 확인
+        let registrationStatus = await checkUserRegistrationStatus(with: authData)
+        guard case .success(let checkUser) = registrationStatus else {
+            if case .failure(let error) = registrationStatus {
+                return .failure(error)
+            } else {
+                return .failure(.unknownError("등록 상태 확인 실패"))
+            }
+        }
+
+        // 3단계: 등록 여부에 따른 분기 처리
+        if checkUser.registered {
+            // 이미 등록된 사용자 -> 로그인 진행
+            let loginResult = await attemptLogin(with: authData)
+            switch loginResult {
+            case .success(let authResult):
+                saveTokensAndComplete(authEntity: authResult)
+                return .loginSuccess(authResult)
+            case .failure(let error):
+                return .failure(error)
+            }
+        } else if checkUser.needsTerms {
+            // 약관 동의 필요
+            return .needsTermsAgreement(authData)
+        } else {
+            // 약관 동의 완료 -> 회원가입 진행
+            let signUpResult = await attemptSignUp(with: authData)
+            switch signUpResult {
+            case .success(let authResult):
+                return .signUpSuccess(authResult)
+            case .failure(let error):
+                return .failure(error)
+            }
+        }
+    }
+
     func loginOrSignUp(
         with socialType: SocialType,
         appleCredential: ASAuthorizationAppleIDCredential? = nil,
@@ -107,9 +173,22 @@ public extension UnifiedOAuthUseCase {
         }
 
         // 3단계: 등록 여부에 따른 분기 처리
-        let authResult = checkUser.registered
-            ? await attemptLogin(with: authData)
-            : await attemptSignUp(with: authData)
+        let authResult: Result<AuthResult, AuthError>
+
+        if checkUser.registered {
+            // 이미 등록된 사용자 -> 로그인 진행
+            authResult = await attemptLogin(with: authData)
+        } else {
+            // 미등록 사용자 -> 약관 동의 확인 후 회원가입
+            if checkUser.needsTerms {
+                // 약관 동의가 필요한 경우 -> 약관 동의 플로우 필요
+                Log.info("📋 Terms agreement required for new user")
+                return .failure(.needsTermsAgreement("약관 동의가 필요합니다"))
+            } else {
+                // 약관 동의 완료 -> 회원가입 진행
+                authResult = await attemptSignUp(with: authData)
+            }
+        }
 
         // 4단계: 성공 시 토큰 저장 (회원가입은 attemptSignUp에서 이미 처리)
         if case .success(let authEntity) = authResult, checkUser.registered {
