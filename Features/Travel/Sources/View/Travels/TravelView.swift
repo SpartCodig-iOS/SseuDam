@@ -81,5 +81,15 @@ public struct TravelView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .overlay {
+            if store.isInviteModalPresented {
+                InviteCodeModalView(
+                    code: store.inviteCode,
+                    onCodeChange: { store.send(.inviteCodeChanged($0)) },
+                    onConfirm: { store.send(.inviteConfirm) },
+                    onCancel: { store.send(.inviteModalDismiss) }
+                )
+            }
+        }
     }
 }

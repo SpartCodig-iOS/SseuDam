@@ -25,6 +25,9 @@ public struct TravelListFeature {
         var isLoadingNextPage = false
         var uiError: String?
 
+        var isInviteModalPresented: Bool = false
+        var inviteCode: String = ""
+
         @Presents var create: TravelCreateFeature.State?
 //        @Presents var profile: ProfileCoordinator.State?
 
@@ -47,6 +50,12 @@ public struct TravelListFeature {
         case selectCreateTravel
         case selectInviteCode
 
+        case inviteModalDismiss
+        case inviteCodeChanged(String)
+        case inviteConfirm
+
+        case joinTravelResponse(Result<Travel, Error>)
+
         case create(PresentationAction<TravelCreateFeature.Action>)
 
 //        case profileButtonTapped
@@ -54,7 +63,8 @@ public struct TravelListFeature {
 //        case presentToLogin
     }
 
-    @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase: FetchTravelsUseCaseProtocol
+    @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase
+    @Dependency(\.joinTravelUseCase) var joinTravelUseCase
 
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -143,8 +153,41 @@ public struct TravelListFeature {
 
                 case .selectInviteCode:
                     state.isMenuOpen = false
-                    // TODO: 초대 코드 입력 화면 띄우기
+                    state.isInviteModalPresented = true
                     return .none
+
+                case .inviteModalDismiss:
+                    state.isInviteModalPresented = false
+                    state.inviteCode = ""
+                    return .none
+
+                case .inviteCodeChanged(let code):
+                    state.inviteCode = code
+                    return .none
+
+                case .inviteConfirm:
+                    let code = state.inviteCode
+                    state.isInviteModalPresented = false
+
+                    return .run { send in
+                        do {
+                            let travel = try await joinTravelUseCase.execute(inviteCode: code)
+                            await send(.joinTravelResponse(.success(travel)))
+                        } catch {
+                            await send(.joinTravelResponse(.failure(error)))
+                        }
+                    }
+
+                case .joinTravelResponse(.success(let travel)):
+                    state.inviteCode = ""
+                    // TODO: TravelDetail 화면으로 이동
+                    return .none
+
+                case .joinTravelResponse(.failure(let error)):
+                    state.inviteCode = ""
+                    // TODO: 에러 Alert or Toast
+                    return .none
+
 
                 case .create(.dismiss):
                     state.create = nil
