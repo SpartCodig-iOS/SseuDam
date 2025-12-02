@@ -5,7 +5,8 @@ let project = Project.makeFeature(
     name: .Travel,
     dependencies: [
         .Domain,
-        .DesignSystem
+        .DesignSystem,
+        .Features.Profile
     ],
     demoDependencies: [
         .Data,

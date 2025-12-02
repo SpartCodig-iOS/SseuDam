@@ -12,7 +12,7 @@ public struct GoogleOAuthPayload {
     public let accessToken: String?
     public let authorizationCode: String?
     public let displayName: String?
-
+    
     public init(
         idToken: String,
         accessToken: String?,

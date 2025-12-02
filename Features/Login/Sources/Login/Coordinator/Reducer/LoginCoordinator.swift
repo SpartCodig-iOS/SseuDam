@@ -14,7 +14,7 @@ public struct LoginCoordinator {
   public init() {}
 
   @ObservableState
-  public struct State: Equatable, Hashable {
+  public struct State: Equatable {
     var routes: [Route<LoginScreen.State>]
     public init() {
       self.routes = [.root(.login(.init()), embedInNavigationView: true)]

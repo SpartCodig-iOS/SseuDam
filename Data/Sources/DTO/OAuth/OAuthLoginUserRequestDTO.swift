@@ -9,6 +9,6 @@ import Foundation
 import Domain
 
 public struct LoginUserRequestDTO: Encodable {
-  let accessToken: String
-  let loginType: String
+    let accessToken: String
+    let loginType: String
 }

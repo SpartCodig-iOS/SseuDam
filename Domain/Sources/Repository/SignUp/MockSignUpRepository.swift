@@ -108,6 +108,7 @@ public actor MockSignUpRepository: SignUpRepositoryProtocol {
     let mockUserName = "MockUser_\(input.socialType.description)_\(Int.random(in: 1000...9999))"
 
     return AuthResult(
+        userId: UUID().uuidString,
         name: mockUserName,
         provider: input.socialType,
         token: mockTokens

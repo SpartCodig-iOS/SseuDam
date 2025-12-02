@@ -12,15 +12,18 @@ public struct EditProfileImage: View {
   private let size: CGFloat
   private let imageURL: String?
   private let action: (() -> Void)?
+  private let onLoadingStateChanged: ((Bool) -> Void)?
 
   public init(
     size: CGFloat = 100,
     imageURL: String? = nil,
-    action: (() -> Void)? = nil
+    action: (() -> Void)? = nil,
+    onLoadingStateChanged: ((Bool) -> Void)? = nil
   ) {
     self.size = size
     self.imageURL = imageURL
     self.action = action
+    self.onLoadingStateChanged = onLoadingStateChanged
   }
 
   @ViewBuilder
@@ -49,14 +52,18 @@ public struct EditProfileImage: View {
           switch phase {
           case .empty:
             ProgressView()
+              .task { onLoadingStateChanged?(true) }
           case .success(let image):
             image
               .resizable()
               .scaledToFill()
+              .onAppear { onLoadingStateChanged?(false) }
           case .failure:
             placeholder(iconSize: iconSize)
+              .task { onLoadingStateChanged?(false) }
           @unknown default:
             placeholder(iconSize: iconSize)
+              .task { onLoadingStateChanged?(false) }
           }
         }
         .frame(width: size, height: size)

@@ -43,9 +43,7 @@ public struct TravelListFeature {
         case createButtonTapped
         case create(PresentationAction<TravelCreateFeature.Action>)
 
-//        case profileButtonTapped
-//        case profile(PresentationAction<ProfileCoordinator.Action>)
-//        case presentToLogin
+        case profileButtonTapped
     }
 
     @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase: FetchTravelsUseCaseProtocol
@@ -134,9 +132,8 @@ public struct TravelListFeature {
                 case .create:
                     return .none
 
-//                case .profileButtonTapped:
-//                    state.profile = ProfileCoordinator.State()
-//                    return .none
+                case .profileButtonTapped:
+                    return .none
 //
 //                case .profile(.presented(.delegate(.backToTravel))):
 //                    state.profile = nil

@@ -103,6 +103,18 @@ public actor MockAuthRepository: AuthRepositoryProtocol {
 
     return LogoutStatus(revoked: true)
   }
+
+  public func delete() async throws -> AuthDeleteStatus {
+    if delay > 0 {
+      try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+    }
+
+    if shouldThrowError {
+      throw errorToThrow ?? MockAuthError.networkError
+    }
+
+    return AuthDeleteStatus(isDeleted: true)
+  }
 }
 
 // Mock 전용 에러 타입

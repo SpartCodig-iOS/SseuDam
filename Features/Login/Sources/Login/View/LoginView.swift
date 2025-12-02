@@ -63,8 +63,8 @@ extension LoginView {
                 Image(asset: .logo)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 100, height: 45)
-                
+                    .frame(width: 157, height: 52)
+
                 Spacer()
             }
             

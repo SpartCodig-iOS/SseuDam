@@ -11,4 +11,5 @@ import Foundation
 
 public protocol AuthUseCaseProtocol {
   func logout() async throws ->  LogoutStatus
+  func deleteUser() async throws -> AuthDeleteStatus
 }

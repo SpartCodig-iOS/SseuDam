@@ -19,7 +19,7 @@ public struct ProfileView: View {
 
     public var body: some View {
         ZStack {
-            if store.isLoadingProfile {
+            if store.isLoadingProfile  {
                 ProfileSkeletonView()
             } else {
                 VStack {
@@ -41,6 +41,10 @@ public struct ProfileView: View {
                     selection: $store.selectedPhotoItem,
                     matching: .images,
                     photoLibrary: .shared()
+                )
+                .dsAlert(
+                    store.scope(state: \.alert, action: \.alert),
+                    dismissAction: .dismiss
                 )
 
             }
@@ -86,10 +90,11 @@ extension ProfileView {
                 .frame(height: 20)
 
             EditProfileImage(
-              imageURL: store.profile?.profileImage
-            ) {
-                store.send(.view(.photoPickerButtonTapped))
-            }
+                imageURL: store.profile?.profileImage,
+                action: {
+                    store.send(.view(.photoPickerButtonTapped))
+                }
+            )
             .buttonStyle(.plain)
 
             Spacer()
@@ -202,7 +207,9 @@ extension ProfileView {
                   image: .userDelete,
                   title: "회원탈퇴",
                   showArrow: false,
-                  action: {},
+                  action: {
+                      store.send(.view(.showDeleteAlert))
+                  },
                   tapTermAction: {}
               )
 
