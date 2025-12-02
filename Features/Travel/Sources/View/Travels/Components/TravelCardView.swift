@@ -104,6 +104,7 @@ struct TravelCardView: View {
         startDate: Date(),
         endDate: Date().addingTimeInterval(86400 * 3),
         countryCode: "JP",
+        koreanCountryName: "일본",
         baseCurrency: "KRW",
         baseExchangeRate: 1300,
         destinationCurrency: "USD",

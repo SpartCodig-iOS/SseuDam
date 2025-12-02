@@ -218,6 +218,7 @@ public struct TravelCreateFeature {
                     startDate: start,
                     endDate: end,
                     countryCode: code,
+                    koreanCountryName: state.selectedCountryName ?? "-",
                     baseCurrency: state.selectedCurrency ?? "KRW",
                     baseExchangeRate: code == "KR" ? 1 : rateValue
                 )
