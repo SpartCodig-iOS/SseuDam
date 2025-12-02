@@ -8,6 +8,7 @@
 import Foundation
 
 public struct AuthResult: Equatable, Hashable {
+    public let userId: String
     public let name: String
     public let provider: SocialType
     public var token:  AuthTokens

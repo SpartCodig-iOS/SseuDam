@@ -73,6 +73,9 @@ extension MainCoordinator {
                 state.routes.goBack()
                 return .none
 
+          case .routeAction(id: _, action: .profile(.delegate(.presentLogin))):
+            return .send(.delegate(.presentLogin))
+
             default:
                 return .none
         }
