@@ -12,7 +12,7 @@ public protocol DeleteTravelMemberUseCaseProtocol {
     func execute(travelId: String, memberId: String) async throws
 }
 
-public final class DeleteTravelMemberUseCase: DeleteTravelMemberUseCaseProtocol {
+public struct DeleteTravelMemberUseCase: DeleteTravelMemberUseCaseProtocol {
     private let repository: TravelMemberRepositoryProtocol
 
     public init(repository: TravelMemberRepositoryProtocol) {

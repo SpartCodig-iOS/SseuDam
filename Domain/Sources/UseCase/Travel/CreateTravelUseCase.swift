@@ -12,7 +12,7 @@ public protocol CreateTravelUseCaseProtocol {
     func excute(input: CreateTravelInput) async throws -> Travel
 }
 
-public final class CreateTravelUseCase: CreateTravelUseCaseProtocol {
+public struct CreateTravelUseCase: CreateTravelUseCaseProtocol {
     private let repository: TravelRepositoryProtocol
     
     public init(repository: TravelRepositoryProtocol) {

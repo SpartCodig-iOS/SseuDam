@@ -12,7 +12,7 @@ public protocol DelegateOwnerUseCaseProtocol {
     func execute(travelId: String, newOwnerId: String) async throws -> Travel
 }
 
-public final class DelegateOwnerUseCase: DelegateOwnerUseCaseProtocol {
+public struct DelegateOwnerUseCase: DelegateOwnerUseCaseProtocol {
     private let repository: TravelMemberRepositoryProtocol
 
     public init(repository: TravelMemberRepositoryProtocol) {

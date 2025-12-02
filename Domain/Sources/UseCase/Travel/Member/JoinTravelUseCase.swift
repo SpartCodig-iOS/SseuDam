@@ -12,7 +12,7 @@ public protocol JoinTravelUseCaseProtocol {
     func execute(inviteCode: String) async throws -> Travel
 }
 
-public final class JoinTravelUseCase: JoinTravelUseCaseProtocol {
+public struct JoinTravelUseCase: JoinTravelUseCaseProtocol {
     private let repository: TravelMemberRepositoryProtocol
 
     public init(repository: TravelMemberRepositoryProtocol) {

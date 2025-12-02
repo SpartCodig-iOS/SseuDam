@@ -12,7 +12,7 @@ public protocol LeaveTravelUseCaseProtocol {
     func execute(travelId: String) async throws
 }
 
-public final class LeaveTravelUseCase: LeaveTravelUseCaseProtocol {
+public struct LeaveTravelUseCase: LeaveTravelUseCaseProtocol {
     private let repository: TravelMemberRepositoryProtocol
 
     public init(repository: TravelMemberRepositoryProtocol) {
