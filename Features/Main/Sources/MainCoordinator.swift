@@ -29,7 +29,7 @@ public struct MainCoordinator {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .router(.routeAction(_, .travelList(.createButtonTapped))):
+            case .router(.routeAction(_, .travelList(.selectCreateTravel))):
                 state.routes.push(.createTravel(.init()))
                 return .none
             case .router(.routeAction(_, .createTravel(.dismiss))):

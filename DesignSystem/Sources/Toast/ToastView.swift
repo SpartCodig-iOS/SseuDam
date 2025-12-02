@@ -21,6 +21,7 @@ public struct ToastView: View {
         Image(asset: .xmark)
           .resizable()
           .scaledToFit()
+          .foregroundStyle(.red)
           .frame(width: 12, height: 12)
 
             // 메시지

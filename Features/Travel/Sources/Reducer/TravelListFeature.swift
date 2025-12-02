@@ -16,6 +16,8 @@ public struct TravelListFeature {
         var travels: [Travel] = []
         var selectedTab: TravelTab = .ongoing
 
+        var isMenuOpen = false
+
         var page = 1
         var hasNext = true
 
@@ -40,7 +42,11 @@ public struct TravelListFeature {
         case travelTabSelected(TravelTab)
 
         case travelSelected(travelId: String)
-        case createButtonTapped
+
+        case floatingButtonTapped
+        case selectCreateTravel
+        case selectInviteCode
+
         case create(PresentationAction<TravelCreateFeature.Action>)
 
 //        case profileButtonTapped
@@ -126,8 +132,18 @@ public struct TravelListFeature {
                 case .travelSelected:
                     return .none
 
-                case .createButtonTapped:
+                case .floatingButtonTapped:
+                    state.isMenuOpen.toggle()
+                    return .none
+
+                case .selectCreateTravel:
+                    state.isMenuOpen = false
                     state.create = TravelCreateFeature.State()
+                    return .none
+
+                case .selectInviteCode:
+                    state.isMenuOpen = false
+                    // TODO: 초대 코드 입력 화면 띄우기
                     return .none
 
                 case .create(.dismiss):

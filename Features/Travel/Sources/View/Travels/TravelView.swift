@@ -51,12 +51,24 @@ public struct TravelView: View {
         }
         .background(Color.primary50)
         .overlay(alignment: .bottomTrailing) {
-            FloatingPlusButton {
-                store.send(.createButtonTapped)
+            ZStack(alignment: .bottomTrailing) {
+                if store.isMenuOpen {
+                    TravelCreateMenuView(
+                        inviteTapped: { store.send(.selectInviteCode) },
+                        createTapped: { store.send(.selectCreateTravel) }
+                    )
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 116)
+                }
+
+                FloatingMenuButton(isOpen: store.isMenuOpen) {
+                    store.send(.floatingButtonTapped)
+                }
+                .padding(.trailing, 20)
+                .padding(.bottom, 54)
             }
-            .padding(.trailing, 20)
-            .padding(.bottom, 54)
         }
+
 //        .navigationDestination(
 //            store: store.scope(state: \.$create, action: \.create)
 //        ) { createStore in
