@@ -8,6 +8,7 @@
 import Foundation
 import TCACoordinators
 import ComposableArchitecture
+import SettlementFeature
 
 @Reducer
 public struct MainCoordinator {

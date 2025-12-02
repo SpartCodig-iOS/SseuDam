@@ -12,7 +12,7 @@ public protocol FetchTravelsUseCaseProtocol {
     func excute(input: FetchTravelsInput) async throws -> [Travel]
 }
 
-public final class FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
+public struct FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
     private let repository: TravelRepositoryProtocol
     
     public init(repository: TravelRepositoryProtocol) {

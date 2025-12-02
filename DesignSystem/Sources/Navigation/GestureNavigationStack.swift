@@ -8,10 +8,18 @@
 import SwiftUI
 
 struct SwipeBackModifier: UIViewControllerRepresentable {
+    /// 중복 적용 방지를 위한 식별 키
+    static let tag = 0xD5EED1 // arbitrary unique value
+
     func makeUIViewController(context: Context) -> UIViewController {
         let viewController = UIViewController()
         DispatchQueue.main.async {
             if let navController = viewController.navigationController {
+                // 이미 우리 모디파이어가 붙어 있으면 스킵
+                if navController.view.tag == Self.tag {
+                    return
+                }
+                navController.view.tag = Self.tag
                 navController.interactivePopGestureRecognizer?.delegate = context.coordinator
                 navController.interactivePopGestureRecognizer?.isEnabled = true
             }

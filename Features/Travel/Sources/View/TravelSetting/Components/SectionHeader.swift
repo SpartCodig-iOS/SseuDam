@@ -10,17 +10,28 @@ import DesignSystem
 
 struct SectionHeader: View {
     let title: String
-    
+    let isOWner: Bool
+    @Binding var isEditing: Bool
+
     var body: some View {
         HStack {
             Text(title)
                 .font(.app(.title3, weight: .medium))
                 .foregroundStyle(Color.appBlack)
             Spacer()
-            Text("수정")
-                .underline(true, color: Color.gray7)
-                .font(.app(.caption1, weight: .medium))
-                .foregroundColor(Color.gray7)
+
+            if isOWner {
+                Button {
+                    withAnimation {
+                        isEditing.toggle()
+                    }
+                } label: {
+                    Text(isEditing ? "완료" : "수정")
+                        .underline(true, color: Color.gray7)
+                        .font(.app(.caption1, weight: .medium))
+                        .foregroundColor(Color.gray7)
+                }
+            }
         }
     }
 }

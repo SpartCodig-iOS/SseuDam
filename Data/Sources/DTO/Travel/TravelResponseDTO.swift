@@ -21,6 +21,7 @@ public struct TravelDTO: Decodable {
     let startDate: String
     let endDate: String
     let countryCode: String
+    let countryNameKr: String
     let baseCurrency: String
     let baseExchangeRate: Double
     let destinationCurrency: String
@@ -43,7 +44,8 @@ extension TravelDTO {
             startDate: dateFormatter.date(from: startDate) ?? Date(),
             endDate: dateFormatter.date(from: endDate) ?? Date(),
             countryCode: countryCode,
-            baseCurrency: baseCurrency,
+            koreanCountryName: countryNameKr,
+            baseCurrency: destinationCurrency,
             baseExchangeRate: baseExchangeRate,
             destinationCurrency: destinationCurrency,
             inviteCode: inviteCode,
