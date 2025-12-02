@@ -53,4 +53,8 @@ public actor MockProfileRepository: ProfileRepositoryProtocol {
   public func setupDelay(_ delay: TimeInterval) {
     self.delay = delay
   }
+
+  public func editProfile(name: String?, avatarData: Data?, fileName: String?) async throws -> Profile {
+    return try await getProfile()
+  }
 }

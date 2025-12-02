@@ -46,7 +46,7 @@ public struct ProfileFeature {
   public enum View {
     case onAppear
     case photoPickerButtonTapped
-    case profileImageSelected(Data?)
+    case profileImageSelected(Data?, String?)
   }
 
 
@@ -56,6 +56,7 @@ public struct ProfileFeature {
     case logout
     case requestPhotoPermission
     case fetchProfile
+    case editProfile(Data, String?, String?)
 
   }
 
@@ -64,6 +65,7 @@ public struct ProfileFeature {
     case logoutResponse(Result<LogoutStatus, AuthError>)
     case photoPermissionResult(Bool)
     case profileResponse(Result<Profile, ProfileError>)
+    case editProfileResponse(Result<Profile, ProfileError>)
   }
 
   //MARK: - NavigationAction
@@ -85,6 +87,9 @@ public struct ProfileFeature {
     BindingReducer()
     Reduce { state, action in
       switch action {
+        case .binding(\.selectedPhotoItem):
+          return handlePhotoPickerBinding(state: &state)
+
         case .binding(_):
           return .none
 
@@ -105,12 +110,40 @@ public struct ProfileFeature {
 }
 
 extension ProfileFeature {
+
+  private func handlePhotoPickerBinding(
+    state: inout State
+  ) -> Effect<Action> {
+    guard let item = state.selectedPhotoItem else { return .none }
+    // 피커 dismiss 애니메이션과 충돌을 최소화하기 위해 즉시 nil로 초기화
+    state.selectedPhotoItem = nil
+
+    return .run(priority: .userInitiated) { send in
+      if let data = try? await item.loadTransferable(type: Data.self) {
+        let suggestedName = item.itemIdentifier ?? "avatar.jpg"
+        await send(.view(.profileImageSelected(data, suggestedName)), animation: .none)
+        return
+      }
+
+      if let fileURL = try? await item.loadTransferable(type: URL.self),
+         let data = try? Data(contentsOf: fileURL) {
+        let suggestedName = fileURL.lastPathComponent.isEmpty ? "avatar.jpg" : fileURL.lastPathComponent
+        await send(.view(.profileImageSelected(data, suggestedName)), animation: .none)
+        return
+      }
+
+      await send(.view(.profileImageSelected(nil, nil)), animation: .none)
+    }
+  }
+
   private func handleViewAction(
     state: inout State,
     action: View
   ) -> Effect<Action> {
     switch action {
       case .onAppear:
+        state.selectedPhotoItem = nil
+        state.isPhotoPickerPresented = false
         // Avoid refetching if already loading or data is present.
         guard state.isLoadingProfile || state.profile == nil else { return .none }
         state.isLoadingProfile = true
@@ -119,10 +152,12 @@ extension ProfileFeature {
       case .photoPickerButtonTapped:
         return .send(.async(.requestPhotoPermission))
 
-      case let .profileImageSelected(data):
+      case let .profileImageSelected(data, fileName):
         state.profileImageData = data
         state.isPhotoPickerPresented = false
-        return .none
+        guard let data else { return .none }
+        let currentName = state.profile?.name
+        return .send(.async(.editProfile(data, currentName, fileName)))
     }
   }
 
@@ -180,6 +215,27 @@ extension ProfileFeature {
               await send(.inner(.photoPermissionResult(false)))
           }
         }
+
+      case let .editProfile(data, name, fileName):
+        return .run { send in
+          let result = await Result {
+            try await profileUseCase.editProfile(
+              ProfileEditPayload(
+                name: name,
+                avatarData: data,
+                fileName: fileName
+              )
+            )
+          }
+          .mapError { error -> ProfileError in
+            if let profileError = error as? ProfileError {
+              return profileError
+            } else {
+              return .unknown(error.localizedDescription)
+            }
+          }
+          await send(.inner(.editProfileResponse(result)))
+        }
     }
   }
 
@@ -230,6 +286,16 @@ extension ProfileFeature {
             state.profile = profileData
             state.$socialType.withLock { $0 = profileData.provider}
 
+          case .failure(let error):
+            state.errorMessage = error.errorDescription
+        }
+        return .none
+
+      case .editProfileResponse(let result):
+        switch result {
+          case .success(let profileData):
+            state.profile = profileData
+            state.profileImageData = nil
           case .failure(let error):
             state.errorMessage = error.errorDescription
         }
