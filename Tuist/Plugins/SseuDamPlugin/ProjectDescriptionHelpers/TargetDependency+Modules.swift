@@ -18,6 +18,8 @@ public extension TargetDependency.Features {
     // MARK: - Feature Modules
     static let Expense: TargetDependency = .project(target: "ExpenseFeature", path: .relativeToRoot("Features/Expense"))
     static let Login: TargetDependency = .project(target: "LoginFeature", path: .relativeToRoot("Features/Login"))
+    static let Settlement: TargetDependency = .project(target: "SettlementFeature", path: .relativeToRoot("Features/Settlement"))
+    static let Splash: TargetDependency = .project(target: "SplashFeature", path: .relativeToRoot("Features/Splash"))
     static let Travel: TargetDependency = .project(target: "TravelFeature", path: .relativeToRoot("Features/Travel"))
 }
 
@@ -25,6 +27,8 @@ public extension TargetDependency.Features {
 public enum FeatureName: String {
     case Expense
     case Login
+    case Settlement
+    case Splash
     case Travel
 
     public var targetName: String {

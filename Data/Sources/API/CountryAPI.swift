@@ -21,6 +21,8 @@ extension CountryAPI: BaseTargetType {
     public var domain: SseuDamDomain {
         return .meta
     }
+  
+    public var requiresAuthorization: Bool {  false }
 
     public var urlPath: String {
         return "/countries"

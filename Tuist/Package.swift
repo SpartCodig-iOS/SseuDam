@@ -22,7 +22,7 @@ let package = Package(
     dependencies: [
         // MARK: - Architecture
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.18.0"),
-        .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators.git", from: "0.10.0"),
+        .package(url: "https://github.com/johnpatrickmorgan/TCACoordinators.git", exact: "0.11.1"),
         .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.37.0"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "9.0.0"),
         .package(url: "https://github.com/Roy-wonji/LogMacro.git", from: "1.1.1"),
