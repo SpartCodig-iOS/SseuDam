@@ -26,23 +26,27 @@ public struct TravelView: View {
 
             TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
 
-            ScrollView {
-                LazyVStack(spacing: 18) {
-                    ForEach(store.travels, id: \.id) { travel in
-                        TravelCardView(travel: travel)
-                            .onAppear {
-                                store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
-                            }
-                            .onTapGesture {
-                                store.send(.travelSelected(travelId: travel.id))
-                            }
-                    }
+            if store.travels.isEmpty {
+                TravelEmptyView()
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 18) {
+                        ForEach(store.travels, id: \.id) { travel in
+                            TravelCardView(travel: travel)
+                                .onAppear {
+                                    store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
+                                }
+                                .onTapGesture {
+                                    store.send(.travelSelected(travelId: travel.id))
+                                }
+                        }
 
-                    if store.isLoadingNextPage {
-                        ProgressView().padding(.vertical, 20)
+                        if store.isLoadingNextPage {
+                            ProgressView().padding(.vertical, 20)
+                        }
                     }
+                    .padding(16)
                 }
-                .padding(16)
             }
         }
         .background(Color.primary50)

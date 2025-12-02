@@ -77,7 +77,10 @@ public struct TravelListFeature {
                         state.isLoadingNextPage = true
                     }
 
-                    let input = FetchTravelsInput(page: state.page)
+                let input = FetchTravelsInput(
+                    page: state.page,
+                    status: state.selectedTab.status
+                )
 
                     return .run { send in
                         do {
