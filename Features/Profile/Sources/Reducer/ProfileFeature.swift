@@ -102,6 +102,8 @@ public struct ProfileFeature {
     public enum DelegateAction: Equatable {
         case backToTravel
         case presentLogin
+        case presentTerm
+        case presentTernService
 
     }
 
@@ -338,6 +340,12 @@ extension ProfileFeature {
 
             case .presentLogin:
                 return .none
+
+          case .presentTerm:
+            return .none
+
+          case .presentTernService:
+            return .none
         }
     }
 

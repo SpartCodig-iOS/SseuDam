@@ -23,6 +23,7 @@ public extension TargetDependency.Features {
     static let Settlement: TargetDependency = .project(target: "SettlementFeature", path: .relativeToRoot("Features/Settlement"))
     static let Splash: TargetDependency = .project(target: "SplashFeature", path: .relativeToRoot("Features/Splash"))
     static let Travel: TargetDependency = .project(target: "TravelFeature", path: .relativeToRoot("Features/Travel"))
+    static let Web: TargetDependency = .project(target: "WebFeature", path: .relativeToRoot("Features/Web"))
 }
 
 // MARK: - Feature Names
@@ -34,6 +35,7 @@ public enum FeatureName: String {
     case Settlement
     case Splash
     case Travel
+    case Web
 
     public var targetName: String {
         return "\(rawValue)Feature"

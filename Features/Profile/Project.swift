@@ -5,7 +5,8 @@ let project = Project.makeFeature(
     name: .Profile,
     dependencies: [
         .Domain,
-        .DesignSystem
+        .DesignSystem,
+        .Features.Web
     ],
     hasTests: true
 )

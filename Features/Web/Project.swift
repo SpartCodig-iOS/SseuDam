@@ -2,11 +2,12 @@ import ProjectDescription
 import SseuDamPlugin
 
 let project = Project.makeFeature(
-    name: .Login,
+    name: .Web,
     dependencies: [
+        .SPM.ComposableArchitecture,
+        .SPM.TCACoordinators,
         .Domain,
-        .DesignSystem,
-        .Features.Web
+        .DesignSystem
     ],
     hasTests: true
 )

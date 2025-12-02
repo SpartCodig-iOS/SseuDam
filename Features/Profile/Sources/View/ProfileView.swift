@@ -146,7 +146,9 @@ extension ProfileView {
                     title: "개인정보 처리 방침",
                     showArrow: true,
                     action: {},
-                    tapTermAction: {}
+                    tapTermAction: {
+                      store.send(.delegate(.presentTernService))
+                    }
                 )
 
                 Divider()
@@ -158,7 +160,9 @@ extension ProfileView {
                     title: "서비스 이용",
                     showArrow: true,
                     action: {},
-                    tapTermAction: {}
+                    tapTermAction: {
+                      store.send(.delegate(.presentTerm))
+                    }
                 )
 
             }
