@@ -11,11 +11,11 @@ import TCACoordinators
 
 
 @Reducer
-public struct ProfileCoordinator {
+public struct ProfileCoordinator { 
     public init() {}
     
     @ObservableState
-    public struct State: Equatable, Hashable {
+    public struct State: Equatable {
         var routes: [Route<ProfileScreen.State>]
         public init() {
             self.routes = [.root(.profile(.init()), embedInNavigationView: true)]

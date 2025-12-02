@@ -19,4 +19,4 @@ public enum Screen {
 }
 
 extension Screen.State: Equatable {}
-extension Screen.State: Hashable {}
+extension Screen.State {}
