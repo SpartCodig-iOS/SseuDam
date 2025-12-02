@@ -46,7 +46,9 @@ public struct ExpenseCardView: View {
             // 하단: 결제자 & 인원
             HStack(spacing: 6) {
                 HStack(spacing: 4) {
-                    Image(systemName: "creditcard")
+                    Image(asset: .receipt)
+                        .resizable()
+                        .frame(width: 16, height: 16)
                     Text(expense.payerName)
                 }
 
@@ -56,7 +58,9 @@ public struct ExpenseCardView: View {
                     .frame(width: 1, height: 15)
 
                 HStack(spacing: 4) {
-                    Image(systemName: "person.2")
+                    Image(asset: .users)
+                        .resizable()
+                        .frame(width: 16, height: 16)
                     Text("\(expense.participants.count)명")
                 }
             }
