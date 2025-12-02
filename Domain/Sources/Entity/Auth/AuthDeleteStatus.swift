@@ -8,9 +8,9 @@
 import Foundation
 
 public struct AuthDeleteStatus: Equatable {
-  public let isDeleted: Bool
-
-  public init(isDeleted: Bool) {
-    self.isDeleted = isDeleted
-  }
+    public let isDeleted: Bool
+    
+    public init(isDeleted: Bool) {
+        self.isDeleted = isDeleted
+    }
 }

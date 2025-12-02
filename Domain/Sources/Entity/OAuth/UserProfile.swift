@@ -6,14 +6,14 @@
 //
 
 public struct UserProfile: Equatable, Identifiable {
-
+    
     public let id: String
     public let email: String?
     public let displayName: String?
     public let provider: SocialType
     public var tokens: AuthTokens
     public let authCode: String?
-
+    
     public init(
         id: String,
         email: String? = nil,

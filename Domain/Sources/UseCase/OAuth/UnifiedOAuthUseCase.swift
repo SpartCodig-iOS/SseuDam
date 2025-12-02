@@ -13,7 +13,9 @@ import ComposableArchitecture
 
 /// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합
 public struct UnifiedOAuthUseCase {
-  @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
+    @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
+    @Shared(.appStorage("userId")) var userId: String? = ""
+  
     private let oAuthUseCase: any OAuthUseCaseProtocol
     private let signUpRepository: any SignUpRepositoryProtocol
     private let loginRepository: any LoginRepositoryProtocol
@@ -247,6 +249,7 @@ private extension UnifiedOAuthUseCase {
 
         persistSocialType(authEntity.provider)
 
+        self.$userId.withLock { $0 = authEntity.userId }
         // 완료 로깅 (저장 확인을 위한 불필요한 재로드 제거)
         Log.info("💾 Tokens saved to Keychain successfully")
         Log.info("🎉 OAuth flow completed for \(authEntity.provider.rawValue)")

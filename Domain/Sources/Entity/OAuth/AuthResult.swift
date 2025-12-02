@@ -12,14 +12,16 @@ public struct AuthResult: Equatable, Hashable {
     public let provider: SocialType
     public var token:  AuthTokens
     
-    public init(
-        name: String,
-        provider: SocialType,
-        token: AuthTokens
-    ) {
-        self.name = name
-        self.provider = provider
-        self.token = token
-    }
+  public init(
+    userId: String,
+    name: String,
+    provider: SocialType,
+    token: AuthTokens
+  ) {
+    self.userId = userId
+    self.name = name
+    self.provider = provider
+    self.token = token
+  }
 }
 

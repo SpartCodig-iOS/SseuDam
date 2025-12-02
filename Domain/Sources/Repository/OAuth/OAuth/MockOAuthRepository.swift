@@ -148,6 +148,7 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
 
   public func loginUser(input: OAuthUserInput) async throws -> AuthResult {
     let mockData = AuthResult(
+      userId: UUID().uuidString,
       name: "testter",
       provider: .apple,
       token: .init(authToken: "", accessToken: "", refreshToken: "", sessionID: "")
@@ -157,6 +158,7 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
 
   public func signUpUser(input: OAuthUserInput) async throws -> AuthResult {
     let mockData = AuthResult(
+      userId: UUID().uuidString,
       name: "testter",
       provider: .apple,
       token: .init(authToken: "", accessToken: "", refreshToken: "", sessionID: "")
