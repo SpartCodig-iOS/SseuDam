@@ -11,7 +11,7 @@ import Moya
 import NetworkService
 
 public enum ExchangeRateAPI {
-    case fetchRate(quote: String)
+    case fetchRate(base: String)
 }
 
 extension ExchangeRateAPI: BaseTargetType {
@@ -34,10 +34,10 @@ extension ExchangeRateAPI: BaseTargetType {
 
     public var parameters: [String : Any]? {
         switch self {
-        case .fetchRate(let quote):
+        case .fetchRate(let base):
             return [
-                "base": "KRW",
-                "quote": quote.uppercased(),
+                "base": base.uppercased(),
+                "quote": "KRW",
                 "baseAmount": 1
             ]
         }

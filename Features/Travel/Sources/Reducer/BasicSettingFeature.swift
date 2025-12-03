@@ -58,6 +58,8 @@ public struct BasicSettingFeature {
 
             if countryCode == "KR" { return true }
 
+            if !exchangeRate.isEmpty { return true }
+
             return !(currencies.isEmpty || selectedCurrency == nil || exchangeRate.isEmpty)
         }
 
@@ -190,7 +192,7 @@ public struct BasicSettingFeature {
                 return .run {
                     [fetchExchangeRateUseCase, cur] send in
                     do {
-                        let dto = try await fetchExchangeRateUseCase.execute(quote: cur)
+                        let dto = try await fetchExchangeRateUseCase.execute(base: cur)
                         await send(.fetchRateResponse(.success(dto)))
                     } catch {
                         await send(.fetchRateResponse(.failure(error)))
@@ -213,7 +215,7 @@ public struct BasicSettingFeature {
 
                 state.isSubmitting = true
 
-                let rate = Double(state.exchangeRate) ?? 1
+                let rate = Double(state.exchangeRate) ?? state.travel.baseExchangeRate
 
                 let input = UpdateTravelInput(
                     title: state.title,

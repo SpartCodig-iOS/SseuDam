@@ -55,7 +55,7 @@ extension MainCoordinator {
         action: IndexedRouterActionOf<Screen>
     ) -> Effect<Action> {
         switch action {
-            case .routeAction(_, .travelList(.createButtonTapped)):
+            case .routeAction(_, .travelList(.selectCreateTravel)):
                 state.routes.push(.createTravel(.init()))
                 return .none
 
@@ -79,7 +79,12 @@ extension MainCoordinator {
                 return .send(.delegate(.presentLogin))
 
             case .routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId)))):
-                print("\(travelId) 여행 설정 페이지로 넘어갑니다.")
+                state.routes.push(.travelSetting(.init(travelId: travelId)))
+                return .none
+
+            case .routeAction(_, .travelSetting(.delegate(.done))):
+                state.routes.pop()
+                state.routes.pop()
                 return .none
 
           case .routeAction(id: _, action: .settlementCoordinator(.delegate(.onTapBackButton))):

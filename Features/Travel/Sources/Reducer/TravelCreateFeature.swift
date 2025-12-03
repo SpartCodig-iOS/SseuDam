@@ -169,16 +169,16 @@ public struct TravelCreateFeature {
             case .currencySelected(let cur):
                 state.selectedCurrency = cur
 
-                guard let quote = state.selectedCurrency,
+                guard let base = state.selectedCurrency,
                       let code = state.selectedCountryCode,
                       code != "KR" else { return .none }
 
                 state.isLoadingRate = true
 
                 return .run {
-                    [fetchExchangeRateUseCase = self.fetchExchangeRateUseCase, quote] send in
+                    [fetchExchangeRateUseCase = self.fetchExchangeRateUseCase, base] send in
                     do {
-                        let dto = try await fetchExchangeRateUseCase.execute(quote: quote)
+                        let dto = try await fetchExchangeRateUseCase.execute(base: base)
                         await send(.fetchRateResponse(.success(dto)))
                     } catch {
                         await send(.fetchRateResponse(.failure(error)))

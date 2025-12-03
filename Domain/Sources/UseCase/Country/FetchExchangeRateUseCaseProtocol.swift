@@ -9,7 +9,7 @@ import Foundation
 import Dependencies
 
 public protocol FetchExchangeRateUseCaseProtocol {
-    func execute(quote: String) async throws -> ExchangeRate
+    func execute(base: String) async throws -> ExchangeRate
 }
 
 public final class FetchExchangeRateUseCase: FetchExchangeRateUseCaseProtocol {
@@ -18,8 +18,8 @@ public final class FetchExchangeRateUseCase: FetchExchangeRateUseCaseProtocol {
     public init(repository: ExchangeRateRepositoryProtocol) {
         self.repository = repository
     }
-    public func execute(quote: String) async throws -> ExchangeRate {
-        try await repository.fetchExchangeRate(quote: quote)
+    public func execute(base: String) async throws -> ExchangeRate {
+        try await repository.fetchExchangeRate(base: base)
     }
 }
 
