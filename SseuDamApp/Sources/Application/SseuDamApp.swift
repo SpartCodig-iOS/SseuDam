@@ -45,6 +45,9 @@ struct SseuDamApp: App {
             AppView(
                 store: store
             )
+            .onOpenURL { url in
+                store.send(.view(.handleDeepLink(url.absoluteString)))
+            }
         }
     }
 }

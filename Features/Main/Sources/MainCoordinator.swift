@@ -18,14 +18,15 @@ public struct MainCoordinator {
     public struct State: Equatable {
         var routes: [Route<Screen.State>]
 
-        public init() {
-            self.routes = [.root(.travelList(.init()), embedInNavigationView: true)]
+        public init(pendingInviteCode: String? = nil) {
+            self.routes = [.root(.travelList(.init(pendingInviteCode: pendingInviteCode)), embedInNavigationView: true)]
         }
     }
 
     public enum Action {
         case router(IndexedRouterActionOf<Screen>)
         case delegate(DelegateAction)
+        case refreshTravelList
     }
 
 
@@ -41,6 +42,9 @@ public struct MainCoordinator {
 
                 case .delegate(let delegateAction):
                     return handleDelegateAction(state: &state, action: delegateAction)
+
+                case .refreshTravelList:
+                    return refreshTravelList(state: &state)
 
             }
         }
@@ -105,5 +109,9 @@ extension MainCoordinator {
             case .presentLogin:
                 return .none
         }
+    }
+
+    private func refreshTravelList(state: inout State) -> Effect<Action> {
+        return .send(.router(.routeAction(id: 0, action: .travelList(.refresh))))
     }
 }

@@ -29,7 +29,12 @@ public struct TravelListFeature {
         var inviteCode: String = ""
         @Presents var create: TravelCreateFeature.State?
 
-        public init() {}
+        public init(pendingInviteCode: String? = nil) {
+            if let code = pendingInviteCode {
+                self.inviteCode = code
+                self.isInviteModalPresented = true
+            }
+        }
     }
 
     public enum Action {
@@ -43,6 +48,7 @@ public struct TravelListFeature {
         case travelTabSelected(TravelTab)
 
         case travelSelected(travelId: String)
+        case openInviteCode(String)
 
         case floatingButtonTapped
         case selectCreateTravel
@@ -135,6 +141,11 @@ public struct TravelListFeature {
             case .travelSelected:
                 return .none
 
+            case .openInviteCode(let code):
+                state.inviteCode = code
+                state.isInviteModalPresented = true
+                return .none
+
             case .floatingButtonTapped:
                 state.isMenuOpen.toggle()
                 return .none
@@ -173,8 +184,17 @@ public struct TravelListFeature {
 
             case .joinTravelResponse(.success(let travel)):
                 state.inviteCode = ""
-                // 가입 후 최신 목록 반영
-                return .send(.refresh)
+
+                // 가입한 여행을 즉시 목록에 반영해 사용자 체감 속도 개선
+                if !state.travels.contains(where: { $0.id == travel.id }) {
+                    state.travels.insert(travel, at: 0)
+                }
+
+                // 서버 최신화는 별도로 다시 가져온다
+                state.page = 1
+                state.hasNext = true
+                state.isLoading = true
+                return .send(.fetch)
 
             case .joinTravelResponse(.failure(let error)):
                 state.inviteCode = ""
