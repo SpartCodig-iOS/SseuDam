@@ -48,7 +48,6 @@ public struct MemberSettingFeature {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-
             case .delegateOwnerTapped(let newId):
                 state.isSubmitting = true
                 return .run {
@@ -106,6 +105,8 @@ public struct MemberSettingFeature {
                 return .none
 
             case .updated:
+                return .none
+            case .delegate:
                 return .none
             }
         }
