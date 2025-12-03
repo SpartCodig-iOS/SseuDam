@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 import ComposableArchitecture
 
 public struct TravelSettingView: View {
@@ -17,6 +18,38 @@ public struct TravelSettingView: View {
     }
 
     public var body: some View {
+        Group {
+            if store.isLoading {
+                TravelSettingSkeletonView()
+            } else {
+                content
+            }
+        }
+        .background(Color.primary50)
+        .navigationBarBackButtonHidden(true)
+        // 여행 나가기 / 삭제 성공 시 dismiss
+        .onChange(of: store.shouldDismiss) { _, newValue in
+            if newValue {
+                dismiss()
+            }
+        }
+        .onAppear {
+            store.send(.onAppear)
+        }
+        .alert(
+            store.errorMessage ?? "",
+            isPresented: Binding(
+                get: { store.errorMessage != nil },
+                set: { _ in store.send(.clearError) }
+            )
+        ) {
+            Button("확인", role: .cancel) { }
+        }
+    }
+}
+
+private extension TravelSettingView {
+    var content: some View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Button {
@@ -46,14 +79,14 @@ public struct TravelSettingView: View {
                     ) { basicStore in
                         BasicSettingView(store: basicStore)
                     }
-                    
+
                     // 멤버
                     IfLetStore(
                         store.scope(state: \.memberSetting, action: \.memberSetting)
                     ) { memberStore in
                         MemberSettingView(store: memberStore)
                     }
-                    
+
                     // 여행 관리
                     IfLetStore(
                         store.scope(state: \.manage, action: \.manage)
@@ -77,14 +110,12 @@ public struct TravelSettingView: View {
             store.send(.onAppear)
         }
         .alert(
-            store.errorMessage ?? "",
             isPresented: Binding(
+            store.errorMessage ?? "",
                 get: { store.errorMessage != nil },
                 set: { _ in store.send(.clearError) }
             )
         ) {
-            Button("확인", role: .cancel) { }
-        }
     }
 }
 

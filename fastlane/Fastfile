@@ -1,23 +1,163 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
+# Fastlane 기본 설정
+update_fastlane
 default_platform(:ios)
 
+ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "600"
+
+# 앱 관련 변수
+APP_NAME = "SseuDam"
+SCHEME = "SseuDamApp"
+STAGE_SCHEME = "SseuDamApp"
+BUNDLE_ID = ENV["APP_IDENTIFIER"]
+OUTPUT_DIR = "./fastlane/output"
+IPA_FILENAME = "#{APP_NAME}.ipa"
+TEAMID = ENV["TEAM_ID"]
+
+# 릴리스용 변수 (누락되어 있던 부분 보완)
+APP_RELEASE_NAME = APP_NAME
+APP_RELEASE_SCHEME = SCHEME
+
+APP_STAGE_NAME = STAGE_SCHEME
+APP_STAGE_SCHEME = STAGE_SCHEME
+
 platform :ios do
-  desc "Description of what the lane does"
-  lane :custom_lane do
-    # add actions here: https://docs.fastlane.tools/actions
+
+
+  # 📦 Debug 빌드 + 정리
+  desc "Build Debug IPA and clean ._Symbols"
+  lane :build_ipa_debug_and_strip do
+    clear_derived_data
+    # cleanup_output_folder
+    match(type: "appstore", readonly: true)
+
+     build_app(
+      workspace: "SseuDam.xcworkspace",
+      scheme: APP_RELEASE_NAME,
+      output_directory: OUTPUT_DIR,
+      output_name: IPA_FILENAME,
+      export_method: "app-store",
+      clean: true,
+      silent: false, # 디버깅용 false
+      verbose: true,
+      export_options: {
+        signingStyle: "manual",
+        uploadBitcode: false,
+        provisioningProfiles: {
+          "#{BUNDLE_ID}" => "match AppStore #{BUNDLE_ID}"
+        }
+      }
+    )
+
+  end
+
+  # 📦 Release 빌드 + 정리
+  desc "Build Release IPA and clean ._Symbols"
+  lane :build_ipa_release_and_strip do
+    clear_derived_data
+    match(type: "appstore", readonly: true)
+
+    build_app(
+      workspace: "#{APP_RELEASE_NAME}.xcworkspace",
+      scheme: "#{APP_RELEASE_SCHEME}",
+      output_directory: OUTPUT_DIR,
+      output_name: IPA_FILENAME,
+      export_method: "app-store",
+      clean: true,
+      silent: false,
+      verbose: true,
+      export_options: {
+        signingStyle: "manual",
+        uploadBitcode: false,
+        provisioningProfiles: {
+          "#{BUNDLE_ID}" => "match AppStore #{BUNDLE_ID}"
+        }
+      }
+    )
+
+    # clean_symbols_from_ipa(ipa_path: ipa_path)
+  end
+
+  # 🚀 TestFlight 업로드 (Debug)
+  desc "Upload to TestFlight (Debug)"
+  lane :QA do
+    app_store_connect_api_key(is_key_content_base64: true, in_house: false)
+    match(type: "appstore", readonly: true)
+
+    ipa_path = build_app(
+      workspace: "#{APP_NAME}.xcworkspace",
+      scheme: "#{APP_STAGE_SCHEME}",
+      output_directory: OUTPUT_DIR,
+      output_name: IPA_FILENAME,
+      export_method: "app-store",
+      clean: true,
+      silent: false,
+      verbose: true,
+      export_options: {
+        signingStyle: "manual",
+        uploadBitcode: false,
+        provisioningProfiles: {
+          "#{BUNDLE_ID}" => "match AppStore #{BUNDLE_ID}"
+        }
+      }
+    )
+
+    upload_to_testflight(
+      ipa: ipa_path,
+      groups: ["ssedum"],
+      beta_app_description: "쓰담 앱 지출 관리 앱입니다.",
+      notify_external_testers: true,
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  # 🚀 App Store 배포
+  desc "Submit to App Store"
+  lane :release do |options|
+    if options[:version]
+      app_store_connect_api_key(is_key_content_base64: true, in_house: false)
+      match(type: "appstore", readonly: true)
+
+      ipa_path = build_app(
+        workspace: "#{APP_RELEASE_NAME}.xcworkspace",
+        scheme: "#{APP_RELEASE_SCHEME}",
+        output_directory: OUTPUT_DIR,
+        output_name: IPA_FILENAME,
+        export_method: "app-store",
+        clean: true,
+        silent: false,
+        verbose: true,
+        export_options: {
+          signingStyle: "manual",
+          uploadBitcode: false,
+          provisioningProfiles: {
+            "#{BUNDLE_ID}" => "match AppStore #{BUNDLE_ID}"
+          }
+        }
+      )
+
+      # clean_symbols_from_ipa(ipa_path: ipa_path)
+
+      upload_to_app_store(
+        app_version: options[:version],
+        username: ENV["APPLE_ID"],
+        team_id: TEAMID,
+        ipa: ipa_path,
+        skip_metadata: false,
+        metadata_path: "./fastlane/metadata",
+        skip_screenshots: true,
+        force: true,
+        submit_for_review: true,
+        automatic_release: false,
+        precheck_include_in_app_purchases: false,
+        submission_information: {
+          add_id_info_uses_idfa: false,
+          export_compliance_encryption_updated: false,
+          export_compliance_uses_encryption: false,
+          content_rights_contains_third_party_content: false
+        }
+      )
+    else
+      UI.user_error!("⚠️ version 옵션을 지정해주세요: fastlane submit version:'1.0.0'")
+    end
   end
 end

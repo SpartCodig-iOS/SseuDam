@@ -87,6 +87,10 @@ extension MainCoordinator {
                 state.routes.pop()
                 return .none
 
+          case .routeAction(id: _, action: .settlementCoordinator(.delegate(.onTapBackButton))):
+            state.routes.goBack()
+            return .none
+
             default:
                 return .none
         }
@@ -97,6 +101,7 @@ extension MainCoordinator {
         action: DelegateAction
     ) -> Effect<Action> {
         switch action {
+            
             case .presentLogin:
                 return .none
         }

@@ -34,6 +34,7 @@ public struct MemberSettingFeature {
         case deleteMemberTapped(String)
         case deleteMemberResponse(Result<Void, Error>)
 
+        case updated(Travel)
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
@@ -65,7 +66,10 @@ public struct MemberSettingFeature {
                 state.travel = updated
                 state.members = updated.members
                 state.ownerId = updated.ownerName
-                return .send(.delegate(.needRefresh))
+                return .merge(
+                    .send(.updated(updated)),
+                    .send(.delegate(.needRefresh))
+                )
 
             case .delegateOwnerResponse(.failure(let err)):
                 state.isSubmitting = false
@@ -100,6 +104,8 @@ public struct MemberSettingFeature {
                 state.deletingMemberId = nil
                 return .none
 
+            case .delegate:
+                return .none
             case .delegate:
                 return .none
             }

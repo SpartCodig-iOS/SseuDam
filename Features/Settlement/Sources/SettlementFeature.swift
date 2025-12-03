@@ -26,6 +26,7 @@ public struct SettlementFeature {
         public var travelTitle: String = ""
         public let travelId: String
         public var travel: Travel? = nil // ExpenseFeature 생성 시 전달용
+        public var isLoading: Bool = false
 
         public var totalAmount: Int {
             Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
@@ -144,10 +145,12 @@ extension SettlementFeature {
             state.allExpenses = expenses
             // 현재 선택된 날짜로 필터링
             filterExpensesByDate(&state, date: state.selectedDate)
+            state.isLoading = false
             return .none
 
         case let .expensesResponse(.failure(error)):
             print("Failed to fetch expenses: \(error)")
+            state.isLoading = false
             return .none
         }
     }
@@ -157,6 +160,7 @@ extension SettlementFeature {
         switch action {
         case .fetchData:
             let travelId = state.travelId
+            state.isLoading = true
             return .run { send in
                 // 여행 상세 정보 조회
                 async let travelDetailResult = Result {

@@ -47,6 +47,14 @@ public extension SettingsDictionary {
     merging(["CFBundleDisplayName": SettingValue(stringLiteral: value)]) { _, new in new }
   }
 
+  func setStripStyle(_ value: String = "non-global") -> SettingsDictionary {
+    return self.merging(["STRIP_STYLE": SettingValue(stringLiteral: value)]) { (_, new) in new }
+  }
+
+  func setArchs(_ value: String = "$(ARCHS_STANDARD)") -> SettingsDictionary {
+    return self.merging(["ARCHS": SettingValue(stringLiteral: value)]) { (_, new) in new }
+  }
+  
   func setASAuthenticationServicesEnabled(_ value: String = "YES") -> SettingsDictionary {
     merging(["AS_AUTHENTICATION_SERVICES_ENABLED": SettingValue(stringLiteral: value)]) { _, new in new }
   }

@@ -25,9 +25,8 @@ public struct TravelListFeature {
         var isLoadingNextPage = false
         var uiError: String?
 
-        var isPresentInvitationView: Bool = false
+        var isInviteModalPresented: Bool = false
         var inviteCode: String = ""
-
         @Presents var create: TravelCreateFeature.State?
 
         public init() {}
@@ -174,7 +173,8 @@ public struct TravelListFeature {
 
             case .joinTravelResponse(.success(let travel)):
                 state.inviteCode = ""
-                return .none
+                // 가입 후 최신 목록 반영
+                return .send(.refresh)
 
             case .joinTravelResponse(.failure(let error)):
                 state.inviteCode = ""

@@ -76,6 +76,8 @@ public struct LoginFeature {
     public enum DelegateAction: Equatable {
         case presentTravelList
         case presentTermsAgreement
+        case presentServiceWeb
+        case presentPrivacyWeb
     }
 
     // MARK: - Dependencies (하나로 통합!)
@@ -151,6 +153,14 @@ extension LoginFeature {
             }
 
             return .send(.delegate(.presentTravelList))
+
+
+          case .presented(.termsService(.delegate(.presentPrivacyWeb))):
+            return .send(.delegate(.presentPrivacyWeb))
+
+          case .presented(.termsService(.delegate(.presentServiceWeb))):
+            return .send(.delegate(.presentServiceWeb))
+            
         default:
             return .none
         }
@@ -264,6 +274,12 @@ extension LoginFeature {
 
         case .presentTermsAgreement:
             state.destination = .termsService(.init())
+            return .none
+
+          case .presentPrivacyWeb:
+            return .none
+
+          case .presentServiceWeb:
             return .none
         }
     }
