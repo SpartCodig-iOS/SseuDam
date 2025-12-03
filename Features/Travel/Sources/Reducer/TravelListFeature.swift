@@ -27,9 +27,7 @@ public struct TravelListFeature {
 
         var isInviteModalPresented: Bool = false
         var inviteCode: String = ""
-
         @Presents var create: TravelCreateFeature.State?
-        //        @Presents var profile: ProfileCoordinator.State?
 
         public init() {}
     }
@@ -148,11 +146,11 @@ public struct TravelListFeature {
 
             case .selectInviteCode:
                 state.isMenuOpen = false
-                state.isInviteModalPresented = true
+                state.isPresentInvitationView = true
                 return .none
 
             case .inviteModalDismiss:
-                state.isInviteModalPresented = false
+                state.isPresentInvitationView = false
                 state.inviteCode = ""
                 return .none
 
@@ -162,7 +160,7 @@ public struct TravelListFeature {
 
             case .inviteConfirm:
                 let code = state.inviteCode
-                state.isInviteModalPresented = false
+                state.isPresentInvitationView = false
 
                 return .run { send in
                     do {
@@ -196,26 +194,10 @@ public struct TravelListFeature {
 
                 case .profileButtonTapped:
                     return .none
-//
-//                case .profile(.presented(.delegate(.backToTravel))):
-//                    state.profile = nil
-//                    return .send(.refresh)
-//
-//                case .profile(.presented(.delegate(.presentLogin))):
-//                    return .send(.presentToLogin)
-//
-//                case .profile:
-//                    return .none
-
-//                case .presentToLogin:
-//                    return .none
             }
         }
         .ifLet(\.$create, action: \.create) {
             TravelCreateFeature()
         }
-        //        .ifLet(\.$profile, action: \.profile) {
-        //            ProfileCoordinator()
-        //        }
     }
 }

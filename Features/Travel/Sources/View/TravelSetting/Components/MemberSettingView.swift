@@ -20,12 +20,19 @@ struct MemberSettingView: View {
 
             let members = store.members
             let myId = store.members.first?.id ?? ""
-            let ownerId = store.ownerId
+            let ownerId = store.members.first(where: { $0.role == "owner" })?.id
+            let isOwner = (ownerId == myId)
+
+            SectionHeader(
+                title: "멤버",
+                isOWner: isOwner,
+                isEditing: $isEditing
+            )
 
             MemberListView(
-                members: members,
+                members: store.members,
                 myId: myId,
-                ownerId: ownerId,
+                ownerId: ownerId ?? "",
                 isEditing: isEditing,
                 onDelegateOwner: { memberId in
                     store.send(.delegateOwnerTapped(memberId))

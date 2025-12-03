@@ -24,7 +24,7 @@ public struct MemberSettingFeature {
         public init(travel: Travel) {
             self.travel = travel
             self.members = travel.members
-            self.ownerId = travel.ownerName
+            self.ownerId = travel.members.first(where: { $0.role == "owner" })?.id ?? ""
         }
     }
 
@@ -104,7 +104,7 @@ public struct MemberSettingFeature {
                 state.deletingMemberId = nil
                 return .none
 
-            case .updated:
+            case .delegate:
                 return .none
             case .delegate:
                 return .none
