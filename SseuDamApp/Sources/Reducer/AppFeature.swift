@@ -144,13 +144,28 @@ extension AppFeature {
             )
 
         case .handleDeepLink(let urlString):
-            // 딥링크 URL에서 초대 코드 추출
-            if let url = URL(string: urlString),
-               url.scheme == "sseudam" && url.host == "join",
-               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-               let inviteCode = components.queryItems?.first(where: { $0.name == "code" })?.value {
-                return .send(.inner(.handleDeepLinkJoin(inviteCode)))
+            var processedUrlString = urlString
+            if urlString.hasPrefix("https://sseudam.up.railway.app/") {
+                processedUrlString = urlString.replacingOccurrences(
+                    of: "https://sseudam.up.railway.app/",
+                    with: "sseudam://"
+                )
             }
+
+            guard let url = URL(string: processedUrlString) else { return .none }
+
+            var inviteCode: String?
+            if url.scheme == "sseudam",
+               let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+                inviteCode = components.queryItems?.first(where: {
+                    $0.name == "inviteCode" || $0.name == "code"
+                })?.value
+            }
+
+            if let code = inviteCode {
+                return .send(.inner(.handleDeepLinkJoin(code)))
+            }
+
             return .none
         }
     }

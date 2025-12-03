@@ -87,8 +87,7 @@ extension MainCoordinator {
                 return .none
 
             case .routeAction(_, .travelSetting(.delegate(.done))):
-                state.routes.pop()
-                state.routes.pop()
+              state.routes.goBackToRoot()
                 return .none
 
           case .routeAction(id: _, action: .settlementCoordinator(.delegate(.onTapBackButton))):

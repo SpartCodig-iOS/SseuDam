@@ -262,6 +262,28 @@ struct BasicSettingView: View {
                             Text(store.travel.inviteCode ?? "초대코드 없음")
                                 .font(.app(.title3, weight: .medium))
                                 .foregroundStyle(Color.appBlack)
+
+                            Spacer()
+
+                            // 공유 버튼
+                            Button {
+                                if let deepLink = store.travel.deepLink {
+                                    let activityViewController = UIActivityViewController(
+                                        activityItems: [deepLink],
+                                        applicationActivities: nil
+                                    )
+
+                                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                       let window = windowScene.windows.first {
+                                        window.rootViewController?.present(activityViewController, animated: true)
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.primary500)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.horizontal, 10)
