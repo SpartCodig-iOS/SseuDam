@@ -99,9 +99,12 @@ extension ProfileCoordinator {
             state.routes.push(.web(.init(url: "https://sseudam.up.railway.app/terms/")))
             return .none
 
-          case .routeAction(id: _, action: .profile(.delegate(.presentTernService))):
+          case .routeAction(id: _, action: .profile(.delegate(.presentPrivacy))):
             state.routes.push(.web(.init(url: "https://sseudam.up.railway.app/privacy/")))
             return .none
+
+          case .routeAction(id: _, action: .web(.backToRoot)):
+            return .send(.view(.backAction))
 
 
         default:

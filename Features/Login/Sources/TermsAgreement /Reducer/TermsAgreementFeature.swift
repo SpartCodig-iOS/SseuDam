@@ -32,7 +32,7 @@ public struct TermsAgreementFeature {
         case binding(BindingAction<State>)
         case view(View)
         case scope(ScopeAction)
-        case navigation(NavigationAction)
+        case delegate(DelegateAction)
 
     }
 
@@ -51,7 +51,7 @@ public struct TermsAgreementFeature {
     }
 
     @CasePathable
-    public enum NavigationAction: Equatable {
+    public enum DelegateAction: Equatable {
         case presentServiceWeb
         case presentPrivacyWeb
     }
@@ -69,7 +69,7 @@ public struct TermsAgreementFeature {
                 case .scope(let scopeAction):
                     return handleScopeAction(state: &state, action: scopeAction)
 
-                case .navigation(let navigationAction):
+                case .delegate(let navigationAction):
                     return handleNavigationAction(state: &state, action: navigationAction)
             }
         }
@@ -108,7 +108,7 @@ extension TermsAgreementFeature {
 
     private func handleNavigationAction(
         state: inout State,
-        action: NavigationAction
+        action: DelegateAction
     )  -> Effect<Action> {
         switch action {
             case .presentPrivacyWeb:

@@ -82,6 +82,10 @@ extension MainCoordinator {
                 print("\(travelId) 여행 설정 페이지로 넘어갑니다.")
                 return .none
 
+          case .routeAction(id: _, action: .settlementCoordinator(.delegate(.onTapBackButton))):
+            state.routes.goBack()
+            return .none
+
             default:
                 return .none
         }
@@ -92,6 +96,7 @@ extension MainCoordinator {
         action: DelegateAction
     ) -> Effect<Action> {
         switch action {
+            
             case .presentLogin:
                 return .none
         }

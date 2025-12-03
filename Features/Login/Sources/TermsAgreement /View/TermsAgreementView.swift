@@ -78,7 +78,7 @@ extension TermsAgreementView {
           store.send(.view(.privacyAgreementTapped))
         },
         onArrowTap: {
-          store.send(.navigation(.presentPrivacyWeb))
+          store.send(.delegate(.presentPrivacyWeb))
         }
       )
 
@@ -90,7 +90,7 @@ extension TermsAgreementView {
           store.send(.view(.serviceAgreementTapped))
         },
         onArrowTap: {
-          store.send(.navigation(.presentServiceWeb))
+          store.send(.delegate(.presentServiceWeb))
         }
       )
 

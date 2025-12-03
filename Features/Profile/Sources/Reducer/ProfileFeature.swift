@@ -103,7 +103,7 @@ public struct ProfileFeature {
         case backToTravel
         case presentLogin
         case presentTerm
-        case presentTernService
+        case presentPrivacy
 
     }
 
@@ -344,7 +344,7 @@ extension ProfileFeature {
           case .presentTerm:
             return .none
 
-          case .presentTernService:
+          case .presentPrivacy:
             return .none
         }
     }

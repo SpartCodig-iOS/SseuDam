@@ -39,6 +39,7 @@ public struct WebView: View {
 
             Spacer()
         }
+        .padding(.horizontal, 20)
         .onTapGesture {
           store.send(.backToRoot)
         }

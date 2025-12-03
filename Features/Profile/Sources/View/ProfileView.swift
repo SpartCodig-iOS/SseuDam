@@ -147,7 +147,7 @@ extension ProfileView {
                     showArrow: true,
                     action: {},
                     tapTermAction: {
-                      store.send(.delegate(.presentTernService))
+                      store.send(.delegate(.presentPrivacy))
                     }
                 )
 
