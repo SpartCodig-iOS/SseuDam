@@ -19,7 +19,6 @@ struct MemberSettingView: View {
             SectionHeader(title: "멤버", isOWner: store.travel.members.first?.role == "owner", isEditing: $isEditing)
 
             let members = store.members
-            //TODO: 내 아이디
             let myId = store.members.first?.id ?? ""
             let ownerId = store.ownerId
 

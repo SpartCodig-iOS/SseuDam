@@ -35,6 +35,11 @@ public struct MemberSettingFeature {
         case deleteMemberResponse(Result<Void, Error>)
 
         case updated(Travel)
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case needRefresh
+        }
     }
 
     @Dependency(\.delegateOwnerUseCase) var delegateOwnerUseCase
@@ -62,7 +67,10 @@ public struct MemberSettingFeature {
                 state.travel = updated
                 state.members = updated.members
                 state.ownerId = updated.ownerName
-                return .send(.updated(updated))
+                return .merge(
+                    .send(.updated(updated)),
+                    .send(.delegate(.needRefresh))
+                )
 
             case .delegateOwnerResponse(.failure(let err)):
                 state.isSubmitting = false
@@ -89,7 +97,7 @@ public struct MemberSettingFeature {
                     state.members.removeAll { $0.id == id }
                 }
                 state.deletingMemberId = nil
-                return .none
+                return .send(.delegate(.needRefresh))
 
             case .deleteMemberResponse(.failure(let err)):
                 state.isSubmitting = false

@@ -44,11 +44,10 @@ public struct TravelSettingFeature {
 
         case dismiss
 
-        // 코디네이터로 올릴 delegate
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
-            case done   // 여행 나가기 / 삭제 완료 → TravelList로 돌아가야 함
+            case done  
         }
     }
 
@@ -107,6 +106,10 @@ public struct TravelSettingFeature {
             case .manage(.delegate(.errorOccurred(let message))):
                 state.errorMessage = message
                 return .none
+
+            case .memberSetting(.delegate(.needRefresh)):
+                // 멤버 관련 변경 발생 → 서버에서 Travel 다시 가져오기
+                return .send(.fetchDetail)
 
             case .clearError:
                 state.errorMessage = nil

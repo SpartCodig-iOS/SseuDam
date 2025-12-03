@@ -15,8 +15,8 @@ public final class ExchangeRateRepository: ExchangeRateRepositoryProtocol {
         self.remote = remote
     }
 
-    public func fetchExchangeRate(quote: String) async throws -> ExchangeRate {
-        let dto = try await remote.fetchExchangeRate(quote: quote)
+    public func fetchExchangeRate(base: String) async throws -> ExchangeRate {
+        let dto = try await remote.fetchExchangeRate(base: base)
         return ExchangeRate(
             baseCurrency: dto.baseCurrency,
             quoteCurrency: dto.quoteCurrency,

@@ -73,7 +73,6 @@ public struct TravelManageFeature {
 
             case .leaveResponse(.success):
                 state.isSubmitting = false
-                // 상위(Setting)에서 이걸 받아서 dismiss 로직 처리
                 return .send(.dismissRequested)
 
             case .leaveResponse(.failure(let err)):
