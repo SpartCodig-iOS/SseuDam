@@ -82,7 +82,7 @@ public struct TravelView: View {
             store.send(.onAppear)
         }
         .overlay {
-            if store.isInviteModalPresented {
+            if store.isPresentInvitationView {
                 InviteCodeModalView(
                     code: store.inviteCode,
                     onCodeChange: { store.send(.inviteCodeChanged($0)) },
