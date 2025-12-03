@@ -9,6 +9,6 @@ import Foundation
 
 public enum TravelStatus: String, Equatable, Hashable {
     case active
-    case inactive
+    case archived
     case unknown
 }

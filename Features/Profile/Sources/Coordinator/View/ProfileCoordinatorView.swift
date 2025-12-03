@@ -10,6 +10,7 @@ import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
 import DesignSystem
+import WebFeature
 
 public struct ProfileCoordinatorView: View {
   let store: StoreOf<ProfileCoordinator>
@@ -24,6 +25,11 @@ public struct ProfileCoordinatorView: View {
         case .profile(let profileStore):
           ProfileView(store: profileStore)
             .navigationBarBackButtonHidden(true)
+
+        case .web(let webStore):
+          WebView(store: webStore)
+            .navigationBarBackButtonHidden(true)
+            .enableSwipeBack()
       }
     }
   }

@@ -9,7 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
 import ExpenseFeature
-import TravelFeature
 
 public struct SettlementCoordinatorView: View {
     let store: StoreOf<SettlementCoordinator>

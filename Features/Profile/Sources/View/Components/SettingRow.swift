@@ -52,15 +52,16 @@ public struct SettingRow: View {
             .scaledToFit()
             .frame(height: 24)
             .foregroundColor(.appBlack)
-            .onTapGesture {
-              tapTermAction()
-            }
         }
       }
     }
     .padding(.vertical, 16)
     .onTapGesture {
-      action()
+      if showArrow {
+        tapTermAction()
+      } else {
+        action()
+      }
     }
   }
 }

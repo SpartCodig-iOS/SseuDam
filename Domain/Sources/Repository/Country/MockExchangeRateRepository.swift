@@ -11,7 +11,7 @@ import Foundation
 public final class MockExchangeRateRepository: ExchangeRateRepositoryProtocol {
     public init() {}
 
-    public func fetchExchangeRate(quote: String) async throws -> ExchangeRate {
+    public func fetchExchangeRate(base: String) async throws -> ExchangeRate {
 
         let mockRates: [String: Double] = [
             "JPY": 8.77,
@@ -20,12 +20,12 @@ public final class MockExchangeRateRepository: ExchangeRateRepositoryProtocol {
             "GBP": 1643.2
         ]
 
-        let quoteValue = mockRates[quote] ?? 1.0
+        let baseValue = mockRates[base] ?? 1.0
 
         return ExchangeRate(
-            baseCurrency: "KRW",
-            quoteCurrency: quote,
-            rate: quoteValue
+            baseCurrency: base,
+            quoteCurrency: "KRW",
+            rate: baseValue
         )
     }
 }

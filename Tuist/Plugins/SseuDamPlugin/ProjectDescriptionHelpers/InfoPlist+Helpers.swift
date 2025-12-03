@@ -30,7 +30,10 @@ public extension InfoPlist {
         "UISupportedInterfaceOrientations": .array([
           .string("UIInterfaceOrientationPortrait")
         ]),
-        "UIUserInterfaceStyle": .string("Light")
+        "UIUserInterfaceStyle": .string("Light"),
+        "CFBundleShortVersionString": .string("1.0.0"),
+        "ITSAppUsesNonExemptEncryption": .boolean(false),
+        "CFBundleVersion": .string("4")
 
       ])
     }

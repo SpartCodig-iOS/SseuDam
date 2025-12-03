@@ -28,16 +28,26 @@ public final class TravelMemberRemoteDataSource: TravelMemberRemoteDataSourcePro
     }
 
     public func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelDTO {
-        try await provider.request(.joinTravel(body: body))
+        let response: BaseResponse<TravelDTO> = try await provider.request(.joinTravel(body: body))
+
+        guard let data = response.data else {
+            throw NetworkError.noData
+        }
+
+        return data
     }
 
     public func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelDTO {
-        try await provider.request(.delegateOwner(travelId: travelId, body: body))
+        let response: BaseResponse<TravelDTO> = try await provider.request(.delegateOwner(travelId: travelId, body: body))
+
+        guard let data = response.data else {
+            throw NetworkError.noData
+        }
+
+        return data
     }
 
     public func leaveTravel(travelId: String) async throws {
         let _: BaseResponse<EmptyDTO> = try await provider.request(.leaveTravel(travelId: travelId))
     }
 }
-
-

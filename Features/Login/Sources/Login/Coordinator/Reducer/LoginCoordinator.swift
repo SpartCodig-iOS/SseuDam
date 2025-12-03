@@ -7,6 +7,7 @@
 
 import ComposableArchitecture
 import TCACoordinators
+import WebFeature
 
 
 @Reducer
@@ -73,6 +74,7 @@ extension LoginCoordinator {
   @Reducer
   public enum LoginScreen {
     case login(LoginFeature)
+    case web(WebFeature)
   }
 }
 
@@ -86,6 +88,15 @@ extension LoginCoordinator {
     switch action {
       case .routeAction(id: _, action: .login(.delegate(.presentTravelList))):
         return .send(.delegate(.presentMain))
+
+      case .routeAction(id: _, action: .login(.delegate(.presentServiceWeb))):
+        state.routes.push(.web(.init(url: "https://sseudam.up.railway.app/terms/")))
+        return .none
+
+      case .routeAction(id: _, action: .login(.delegate(.presentPrivacyWeb))):
+        state.routes.push(.web(.init(url: "https://sseudam.up.railway.app/privacy/")))
+        return .none
+        
       default:
         return .none
     }

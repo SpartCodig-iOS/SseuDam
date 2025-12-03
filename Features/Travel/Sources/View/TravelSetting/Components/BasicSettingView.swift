@@ -23,8 +23,7 @@ struct BasicSettingView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-
-            SectionHeader(title: "기본 설정", isOWner: store.travel.role == "owner", isEditing: $isEditing)
+            SectionHeader(title: "기본 설정", isOWner: store.isOwner, isEditing: $isEditing)
 
             VStack(alignment: .leading, spacing: 0) {
                 VStack(alignment: .leading, spacing: 8) {

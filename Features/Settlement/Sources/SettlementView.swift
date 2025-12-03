@@ -21,75 +21,82 @@ public struct SettlementView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
-            // 네비게이션 바
-            NavigationBarView(
-                title: store.travelTitle,
-                onBackTapped: {
-                    send(.backButtonTapped)
-                }
-            ) {
-                TrailingButton(icon: .settings) {
-                    send(.settingsButtonTapped)
-                }
-            }
-            .padding(.horizontal, 16)
-            // 탭 바 (Custom Segmented Control)
-            HStack(spacing: 0) {
-                TabButton(title: "지출 내역", isSelected: selectedTab == 0) {
-                    selectedTab = 0
-                }
-                TabButton(title: "정산 하기", isSelected: selectedTab == 1) {
-                    selectedTab = 1
-                }
-            }
-            .padding(.horizontal, 16)
+        ZStack(alignment: .bottomTrailing) {
+            Color.primary50.ignoresSafeArea()
 
-            // 컨텐츠 영역
-            if selectedTab == 0 {
+            if store.isLoading {
+                DashboardSkeletonView()
+            } else {
                 VStack(spacing: 0) {
-                    // 헤더
-                    SettlementHeaderView(
-                        totalAmount: store.totalAmount,
-                        startDate: store.startDate,
-                        endDate: store.endDate,
-                        myExpenseAmount: store.myExpenseAmount,
-                        selectedDate: $store.selectedDate
-                    )
-
-                    // 지출 내역 리스트
-                    if !store.currentExpense.isEmpty {
-                        ScrollView {
-                            LazyVStack(spacing: 16) {
-                                ForEach(store.currentExpense) { expense in
-                                    ExpenseCardView(expense: expense)
-                                        .onTapGesture {
-                                            send(.onTapExpense(expense))
-                                        }
-                                }
-                            }
-                            .padding(.vertical, 10)
+                    // 네비게이션 바
+                    NavigationBarView(
+                        title: store.travelTitle,
+                        onBackTapped: {
+                            send(.backButtonTapped)
                         }
-                        .scrollIndicators(.hidden)
+                    ) {
+                        TrailingButton(icon: .settings) {
+                            send(.settingsButtonTapped)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    // 탭 바 (Custom Segmented Control)
+                    HStack(spacing: 0) {
+                        TabButton(title: "지출 내역", isSelected: selectedTab == 0) {
+                            selectedTab = 0
+                        }
+                        TabButton(title: "정산 하기", isSelected: selectedTab == 1) {
+                            selectedTab = 1
+                        }
+                    }
+                    .padding(.horizontal, 16)
+
+                    // 컨텐츠 영역
+                    if selectedTab == 0 {
+                        VStack(spacing: 0) {
+                            // 헤더
+                            SettlementHeaderView(
+                                totalAmount: store.totalAmount,
+                                startDate: store.startDate,
+                                endDate: store.endDate,
+                                myExpenseAmount: store.myExpenseAmount,
+                                selectedDate: $store.selectedDate
+                            )
+
+                            // 지출 내역 리스트
+                            if !store.currentExpense.isEmpty {
+                                ScrollView {
+                                    LazyVStack(spacing: 16) {
+                                        ForEach(store.currentExpense) { expense in
+                                            ExpenseCardView(expense: expense)
+                                                .onTapGesture {
+                                                    send(.onTapExpense(expense))
+                                                }
+                                        }
+                                    }
+                                    .padding(.vertical, 10)
+                                }
+                                .scrollIndicators(.hidden)
+                            } else {
+                                Spacer()
+                                Text("지출이 없습니다.")
+                                    .foregroundStyle(.gray)
+                                Spacer()
+                            }
+                        }
                     } else {
-                        Spacer()
-                        Text("지출이 없습니다.")
-                            .foregroundStyle(.gray)
-                        Spacer()
+                        // 정산 하기 뷰 (아직 미구현)
+                        VStack {
+                            Spacer()
+                            Text("정산 하기 화면 준비 중")
+                                .foregroundStyle(.gray)
+                            Spacer()
+                        }
                     }
                 }
-            } else {
-                // 정산 하기 뷰 (아직 미구현)
-                VStack {
-                    Spacer()
-                    Text("정산 하기 화면 준비 중")
-                        .foregroundStyle(.gray)
-                    Spacer()
-                }
             }
-        }
-        .overlay(alignment: .bottomTrailing) {
-            if selectedTab == 0 {
+
+            if !store.isLoading && selectedTab == 0 {
                 FloatingActionButton {
                     send(.addExpenseButtonTapped)
                 }

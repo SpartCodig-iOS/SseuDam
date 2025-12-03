@@ -8,10 +8,11 @@
 
 import ComposableArchitecture
 import TCACoordinators
+import WebFeature
 
 
 @Reducer
-public struct ProfileCoordinator {
+public struct ProfileCoordinator { 
     public init() {}
     
     @ObservableState
@@ -75,6 +76,7 @@ extension ProfileCoordinator {
     @Reducer
     public enum ProfileScreen {
         case profile(ProfileFeature)
+        case web(WebFeature)
     }
 }
 
@@ -92,6 +94,19 @@ extension ProfileCoordinator {
             
         case .routeAction(id: _, action: .profile(.delegate(.backToTravel))):
             return .send(.delegate(.backToTravel))
+
+          case .routeAction(id: _, action: .profile(.delegate(.presentTerm))):
+            state.routes.push(.web(.init(url: "https://sseudam.up.railway.app/terms/")))
+            return .none
+
+          case .routeAction(id: _, action: .profile(.delegate(.presentPrivacy))):
+            state.routes.push(.web(.init(url: "https://sseudam.up.railway.app/privacy/")))
+            return .none
+
+          case .routeAction(id: _, action: .web(.backToRoot)):
+            return .send(.view(.backAction))
+
+
         default:
             return .none
         }

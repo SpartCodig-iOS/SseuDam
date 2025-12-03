@@ -20,6 +20,7 @@ extension Settings {
       .setCFBundleDisplayName(displayName)
       .setProvisioningProfileSpecifier(provisioningProfile)
       .setCFBundleDevelopmentRegion("ko")
+      .setStripStyle()
   }
 
   public static let appMainSetting: Settings = .settings(
@@ -32,6 +33,7 @@ extension Settings {
       .setCodeSignIdentity()
       .setCodeSignStyle("Manual")
       .setSwiftVersion("6.0")
+      .setArchs()
       .setVersioningSystem()
       .setProvisioningProfileSpecifier("match Development \(Environment.organizationName)")
       .setDevelopmentTeam(Environment.organizationTeamId)

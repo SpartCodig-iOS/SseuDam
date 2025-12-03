@@ -9,6 +9,8 @@ import SwiftUI
 
 import TCACoordinators
 import ComposableArchitecture
+import DesignSystem
+import WebFeature
 
 
 public struct LoginCoordinatorView: View {
@@ -25,6 +27,12 @@ public struct LoginCoordinatorView: View {
       switch screens.case {
         case .login(let loginStore):
           LoginView(store: loginStore)
+
+
+        case .web(let webStore):
+          WebView(store: webStore)
+            .navigationBarBackButtonHidden(true)
+            .enableSwipeBack()
       }
     }
   }

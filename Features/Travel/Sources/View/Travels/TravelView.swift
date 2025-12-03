@@ -19,40 +19,64 @@ public struct TravelView: View {
     }
 
     public var body: some View {
-        VStack {
-            TravelListHeaderView {
-                store.send(.profileButtonTapped)
-            }
+        ZStack {
+            Color.primary50.ignoresSafeArea()
 
-            TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
-
-            ScrollView {
-                LazyVStack(spacing: 18) {
-                    ForEach(store.travels, id: \.id) { travel in
-                        TravelCardView(travel: travel)
-                            .onAppear {
-                                store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
-                            }
-                            .onTapGesture {
-                                store.send(.travelSelected(travelId: travel.id))
-                            }
+            if store.isLoading {
+                DashboardSkeletonView()
+            } else {
+                VStack {
+                    TravelListHeaderView {
+                        store.send(.profileButtonTapped)
                     }
 
-                    if store.isLoadingNextPage {
-                        ProgressView().padding(.vertical, 20)
+                    TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
+
+                    if store.travels.isEmpty {
+                        TravelEmptyView()
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 18) {
+                                ForEach(store.travels, id: \.id) { travel in
+                                    TravelCardView(travel: travel)
+                                        .onAppear {
+                                            store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
+                                        }
+                                        .onTapGesture {
+                                            store.send(.travelSelected(travelId: travel.id))
+                                        }
+                                }
+
+                                if store.isLoadingNextPage {
+                                    ProgressView().padding(.vertical, 20)
+                            }
+                                }
+                            .padding(16)
+                        }
                     }
                 }
-                .padding(16)
             }
         }
-        .background(Color.primary50)
         .overlay(alignment: .bottomTrailing) {
-            FloatingPlusButton {
-                store.send(.createButtonTapped)
+            if !store.isLoading {
+                ZStack(alignment: .bottomTrailing) {
+                    if store.isMenuOpen {
+                        TravelCreateMenuView(
+                            inviteTapped: { store.send(.selectInviteCode) },
+                            createTapped: { store.send(.selectCreateTravel) }
+                        )
+                        .padding(.trailing, 20)
+                    }
+                        .padding(.bottom, 116)
+
+                        store.send(.floatingButtonTapped)
+                    FloatingMenuButton(isOpen: store.isMenuOpen) {
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 54)
             }
-            .padding(.trailing, 20)
-            .padding(.bottom, 54)
         }
+
 //        .navigationDestination(
 //            store: store.scope(state: \.$create, action: \.create)
 //        ) { createStore in
@@ -64,6 +88,16 @@ public struct TravelView: View {
 //        }
         .onAppear {
             store.send(.onAppear)
+        }
+        .overlay {
+            if store.isInviteModalPresented {
+                InviteCodeModalView(
+                    code: store.inviteCode,
+                    onCodeChange: { store.send(.inviteCodeChanged($0)) },
+                    onConfirm: { store.send(.inviteConfirm) },
+                    onCancel: { store.send(.inviteModalDismiss) }
+                )
+            }
         }
     }
 }

@@ -21,7 +21,7 @@ public class ToastManager: ObservableObject {
 
   public func showToast(
     _ toast: ToastType,
-    duration: TimeInterval = 3.0
+    duration: TimeInterval? = 3.0
   ) {
         // 기존 타이머 취소
         dismissTimer?.invalidate()
@@ -33,11 +33,15 @@ public class ToastManager: ObservableObject {
         }
 
         // 자동 dismiss 타이머 설정
-        dismissTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { _ in
-            Task { @MainActor in
-                self.hideToast()
-            }
-        }
+      if let duration {
+          dismissTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { _ in
+              Task { @MainActor in
+                  self.hideToast()
+              }
+          }
+      } else {
+          dismissTimer = nil
+      }
     }
 
     public func hideToast() {
@@ -69,5 +73,9 @@ public class ToastManager: ObservableObject {
 
     public func showInfo(_ message: String) {
         showToast(.info(message))
+    }
+
+    public func showLoading(_ message: String) {
+        showToast(.loading(message), duration: nil)
     }
 }

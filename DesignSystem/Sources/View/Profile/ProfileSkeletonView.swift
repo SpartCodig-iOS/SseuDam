@@ -2,12 +2,11 @@
 //  ProfileSkeletonView.swift
 //  DesignSystem
 //
-//  Created by Wonji Suh on 01/14/26.
+//  Created by Wonji Suh on  12/03/25.
 //
 
 import SwiftUI
 
-/// Skeleton that mimics the provided "프로필_B" design: nav, avatar, divider, two list cards.
 public struct ProfileSkeletonView: View {
   @State private var shimmerPhase: CGFloat = -1.0
 
