@@ -194,7 +194,14 @@ extension ProfileFeature {
                 state.isPhotoPickerPresented = false
                 guard let data else { return .none }
                 let currentName = state.profile?.name
-                return .send(.async(.editProfile(data, currentName, fileName)))
+                return .merge(
+                    .run { _ in
+                        await MainActor.run {
+                            ToastManager.shared.showLoading("프로필 수정사항을 적용하고 있어요")
+                        }
+                    },
+                    .send(.async(.editProfile(data, currentName, fileName)))
+                )
 
             case .showDeleteAlert:
                 state.alert = DSAlertState(
@@ -393,10 +400,22 @@ extension ProfileFeature {
                     case .success(let profileData):
                         state.profile = profileData
                         state.profileImageData = nil
+                    return .run { _ in
+                        await MainActor.run {
+                            ToastManager.shared.showSuccess("프로필 수정이 완료되었습니다.")
+                        }
+                    }
+
                     case .failure(let error):
                         state.errorMessage = error.errorDescription
+
+                    return .run { _ in
+                        await MainActor.run {
+                            ToastManager.shared.showError("프로필 수정이실패하였습니다. 다시 시도해주세요.")
+                        }
+                    }
                 }
-                return .none
+
 
             case .deleteUserResponse(let result):
                 switch result {

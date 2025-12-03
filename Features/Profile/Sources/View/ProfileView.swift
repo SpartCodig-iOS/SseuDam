@@ -53,6 +53,7 @@ public struct ProfileView: View {
             store.send(.view(.onAppear))
         }
         .background(.primary50)
+        .toastOverlay()
     }
 }
 

@@ -16,27 +16,21 @@ public struct ToastView: View {
     }
 
     public var body: some View {
-      HStack(alignment: .center, spacing: 4) {
-            // 에러 아이콘 (X 표시)
-        Image(asset: .xmark)
-          .resizable()
-          .scaledToFit()
-          .foregroundStyle(.red)
-          .frame(width: 12, height: 12)
+      HStack(alignment: .center, spacing: 8) {
+        leadingView
 
-            // 메시지
-            Text(toast.message)
-                .font(.app(.body, weight: .semibold))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 11)
-        .background(.gray5)
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+        // 메시지
+        Text(toast.message)
+          .font(.app(.body, weight: .semibold))
+          .foregroundColor(.white)
+          .multilineTextAlignment(.leading)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+      .padding(.horizontal, 20)
+      .padding(.vertical, 11)
+      .background(toast.backgroundColor)
+      .cornerRadius(12)
+      .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
     }
 }
 
@@ -68,6 +62,28 @@ public extension View {
     func toastOverlay() -> some View {
         modifier(ToastOverlay())
     }
+}
+
+// MARK: - Private views
+private extension ToastView {
+  @ViewBuilder
+  var leadingView: some View {
+    switch toast {
+    case .loading:
+      ProgressView()
+        .progressViewStyle(.circular)
+        .tint(toast.iconColor)
+        .frame(width: 16, height: 16)
+    default:
+      if let iconName = toast.iconName {
+        Image(assetName: iconName)
+          .resizable()
+          .scaledToFit()
+          .foregroundStyle(toast.iconColor)
+          .frame(width: 12, height: 12)
+      }
+    }
+  }
 }
 
 // MARK: - Preview

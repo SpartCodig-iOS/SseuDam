@@ -5,10 +5,10 @@ default_platform(:ios)
 ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "600"
 
 # 앱 관련 변수
-APP_NAME = "SseuDamApp"
+APP_NAME = "SseuDam"
 SCHEME = "SseuDamApp"
 STAGE_SCHEME = "SseuDamApp"
-BUNDLE_ID = "io.sseudam.co"
+BUNDLE_ID = ENV["APP_IDENTIFIER"]
 OUTPUT_DIR = "./fastlane/output"
 IPA_FILENAME = "#{APP_NAME}.ipa"
 TEAMID = ENV["TEAM_ID"]
@@ -31,7 +31,7 @@ platform :ios do
     match(type: "appstore", readonly: true)
 
      build_app(
-      workspace: "#{APP_NAME}.xcworkspace",
+      workspace: "SseuDam.xcworkspace",
       scheme: APP_RELEASE_NAME,
       output_directory: OUTPUT_DIR,
       output_name: IPA_FILENAME,
@@ -103,9 +103,8 @@ platform :ios do
 
     upload_to_testflight(
       ipa: ipa_path,
-      changelog: "변경사항",
-      groups: ["DDD", "ddd"],
-      beta_app_description: "DDD 출석 앱입니다.",
+      groups: ["ssedum"],
+      beta_app_description: "쓰담 앱 지출 관리 앱입니다.",
       notify_external_testers: true,
       skip_waiting_for_build_processing: true
     )
@@ -140,8 +139,8 @@ platform :ios do
 
       upload_to_app_store(
         app_version: options[:version],
-        username: "shuwj81@daum.net",
-        team_id: "KL4Y9PB9B8",
+        username: ENV["APPLE_ID"],
+        team_id: TEAMID,
         ipa: ipa_path,
         skip_metadata: false,
         metadata_path: "./fastlane/metadata",

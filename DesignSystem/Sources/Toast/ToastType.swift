@@ -12,13 +12,15 @@ public enum ToastType: Equatable {
     case error(String)
     case warning(String)
     case info(String)
+    case loading(String)
 
     public var message: String {
         switch self {
         case .success(let message),
              .error(let message),
              .warning(let message),
-             .info(let message):
+             .info(let message),
+             .loading(let message):
             return message
         }
     }
@@ -33,19 +35,38 @@ public enum ToastType: Equatable {
             return .gray5
         case .info:
             return .gray5
+        case .loading:
+            return .gray6
         }
     }
 
-    public var iconName: String {
+    public var iconName: String? {
         switch self {
         case .success:
-            return "checkmark.circle.fill"
+            return "checkBlue"
         case .error:
             return "xmark"
         case .warning:
             return "xmark"
         case .info:
             return "info.circle.fill"
+        case .loading:
+            return nil
+        }
+    }
+
+    public var iconColor: Color {
+        switch self {
+        case .success:
+            return .white
+        case .error:
+            return .white
+        case .warning:
+            return .white
+        case .info:
+            return .white
+        case .loading:
+            return .white
         }
     }
 }

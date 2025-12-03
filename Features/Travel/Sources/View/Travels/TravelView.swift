@@ -19,53 +19,62 @@ public struct TravelView: View {
     }
 
     public var body: some View {
-        VStack {
-            TravelListHeaderView {
-                store.send(.profileButtonTapped)
-            }
+        ZStack {
+            Color.primary50.ignoresSafeArea()
 
-            TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
-
-            if store.travels.isEmpty {
-                TravelEmptyView()
+            if store.isLoading {
+                DashboardSkeletonView()
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 18) {
-                        ForEach(store.travels, id: \.id) { travel in
-                            TravelCardView(travel: travel)
-                                .onAppear {
-                                    store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
-                                }
-                                .onTapGesture {
-                                    store.send(.travelSelected(travelId: travel.id))
-                                }
-                        }
+                VStack {
+                    TravelListHeaderView {
+                        store.send(.profileButtonTapped)
+                    }
 
-                        if store.isLoadingNextPage {
-                            ProgressView().padding(.vertical, 20)
+                    TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
+
+                    if store.travels.isEmpty {
+                        TravelEmptyView()
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 18) {
+                                ForEach(store.travels, id: \.id) { travel in
+                                    TravelCardView(travel: travel)
+                                        .onAppear {
+                                            store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
+                                        }
+                                        .onTapGesture {
+                                            store.send(.travelSelected(travelId: travel.id))
+                                        }
+                                }
+
+                                if store.isLoadingNextPage {
+                                    ProgressView().padding(.vertical, 20)
+                                }
+                            }
+                            .padding(16)
                         }
                     }
-                    .padding(16)
                 }
             }
         }
-        .background(Color.primary50)
         .overlay(alignment: .bottomTrailing) {
-            ZStack(alignment: .bottomTrailing) {
-                if store.isMenuOpen {
-                    TravelCreateMenuView(
-                        inviteTapped: { store.send(.selectInviteCode) },
-                        createTapped: { store.send(.selectCreateTravel) }
-                    )
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 116)
-                }
+            if !store.isLoading {
+                ZStack(alignment: .bottomTrailing) {
+                    if store.isMenuOpen {
+                        TravelCreateMenuView(
+                            inviteTapped: { store.send(.selectInviteCode) },
+                            createTapped: { store.send(.selectCreateTravel) }
+                        )
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 116)
+                    }
 
-                FloatingMenuButton(isOpen: store.isMenuOpen) {
-                    store.send(.floatingButtonTapped)
+                    FloatingMenuButton(isOpen: store.isMenuOpen) {
+                        store.send(.floatingButtonTapped)
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 54)
                 }
-                .padding(.trailing, 20)
-                .padding(.bottom, 54)
             }
         }
 
