@@ -26,6 +26,7 @@ public struct TravelDTO: Decodable {
     let baseExchangeRate: Double
     let destinationCurrency: String
     let inviteCode: String?
+    let deepLink: String?
     let status: String
     let role: String?
     let createdAt: String
@@ -49,6 +50,7 @@ extension TravelDTO {
             baseExchangeRate: baseExchangeRate,
             destinationCurrency: destinationCurrency,
             inviteCode: inviteCode,
+            deepLink: deepLink,
             status: TravelStatus(rawValue: status) ?? .unknown,
             role: role,
             createdAt: dateTimeFormatter.date(from: createdAt) ?? Date(),

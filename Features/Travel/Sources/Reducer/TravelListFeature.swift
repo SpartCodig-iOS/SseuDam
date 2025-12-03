@@ -26,7 +26,12 @@ public struct TravelListFeature {
         @Presents var create: TravelCreateFeature.State?
 //        @Presents var profile: ProfileCoordinator.State?
 
-        public init() {}
+        public init(pendingInviteCode: String? = nil) {
+            if let code = pendingInviteCode {
+                self.inviteCode = code
+                self.isInviteModalPresented = true
+            }
+        }
     }
 
     public enum Action {

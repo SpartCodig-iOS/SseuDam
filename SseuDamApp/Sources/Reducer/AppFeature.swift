@@ -10,19 +10,26 @@ import LoginFeature
 import MainFeature
 import SplashFeature
 import ProfileFeature
+@preconcurrency import Domain
+import Foundation
 
 @Reducer
 struct AppFeature {
     
     // MARK: - State
     @ObservableState
-    enum State: Equatable {
-        case login(LoginCoordinator.State)
-        case splash(SplashFeature.State)
-        case main(MainCoordinator.State)
-        
+    struct State: Equatable {
+        var splash: SplashFeature.State?
+        var login: LoginCoordinator.State?
+        var main: MainCoordinator.State?
+        var pendingInviteCode: String?
+        @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+
         init() {
-            self = .splash(.init())
+            self.splash = .init()
+            self.login = nil
+            self.main = nil
+            self.pendingInviteCode = nil
         }
     }
     
@@ -33,16 +40,25 @@ struct AppFeature {
         case inner(InnerAction)
         case scope(ScopeAction)
     }
+
+    enum Flow {
+        case splash
+        case login
+        case main
+    }
     
     @CasePathable
     enum View {
         case presentLogin
         case presentMain
+        case handleDeepLink(String)
     }
     
     enum InnerAction {
         case setLoginState
         case setMainState
+        case handleDeepLinkJoin(String)
+        case setPendingInviteCode(String?)
     }
     
     @CasePathable
@@ -53,7 +69,9 @@ struct AppFeature {
     }
     
     @Dependency(\.continuousClock) var clock
-    
+    @Dependency(\.sessionUseCase) var sessionUseCase
+
+
     nonisolated enum CancelID: Hashable {
         case transitionToLogin
         case transitionToMain
@@ -75,25 +93,29 @@ struct AppFeature {
                 return handleScopeAction(&state, action: scopeAction)
             }
         }
-        .ifCaseLet(\.login, action: \.scope.login) {
+        .ifLet(\.login, action: \.scope.login) {
             LoginCoordinator()
         }
-        .ifCaseLet(\.splash, action: \.scope.splash) {
+        .ifLet(\.splash, action: \.scope.splash) {
             SplashFeature()
         }
-        .ifCaseLet(\.main, action: \.scope.main) {
+        .ifLet(\.main, action: \.scope.main) {
             MainCoordinator()
         }
     }
 }
 
 extension AppFeature.State {
+    var flow: AppFeature.Flow {
+        if main != nil { return .main }
+        if login != nil { return .login }
+        return .splash
+    }
+
     var caseKey: String {
-        switch self {
-        case .splash: return "splash"
-        case .login: return "login"
-        case .main: return "main"
-        }
+        if main != nil { return "main" }
+        if login != nil { return "login" }
+        return "splash"
     }
 }
 
@@ -111,7 +133,7 @@ extension AppFeature {
                 ),
                 .send(.inner(.setLoginState))
             )
-            
+
         case .presentMain:
             return .concatenate(
                 .merge(
@@ -120,6 +142,16 @@ extension AppFeature {
                 ),
                 .send(.inner(.setMainState))
             )
+
+        case .handleDeepLink(let urlString):
+            // 딥링크 URL에서 초대 코드 추출
+            if let url = URL(string: urlString),
+               url.scheme == "sseudam" && url.host == "join",
+               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let inviteCode = components.queryItems?.first(where: { $0.name == "code" })?.value {
+                return .send(.inner(.handleDeepLinkJoin(inviteCode)))
+            }
+            return .none
         }
     }
     
@@ -129,11 +161,49 @@ extension AppFeature {
     ) -> Effect<Action> {
         switch action {
         case .setLoginState:
-            state = .login(.init())
+            state.login = .init()
+            state.splash = nil
+            state.main = nil
             return .none
             
         case .setMainState:
-            state = .main(.init())
+            let inviteCode = state.pendingInviteCode
+            state.pendingInviteCode = nil
+            state.main = .init(pendingInviteCode: inviteCode)
+            state.splash = nil
+            state.login = nil
+            return .run { send in
+                await send(.scope(.main(.refreshTravelList)))
+            }
+
+        case .handleDeepLinkJoin(let inviteCode):
+            // 딥링크를 통한 여행 참여 처리 (팝업 우선 표시)
+            return .run { [sessionId = state.sessionId,
+                           sessionUseCase,
+                           hasMain = state.main != nil] send in
+                let hasValidSession: Bool = await {
+                    guard let sid = sessionId, !sid.isEmpty else { return false }
+                    return (try? await sessionUseCase.checkSession(sessionId: sid)) != nil
+                }()
+
+                if hasValidSession {
+                    if hasMain {
+                        await send(.scope(.main(.router(.routeAction(id: 0, action: .travelList(.openInviteCode(inviteCode)))))))
+                        await send(.scope(.main(.refreshTravelList)))
+                        await send(.inner(.setPendingInviteCode(nil)))
+                    } else {
+                        await send(.inner(.setPendingInviteCode(inviteCode)))
+                        await send(.view(.presentMain))
+                    }
+                } else {
+                    // 로그인되어 있지 않으면 초대 코드를 저장하고 로그인 화면으로
+                    await send(.inner(.setPendingInviteCode(inviteCode)))
+                    await send(.view(.presentLogin))
+                }
+            }
+
+        case .setPendingInviteCode(let code):
+            state.pendingInviteCode = code
             return .none
         }
     }

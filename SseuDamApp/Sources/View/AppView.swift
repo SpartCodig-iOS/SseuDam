@@ -20,22 +20,7 @@ struct AppView: View {
         ZStack(alignment: .topLeading) {
             Color.primary50.ignoresSafeArea()
             
-            switch store.state {
-            case .splash:
-                if let splashStore = store.scope(state: \.splash, action: \.scope.splash) {
-                    SplashView(store: splashStore)
-                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
-                }
-                
-            case .login:
-                if let loginStore = store.scope(state: \.login, action: \.scope.login) {
-                    LoginCoordinatorView(store: loginStore)
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .trailing),
-                            removal: .move(edge: .leading)
-                        ))
-                }
-                
+            switch store.state.flow {
             case .main:
                 if let mainStore = store.scope(state: \.main, action: \.scope.main) {
                     MainCoordinatorView(store: mainStore)
@@ -44,7 +29,21 @@ struct AppView: View {
                             removal: .move(edge: .leading)
                         ))
                 }
-                
+
+            case .login:
+                if let loginStore = store.scope(state: \.login, action: \.scope.login) {
+                    LoginCoordinatorView(store: loginStore)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .move(edge: .leading)
+                        ))
+                }
+
+            case .splash:
+                if let splashStore = store.scope(state: \.splash, action: \.scope.splash) {
+                    SplashView(store: splashStore)
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                }
             }
         }
         .animation(
