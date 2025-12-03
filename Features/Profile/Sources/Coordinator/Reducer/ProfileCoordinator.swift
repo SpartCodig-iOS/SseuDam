@@ -11,7 +11,7 @@ import TCACoordinators
 
 
 @Reducer
-public struct ProfileCoordinator {
+public struct ProfileCoordinator { 
     public init() {}
     
     @ObservableState

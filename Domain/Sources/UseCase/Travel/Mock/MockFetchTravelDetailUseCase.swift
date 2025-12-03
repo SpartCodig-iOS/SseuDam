@@ -94,7 +94,7 @@ public extension Travel {
             baseExchangeRate: 1350.0, // 1 USD = 1350 KRW
             destinationCurrency: "USD",
             inviteCode: "NYC2025",
-            status: .inactive,
+            status: .archived,
             role: "member",
             createdAt: Date().addingTimeInterval(-86400 * 7), // 7일 전
             ownerName: "김철수",

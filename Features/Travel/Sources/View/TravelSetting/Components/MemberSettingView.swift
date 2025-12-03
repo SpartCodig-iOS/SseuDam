@@ -16,17 +16,20 @@ struct MemberSettingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
 
-            SectionHeader(title: "멤버", isOWner: store.travel.role == "owner", isEditing: $isEditing)
-
-            let members = store.members
-            //TODO: 내 아이디
             let myId = store.members.first?.id ?? ""
-            let ownerId = store.ownerId
+            let ownerId = store.members.first(where: { $0.role == "owner" })?.id
+            let isOwner = (ownerId == myId)
+
+            SectionHeader(
+                title: "멤버",
+                isOWner: isOwner,
+                isEditing: $isEditing
+            )
 
             MemberListView(
-                members: members,
+                members: store.members,
                 myId: myId,
-                ownerId: ownerId,
+                ownerId: ownerId ?? "",
                 isEditing: isEditing,
                 onDelegateOwner: { memberId in
                     store.send(.delegateOwnerTapped(memberId))

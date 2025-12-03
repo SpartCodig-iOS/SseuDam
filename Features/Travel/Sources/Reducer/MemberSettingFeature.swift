@@ -24,7 +24,7 @@ public struct MemberSettingFeature {
         public init(travel: Travel) {
             self.travel = travel
             self.members = travel.members
-            self.ownerId = travel.ownerName
+            self.ownerId = travel.members.first(where: { $0.role == "owner" })?.id ?? ""
         }
     }
 
@@ -34,7 +34,11 @@ public struct MemberSettingFeature {
         case deleteMemberTapped(String)
         case deleteMemberResponse(Result<Void, Error>)
 
-        case updated(Travel)
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case needRefresh
+        }
     }
 
     @Dependency(\.delegateOwnerUseCase) var delegateOwnerUseCase
@@ -43,7 +47,6 @@ public struct MemberSettingFeature {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-
             case .delegateOwnerTapped(let newId):
                 state.isSubmitting = true
                 return .run {
@@ -62,7 +65,7 @@ public struct MemberSettingFeature {
                 state.travel = updated
                 state.members = updated.members
                 state.ownerId = updated.ownerName
-                return .send(.updated(updated))
+                return .send(.delegate(.needRefresh))
 
             case .delegateOwnerResponse(.failure(let err)):
                 state.isSubmitting = false
@@ -89,7 +92,7 @@ public struct MemberSettingFeature {
                     state.members.removeAll { $0.id == id }
                 }
                 state.deletingMemberId = nil
-                return .none
+                return .send(.delegate(.needRefresh))
 
             case .deleteMemberResponse(.failure(let err)):
                 state.isSubmitting = false
@@ -97,7 +100,7 @@ public struct MemberSettingFeature {
                 state.deletingMemberId = nil
                 return .none
 
-            case .updated:
+            case .delegate:
                 return .none
             }
         }

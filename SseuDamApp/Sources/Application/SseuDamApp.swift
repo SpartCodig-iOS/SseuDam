@@ -30,6 +30,14 @@ struct SseuDamApp: App {
         $0.deleteExpenseUseCase = makeDeleteExpenseUseCase()
         $0.expenseRepository = makeExpenseRepository()
         $0.profileUseCase = makeProfileUseCase()
+        $0.joinTravelUseCase = makeJoinTravelUseCase()
+        $0.delegateOwnerUseCase = makeDelegateOwnerUseCase()
+        $0.deleteTravelMemberUseCase = makeDeleteTravelMemberUseCase()
+        $0.leaveTravelUseCase = makeLeaveTravelUseCase()
+        $0.updateTravelUseCase = makeUpdateTravelUseCase()
+        $0.deleteTravelUseCase = makeDeleteTravelUseCase()
+        $0.fetchCountriesUseCase = makeFetchCountriesUseCase()
+        $0.fetchExchangeRateUseCase = makeFetchExchangeRateUseCase()
     }
 
     var body: some Scene {
@@ -133,5 +141,69 @@ private extension SseuDamApp {
 
     static func makeProfileUseCase() -> ProfileUseCaseProtocol {
         ProfileUseCase(repository: ProfileRepository())
+    }
+
+    static func makeJoinTravelUseCase() -> JoinTravelUseCaseProtocol {
+        JoinTravelUseCase(
+            repository: TravelMemberRepository(
+                remote: TravelMemberRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeDelegateOwnerUseCase() -> DelegateOwnerUseCaseProtocol {
+        DelegateOwnerUseCase(
+            repository: TravelMemberRepository(
+                remote: TravelMemberRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeDeleteTravelMemberUseCase() -> DeleteTravelMemberUseCaseProtocol {
+        DeleteTravelMemberUseCase(
+            repository: TravelMemberRepository(
+                remote: TravelMemberRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeLeaveTravelUseCase() -> LeaveTravelUseCaseProtocol {
+        LeaveTravelUseCase(
+            repository: TravelMemberRepository(
+                remote: TravelMemberRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeUpdateTravelUseCase() -> UpdateTravelUseCaseProtocol {
+        UpdateTravelUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeDeleteTravelUseCase() -> DeleteTravelUseCaseProtocol {
+        DeleteTravelUseCase(
+            repository: TravelRepository(
+                remote: TravelRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeFetchCountriesUseCase() -> FetchCountriesUseCaseProtocol {
+        FetchCountriesUseCase(
+            repository: CountryRepository(
+                remote: CountryRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeFetchExchangeRateUseCase() -> FetchExchangeRateUseCaseProtocol {
+        FetchExchangeRateUseCase(
+            repository: ExchangeRateRepository(
+                remote: ExchangeRateRemoteDataSource()
+            )
+        )
     }
 }

@@ -10,7 +10,7 @@ import Moya
 import NetworkService
 
 public protocol ExchangeRateRemoteDataSourceProtocol {
-    func fetchExchangeRate(quote: String) async throws -> ExchangeRateResponseDTO
+    func fetchExchangeRate(base: String) async throws -> ExchangeRateResponseDTO
 }
 
 public final class ExchangeRateRemoteDataSource: ExchangeRateRemoteDataSourceProtocol {
@@ -20,9 +20,9 @@ public final class ExchangeRateRemoteDataSource: ExchangeRateRemoteDataSourcePro
         self.provider = provider
     }
 
-    public func fetchExchangeRate(quote: String) async throws -> ExchangeRateResponseDTO {
+    public func fetchExchangeRate(base: String) async throws -> ExchangeRateResponseDTO {
         let response: BaseResponse<ExchangeRateResponseDTO> =
-        try await provider.request(.fetchRate(quote: quote))
+        try await provider.request(.fetchRate(base: base))
 
         guard let data = response.data else {
             throw NetworkError.noData
