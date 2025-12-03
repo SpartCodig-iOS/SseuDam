@@ -8,5 +8,5 @@
 import Foundation
 
 public struct SessionRequestDTO: Encodable {
-  let sessionId: String
+    let sessionId: String
 }

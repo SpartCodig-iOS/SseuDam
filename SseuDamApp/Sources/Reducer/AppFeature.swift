@@ -20,7 +20,6 @@ struct AppFeature {
         case login(LoginCoordinator.State)
         case splash(SplashFeature.State)
         case main(MainCoordinator.State)
-        case profile(ProfileCoordinator.State)
         
         init() {
             self = .splash(.init())
@@ -51,7 +50,6 @@ struct AppFeature {
         case login(LoginCoordinator.Action)
         case splash(SplashFeature.Action)
         case main(MainCoordinator.Action)
-        case profile(ProfileCoordinator.Action)
     }
     
     @Dependency(\.continuousClock) var clock
@@ -86,9 +84,6 @@ struct AppFeature {
         .ifCaseLet(\.main, action: \.scope.main) {
             MainCoordinator()
         }
-        .ifCaseLet(\.profile, action: \.scope.profile) {
-            ProfileCoordinator()
-        }
     }
 }
 
@@ -98,7 +93,6 @@ extension AppFeature.State {
         case .splash: return "splash"
         case .login: return "login"
         case .main: return "main"
-        case .profile: return "profile"
         }
     }
 }
@@ -149,9 +143,6 @@ extension AppFeature {
         action: ScopeAction
     ) -> Effect<Action> {
         switch action {
-        case .main:
-            return .none
-            
         case .splash(.delegate(.presentLogin)):
             return .run { send in
                 await send(.view(.presentLogin))
@@ -170,7 +161,7 @@ extension AppFeature {
             }
             .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
             
-        case .profile(.delegate(.presentLogin)):
+        case .main(.delegate(.presentLogin)):
             return .run { send in
                 await send(.view(.presentLogin), animation: .interactiveSpring(
                     response: 0.5,

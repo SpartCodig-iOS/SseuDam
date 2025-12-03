@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AuthData {
+public struct AuthData: Hashable {
     let socialType: SocialType
     let accessToken: String
     let authToken: String

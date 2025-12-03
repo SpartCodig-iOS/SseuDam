@@ -6,7 +6,9 @@ let project = Project.makeFeature(
     dependencies: [
         .SPM.TCACoordinators,
         .Features.Travel,
-        .Features.Settlement
+        .Features.Expense,
+        .Features.Settlement,
+        .Features.Profile
     ],
     hasTests: true
 )

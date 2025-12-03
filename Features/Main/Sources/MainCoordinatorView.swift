@@ -11,6 +11,7 @@ import TCACoordinators
 import TravelFeature
 import SettlementFeature
 import ExpenseFeature
+import ProfileFeature
 
 public struct MainCoordinatorView: View {
     let store: StoreOf<MainCoordinator>
@@ -24,12 +25,19 @@ public struct MainCoordinatorView: View {
             switch screen.case {
             case .settlementCoordinator(let store):
                 SettlementCoordinatorView(store: store)
+                  .enableSwipeBack()
             case .travelList(let store):
                 TravelView(store: store)
+                  .enableSwipeBack()
             case .createTravel(let store):
                 CreateTravelView(store: store)
             case .travelSetting(let store):
                 TravelSettingView(store: store)
+                  .enableSwipeBack()
+              case .profile(let store):
+                ProfileCoordinatorView(store: store)
+                  .navigationBarBackButtonHidden()
+                  .enableSwipeBack()
             }
         }
     }

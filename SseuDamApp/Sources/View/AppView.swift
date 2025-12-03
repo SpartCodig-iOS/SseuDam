@@ -45,14 +45,6 @@ struct AppView: View {
                         ))
                 }
                 
-            case .profile:
-                if let profileStore = store.scope(state: \.profile, action: \.scope.profile) {
-                    ProfileCoordinatorView(store: profileStore)
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .trailing),
-                            removal: .move(edge: .leading)
-                        ))
-                }
             }
         }
         .animation(

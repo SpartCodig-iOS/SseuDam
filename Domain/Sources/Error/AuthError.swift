@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum AuthError: Error, Equatable, LocalizedError {
+public enum AuthError: Error, Equatable, LocalizedError, Hashable {
   /// 설정 누락 (Google/Supabase 키 등)
   case configurationMissing
   /// 프레젠트할 컨트롤러가 없음
@@ -22,6 +22,8 @@ public enum AuthError: Error, Equatable, LocalizedError {
   case networkError(String)
   /// Supabase나 백엔드 쪽에서 온 에러
   case backendError(String)
+  /// 약관 동의가 필요한 경우
+  case needsTermsAgreement(String)
   /// 그 외 알 수 없는 에러
   case unknownError(String)
 
@@ -43,6 +45,8 @@ public enum AuthError: Error, Equatable, LocalizedError {
       return "네트워크 오류가 발생했습니다: \(message)"
     case .backendError(let message):
       return "서버에서 오류가 발생했습니다: \(message)"
+    case .needsTermsAgreement(let message):
+      return "\(message)"
     case .unknownError(let message):
       return "알 수 없는 오류가 발생했습니다: \(message)"
     }

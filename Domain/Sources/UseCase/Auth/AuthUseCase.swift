@@ -24,9 +24,16 @@ public struct AuthUseCase: AuthUseCaseProtocol {
         self.repository = repository
     }
 
+  // MARK: - 로그아웃
   public func logout() async throws -> LogoutStatus {
     let sessionId = self.sessionId ?? ""
     return try await repository.logout(sessionId: sessionId)
+  }
+
+  public func deleteUser() async throws -> AuthDeleteStatus {
+    let result = try await repository.delete()
+    KeychainManager.shared.clearAll()
+    return result
   }
 }
 

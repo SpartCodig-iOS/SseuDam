@@ -10,6 +10,7 @@ import ComposableArchitecture
 import TCACoordinators
 import TravelFeature
 import SettlementFeature
+import ProfileFeature
 
 @Reducer
 public enum Screen {
@@ -17,7 +18,7 @@ public enum Screen {
     case createTravel(TravelCreateFeature)
     case settlementCoordinator(SettlementCoordinator)
     case travelSetting(TravelSettingFeature)
+    case profile(ProfileCoordinator)
 }
 
 extension Screen.State: Equatable {}
-extension Screen.State {}

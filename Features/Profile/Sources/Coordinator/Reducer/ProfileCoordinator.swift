@@ -63,8 +63,8 @@ public struct ProfileCoordinator {
             case .scope(let scopeAction):
                 return handleScopeAction(state: &state, action: scopeAction)
                 
-            case .delegate(let navigationAction):
-                return handleDelegateAction(state: &state, action: navigationAction)
+            case .delegate(let delegateAction):
+                return handleDelegateAction(state: &state, action: delegateAction)
             }
         }
         .forEachRoute(\.routes, action: \.router, cancellationId: CancelID.coordinator)
@@ -78,7 +78,7 @@ extension ProfileCoordinator {
     }
 }
 
-extension ProfileCoordinator.ProfileScreen.State: Equatable, Hashable {}
+extension ProfileCoordinator.ProfileScreen.State: Equatable {}
 
 
 extension ProfileCoordinator {

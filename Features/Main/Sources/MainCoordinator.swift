@@ -25,36 +25,80 @@ public struct MainCoordinator {
 
     public enum Action {
         case router(IndexedRouterActionOf<Screen>)
+        case delegate(DelegateAction)
+    }
+
+
+    public enum DelegateAction {
+        case presentLogin
     }
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .router(.routeAction(_, .travelList(.selectCreateTravel))):
+                case .router(let routeAction):
+                    return routerAction(state: &state, action: routeAction)
+
+                case .delegate(let delegateAction):
+                    return handleDelegateAction(state: &state, action: delegateAction)
+
+            }
+        }
+        .forEachRoute(\.routes, action: \.router)
+    }
+}
+
+
+extension MainCoordinator {
+    private func routerAction(
+        state: inout State,
+        action: IndexedRouterActionOf<Screen>
+    ) -> Effect<Action> {
+        switch action {
+            case .routeAction(_, .travelList(.selectCreateTravel)):
                 state.routes.push(.createTravel(.init()))
                 return .none
-            case .router(.routeAction(_, .createTravel(.dismiss))):
+
+            case .routeAction(_, .createTravel(.dismiss)):
                 state.routes.pop()
                 return .none
-            case let .router(.routeAction(_, .travelList(.travelSelected(travelId)))):
+
+            case let .routeAction(_, .travelList(.travelSelected(travelId))):
                 state.routes.push(.settlementCoordinator(.init(travelId: travelId)))
                 return .none
-            case .router(.routeAction(_, .settlementCoordinator(.delegate(.onTapBackButton)))):
-                state.routes.pop()
+
+            case .routeAction(id: _, action: .travelList(.profileButtonTapped)):
+                state.routes.push(.profile(.init()))
                 return .none
-            case .router(.routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId))))):
+
+            case .routeAction(id: _, action: .profile(.delegate(.backToTravel))):
+                state.routes.goBack()
+                return .none
+
+            case .routeAction(id: _, action: .profile(.delegate(.presentLogin))):
+                return .send(.delegate(.presentLogin))
+
+            case .routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId)))):
                 state.routes.push(.travelSetting(.init(travelId: travelId)))
                 return .none
-            case .router(.routeAction(_, .travelSetting(.delegate(.done)))):
+
+            case .routeAction(_, .travelSetting(.delegate(.done))):
                 state.routes.pop()
                 state.routes.pop()
                 return .none
 
             default:
-                break
-            }
-            return .none
+                return .none
         }
-        .forEachRoute(\.routes, action: \.router)
+    }
+
+    private func handleDelegateAction(
+        state: inout State,
+        action: DelegateAction
+    ) -> Effect<Action> {
+        switch action {
+            case .presentLogin:
+                return .none
+        }
     }
 }
