@@ -71,6 +71,12 @@ public struct BasicSettingFeature {
                 $0.englishName.lowercased().contains(searchText.lowercased())
             }
         }
+
+        var isOwner: Bool {
+            guard let myId = travel.members.first?.id else { return false }
+            let ownerId = travel.members.first(where: { $0.role == "owner" })?.id
+            return ownerId == myId
+        }
     }
 
     public enum Action: BindableAction {

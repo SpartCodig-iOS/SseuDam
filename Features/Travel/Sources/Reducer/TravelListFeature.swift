@@ -29,7 +29,6 @@ public struct TravelListFeature {
         var inviteCode: String = ""
 
         @Presents var create: TravelCreateFeature.State?
-        //        @Presents var profile: ProfileCoordinator.State?
 
         public init() {}
     }
@@ -175,8 +174,6 @@ public struct TravelListFeature {
 
             case .joinTravelResponse(.success(let travel)):
                 state.inviteCode = ""
-                // TODO: TravelDetail 화면으로 이동
-                print(travel.id)
                 return .none
 
             case .joinTravelResponse(.failure(let error)):
@@ -197,26 +194,10 @@ public struct TravelListFeature {
 
                 case .profileButtonTapped:
                     return .none
-//
-//                case .profile(.presented(.delegate(.backToTravel))):
-//                    state.profile = nil
-//                    return .send(.refresh)
-//
-//                case .profile(.presented(.delegate(.presentLogin))):
-//                    return .send(.presentToLogin)
-//
-//                case .profile:
-//                    return .none
-
-//                case .presentToLogin:
-//                    return .none
             }
         }
         .ifLet(\.$create, action: \.create) {
             TravelCreateFeature()
         }
-        //        .ifLet(\.$profile, action: \.profile) {
-        //            ProfileCoordinator()
-        //        }
     }
 }
