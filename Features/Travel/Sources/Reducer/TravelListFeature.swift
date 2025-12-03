@@ -27,6 +27,7 @@ public struct TravelListFeature {
 
         var isInviteModalPresented: Bool = false
         var inviteCode: String = ""
+
         @Presents var create: TravelCreateFeature.State?
 
         public init(pendingInviteCode: String? = nil) {
@@ -157,11 +158,11 @@ public struct TravelListFeature {
 
             case .selectInviteCode:
                 state.isMenuOpen = false
-                state.isPresentInvitationView = true
+                state.isInviteModalPresented = true
                 return .none
 
             case .inviteModalDismiss:
-                state.isPresentInvitationView = false
+                state.isInviteModalPresented = false
                 state.inviteCode = ""
                 return .none
 
@@ -171,7 +172,7 @@ public struct TravelListFeature {
 
             case .inviteConfirm:
                 let code = state.inviteCode
-                state.isPresentInvitationView = false
+                state.isInviteModalPresented = false
 
                 return .run { send in
                     do {
@@ -208,9 +209,6 @@ public struct TravelListFeature {
 
             case .create:
                 return .none
-
-                case .create:
-                    return .none
 
                 case .profileButtonTapped:
                     return .none

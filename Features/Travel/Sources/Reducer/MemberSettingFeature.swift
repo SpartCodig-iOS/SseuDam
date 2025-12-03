@@ -120,7 +120,10 @@ public struct MemberSettingFeature {
                     UIPasteboard.general.string = shareMessage
                 }
                 return .none
+
+            case .updated:
                 return .none
+
             case .delegate:
                 return .none
             }

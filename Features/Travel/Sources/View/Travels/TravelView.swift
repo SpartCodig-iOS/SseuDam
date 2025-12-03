@@ -49,8 +49,8 @@ public struct TravelView: View {
 
                                 if store.isLoadingNextPage {
                                     ProgressView().padding(.vertical, 20)
-                            }
                                 }
+                            }
                             .padding(16)
                         }
                     }
@@ -66,14 +66,15 @@ public struct TravelView: View {
                             createTapped: { store.send(.selectCreateTravel) }
                         )
                         .padding(.trailing, 20)
-                    }
                         .padding(.bottom, 116)
+                    }
 
-                        store.send(.floatingButtonTapped)
                     FloatingMenuButton(isOpen: store.isMenuOpen) {
+                        store.send(.floatingButtonTapped)
                     }
                     .padding(.trailing, 20)
                     .padding(.bottom, 54)
+                }
             }
         }
 
