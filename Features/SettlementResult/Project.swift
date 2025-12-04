@@ -2,10 +2,8 @@ import ProjectDescription
 import SseuDamPlugin
 
 let project = Project.makeFeature(
-    name: .Settlementresult,
+    name: .SettlementResult,
     dependencies: [
-        .SPM.ComposableArchitecture,
-        .SPM.TCACoordinators,
         .Domain,
         .DesignSystem
     ],

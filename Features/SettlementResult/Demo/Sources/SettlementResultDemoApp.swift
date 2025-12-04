@@ -1,5 +1,5 @@
 //
-//  SettlementresultDemoApp.swift
+//  SettlementResultDemoApp.swift
 //  SseuDam
 //
 //  Created by SseuDam on2025.
@@ -7,10 +7,10 @@
 //
 
 import SwiftUI
-import SettlementresultFeature
+import SettlementResultFeature
 
 @main
-struct SettlementresultDemoApp: App {
+struct SettlementResultDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {

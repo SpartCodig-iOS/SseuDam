@@ -1,15 +1,14 @@
 //
-//  SettlementresultView.swift
+//  SettlementResultView.swift
 //  SseuDam
 //
-//  Created by SseuDam on2025.
-//  Copyright ©2025 com.testdev. All rights reserved.
+//  Created by 홍석현 on 12/4/25.
 //
 
 import SwiftUI
 import DesignSystem
 
-public struct SettlementresultView: View {
+public struct SettlementResultView: View {
     public init() {}
 
     public var body: some View {
@@ -28,6 +27,6 @@ public struct SettlementresultView: View {
 
 #Preview {
     NavigationView {
-        SettlementresultView()
+        SettlementResultView()
     }
 }

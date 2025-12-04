@@ -1,7 +1,7 @@
 import Testing
-@testable import SettlementresultFeature
+@testable import SettlementResultFeature
 
 @Suite("SettlementresultFeature Tests")
-struct SettlementresultFeatureTests {
+struct SettlementResultFeatureTests {
 
 }
