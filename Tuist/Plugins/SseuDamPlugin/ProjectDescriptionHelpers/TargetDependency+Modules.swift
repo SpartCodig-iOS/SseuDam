@@ -21,6 +21,7 @@ public extension TargetDependency.Features {
     static let Main: TargetDependency = .project(target: "MainFeature", path: .relativeToRoot("Features/Main"))
     static let Profile: TargetDependency = .project(target: "ProfileFeature", path: .relativeToRoot("Features/Profile"))
     static let Settlement: TargetDependency = .project(target: "SettlementFeature", path: .relativeToRoot("Features/Settlement"))
+    static let SettlementResult: TargetDependency = .project(target: "SettlementResultFeature", path: .relativeToRoot("Features/SettlementResult"))
     static let Splash: TargetDependency = .project(target: "SplashFeature", path: .relativeToRoot("Features/Splash"))
     static let Travel: TargetDependency = .project(target: "TravelFeature", path: .relativeToRoot("Features/Travel"))
     static let Web: TargetDependency = .project(target: "WebFeature", path: .relativeToRoot("Features/Web"))
@@ -33,6 +34,7 @@ public enum FeatureName: String {
     case Main
     case Profile
     case Settlement
+    case SettlementResult
     case Splash
     case Travel
     case Web
