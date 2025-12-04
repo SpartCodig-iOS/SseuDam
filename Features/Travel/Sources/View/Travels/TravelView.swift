@@ -57,6 +57,9 @@ public struct TravelView: View {
                 }
             }
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
         .overlay(alignment: .bottomTrailing) {
             if !store.isLoading {
                 ZStack(alignment: .bottomTrailing) {
@@ -87,9 +90,6 @@ public struct TravelView: View {
 //            ProfileCoordinatorView(store: profilestore)
 //                .navigationBarBackButtonHidden(true)
 //        }
-        .onAppear {
-            store.send(.onAppear)
-        }
         .overlay {
             if store.isInviteModalPresented {
                 InviteCodeModalView(
