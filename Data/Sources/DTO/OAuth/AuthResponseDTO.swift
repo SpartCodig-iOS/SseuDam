@@ -28,7 +28,7 @@ public struct AuthResponseDTO: Decodable {
 
 public struct User: Decodable {
     let id, email, name, role: String
-    let createdAt: String
+    let createdAt: String?
     let userID: String
     let avatarURL: String?
 

@@ -16,9 +16,6 @@ struct MemberSettingView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
 
-            SectionHeader(title: "멤버", isOWner: store.travel.members.first?.role == "owner", isEditing: $isEditing)
-
-            let members = store.members
             let myId = store.members.first?.id ?? ""
             let ownerId = store.members.first(where: { $0.role == "owner" })?.id
             let isOwner = (ownerId == myId)

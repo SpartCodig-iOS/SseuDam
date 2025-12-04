@@ -18,6 +18,7 @@ public struct Travel: Equatable, Hashable {
     public let baseExchangeRate: Double
     public let destinationCurrency: String
     public let inviteCode: String?
+    public let deepLink: String?
     public let status: TravelStatus
     public let role: String?
     public let createdAt: Date
@@ -35,6 +36,7 @@ public struct Travel: Equatable, Hashable {
         baseExchangeRate: Double,
         destinationCurrency: String,
         inviteCode: String? = nil,
+        deepLink: String? = nil,
         status: TravelStatus,
         role: String? = nil,
         createdAt: Date,
@@ -51,6 +53,7 @@ public struct Travel: Equatable, Hashable {
         self.baseExchangeRate = baseExchangeRate
         self.destinationCurrency = destinationCurrency
         self.inviteCode = inviteCode
+        self.deepLink = deepLink
         self.status = status
         self.role = role
         self.createdAt = createdAt

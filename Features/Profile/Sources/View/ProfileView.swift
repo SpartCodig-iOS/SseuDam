@@ -113,7 +113,7 @@ extension ProfileView {
                 .foregroundStyle(.gray6)
 
             Spacer()
-                .frame(height: 20)
+                .frame(height: 24)
 
             Divider()
                 .frame(height: 1)
@@ -127,7 +127,7 @@ extension ProfileView {
     fileprivate func termsSection() -> some View {
         VStack(alignment: .leading) {
             Spacer()
-                .frame(height: 16)
+                .frame(height: 24)
 
             HStack {
 

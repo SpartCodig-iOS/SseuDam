@@ -27,6 +27,9 @@ public extension InfoPlist {
           ])
         ]),
         "NSPhotoLibraryUsageDescription": .string("We use your photo library to update your profile image."),
+        "com.apple.developer.associated-domains": .array([
+          .string("applinks:sseudam.up.railway.app"),
+        ]),
         "UISupportedInterfaceOrientations": .array([
           .string("UIInterfaceOrientationPortrait")
         ]),

@@ -49,13 +49,16 @@ public struct TravelView: View {
 
                                 if store.isLoadingNextPage {
                                     ProgressView().padding(.vertical, 20)
-                            }
                                 }
+                            }
                             .padding(16)
                         }
                     }
                 }
             }
+        }
+        .onAppear {
+            store.send(.onAppear)
         }
         .overlay(alignment: .bottomTrailing) {
             if !store.isLoading {
@@ -66,14 +69,15 @@ public struct TravelView: View {
                             createTapped: { store.send(.selectCreateTravel) }
                         )
                         .padding(.trailing, 20)
-                    }
                         .padding(.bottom, 116)
+                    }
 
-                        store.send(.floatingButtonTapped)
                     FloatingMenuButton(isOpen: store.isMenuOpen) {
+                        store.send(.floatingButtonTapped)
                     }
                     .padding(.trailing, 20)
                     .padding(.bottom, 54)
+                }
             }
         }
 
@@ -86,9 +90,6 @@ public struct TravelView: View {
 //            ProfileCoordinatorView(store: profilestore)
 //                .navigationBarBackButtonHidden(true)
 //        }
-        .onAppear {
-            store.send(.onAppear)
-        }
         .overlay {
             if store.isInviteModalPresented {
                 InviteCodeModalView(

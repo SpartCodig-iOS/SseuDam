@@ -3,6 +3,7 @@ import LoginFeature
 import ComposableArchitecture
 import Data
 import Domain
+import Foundation
 
 @main
 struct SseuDamApp: App {
@@ -45,6 +46,14 @@ struct SseuDamApp: App {
             AppView(
                 store: store
             )
+            .onOpenURL { url in
+                store.send(.view(.handleDeepLink(url.absoluteString)))
+            }
+            .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { userActivity in
+                if let url = userActivity.webpageURL {
+                    store.send(.view(.handleDeepLink(url.absoluteString)))
+                }
+            }
         }
     }
 }

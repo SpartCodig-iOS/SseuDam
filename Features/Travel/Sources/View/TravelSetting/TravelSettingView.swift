@@ -98,7 +98,7 @@ private extension TravelSettingView {
             }
             .scrollIndicators(.hidden)
         }
-        .background(Color.primary50)
+        .background(.primary50)
         .navigationBarBackButtonHidden(true)
         // 여행 나가기 / 삭제 성공 시 dismiss
         .onChange(of: store.shouldDismiss) { _, newValue in
@@ -109,13 +109,15 @@ private extension TravelSettingView {
         .onAppear {
             store.send(.onAppear)
         }
-        .alert(
-            isPresented: Binding(
-            store.errorMessage ?? "",
-                get: { store.errorMessage != nil },
-                set: { _ in store.send(.clearError) }
-            )
-        ) {
+//        .alert(
+//            isPresented: Binding(
+//            store.errorMessage ?? "",
+//                get: { store.errorMessage != nil },
+//                set: { _ in store.send(.clearError) }
+//            )
+//        ) {
+//          Button
+//        }
     }
 }
 
