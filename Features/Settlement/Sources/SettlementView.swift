@@ -125,6 +125,7 @@ struct TabButton: View {
             VStack(spacing: 8) {
                 Text(title)
                     .font(.app(.title3, weight: .medium))
+                    .foregroundStyle(Color.black)
                 
                 // 선택 표시 줄
                 Rectangle()

@@ -25,4 +25,6 @@ public enum ImageAsset: String {
     case lock
     case checkBlue
     case none
+    case profile
+    case check
 }
