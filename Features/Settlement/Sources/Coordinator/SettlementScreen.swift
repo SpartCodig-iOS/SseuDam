@@ -17,4 +17,3 @@ public enum SettlementScreen {
 }
 
 extension SettlementScreen.State: Equatable {}
-extension SettlementScreen.State: Hashable {}

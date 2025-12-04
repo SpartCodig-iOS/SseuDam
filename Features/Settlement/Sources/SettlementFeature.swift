@@ -17,7 +17,7 @@ public struct SettlementFeature {
     public init() {}
 
     @ObservableState
-    public struct State: Equatable, Hashable {
+    public struct State: Equatable {
         public var allExpenses: [Expense] = [] // 전체 지출 데이터 (캐싱)
         public var currentExpense: [Expense] = [] // 현재 선택된 날짜의 지출
         public var startDate: Date = Date()
@@ -27,7 +27,8 @@ public struct SettlementFeature {
         public let travelId: String
         public var travel: Travel? = nil // ExpenseFeature 생성 시 전달용
         public var isLoading: Bool = false
-
+        @Presents public var alert: AlertState<Action.Alert>? = nil
+        
         public var totalAmount: Int {
             Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
         }
@@ -48,8 +49,9 @@ public struct SettlementFeature {
         case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
+        case scope(ScopeAction)
         case delegate(DelegateAction)
-
+        
         @CasePathable
         public enum ViewAction {
             case onAppear
@@ -58,17 +60,24 @@ public struct SettlementFeature {
             case backButtonTapped
             case settingsButtonTapped
         }
-
+        
         @CasePathable
         public enum InnerAction {
             case travelDetailResponse(Result<Travel, Error>)
             case expensesResponse(Result<[Expense], Error>)
         }
-
+        
         @CasePathable
         public enum AsyncAction {
             case fetchData
         }
+        
+        @CasePathable
+        public enum ScopeAction {
+            case alert(PresentationAction<Alert>)
+        }
+        
+        public enum Alert: Equatable {}
         
         @CasePathable
         public enum DelegateAction {
@@ -87,6 +96,8 @@ public struct SettlementFeature {
                 return handleInnerAction(state: &state, action: innerAction)
             case .async(let asyncAction):
                 return handleAsyncAction(state: &state, action: asyncAction)
+            case .scope:
+                return .none
             case .delegate:
                 return .none
             case .binding(\.selectedDate):
@@ -147,10 +158,18 @@ extension SettlementFeature {
             filterExpensesByDate(&state, date: state.selectedDate)
             state.isLoading = false
             return .none
-
+            
         case let .expensesResponse(.failure(error)):
-            print("Failed to fetch expenses: \(error)")
             state.isLoading = false
+            state.alert = AlertState {
+                TextState("오류")
+            } actions: {
+                ButtonState {
+                    TextState("확인")
+                }
+            } message: {
+                TextState("지출 내역을 불러오는데 실패했습니다.")
+            }
             return .none
         }
     }

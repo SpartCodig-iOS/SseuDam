@@ -30,7 +30,8 @@ public struct ParticipantSelectorView: View {
                     InputContainer {
                         HStack {
                             Text(store.payer?.name ?? "결제자 선택")
-                                .foregroundStyle(store.payer == nil ? Color.gray : Color.primary800)
+                                .font(.app(.body, weight: .medium))
+                                .foregroundStyle(store.payer == nil ? Color.gray : Color.black)
                             
                             Spacer()
                             
@@ -84,25 +85,28 @@ private struct ParticipantRowView: View {
             Button(action: action) {
                 HStack(spacing: 12) {
                     // Avatar
-                    Image(systemName: "person.fill")
+                    Image(asset: .profile)
                         .resizable()
                         .foregroundStyle(Color.primary500)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20, height: 20)
+                        .frame(width: 40, height: 40)
                     
                     Text(participant.name)
                         .foregroundStyle(Color.primary800)
                         .font(.system(size: 16))
                     
                     Spacer()
-                    
-                    Image(systemName: "checkmark")
-                        .foregroundStyle(
-                            isSelected
-                            ? Color.primary500
-                            : Color.gray
-                        )
-                        .font(.system(size: 16))
+
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(isSelected ? Color.primary300 : Color.gray2, lineWidth: 1)
+                        .frame(width: 28, height: 28)
+                        .overlay {
+                            if isSelected {
+                                Image(asset: .check)
+                                    .resizable()
+                                    .foregroundStyle(Color.primary300)
+                                    .frame(width: 20, height: 24)
+                            }
+                        }
                 }
                 .contentShape(Rectangle())
             }

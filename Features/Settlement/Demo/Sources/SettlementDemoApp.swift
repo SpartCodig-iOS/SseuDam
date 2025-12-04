@@ -15,12 +15,9 @@ struct SettlementDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                SettlementView(
-                    store: Store(
-                        initialState: SettlementFeature.State(),
-                        reducer: { SettlementFeature() }
-                    )
-                )
+                SettlementCoordinatorView(store: Store(initialState: SettlementCoordinator.State(travelId: "travel_01"), reducer: {
+                    SettlementCoordinator()
+                }))
             }
         }
     }

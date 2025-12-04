@@ -29,7 +29,7 @@ public struct TextInputField: View {
             
             InputContainer {
                 TextField(placeholder, text: $text)
-                    .font(.system(size: 16))
+                    .font(.app(.body, weight: .medium))
             }
         }
     }
