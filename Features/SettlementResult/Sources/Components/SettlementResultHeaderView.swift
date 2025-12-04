@@ -29,6 +29,7 @@ struct SettlementResultHeaderView: View {
                     .font(.app(.title1, weight: .semibold))
                     .foregroundStyle(Color.black)
             }
+            .padding(12)
 
             // 통계 정보
             HStack(spacing: 0) {
@@ -37,27 +38,19 @@ struct SettlementResultHeaderView: View {
                     value: "₩\(myExpenseAmount.formatted())"
                 )
 
-                Divider()
-                    .frame(height: 40)
-
                 StatItemView(
                     label: "인원 수",
                     value: "\(totalPersonCount)명"
                 )
-
-                Divider()
-                    .frame(height: 40)
 
                 StatItemView(
                     label: "1인 평균",
                     value: "₩\(averageExpensePerPerson.formatted())"
                 )
             }
+            .padding(.vertical, 20)
             .frame(maxWidth: .infinity)
         }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 16)
-        .background(Color.white)
     }
 }
 
