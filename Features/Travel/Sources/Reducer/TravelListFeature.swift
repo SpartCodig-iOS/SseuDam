@@ -131,6 +131,14 @@ public struct TravelListFeature {
                     state.travels.append(contentsOf: items)
                 }
 
+                // 동일 여행이 중복 노출되지 않도록 ID 기준으로 정리
+                var seen = Set<String>()
+                state.travels = state.travels.filter { travel in
+                    guard !seen.contains(travel.id) else { return false }
+                    seen.insert(travel.id)
+                    return true
+                }
+
                 return .none
 
             case .fetchTravelsResponse(.failure(let error)):

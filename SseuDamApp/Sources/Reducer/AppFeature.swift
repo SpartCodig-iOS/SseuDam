@@ -187,9 +187,7 @@ extension AppFeature {
             state.main = .init(pendingInviteCode: inviteCode)
             state.splash = nil
             state.login = nil
-            return .run { send in
-                await send(.scope(.main(.refreshTravelList)))
-            }
+            return .none
 
         case .handleDeepLinkJoin(let inviteCode):
             // 딥링크를 통한 여행 참여 처리 (팝업 우선 표시)
