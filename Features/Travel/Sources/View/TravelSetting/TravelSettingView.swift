@@ -109,13 +109,13 @@ private extension TravelSettingView {
         .onAppear {
             store.send(.onAppear)
         }
-        .alert(
-            isPresented: Binding(
-            store.errorMessage ?? "",
-                get: { store.errorMessage != nil },
-                set: { _ in store.send(.clearError) }
-            )
-        ) {
+//        .alert(
+//            isPresented: Binding(
+//            store.errorMessage ?? "",
+//                get: { store.errorMessage != nil },
+//                set: { _ in store.send(.clearError) }
+//            )
+//        )
     }
 }
 

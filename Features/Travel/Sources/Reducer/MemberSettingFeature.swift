@@ -103,8 +103,7 @@ public struct MemberSettingFeature {
                 state.errorMessage = err.localizedDescription
                 state.deletingMemberId = nil
                 return .none
-
-            case .delegate:
+            case .updated:
                 return .none
             case .delegate:
                 return .none

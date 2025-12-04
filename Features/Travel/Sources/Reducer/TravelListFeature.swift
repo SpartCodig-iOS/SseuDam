@@ -15,69 +15,69 @@ public struct TravelListFeature {
     public struct State: Equatable, Hashable {
         var travels: [Travel] = []
         var selectedTab: TravelTab = .ongoing
-
+        
         var isMenuOpen = false
-
+        
         var page = 1
         var hasNext = true
-
+        
         var isLoading = false
         var isLoadingNextPage = false
         var uiError: String?
-
-        var isInviteModalPresented: Bool = false
+        
+        var isPresentInvitationView: Bool = false
         var inviteCode: String = ""
         @Presents var create: TravelCreateFeature.State?
-
+        
         public init() {}
     }
-
+    
     public enum Action {
         case onAppear
         case refresh
         case fetch
         case fetchNextPageIfNeeded(currentItemID: String?)
-
+        
         case fetchTravelsResponse(Result<[Travel], Error>)
-
+        
         case travelTabSelected(TravelTab)
-
+        
         case travelSelected(travelId: String)
-
+        
         case floatingButtonTapped
         case selectCreateTravel
         case selectInviteCode
-
+        
         case inviteModalDismiss
         case inviteCodeChanged(String)
         case inviteConfirm
-
+        
         case joinTravelResponse(Result<Travel, Error>)
-
+        
         case create(PresentationAction<TravelCreateFeature.Action>)
-
+        
         case profileButtonTapped
     }
-
+    
     @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase
     @Dependency(\.joinTravelUseCase) var joinTravelUseCase
-
+    
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
                 return .send(.refresh)
-
+                
             case .travelTabSelected(let newTab):
                 state.selectedTab = newTab
                 return .send(.refresh)
-
+                
             case .refresh:
                 state.page = 1
                 state.hasNext = true
                 state.travels = []
                 return .send(.fetch)
-
+                
             case .fetch:
                 guard state.hasNext else { return .none }
                 if state.page == 1 {
@@ -85,12 +85,12 @@ public struct TravelListFeature {
                 } else {
                     state.isLoadingNextPage = true
                 }
-
+                
                 let input = FetchTravelsInput(
                     page: state.page,
                     status: state.selectedTab.status
                 )
-
+                
                 return .run { send in
                     do {
                         let result = try await fetchTravelsUseCase.excute(input: input)
@@ -99,69 +99,69 @@ public struct TravelListFeature {
                         await send(.fetchTravelsResponse(.failure(error)))
                     }
                 }
-
+                
             case .fetchNextPageIfNeeded(let id):
                 guard !state.isLoadingNextPage,
                       state.hasNext,
                       let last = state.travels.last, last.id == id
                 else { return .none }
-
+                
                 state.page += 1
                 return .send(.fetch)
-
+                
             case .fetchTravelsResponse(.success(let items)):
                 state.isLoading = false
                 state.isLoadingNextPage = false
-
+                
                 if items.isEmpty {
                     state.hasNext = false
                     return .none
                 }
-
+                
                 if state.page == 1 {
                     state.travels = items
                 } else {
                     state.travels.append(contentsOf: items)
                 }
-
+                
                 return .none
-
+                
             case .fetchTravelsResponse(.failure(let error)):
                 state.isLoading = false
                 state.isLoadingNextPage = false
                 state.uiError = error.localizedDescription
                 return .none
-
+                
             case .travelSelected:
                 return .none
-
+                
             case .floatingButtonTapped:
                 state.isMenuOpen.toggle()
                 return .none
-
+                
             case .selectCreateTravel:
                 state.isMenuOpen = false
                 state.create = TravelCreateFeature.State()
                 return .none
-
+                
             case .selectInviteCode:
                 state.isMenuOpen = false
                 state.isPresentInvitationView = true
                 return .none
-
+                
             case .inviteModalDismiss:
                 state.isPresentInvitationView = false
                 state.inviteCode = ""
                 return .none
-
+                
             case .inviteCodeChanged(let code):
                 state.inviteCode = code
                 return .none
-
+                
             case .inviteConfirm:
                 let code = state.inviteCode
                 state.isPresentInvitationView = false
-
+                
                 return .run { send in
                     do {
                         let travel = try await joinTravelUseCase.execute(inviteCode: code)
@@ -170,30 +170,27 @@ public struct TravelListFeature {
                         await send(.joinTravelResponse(.failure(error)))
                     }
                 }
-
+                
             case .joinTravelResponse(.success(let travel)):
                 state.inviteCode = ""
                 // 가입 후 최신 목록 반영
                 return .send(.refresh)
-
+                
             case .joinTravelResponse(.failure(let error)):
                 state.inviteCode = ""
                 // TODO: 에러 Alert or Toast
                 return .none
-
-
+                
+                
             case .create(.dismiss):
                 state.create = nil
                 return .send(.refresh)
-
+                
             case .create:
                 return .none
-
-                case .create:
-                    return .none
-
-                case .profileButtonTapped:
-                    return .none
+                
+            case .profileButtonTapped:
+                return .none
             }
         }
         .ifLet(\.$create, action: \.create) {
