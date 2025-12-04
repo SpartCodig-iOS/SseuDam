@@ -57,6 +57,9 @@ public struct TravelView: View {
                 }
             }
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
         .overlay(alignment: .bottomTrailing) {
             if !store.isLoading {
                 ZStack(alignment: .bottomTrailing) {
@@ -68,7 +71,7 @@ public struct TravelView: View {
                         .padding(.trailing, 20)
                         .padding(.bottom, 116)
                     }
-                    
+
                     FloatingMenuButton(isOpen: store.isMenuOpen) {
                         store.send(.floatingButtonTapped)
                     }
@@ -76,9 +79,6 @@ public struct TravelView: View {
                     .padding(.bottom, 54)
                 }
             }
-        }
-        .onAppear {
-            store.send(.onAppear)
         }
         .overlay {
             if store.isPresentInvitationView {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import Domain
 import ComposableArchitecture
 
@@ -33,6 +34,7 @@ public struct MemberSettingFeature {
         case delegateOwnerResponse(Result<Travel, Error>)
         case deleteMemberTapped(String)
         case deleteMemberResponse(Result<Void, Error>)
+        case copyDeepLinkTapped
 
         case updated(Travel)
         case delegate(Delegate)
@@ -103,11 +105,39 @@ public struct MemberSettingFeature {
                 state.errorMessage = err.localizedDescription
                 state.deletingMemberId = nil
                 return .none
+                
             case .updated:
                 return .none
+                
+            case .copyDeepLinkTapped:
+                // 딥링크 복사 기능
+                if let deepLink = state.travel.deepLink {
+                    let shareMessage = """
+   🚀 \(state.travel.title) 여행에 초대합니다!
+
+기간: \(DateFormatters.display.string(from: state.travel.startDate)) ~ \(DateFormatters.display.string(from: state.travel.endDate))
+
+아래 링크를 클릭하면 바로 참여할 수 있어요:
+\(deepLink)
+"""
+                    UIPasteboard.general.string = shareMessage
+                }
+                return .none
+
+            case .updated:
+                return .none
+
             case .delegate:
                 return .none
             }
         }
     }
+}
+
+private enum DateFormatters {
+    static let display: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM.dd"
+        return formatter
+    }()
 }
