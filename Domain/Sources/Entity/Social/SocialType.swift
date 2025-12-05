@@ -12,6 +12,7 @@ public enum SocialType: String, CaseIterable, Identifiable, Hashable {
     case none
     case apple
     case google
+    case kakao
     
     public var id: String { rawValue }
     
@@ -23,7 +24,9 @@ public enum SocialType: String, CaseIterable, Identifiable, Hashable {
                 return "Apple"
             case .google:
                 return "Google"
-                
+            case .kakao:
+                return "kakao"
+
         }
     }
     
@@ -34,6 +37,8 @@ public enum SocialType: String, CaseIterable, Identifiable, Hashable {
                 return "apple.logo"
             case .google:
                 return "google"
+            case .kakao:
+                return "kakao"
             case .none:
                 return ""
         }
