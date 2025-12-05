@@ -87,6 +87,8 @@ struct RecentLoginTooltip: View {
       targetX = -halfGap
     case .google:
       targetX = halfGap
+    case .kakao:
+        targetX = +halfGap+halfGap
     case .none:
       targetX = 0
     }

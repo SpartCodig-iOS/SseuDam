@@ -97,16 +97,13 @@ extension SplashFeature {
     ) -> Effect<Action> {
         switch action {
             case .onAppear:
-                return .merge(
-                    .run { [sessionId = state.sessionId] send in
-                        guard let sessionId = sessionId, !sessionId.isEmpty else {
-                            await send(.delegate(.presentLogin))
-                            return
-                        }
-                        await send(.async(.checkSession))
-                    },
-                    .send(.view(.startAnimation))
-                )
+            return .run {  [sessionId = state.sessionId] send in
+              guard let sessionId = sessionId, !sessionId.isEmpty else {
+                await send(.delegate(.presentLogin))
+                return
+              }
+              await send(.async(.checkSession))
+            }
 
             case .startAnimation:
                 return .run { send in

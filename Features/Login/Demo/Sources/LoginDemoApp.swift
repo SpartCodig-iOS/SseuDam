@@ -20,7 +20,8 @@ struct LoginDemoApp: App {
               $0.oAuthUseCase = OAuthUseCase(
                 repository: MockOAuthRepository(),
                 googleRepository: MockGoogleOAuthRepository(),
-                appleRepository: MockAppleOAuthRepository()
+                appleRepository: MockAppleOAuthRepository(),
+                kakaoRepository: MockKakaoOAuthRepository()
               )
             } operation: {
                 NavigationView {

@@ -389,11 +389,13 @@ extension ProfileFeature {
                         state.isLoadingProfile = false
                         state.profile = profileData
                         state.$socialType.withLock { $0 = profileData.provider}
+                      return .none
 
                     case .failure(let error):
                         state.errorMessage = error.errorDescription
+                    return .send(.delegate(.presentLogin))
                 }
-                return .none
+
 
             case .editProfileResponse(let result):
                 switch result {
