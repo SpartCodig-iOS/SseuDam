@@ -22,7 +22,14 @@ final public class SignUpRepository: SignUpRepositoryProtocol {
     public func checkSignUp(
         input: OAuthUserInput
     ) async throws -> OAuthCheckUser {
-        let body = LoginUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue)
+        // 카카오는 authorizationCode/codeVerifier 전달, 그 외는 accessToken만
+        let body = LoginUserRequestDTO(
+            accessToken: input.accessToken,
+            loginType: input.socialType.rawValue,
+            authorizationCode: input.socialType == .kakao ? input.authorizationCode : nil,
+            codeVerifier: input.socialType == .kakao ? input.codeVerifier : nil,
+            redirectUri: input.socialType == .kakao ? input.redirectUri : nil
+        )
         let response: BaseResponse<ChecSignUpResponseDTO> = try await provider.request(.checkSignUpUser(body: body))
         guard let data = response.data else {
             throw NetworkError.noData
@@ -33,7 +40,14 @@ final public class SignUpRepository: SignUpRepositoryProtocol {
     public func signUp(
         input: Domain.OAuthUserInput
     ) async throws -> Domain.AuthResult {
-        let body = SignUpUserRequestDTO(accessToken: input.accessToken, loginType: input.socialType.rawValue, authorizationCode: input.authorizationCode)
+        let body = SignUpUserRequestDTO(
+            accessToken: input.accessToken,
+            loginType: input.socialType.rawValue,
+            // 카카오는 authorizationCode/codeVerifier/redirectUri까지 전달
+            authorizationCode: input.socialType == .kakao ? input.authorizationCode : input.authorizationCode,
+            codeVerifier: input.socialType == .kakao ? input.codeVerifier : input.codeVerifier,
+            redirectUri: input.socialType == .kakao ? input.redirectUri : nil
+        )
         let response: BaseResponse<AuthResponseDTO> = try await provider.request(.signUpOAuth(body: body))
         guard let data = response.data else {
             throw NetworkError.noData
