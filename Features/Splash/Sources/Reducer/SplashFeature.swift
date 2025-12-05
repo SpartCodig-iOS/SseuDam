@@ -97,17 +97,20 @@ extension SplashFeature {
     ) -> Effect<Action> {
         switch action {
             case .onAppear:
-            return .run {  [sessionId = state.sessionId] send in
-              guard let sessionId = sessionId, !sessionId.isEmpty else {
-                await send(.delegate(.presentLogin))
-                return
-              }
-              await send(.async(.checkSession))
-            }
+                return .merge(
+                    .run { [sessionId = state.sessionId] send in
+                        guard let sessionId = sessionId, !sessionId.isEmpty else {
+                            await send(.delegate(.presentLogin))
+                            return
+                        }
+                        await send(.async(.checkSession))
+                    },
+                    .send(.view(.startAnimation))
+                )
 
             case .startAnimation:
                 return .run { send in
-                    try await Task.sleep(for: .seconds(0.8))
+                    try await Task.sleep(for: .seconds(0.5))
                     await send(.view(.animationCompleted))
                 }
 
@@ -164,7 +167,7 @@ extension SplashFeature {
                         state.$sessionId.withLock { $0 = sessionData.sessionId }
                         state.$socialType.withLock { $0 = sessionData.provider }
                         return .concatenate(
-                            .run { _ in try await clock.sleep(for: .seconds(1)) },
+//                            .run { _ in try await clock.sleep(for: .seconds(1)) },
                             .send(.delegate(.presentMain))
                         )
                     case .failure(let error):
@@ -175,4 +178,3 @@ extension SplashFeature {
         }
     }
 }
-

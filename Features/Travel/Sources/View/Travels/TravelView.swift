@@ -57,9 +57,12 @@ public struct TravelView: View {
                 }
             }
         }
-        .onAppear {
-            store.send(.onAppear)
+        .task {
+          store.send(.onAppear)
         }
+//        .onAppear {
+//            store.send(.onAppear)
+//        }
         .overlay(alignment: .bottomTrailing) {
             if !store.isLoading {
                 ZStack(alignment: .bottomTrailing) {
