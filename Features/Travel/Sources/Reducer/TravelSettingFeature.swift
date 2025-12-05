@@ -95,7 +95,10 @@ public struct TravelSettingFeature {
                 // MARK: - Child features
 
             case .basicInfo(.updated(let updatedTravel)):
-                state.memberSetting?.travel = updatedTravel
+                if var memberSetting = state.memberSetting {
+                    memberSetting.applyUpdatedTravel(updatedTravel)
+                    state.memberSetting = memberSetting
+                }
                 return .none
 
             case .manage(.dismissRequested):

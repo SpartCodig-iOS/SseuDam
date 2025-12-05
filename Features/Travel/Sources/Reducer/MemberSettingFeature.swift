@@ -27,6 +27,12 @@ public struct MemberSettingFeature {
             self.members = travel.members
             self.ownerId = travel.members.first(where: { $0.role == "owner" })?.id ?? ""
         }
+
+        mutating func applyUpdatedTravel(_ travel: Travel) {
+            self.travel = travel
+            self.members = travel.members
+            self.ownerId = travel.members.first(where: { $0.role == "owner" })?.id ?? ""
+        }
     }
 
     public enum Action {

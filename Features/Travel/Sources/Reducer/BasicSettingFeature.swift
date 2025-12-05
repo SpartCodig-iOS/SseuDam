@@ -248,8 +248,38 @@ public struct BasicSettingFeature {
 
             case .updateResponse(.success(let updated)):
                 state.isSubmitting = false
-                state.travel = updated
-                return .send(.updated(updated))
+                let previous = state.travel
+                let mergedMembers = updated.members.isEmpty ? previous.members : updated.members
+
+                state.travel = Travel(
+                    id: updated.id,
+                    title: updated.title,
+                    startDate: updated.startDate,
+                    endDate: updated.endDate,
+                    countryCode: updated.countryCode,
+                    koreanCountryName: updated.koreanCountryName,
+                    baseCurrency: updated.baseCurrency,
+                    baseExchangeRate: updated.baseExchangeRate,
+                    destinationCurrency: updated.destinationCurrency,
+                    inviteCode: updated.inviteCode ?? previous.inviteCode,
+                    deepLink: updated.deepLink ?? previous.deepLink,
+                    status: updated.status,
+                    role: updated.role ?? previous.role,
+                    createdAt: updated.createdAt,
+                    ownerName: updated.ownerName,
+                    members: mergedMembers,
+                    currencies: previous.currencies
+                )
+
+                state.title = updated.title
+                state.startDate = updated.startDate
+                state.endDate = updated.endDate
+                state.selectedCountryName = updated.koreanCountryName
+                state.selectedCountryCode = updated.countryCode
+                state.selectedCurrency = updated.baseCurrency
+                state.exchangeRate = String(updated.baseExchangeRate)
+
+                return .send(.updated(state.travel))
 
             case .updateResponse(.failure(let error)):
                 state.isSubmitting = false
