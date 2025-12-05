@@ -36,7 +36,6 @@ public struct MemberSettingFeature {
         case deleteMemberResponse(Result<Void, Error>)
         case copyDeepLinkTapped
 
-        case updated(Travel)
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
@@ -68,10 +67,7 @@ public struct MemberSettingFeature {
                 state.travel = updated
                 state.members = updated.members
                 state.ownerId = updated.ownerName
-                return .merge(
-                    .send(.updated(updated)),
-                    .send(.delegate(.needRefresh))
-                )
+                return .send(.delegate(.needRefresh))
 
             case .delegateOwnerResponse(.failure(let err)):
                 state.isSubmitting = false
@@ -119,9 +115,6 @@ public struct MemberSettingFeature {
 """
                     UIPasteboard.general.string = shareMessage
                 }
-                return .none
-
-            case .updated:
                 return .none
 
             case .delegate:

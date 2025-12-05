@@ -25,7 +25,7 @@ public struct TravelListFeature {
         var isLoadingNextPage = false
         var uiError: String?
 
-        var isInviteModalPresented: Bool = false
+        var isPresentInvitationView: Bool = false
         var inviteCode: String = ""
 
         @Presents var create: TravelCreateFeature.State?
@@ -33,7 +33,7 @@ public struct TravelListFeature {
         public init(pendingInviteCode: String? = nil) {
             if let code = pendingInviteCode {
                 self.inviteCode = code
-                self.isInviteModalPresented = true
+                self.isPresentInvitationView = true
             }
         }
     }
@@ -152,7 +152,7 @@ public struct TravelListFeature {
 
             case .openInviteCode(let code):
                 state.inviteCode = code
-                state.isInviteModalPresented = true
+                state.isPresentInvitationView = true
                 return .none
 
             case .floatingButtonTapped:
@@ -166,11 +166,11 @@ public struct TravelListFeature {
 
             case .selectInviteCode:
                 state.isMenuOpen = false
-                state.isInviteModalPresented = true
+                state.isPresentInvitationView = true
                 return .none
 
             case .inviteModalDismiss:
-                state.isInviteModalPresented = false
+                state.isPresentInvitationView = false
                 state.inviteCode = ""
                 return .none
 
@@ -180,7 +180,7 @@ public struct TravelListFeature {
 
             case .inviteConfirm:
                 let code = state.inviteCode
-                state.isInviteModalPresented = false
+                state.isPresentInvitationView = false
 
                 return .run { send in
                     do {

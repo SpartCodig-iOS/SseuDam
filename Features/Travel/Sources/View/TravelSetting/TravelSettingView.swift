@@ -109,25 +109,14 @@ private extension TravelSettingView {
         .onAppear {
             store.send(.onAppear)
         }
-//        .alert(
-//            isPresented: Binding(
-//            store.errorMessage ?? "",
-//                get: { store.errorMessage != nil },
-//                set: { _ in store.send(.clearError) }
-//            )
-//        ) {
-//          Button
-//        }
+        .alert(
+            store.errorMessage ?? "",
+            isPresented: Binding(
+                get: { store.errorMessage != nil },
+                set: { _ in store.send(.clearError) }
+            )
+        ) {
+            Button("확인", role: .cancel) { }
+        }
     }
 }
-
-//#Preview {
-//    TravelSettingView(
-//        store: Store(
-//            initialState: TravelSettingFeature.State(travel: travel),
-//            reducer: {
-//                TravelSettingFeature()
-//            }
-//        )
-//    )
-//}

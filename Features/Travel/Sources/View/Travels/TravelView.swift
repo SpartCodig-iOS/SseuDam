@@ -80,18 +80,8 @@ public struct TravelView: View {
                 }
             }
         }
-
-//        .navigationDestination(
-//            store: store.scope(state: \.$create, action: \.create)
-//        ) { createStore in
-//            CreateTravelView(store: createStore)
-//        }
-//        .navigationDestination(item: $store.scope(state: \.profile, action: \.profile)) { profilestore in
-//            ProfileCoordinatorView(store: profilestore)
-//                .navigationBarBackButtonHidden(true)
-//        }
         .overlay {
-            if store.isInviteModalPresented {
+            if store.isPresentInvitationView {
                 InviteCodeModalView(
                     code: store.inviteCode,
                     onCodeChange: { store.send(.inviteCodeChanged($0)) },
