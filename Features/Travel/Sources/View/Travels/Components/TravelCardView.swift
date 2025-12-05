@@ -113,6 +113,7 @@ struct TravelCardView: View {
         role: "owner",
         createdAt: Date(),
         ownerName: "민희",
-        members: []
+        members: [],
+        currencies: ["USD"]
     ))
 }

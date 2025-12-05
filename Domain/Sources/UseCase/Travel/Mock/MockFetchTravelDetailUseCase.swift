@@ -78,7 +78,8 @@ public extension Travel {
                 TravelMember(id: "member-2", name: "김철수", role: "member"),
                 TravelMember(id: "member-3", name: "이영희", role: "member"),
                 TravelMember(id: "member-4", name: "박민수", role: "member")
-            ]
+            ],
+            currencies: ["JPY"]
         )
     }
 
@@ -101,7 +102,8 @@ public extension Travel {
             members: [
                 TravelMember(id: "member-1", name: "김철수", role: "owner"),
                 TravelMember(id: "member-2", name: "홍석현", role: "member")
-            ]
+            ],
+            currencies: ["USD"]
         )
     }
 
@@ -125,7 +127,8 @@ public extension Travel {
                 TravelMember(id: "member-1", name: "이영희", role: "owner"),
                 TravelMember(id: "member-2", name: "박민수", role: "member"),
                 TravelMember(id: "member-3", name: "홍석현", role: "member")
-            ]
+            ],
+            currencies: ["EUR"]
         )
     }
 
@@ -150,7 +153,8 @@ public extension Travel {
                 TravelMember(id: "member-2", name: "홍석현", role: "member"),
                 TravelMember(id: "member-3", name: "김철수", role: "member"),
                 TravelMember(id: "member-4", name: "이영희", role: "member")
-            ]
+            ],
+            currencies: ["KRW"]
         )
     }
 }

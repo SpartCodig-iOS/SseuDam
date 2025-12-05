@@ -80,7 +80,9 @@ extension TravelDTO {
             role: role,
             createdAt: dateTimeFormatter.date(from: createdAt) ?? Date(),
             ownerName: ownerName,
-            members: members.map { $0.toDomain() }
+            members: members.map { $0.toDomain() },
+            //TODO: API 요청후 변수로 변경
+            currencies: ["USD", "EUR", "CNY", "JPY"]
         )
     }
 }

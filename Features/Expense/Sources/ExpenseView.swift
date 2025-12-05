@@ -120,7 +120,8 @@ public struct ExpenseView: View {
         members: [
             TravelMember(id: "user1", name: "홍길동", role: "owner"),
             TravelMember(id: "user2", name: "김철수", role: "member")
-        ]
+        ],
+        currencies: ["JPY"]
     )
 
     NavigationStack {

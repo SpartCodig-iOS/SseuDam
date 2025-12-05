@@ -26,6 +26,7 @@ struct BasicSettingView: View {
             SectionHeader(title: "기본 설정", isOWner: store.isOwner, isEditing: $isEditing)
 
             VStack(alignment: .leading, spacing: 0) {
+                //MARK: - 여행이름
                 VStack(alignment: .leading, spacing: 8) {
                     Text("여행 이름")
                         .font(.app(.body, weight: .medium))
@@ -47,6 +48,7 @@ struct BasicSettingView: View {
                     .foregroundStyle(Color.gray1)
                     .padding(.vertical, 16)
 
+                //MARK: - 여행 날짜
                 HStack(alignment: .center, spacing: 0) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("시작일")
@@ -163,6 +165,7 @@ struct BasicSettingView: View {
                     .foregroundStyle(Color.gray1)
                     .padding(.vertical, 16)
 
+                //MARK: - 국가 이름
                 VStack(alignment: .leading, spacing: 8) {
                     Text("국가")
                         .font(.app(.body, weight: .medium))
@@ -201,39 +204,82 @@ struct BasicSettingView: View {
                     .foregroundStyle(Color.gray1)
                     .padding(.vertical, 16)
 
-
+                //MARK: - 화폐/환율
                 if store.selectedCountryCode != "KR" {
 
                     VStack(alignment: .leading, spacing: 8) {
 
-                        Text("화폐")
+                        Text("화폐/환율")
                             .font(.app(.body, weight: .medium))
                             .foregroundColor(.gray7)
 
                         if isEditing {
-                            // currencies가 여러 개 → 선택 가능
-                            if store.currencies.count > 1 {
-                                Menu {
-                                    ForEach(store.currencies, id: \.self) { cur in
-                                        Button(cur) {
-                                            store.send(.currencySelected(cur))
+                            HStack {
+                                Image(assetName: "pencil")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 18)
+                                    .foregroundStyle(Color.gray8)
+
+                                // currencies가 여러 개 → 선택 가능
+                                if store.currencies.count > 1 {
+                                    Menu {
+                                        ForEach(store.currencies, id: \.self) { cur in
+                                            Button {
+                                                store.send(.currencySelected(cur))
+                                            } label: {
+                                                Text(cur)
+                                                    .font(.app(.title3, weight: .medium))
+                                                    .foregroundStyle(Color.appBlack)
+                                            }
                                         }
+                                    } label: {
+                                        Text("1 \(store.selectedCurrency ?? "화폐 선택")")
+                                            .font(.app(.title3, weight: .medium))
+                                            .foregroundStyle(Color.appBlack)
                                     }
-                                } label: {
-                                    Text(store.selectedCurrency ?? "화폐 선택")
+
+                                } else {
+                                    Text("1 \(store.selectedCurrency ?? "-")")
+                                        .font(.app(.title3, weight: .medium))
                                         .foregroundStyle(Color.appBlack)
                                 }
 
-                            } else {
-                                Text(store.selectedCurrency ?? "-")
-                                    .font(.app(.title3, weight: .medium))
-                                    .foregroundStyle(Color.appBlack)
+                                Spacer()
+
+                                HStack(spacing: 4) {
+                                    TextField("0", text: $store.exchangeRate)
+                                        .keyboardType(.decimalPad)
+                                        .multilineTextAlignment(.trailing)
+                                        .font(.app(.body, weight: .medium))
+                                        .foregroundColor(Color.appBlack)
+
+                                    Text("KRW")
+                                        .font(.app(.body, weight: .medium))
+                                        .foregroundColor(Color.appBlack)
+                                }
                             }
 
                         } else {
-                            Text(store.selectedCurrency ?? "-")
-                                .font(.app(.title3, weight: .medium))
-                                .foregroundStyle(Color.appBlack)
+                            HStack(spacing: 0) {
+                                Text("1 \(store.selectedCurrency ?? "-")")
+                                    .font(.app(.title3, weight: .medium))
+                                    .foregroundStyle(Color.appBlack)
+
+                                Spacer()
+
+                                HStack(spacing: 4) {
+                                    Text(store.exchangeRate)
+                                        .multilineTextAlignment(.trailing)
+                                    //  .frame(width: 130)
+                                        .font(.app(.body, weight: .medium))
+                                        .foregroundColor(Color.appBlack)
+
+                                    Text("KRW")
+                                        .font(.app(.body, weight: .medium))
+                                        .foregroundColor(Color.appBlack)
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal, 10)
@@ -243,7 +289,7 @@ struct BasicSettingView: View {
                         .padding(.vertical, 16)
                 }
 
-
+                //MARK: - 초대 코드
                 Button {
                     UIPasteboard.general.string = store.travel.inviteCode
                 } label: {
