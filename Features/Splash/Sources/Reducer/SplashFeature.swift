@@ -97,23 +97,20 @@ extension SplashFeature {
     ) -> Effect<Action> {
         switch action {
             case .onAppear:
-            return .run {  [sessionId = state.sessionId] send in
-              guard let sessionId = sessionId, !sessionId.isEmpty else {
-                await send(.delegate(.presentLogin))
-                return
-              }
-              await send(.async(.checkSession))
-            }
+                return sessionRoutingEffect(sessionId: state.sessionId)
 
             case .startAnimation:
                 return .run { send in
-                    try await Task.sleep(for: .seconds(0.5))
+                  try await Task.sleep(for: .seconds(0.5))
                     await send(.view(.animationCompleted))
                 }
 
             case .animationCompleted:
                 state.isAnimated = true
-                return .send(.view(.onAppear))
+                return .run { send in
+                  try await Task.sleep(for: .seconds(0.8))
+                    await send(.view(.onAppear))
+                }
         }
     }
 
@@ -163,15 +160,73 @@ extension SplashFeature {
                         state.sessionResult = sessionData
                         state.$sessionId.withLock { $0 = sessionData.sessionId }
                         state.$socialType.withLock { $0 = sessionData.provider }
-                        return .concatenate(
-//                            .run { _ in try await clock.sleep(for: .seconds(1)) },
-                            .send(.delegate(.presentMain))
-                        )
+                        return .send(.delegate(.presentLogin))
                     case .failure(let error):
                         state.$socialType.withLock { $0 = nil }
                         state.errorMessage = "세션 조회 실패 : \(error.localizedDescription)"
                         return .send(.delegate(.presentLogin))
                 }
+        }
+    }
+}
+
+private extension SplashFeature {
+    func decodeExpiration(from token: String) -> Date? {
+        struct Payload: Decodable {
+            let exp: TimeInterval?
+        }
+
+        let segments = token.split(separator: ".")
+        guard segments.count > 1 else { return nil }
+
+        var payload = String(segments[1])
+        payload = payload.replacingOccurrences(of: "-", with: "+")
+        payload = payload.replacingOccurrences(of: "_", with: "/")
+        let remainder = payload.count % 4
+        if remainder > 0 {
+            payload += String(repeating: "=", count: 4 - remainder)
+        }
+
+        guard let data = Data(base64Encoded: payload),
+              let decoded = try? JSONDecoder().decode(Payload.self, from: data),
+              let exp = decoded.exp
+        else {
+            return nil
+        }
+
+        return Date(timeIntervalSince1970: exp)
+    }
+
+    func sessionRoutingEffect(sessionId: String?) -> Effect<Action> {
+        .run { send in
+            guard let sessionId = sessionId, !sessionId.isEmpty else {
+                await send(.delegate(.presentLogin))
+                return
+            }
+
+            guard let accessToken = KeychainManager.shared.loadAccessToken(),
+                  !accessToken.isEmpty else {
+                await send(.async(.checkSession))
+                return
+            }
+
+            guard let expirationDate = decodeExpiration(from: accessToken) else {
+                await send(.async(.checkSession))
+                return
+            }
+
+            let secondsLeft = expirationDate.timeIntervalSinceNow
+            if secondsLeft <= 0 {
+                await send(.delegate(.presentLogin))
+                return
+            }
+
+            if secondsLeft <= 300 {
+                await send(.async(.checkSession))
+                return
+            }
+
+            await send(.delegate(.presentMain))
         }
     }
 }
