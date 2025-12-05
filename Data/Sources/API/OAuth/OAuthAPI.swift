@@ -11,6 +11,7 @@ public enum OAuthAPI {
   case checkSignUpUser
   case signUp
   case login
+  case kakaoFinalize
 
   public var description: String {
     switch self {
@@ -20,6 +21,8 @@ public enum OAuthAPI {
         return "/signup"
       case .login:
         return "/login"
+      case .kakaoFinalize:
+        return "/kakao/finalize"
     }
   }
 }

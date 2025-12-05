@@ -84,9 +84,11 @@ struct RecentLoginTooltip: View {
     let targetX: CGFloat
     switch socialType {
     case .apple:
-      targetX = -halfGap
+      targetX = -(halfGap*2)
     case .google:
       targetX = halfGap
+    case .kakao:
+        targetX = +(halfGap*2)
     case .none:
       targetX = 0
     }

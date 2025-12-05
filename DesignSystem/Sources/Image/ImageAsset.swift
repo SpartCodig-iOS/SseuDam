@@ -9,6 +9,7 @@ import Foundation
 
 public enum ImageAsset: String {
     case google
+    case kakao
     case logo
     case whiteLogo
     case xmark

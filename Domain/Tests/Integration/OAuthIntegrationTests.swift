@@ -21,7 +21,8 @@ struct OAuthIntegrationTests {
         let oAuthUseCase = OAuthUseCase(
             repository: MockOAuthRepository(),
             googleRepository: MockGoogleOAuthRepository(),
-            appleRepository: MockAppleOAuthRepository()
+            appleRepository: MockAppleOAuthRepository(),
+            kakaoRepository: MockKakaoOAuthRepository()
         )
 
         // When
@@ -39,7 +40,8 @@ struct OAuthIntegrationTests {
         let oAuthUseCase = OAuthUseCase(
             repository: MockOAuthRepository(),
             googleRepository: MockGoogleOAuthRepository(),
-            appleRepository: MockAppleOAuthRepository()
+            appleRepository: MockAppleOAuthRepository(),
+            kakaoRepository: MockKakaoOAuthRepository()
         )
 
         // When
@@ -85,7 +87,8 @@ struct OAuthIntegrationTests {
         let oAuthUseCase = OAuthUseCase(
             repository: MockOAuthRepository(),
             googleRepository: MockGoogleOAuthRepository(),
-            appleRepository: MockAppleOAuthRepository()
+            appleRepository: MockAppleOAuthRepository(),
+            kakaoRepository: MockKakaoOAuthRepository()
         )
         let startTime = Date()
 
@@ -110,7 +113,8 @@ struct OAuthIntegrationTests {
             let oAuthUseCase = OAuthUseCase(
                 repository: MockOAuthRepository(),
                 googleRepository: MockGoogleOAuthRepository(),
-                appleRepository: MockAppleOAuthRepository()
+                appleRepository: MockAppleOAuthRepository(),
+                kakaoRepository: MockKakaoOAuthRepository()
             )
 
             // When

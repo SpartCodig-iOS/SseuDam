@@ -12,6 +12,7 @@ import SplashFeature
 import ProfileFeature
 @preconcurrency import Domain
 import Foundation
+import Data
 
 @Reducer
 struct AppFeature {
@@ -154,6 +155,15 @@ extension AppFeature {
 
             guard let url = URL(string: processedUrlString) else { return .none }
 
+            // Kakao 로그인 ticket/code 수신 시 저장
+            if url.scheme == "sseudam",
+               url.host == "oauth",
+               url.path == "/kakao",
+               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let ticket = components.queryItems?.first(where: { $0.name == "ticket" || $0.name == "code" })?.value {
+                KakaoAuthCodeStore.shared.save(ticket)
+            }
+
             var inviteCode: String?
             if url.scheme == "sseudam",
                let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
@@ -227,32 +237,23 @@ extension AppFeature {
     ) -> Effect<Action> {
         switch action {
         case .splash(.delegate(.presentLogin)):
-            return .run { send in
-                await send(.view(.presentLogin))
-            }
-            .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+            return .send(.view(.presentLogin), animation: .easeIn(duration: 0.18))
             
         case .splash(.delegate(.presentMain)):
-            return .run { send in
-                await send(.view(.presentMain), animation: .easeIn)
-            }
-            .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+            return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
             
         case .login(.delegate(.presentMain)):
-            return .run { send in
-                await send(.view(.presentMain), animation: .easeIn)
-            }
-            .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+            return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
             
         case .main(.delegate(.presentLogin)):
-            return .run { send in
-                await send(.view(.presentLogin), animation: .interactiveSpring(
+            return .send(
+                .view(.presentLogin),
+                animation: .interactiveSpring(
                     response: 0.5,
                     dampingFraction: 0.9,
                     blendDuration: 0.1
-                ))
-            }
-            .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+                )
+            )
             
         default:
             return .none

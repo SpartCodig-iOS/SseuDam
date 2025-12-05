@@ -40,16 +40,16 @@ public struct ToastOverlay: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
-            .overlay(alignment: .bottom) {
+            .overlay(alignment: .top) {
                 if let toast = toastManager.currentToast {
                     ToastView(toast: toast)
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 30)
+                        .padding(.top, 30)
                         .opacity(toastManager.isVisible ? 1 : 0)
-                        .offset(y: toastManager.isVisible ? 0 : 100)
+                        .offset(y: toastManager.isVisible ? 0 : -100)
                         .transition(.asymmetric(
-                            insertion: .move(edge: .bottom).combined(with: .opacity),
-                            removal: .move(edge: .bottom).combined(with: .opacity)
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .move(edge: .top).combined(with: .opacity)
                         ))
                         .allowsHitTesting(toastManager.isVisible)
                 }
@@ -79,7 +79,6 @@ private extension ToastView {
         Image(assetName: iconName)
           .resizable()
           .scaledToFit()
-          .foregroundStyle(toast.iconColor)
           .frame(width: 12, height: 12)
       }
     }

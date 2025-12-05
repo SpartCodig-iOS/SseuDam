@@ -216,6 +216,9 @@ public struct MockOAuthRepository: OAuthRepositoryProtocol {
     case .google:
       email = "google.user@gmail.com"
       resolvedDisplayName = displayName ?? baseUser.displayName ?? "Mock Google User"
+    case .kakao:
+      email = "kakao.user@kakao.com"
+      resolvedDisplayName = displayName ?? baseUser.displayName ?? "Mock Kakao User"
     case .none:
       email = "anonymous@example.com"
       resolvedDisplayName = displayName ?? baseUser.displayName ?? "Anonymous User"
