@@ -207,6 +207,10 @@ public struct TravelCreateFeature {
 
                 // MARK: 저장
             case .saveButtonTapped:
+                if state.isSubmitting {
+                    return .none
+                }
+
                 guard state.isSaveEnabled,
                       let start = state.startDate,
                       let end = state.endDate,

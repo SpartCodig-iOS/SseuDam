@@ -72,7 +72,7 @@ public struct CreateTravelView: View {
             }
 
             // MARK: 저장
-            SaveButton(isEnabled: store.isSaveEnabled) {
+            SaveButton(isEnabled: store.isSaveEnabled && !store.isSubmitting) {
                 store.send(.saveButtonTapped)
             }
             .padding(.horizontal, 16)

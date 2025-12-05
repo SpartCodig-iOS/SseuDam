@@ -12,7 +12,7 @@ enum DateFormatters {
         let f = DateFormatter()
         f.calendar = .init(identifier: .gregorian)
         f.locale = Locale(identifier: "ko_KR")
-        f.timeZone = TimeZone(secondsFromGMT: 0)
+        f.timeZone = .current
         f.dateFormat = "yyyy-MM-dd"
         return f
     }()
