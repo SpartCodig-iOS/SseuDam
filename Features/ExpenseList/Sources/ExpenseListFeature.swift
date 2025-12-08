@@ -11,7 +11,6 @@ import ComposableArchitecture
 
 @Reducer
 public struct ExpenseListFeature {
-    @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
     @Dependency(\.fetchTravelExpenseUseCase) var fetchTravelExpenseUseCase
 
     public init() {}
@@ -23,7 +22,6 @@ public struct ExpenseListFeature {
         public var startDate: Date = Date()
         public var endDate: Date = Date()
         public var selectedDate: Date = Date()
-        public var travelTitle: String = ""
         public let travelId: String
         public var travel: Travel? = nil
         public var isLoading: Bool = false
@@ -59,7 +57,6 @@ public struct ExpenseListFeature {
 
         @CasePathable
         public enum InnerAction {
-            case travelDetailResponse(Result<Travel, Error>)
             case expensesResponse(Result<[Expense], Error>)
         }
 
@@ -117,20 +114,6 @@ extension ExpenseListFeature {
     // MARK: - Inner Action Handler
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
-        case let .travelDetailResponse(.success(travel)):
-            state.travel = travel
-            state.travelTitle = travel.title
-            state.startDate = travel.startDate
-            state.endDate = travel.endDate
-
-            // 기본 선택 날짜를 여행 시작일로 설정
-            state.selectedDate = travel.startDate
-            return .none
-
-        case let .travelDetailResponse(.failure(error)):
-            print("Failed to fetch travel detail: \(error)")
-            return .none
-
         case let .expensesResponse(.success(expenses)):
             // 전체 지출 데이터를 캐싱
             state.allExpenses = expenses
@@ -153,17 +136,11 @@ extension ExpenseListFeature {
             let travelId = state.travelId
             state.isLoading = true
             return .run { send in
-                // 여행 상세 정보 조회
-                async let travelDetailResult = Result {
-                    try await fetchTravelDetailUseCase.execute(id: travelId)
-                }
-
                 // 전체 지출 내역 조회 (date: nil로 전체 조회)
-                async let expensesResult = Result {
+                let expensesResult = await Result {
                     try await fetchTravelExpenseUseCase.execute(travelId: travelId, date: nil)
                 }
 
-                await send(.inner(.travelDetailResponse(travelDetailResult)))
                 await send(.inner(.expensesResponse(expensesResult)))
             }
         }

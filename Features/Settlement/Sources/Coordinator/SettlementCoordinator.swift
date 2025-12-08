@@ -42,20 +42,20 @@ public struct SettlementCoordinator {
         Reduce { state, action in
             switch action {
             // 지출 추가 버튼
-            case .router(.routeAction(_, .settlement(.view(.addExpenseButtonTapped)))):
+            case .router(.routeAction(_, .settlement(.delegate(.addExpenseButtonTapped)))):
                 guard let settlementState = state.routes.first?.screen.settlement,
                       let travel = settlementState.travel else {
                     return .none
                 }
-                state.routes.push(.expense(.init(travel: travel)))
+                state.routes.push(.saveExpense(.init(travel: travel)))
                 return .none
                 
-            case .router(.routeAction(_, .settlement(.view(.onTapExpense(let expense))))):
+            case .router(.routeAction(_, .settlement(.delegate(.onTapExpense(let expense))))):
                 guard let settlementState = state.routes.first?.screen.settlement,
                       let travel = settlementState.travel else {
                     return .none
                 }
-                state.routes.push(.expense(.init(travel: travel, expense: expense)))
+                state.routes.push(.saveExpense(.init(travel: travel, expense: expense)))
                 return .none
                 
             case .router(.routeAction(_, .settlement(.view(.backButtonTapped)))):
@@ -65,7 +65,7 @@ public struct SettlementCoordinator {
                 return .send(.delegate(.onTapTravelSettingsButton(travelId: travelId)))
 
             // 설정 버튼 (여행 상세/수정) - 추후 구현
-             case .router(.routeAction(_, .expense(.delegate(.finishSaveExpense)))):
+             case .router(.routeAction(_, .saveExpense(.delegate(.finishSaveExpense)))):
                  state.routes.pop()
                  return .none
 

@@ -4,7 +4,8 @@ import SseuDamPlugin
 let project = Project.makeFeature(
     name: .Settlement,
     dependencies: [
-        .Features.Expense,
+        .Features.ExpenseList,
+        .Features.SaveExpense,
         .Features.SettlementResult
     ],
     hasTests: true

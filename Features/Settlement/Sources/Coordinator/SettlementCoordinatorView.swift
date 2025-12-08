@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
-import ExpenseFeature
+import SaveExpenseFeature
 
 public struct SettlementCoordinatorView: View {
     let store: StoreOf<SettlementCoordinator>
@@ -20,8 +20,8 @@ public struct SettlementCoordinatorView: View {
     public var body: some View {
         TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
             switch screen.case {
-            case .expense(let store):
-                ExpenseView(store: store)
+            case .saveExpense(let store):
+                SaveExpenseView(store: store)
             case .settlement(let store):
                 SettlementView(store: store)
             }

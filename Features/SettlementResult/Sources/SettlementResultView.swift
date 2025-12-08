@@ -18,46 +18,47 @@ public struct SettlementResultView: View {
 
     public var body: some View {
         ScrollView {
+            VStack(spacing: 0) {
+                // 헤더 (총 지출, 통계)
+                SettlementResultHeaderView(
+                    totalExpenseAmount: store.totalExpenseAmount,
+                    myExpenseAmount: store.myExpenseAmount,
+                    totalPersonCount: store.totalPersonCount
+                )
+
+                // 지급/수령 예정 금액 섹션
+                VStack(spacing: 8) {
+                    if !store.paymentsToMake.isEmpty {
+                        PaymentSectionView(
+                            title: "지급 예정 금액",
+                            totalAmount: store.paymentsToMake.reduce(0) { $0 + $1.amount },
+                            amountColor: .red,
+                            payments: store.paymentsToMake.map {
+                                PaymentItem(id: $0.id, name: $0.toMemberName, amount: Int($0.amount))
+                            }
+                        )
+                    }
+
+                    if !store.paymentsToReceive.isEmpty {
+                        PaymentSectionView(
+                            title: "수령 예정 금액",
+                            totalAmount: store.paymentsToReceive.reduce(0) { $0 + $1.amount },
+                            amountColor: .primary500,
+                            payments: store.paymentsToReceive.map {
+                                PaymentItem(id: $0.id, name: $0.fromMemberName, amount: Int($0.amount))
+                            }
+                        )
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+        .overlay(content: {
             if store.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                VStack(spacing: 0) {
-                    // 헤더 (총 지출, 통계)
-                    SettlementResultHeaderView(
-                        totalExpenseAmount: store.totalExpenseAmount,
-                        myExpenseAmount: store.myExpenseAmount,
-                        totalPersonCount: store.totalPersonCount
-                    )
-
-                    // 지급/수령 예정 금액 섹션
-                    VStack(spacing: 8) {
-                        if !store.paymentsToMake.isEmpty {
-                            PaymentSectionView(
-                                title: "지급 예정 금액",
-                                totalAmount: store.paymentsToMake.reduce(0) { $0 + $1.amount },
-                                amountColor: .red,
-                                payments: store.paymentsToMake.map {
-                                    PaymentItem(id: $0.id, name: $0.toMemberName, amount: Int($0.amount))
-                                }
-                            )
-                        }
-
-                        if !store.paymentsToReceive.isEmpty {
-                            PaymentSectionView(
-                                title: "수령 예정 금액",
-                                totalAmount: store.paymentsToReceive.reduce(0) { $0 + $1.amount },
-                                amountColor: .primary500,
-                                payments: store.paymentsToReceive.map {
-                                    PaymentItem(id: $0.id, name: $0.fromMemberName, amount: Int($0.amount))
-                                }
-                            )
-                        }
-                    }
-                }
-                .padding(.horizontal, 16)
             }
-        }
+        })
         .background(Color.primary50)
         .scrollIndicators(.hidden)
         .onAppear {

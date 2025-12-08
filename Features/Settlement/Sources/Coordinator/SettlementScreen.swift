@@ -8,13 +8,12 @@
 import Foundation
 import ComposableArchitecture
 import TCACoordinators
-import ExpenseFeature
+import SaveExpenseFeature
 
 @Reducer
 public enum SettlementScreen {
     case settlement(SettlementFeature)
-    case expense(ExpenseFeature)
+    case saveExpense(SaveExpenseFeature)
 }
 
 extension SettlementScreen.State: Equatable {}
-extension SettlementScreen.State: Hashable {}

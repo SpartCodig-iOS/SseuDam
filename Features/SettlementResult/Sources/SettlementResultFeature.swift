@@ -12,7 +12,6 @@ import ComposableArchitecture
 @Reducer
 public struct SettlementResultFeature {
     @Dependency(\.fetchSettlementUseCase) var fetchSettlementUseCase
-    @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
 
     public init() {}
 
@@ -73,7 +72,6 @@ public struct SettlementResultFeature {
 
         @CasePathable
         public enum InnerAction {
-            case travelDetailResponse(Result<Travel, Error>)
             case settlementResponse(Result<TravelSettlement, Error>)
         }
 
@@ -129,23 +127,6 @@ extension SettlementResultFeature {
     // MARK: - Inner Action Handler
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
-        case let .travelDetailResponse(.success(travel)):
-            state.travel = travel
-            return .none
-
-        case let .travelDetailResponse(.failure(error)):
-            state.isLoading = false
-            state.alert = AlertState {
-                TextState("오류")
-            } actions: {
-                ButtonState(action: .confirmTapped) {
-                    TextState("확인")
-                }
-            } message: {
-                TextState("여행 정보를 불러오는데 실패했습니다.\n\(error.localizedDescription)")
-            }
-            return .none
-
         case let .settlementResponse(.success(settlement)):
             state.settlement = settlement
             state.isLoading = false
@@ -173,15 +154,10 @@ extension SettlementResultFeature {
             let travelId = state.travelId
             state.isLoading = true
             return .run { send in
-                async let travelDetailResult = Result {
-                    try await fetchTravelDetailUseCase.execute(id: travelId)
-                }
-
-                async let settlementResult = Result {
+                let settlementResult = await Result {
                     try await fetchSettlementUseCase.execute(travelId: travelId)
                 }
 
-                await send(.inner(.travelDetailResponse(travelDetailResult)))
                 await send(.inner(.settlementResponse(settlementResult)))
             }
         }
