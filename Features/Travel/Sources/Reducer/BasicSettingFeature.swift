@@ -54,7 +54,8 @@ public struct BasicSettingFeature {
 
         // 필수 조건 체크
         var canSave: Bool {
-            guard !title.isEmpty,
+            let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedTitle.isEmpty,
                   let countryCode = selectedCountryCode,
                   startDate <= endDate else { return false }
 
@@ -224,9 +225,10 @@ public struct BasicSettingFeature {
                 state.isSubmitting = true
 
                 let rate = Double(state.exchangeRate) ?? state.travel.baseExchangeRate
+                let trimmedTitle = state.title.trimmingCharacters(in: .whitespacesAndNewlines)
 
                 let input = UpdateTravelInput(
-                    title: state.title,
+                    title: trimmedTitle,
                     startDate: state.startDate,
                     endDate: state.endDate,
                     countryCode: state.selectedCountryCode ?? "KR",

@@ -41,7 +41,8 @@ public struct TravelCreateFeature {
 
         // 저장 여부
         var isSaveEnabled: Bool {
-            guard !title.isEmpty,
+            let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedTitle.isEmpty,
                   let code = selectedCountryCode,
                   startDate != nil,
                   endDate != nil else { return false }
@@ -211,14 +212,17 @@ public struct TravelCreateFeature {
                     return .none
                 }
 
-                guard state.isSaveEnabled,
+                let trimmedTitle = state.title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                guard !trimmedTitle.isEmpty,
+                      state.isSaveEnabled,
                       let start = state.startDate,
                       let end = state.endDate,
                       let code = state.selectedCountryCode else { return .none }
 
                 let rateValue = Double(state.rate) ?? 0.0
                 let input = CreateTravelInput(
-                    title: state.title,
+                    title: trimmedTitle,
                     startDate: start,
                     endDate: end,
                     countryCode: code,

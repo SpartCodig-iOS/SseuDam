@@ -21,6 +21,11 @@ struct BasicSettingView: View {
         self.store = store
     }
 
+    private var displayTitle: String {
+        let trimmed = store.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? store.travel.title : trimmed
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             SectionHeader(title: "기본 설정", isOWner: store.isOwner, isEditing: $isEditing)
@@ -37,7 +42,7 @@ struct BasicSettingView: View {
                             .font(.app(.title3, weight: .medium))
                             .foregroundStyle(Color.appBlack)
                     } else {
-                        Text(store.title)
+                        Text(displayTitle)
                             .font(.app(.title3, weight: .medium))
                             .foregroundStyle(Color.appBlack)
                     }
