@@ -17,6 +17,7 @@ public enum SseuDamDomain {
   case travelExpenses(travelId: String)
   case travelSettlements(travelId: String)
   case meta
+  case version
 }
 
 
@@ -43,6 +44,8 @@ extension SseuDamDomain: DomainType {
         return "/travels/\(travelId)"
       case .meta:
         return "/meta"
+      case .version:
+        return "/version"
     }
   }
 }
