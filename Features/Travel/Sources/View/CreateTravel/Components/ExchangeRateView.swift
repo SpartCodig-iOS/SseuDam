@@ -47,8 +47,12 @@ struct ExchangeRateView: View {
                     titleVisibility: .visible
                 ) {
                     ForEach(currency, id: \.self) { cur in
-                        Button(cur) {
+                        Button {
                             selectedCurrency = cur
+                        } label: {
+                            Text(cur)
+                                .font(.app(.title3, weight: .medium))
+                                .foregroundStyle(Color.appBlack)
                         }
                     }
                 }

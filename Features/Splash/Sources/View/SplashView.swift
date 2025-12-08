@@ -54,6 +54,10 @@ public struct SplashView: View {
       .onAppear {
         store.send(.view(.startAnimation))
       }
+      .dsAlert(
+          store.scope(state: \.alert, action: \.alert),
+          dismissAction: .dismiss
+      )
     }
 }
 

@@ -86,13 +86,12 @@ struct RecentLoginTooltip: View {
     case .apple:
       targetX = -(halfGap*2)
     case .google:
-      targetX = halfGap
+      targetX = 0 
     case .kakao:
         targetX = +(halfGap*2)
     case .none:
       targetX = 0
     }
-    // Place bubble so that the pointer sits under the target icon center.
     return targetX + bubbleWidth / 2 - pointerOffset
   }
 

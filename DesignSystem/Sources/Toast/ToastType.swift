@@ -60,9 +60,9 @@ public enum ToastType: Equatable {
         case .success:
             return .white
         case .error:
-            return .white
+            return .red
         case .warning:
-            return .white
+            return .red
         case .info:
             return .white
         case .loading:

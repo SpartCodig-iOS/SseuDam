@@ -46,7 +46,13 @@ struct MemberRow: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.primary100)
                     )
-                    .padding(.trailing, 6)
+            }
+
+            // "관리자" 태그
+            if !isMe && isOwner {
+                Text("관리자")
+                    .font(.app(.body, weight: .medium))
+                    .foregroundStyle(Color.gray7)
             }
 
             // 편집 모드

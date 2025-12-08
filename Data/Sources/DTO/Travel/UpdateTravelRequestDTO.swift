@@ -16,6 +16,7 @@ public struct UpdateTravelRequestDTO: Encodable {
     let countryNameKr: String
     let baseCurrency: String
     let baseExchangeRate: Double
+    let countryCurrencies: [String]
 }
 
 extension UpdateTravelInput {
@@ -29,7 +30,8 @@ extension UpdateTravelInput {
             countryCode: countryCode,
             countryNameKr: koreanCountryName,
             baseCurrency: baseCurrency,
-            baseExchangeRate: baseExchangeRate
+            baseExchangeRate: baseExchangeRate,
+            countryCurrencies: currencies ?? [baseCurrency]
         )
     }
 }

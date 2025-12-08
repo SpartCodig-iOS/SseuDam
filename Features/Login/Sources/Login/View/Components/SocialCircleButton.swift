@@ -62,14 +62,14 @@ struct SocialCircleButtonView: View {
     case .kakao:
       Button(action: onTap) {
         Circle()
-          .fill(Color.yellow.opacity(0.9))
+          .fill(.clear)
           .overlay(Circle().stroke(.gray2, lineWidth: 1))
           .frame(width: circleSize, height: circleSize)
           .overlay(
             Image(assetName: type.image)
               .resizable()
               .scaledToFit()
-              .frame(width: 30, height: 30)
+              .frame(width: circleSize, height: circleSize)
           )
       }
       .buttonStyle(.plain)

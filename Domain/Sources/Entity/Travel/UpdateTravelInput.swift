@@ -16,6 +16,7 @@ public struct UpdateTravelInput {
     public let baseCurrency: String
     public let baseExchangeRate: Double
     public let destinationCurrency: String?
+    public let currencies: [String]?
 
     public init(
         title: String,
@@ -25,7 +26,8 @@ public struct UpdateTravelInput {
         koreanCountryName: String,
         baseCurrency: String,
         baseExchangeRate: Double,
-        destinationCurrency: String? = nil
+        destinationCurrency: String? = nil,
+        currencies: [String]? = nil
     ) {
         self.title = title
         self.startDate = startDate
@@ -35,5 +37,6 @@ public struct UpdateTravelInput {
         self.baseCurrency = baseCurrency
         self.baseExchangeRate = baseExchangeRate
         self.destinationCurrency = destinationCurrency
+        self.currencies = currencies
     }
 }

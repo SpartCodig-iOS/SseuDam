@@ -64,6 +64,7 @@ struct TravelManageView: View {
                         }
                         .foregroundStyle(.red)
                     }
+                    .disabled(store.isSubmitting)
                 }
             }
             .padding(16)

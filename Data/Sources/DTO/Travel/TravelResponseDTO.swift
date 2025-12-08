@@ -50,6 +50,7 @@ public struct TravelDTO: Decodable {
     let baseCurrency: String
     let baseExchangeRate: Double
     let destinationCurrency: String
+    let countryCurrencies: [String]?
     let inviteCode: String?
     let deepLink: String?
     let status: String
@@ -80,7 +81,8 @@ extension TravelDTO {
             role: role,
             createdAt: dateTimeFormatter.date(from: createdAt) ?? Date(),
             ownerName: ownerName,
-            members: members.map { $0.toDomain() }
+            members: members.map { $0.toDomain() },
+            currencies: countryCurrencies
         )
     }
 }

@@ -37,6 +37,7 @@ public struct ProfileFeature {
         @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
         @Shared(.appStorage("userId")) var userId: String? = ""
+        @Shared(.appStorage("appVersion")) var appVersion: String? = ""
 
 
         var alert: DSAlertState<Alert>?
