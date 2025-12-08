@@ -87,9 +87,10 @@ extension MainCoordinator {
                 return .none
 
             case .routeAction(_, .travelSetting(.delegate(.done))):
-                state.routes.pop()
-                state.routes.pop()
-                return .none
+//              state.routes.goBackTo(\.travelList)
+            return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+              $0.goBackTo(\.travelList)
+            }
 
           case .routeAction(id: _, action: .settlementCoordinator(.delegate(.onTapBackButton))):
             state.routes.goBack()

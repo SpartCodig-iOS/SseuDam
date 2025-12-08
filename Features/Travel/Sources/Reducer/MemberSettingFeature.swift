@@ -105,7 +105,10 @@ public struct MemberSettingFeature {
                 state.errorMessage = err.localizedDescription
                 state.deletingMemberId = nil
                 return .none
-
+                
+            case .updated:
+                return .none
+                
             case .copyDeepLinkTapped:
                 // 딥링크 복사 기능
                 if let deepLink = state.travel.deepLink {
@@ -122,6 +125,9 @@ public struct MemberSettingFeature {
                 return .none
 
             case .updated:
+                return .none
+
+            case .delegate:
                 return .none
             }
         }

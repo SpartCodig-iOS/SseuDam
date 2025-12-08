@@ -13,6 +13,31 @@ public struct TravelResponseDTO: Decodable {
     let page: Int
     let limit: Int
     let items: [TravelDTO]
+
+    private enum CodingKeys: String, CodingKey {
+        case total, page, limit, items
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        if let intTotal = try? container.decode(Int.self, forKey: .total) {
+            self.total = intTotal
+        } else if let stringTotal = try? container.decode(String.self, forKey: .total),
+                  let intTotal = Int(stringTotal) {
+            self.total = intTotal
+        } else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .total,
+                in: container,
+                debugDescription: "Expected total to be Int or numeric String."
+            )
+        }
+
+        self.page = try container.decode(Int.self, forKey: .page)
+        self.limit = try container.decode(Int.self, forKey: .limit)
+        self.items = try container.decode([TravelDTO].self, forKey: .items)
+    }
 }
 
 public struct TravelDTO: Decodable {

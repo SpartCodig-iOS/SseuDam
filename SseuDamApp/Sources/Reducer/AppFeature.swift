@@ -12,6 +12,7 @@ import SplashFeature
 import ProfileFeature
 @preconcurrency import Domain
 import Foundation
+import Data
 
 @Reducer
 struct AppFeature {
@@ -144,13 +145,39 @@ extension AppFeature {
             )
 
         case .handleDeepLink(let urlString):
-            // 딥링크 URL에서 초대 코드 추출
-            if let url = URL(string: urlString),
-               url.scheme == "sseudam" && url.host == "join",
-               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-               let inviteCode = components.queryItems?.first(where: { $0.name == "code" })?.value {
-                return .send(.inner(.handleDeepLinkJoin(inviteCode)))
+            var processedUrlString = urlString
+            if urlString.hasPrefix("https://sseudam.up.railway.app/") {
+                processedUrlString = urlString.replacingOccurrences(
+                    of: "https://sseudam.up.railway.app/",
+                    with: "sseudam://"
+                )
             }
+
+            guard let url = URL(string: processedUrlString) else { return .none }
+
+            // Kakao 로그인 ticket/code 수신 시 저장
+            if url.scheme == "sseudam",
+               url.host == "oauth",
+               url.path == "/kakao",
+               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let ticket = components.queryItems?.first(where: { $0.name == "ticket" || $0.name == "code" })?.value {
+              Task {
+                await  KakaoAuthCodeStore.shared.save(ticket)
+              }
+            }
+
+            var inviteCode: String?
+            if url.scheme == "sseudam",
+               let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+                inviteCode = components.queryItems?.first(where: {
+                    $0.name == "inviteCode" || $0.name == "code"
+                })?.value
+            }
+
+            if let code = inviteCode {
+                return .send(.inner(.handleDeepLinkJoin(code)))
+            }
+
             return .none
         }
     }
@@ -172,9 +199,7 @@ extension AppFeature {
             state.main = .init(pendingInviteCode: inviteCode)
             state.splash = nil
             state.login = nil
-            return .run { send in
-                await send(.scope(.main(.refreshTravelList)))
-            }
+            return .none
 
         case .handleDeepLinkJoin(let inviteCode):
             // 딥링크를 통한 여행 참여 처리 (팝업 우선 표시)
@@ -214,32 +239,23 @@ extension AppFeature {
     ) -> Effect<Action> {
         switch action {
         case .splash(.delegate(.presentLogin)):
-            return .run { send in
-                await send(.view(.presentLogin))
-            }
-            .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+            return .send(.view(.presentLogin), animation: .easeIn(duration: 0.18))
             
         case .splash(.delegate(.presentMain)):
-            return .run { send in
-                await send(.view(.presentMain), animation: .easeIn)
-            }
-            .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+            return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
             
         case .login(.delegate(.presentMain)):
-            return .run { send in
-                await send(.view(.presentMain), animation: .easeIn)
-            }
-            .cancellable(id: CancelID.transitionToMain, cancelInFlight: true)
+            return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
             
         case .main(.delegate(.presentLogin)):
-            return .run { send in
-                await send(.view(.presentLogin), animation: .interactiveSpring(
+            return .send(
+                .view(.presentLogin),
+                animation: .interactiveSpring(
                     response: 0.5,
                     dampingFraction: 0.9,
                     blendDuration: 0.1
-                ))
-            }
-            .cancellable(id: CancelID.transitionToLogin, cancelInFlight: true)
+                )
+            )
             
         default:
             return .none

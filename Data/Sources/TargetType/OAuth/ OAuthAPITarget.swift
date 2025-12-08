@@ -12,6 +12,7 @@ public enum OAuthAPITarget {
     case checkSignUpUser(body: LoginUserRequestDTO)
     case loginOAuth(body: LoginUserRequestDTO)
     case signUpOAuth(body: SignUpUserRequestDTO)
+    case kakaoFinalize(body: KakaoFinalizeRequestDTO)
 }
 
 extension OAuthAPITarget: BaseTargetType {
@@ -33,6 +34,9 @@ extension OAuthAPITarget: BaseTargetType {
                 
             case .signUpOAuth:
                 return OAuthAPI.signUp.description
+
+            case .kakaoFinalize:
+                return OAuthAPI.kakaoFinalize.description
         }
     }
     
@@ -50,12 +54,15 @@ extension OAuthAPITarget: BaseTargetType {
                 
             case .signUpOAuth(let body):
                 return body.toDictionary
+
+            case .kakaoFinalize(let body):
+                return body.toDictionary
         }
     }
     
     public var method: Moya.Method {
         switch self {
-            case .checkSignUpUser, .loginOAuth, .signUpOAuth:
+            case .checkSignUpUser, .loginOAuth, .signUpOAuth, .kakaoFinalize:
                 return .post
         }
     }

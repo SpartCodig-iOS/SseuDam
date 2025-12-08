@@ -37,8 +37,4 @@ public struct WebFeature {
   }
 }
 
-extension WebFeature.State: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(url)
-    }
-}
+extension WebFeature.State: Hashable {}

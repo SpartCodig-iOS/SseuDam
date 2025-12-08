@@ -19,7 +19,8 @@ struct OAuthUseCaseTests {
         let oAuthUseCase = OAuthUseCase(
             repository: MockOAuthRepository(),
             googleRepository: MockGoogleOAuthRepository(),
-            appleRepository: MockAppleOAuthRepository()
+            appleRepository: MockAppleOAuthRepository(),
+            kakaoRepository: MockKakaoOAuthRepository()
         )
 
         // When
@@ -37,7 +38,8 @@ struct OAuthUseCaseTests {
         let oAuthUseCase = OAuthUseCase(
             repository: MockOAuthRepository(),
             googleRepository: MockGoogleOAuthRepository(),
-            appleRepository: MockAppleOAuthRepository()
+            appleRepository: MockAppleOAuthRepository(),
+            kakaoRepository: MockKakaoOAuthRepository()
         )
 
         // When
@@ -63,6 +65,20 @@ struct OAuthUseCaseTests {
         #expect(result.displayName == "Mock Google User")
         #expect(result.idToken.contains("mock.google.idtoken"))
         #expect(result.accessToken?.contains("ya29.mock-google-access-token") ?? false)
+    }
+
+    @Test("Kakao Repository Actor 응답 검증")
+    func testKakaoRepositoryActor() async throws {
+        // Given
+        let mockRepo = MockKakaoOAuthRepository()
+
+        // When
+        let result = try await mockRepo.signIn()
+
+        // Then
+        #expect(result.displayName == "Mock Kakao User")
+        #expect(result.idToken.contains("mock.kakao.idtoken"))
+        #expect(result.accessToken.contains("mock-kakao-access-token"))
     }
 
     @Test("Apple Repository Actor 응답 검증")

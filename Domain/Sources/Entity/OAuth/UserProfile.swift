@@ -13,6 +13,7 @@ public struct UserProfile: Equatable, Identifiable {
     public let provider: SocialType
     public var tokens: AuthTokens
     public let authCode: String?
+    public let codeVerifier: String?
     
     public init(
         id: String,
@@ -20,7 +21,8 @@ public struct UserProfile: Equatable, Identifiable {
         displayName: String? = nil,
         provider: SocialType,
         tokens: AuthTokens,
-        authCode: String? = nil
+        authCode: String? = nil,
+        codeVerifier: String? = nil
     ) {
         self.id = id
         self.email = email
@@ -28,5 +30,6 @@ public struct UserProfile: Equatable, Identifiable {
         self.provider = provider
         self.tokens = tokens
         self.authCode = authCode
+        self.codeVerifier = codeVerifier
     }
 }

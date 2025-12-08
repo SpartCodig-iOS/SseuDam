@@ -9,6 +9,7 @@ import Foundation
 
 public enum ImageAsset: String {
     case google
+    case kakao
     case logo
     case whiteLogo
     case xmark
@@ -20,8 +21,11 @@ public enum ImageAsset: String {
     case receipt
     case users
     case settings
+    case expenseEmpty
     case list
     case lock
     case checkBlue
     case none
+    case profile
+    case check
 }

@@ -26,6 +26,8 @@ public struct ParticipantSelectorFeature {
             participants: IdentifiedArrayOf<TravelMember> = []
         ) {
             self.availableParticipants = availableParticipants
+            self.payer = payer
+            self.participants = participants
         }
     }
     

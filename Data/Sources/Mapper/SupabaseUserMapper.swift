@@ -27,10 +27,22 @@ extension Supabase.Session {
 }
 
 extension SocialType {
+    /// Supabase OpenID provider (카카오는 미지원이라 fallback 사용)
     var openIDProvider: OpenIDConnectCredentials.Provider {
         switch self {
         case .google: return .google
         case .apple: return .apple
+        case .kakao: return .google // Kakao는 별도 authProvider 사용
+        case .none: return .google
+        }
+    }
+
+    /// Supabase Auth provider (OAuth/OIDC)
+    var authProvider: Provider {
+        switch self {
+        case .google: return .google
+        case .apple: return .apple
+        case .kakao: return .kakao
         case .none: return .google
         }
     }
