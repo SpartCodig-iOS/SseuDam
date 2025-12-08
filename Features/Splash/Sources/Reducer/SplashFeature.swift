@@ -97,23 +97,20 @@ extension SplashFeature {
     ) -> Effect<Action> {
         switch action {
             case .onAppear:
-            return .run {  [sessionId = state.sessionId] send in
-              guard let sessionId = sessionId, !sessionId.isEmpty else {
-                await send(.delegate(.presentLogin))
-                return
-              }
-              await send(.async(.checkSession))
-            }
+                return sessionRoutingEffect(sessionId: state.sessionId)
 
             case .startAnimation:
                 return .run { send in
-                    try await Task.sleep(for: .seconds(0.8))
+                  try await Task.sleep(for: .seconds(0.5))
                     await send(.view(.animationCompleted))
                 }
 
             case .animationCompleted:
                 state.isAnimated = true
-                return .send(.view(.onAppear))
+                return .run { send in
+                  try await Task.sleep(for: .seconds(0.8))
+                    await send(.view(.onAppear))
+                }
         }
     }
 
@@ -163,10 +160,7 @@ extension SplashFeature {
                         state.sessionResult = sessionData
                         state.$sessionId.withLock { $0 = sessionData.sessionId }
                         state.$socialType.withLock { $0 = sessionData.provider }
-                        return .concatenate(
-                            .run { _ in try await clock.sleep(for: .seconds(1)) },
-                            .send(.delegate(.presentMain))
-                        )
+                        return .send(.delegate(.presentLogin))
                     case .failure(let error):
                         state.$socialType.withLock { $0 = nil }
                         state.errorMessage = "세션 조회 실패 : \(error.localizedDescription)"
@@ -176,3 +170,37 @@ extension SplashFeature {
     }
 }
 
+private extension SplashFeature {
+    func sessionRoutingEffect(sessionId: String?) -> Effect<Action> {
+        .run { send in
+            guard let sessionId = sessionId, !sessionId.isEmpty else {
+                await send(.delegate(.presentLogin))
+                return
+            }
+
+            guard let accessToken = KeychainManager.shared.loadAccessToken(),
+                  !accessToken.isEmpty else {
+                await send(.async(.checkSession))
+                return
+            }
+
+            guard let expirationDate = JWTUtils.expirationDate(from: accessToken) else {
+                await send(.async(.checkSession))
+                return
+            }
+
+            let secondsLeft = expirationDate.timeIntervalSinceNow
+            if secondsLeft <= 0 {
+                await send(.delegate(.presentLogin))
+                return
+            }
+
+            if secondsLeft <= 300 {
+                await send(.async(.checkSession))
+                return
+            }
+
+            await send(.delegate(.presentMain))
+        }
+    }
+}

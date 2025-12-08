@@ -89,6 +89,7 @@ public struct LoginFeature {
     nonisolated enum CancelID: Hashable {
         case googleOAuth
         case appleOAuth
+        case kakaoOAuth
         case session
     }
 
@@ -298,7 +299,13 @@ private extension LoginFeature {
         state.isLoading = true
         state.statusMessage = "\(socialType.rawValue) 로그인 중..."
 
-        let cancelID: CancelID = socialType == .google ? .googleOAuth : .appleOAuth
+        let cancelID: CancelID
+        switch socialType {
+        case .google: cancelID = .googleOAuth
+        case .apple: cancelID = .appleOAuth
+        case .kakao: cancelID = .kakaoOAuth
+        case .none: cancelID = .appleOAuth
+        }
 
         return .run { send in
             let outcome = await unifiedOAuthUseCase.processOAuthFlow(

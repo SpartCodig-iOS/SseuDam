@@ -19,7 +19,7 @@ public struct SettlementView: View {
     public init(store: StoreOf<SettlementFeature>) {
         self.store = store
     }
-
+    
     public var body: some View {
         VStack(spacing: 0) {
             // 네비게이션 바
@@ -70,13 +70,12 @@ struct TabButton: View {
         Button(action: action) {
             VStack(spacing: 8) {
                 Text(title)
-                    .font(.subheadline)
-                    .fontWeight(isSelected ? .bold : .regular)
-                    .foregroundStyle(isSelected ? .black : .gray)
+                    .font(.app(.title3, weight: .medium))
+                    .foregroundStyle(Color.black)
                 
                 // 선택 표시 줄
                 Rectangle()
-                    .fill(isSelected ? Color.black : Color.clear)
+                    .fill(isSelected ? Color.primary500 : Color.clear)
                     .frame(height: 2)
             }
         }

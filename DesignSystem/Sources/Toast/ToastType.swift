@@ -45,9 +45,9 @@ public enum ToastType: Equatable {
         case .success:
             return "checkBlue"
         case .error:
-            return "xmark"
+            return "errorXmark"
         case .warning:
-            return "xmark"
+            return "errorXmark"
         case .info:
             return "info.circle.fill"
         case .loading:

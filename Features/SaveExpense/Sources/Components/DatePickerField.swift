@@ -49,7 +49,7 @@ public struct DatePickerField: View {
                         .foregroundStyle(.gray)
                     
                     Text(dateFormatter.string(from: date))
-                        .foregroundStyle(Color.primary800)
+                        .foregroundStyle(Color.black)
                     
                     Spacer()
                 }

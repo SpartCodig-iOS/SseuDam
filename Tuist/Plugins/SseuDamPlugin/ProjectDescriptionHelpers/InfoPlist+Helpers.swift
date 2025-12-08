@@ -12,6 +12,8 @@ public extension InfoPlist {
         "GOOGLE_IOS_CLIENT_ID": .string("$(GOOGLE_IOS_CLIENT_ID)"),
         "GOOGLE_SERVER_CLIENT_ID": .string("$(GOOGLE_SERVER_CLIENT_ID)"),
         "GOOGLE_REVERSED_IOS_CLIENT_ID": .string("$(GOOGLE_REVERSED_IOS_CLIENT_ID)"),
+        "KAKAO_NATIVE_APP_KEY": .string("$(KAKAO_NATIVE_APP_KEY)"),
+        "KAKAO_REST_API_KEY": .string("$(KAKAO_REST_API_KEY)"),
         "CFBundleURLTypes": .array([
           .dictionary([
             "CFBundleURLName": .string("sseudam"),
@@ -24,7 +26,14 @@ public extension InfoPlist {
             "CFBundleURLSchemes": .array([
               .string("$(GOOGLE_REVERSED_IOS_CLIENT_ID)"),
             ])
+          ]),
+          .dictionary([
+            "CFBundleURLName": .string("kakao-login"),
+            "CFBundleURLSchemes": .array([
+              .string("kakao$(KAKAO_NATIVE_APP_KEY)")
+            ])
           ])
+
         ]),
         "NSPhotoLibraryUsageDescription": .string("We use your photo library to update your profile image."),
         "com.apple.developer.associated-domains": .array([
@@ -36,7 +45,12 @@ public extension InfoPlist {
         "UIUserInterfaceStyle": .string("Light"),
         "CFBundleShortVersionString": .string("1.0.0"),
         "ITSAppUsesNonExemptEncryption": .boolean(false),
-        "CFBundleVersion": .string("4")
+        "CFBundleVersion": .string("7"),
+        "LSApplicationQueriesSchemes": .array([
+              .string("kakaokompassauth"), // 카카오톡 로그인
+              .string("kakaolink"),        // 카카오톡 공유
+            ]),
+
 
       ])
     }

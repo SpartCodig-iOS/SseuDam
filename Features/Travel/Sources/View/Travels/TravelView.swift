@@ -13,15 +13,15 @@ import ComposableArchitecture
 
 public struct TravelView: View {
     @Bindable var store: StoreOf<TravelListFeature>
-
+    
     public init(store: StoreOf<TravelListFeature>) {
         self.store = store
     }
-
+    
     public var body: some View {
         ZStack {
             Color.primary50.ignoresSafeArea()
-
+            
             if store.isLoading {
                 DashboardSkeletonView()
             } else {
@@ -29,9 +29,9 @@ public struct TravelView: View {
                     TravelListHeaderView {
                         store.send(.profileButtonTapped)
                     }
-
+                    
                     TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
-
+                    
                     if store.travels.isEmpty {
                         TravelEmptyView()
                     } else {
@@ -46,7 +46,7 @@ public struct TravelView: View {
                                             store.send(.travelSelected(travelId: travel.id))
                                         }
                                 }
-
+                                
                                 if store.isLoadingNextPage {
                                     ProgressView().padding(.vertical, 20)
                                 }
@@ -57,9 +57,12 @@ public struct TravelView: View {
                 }
             }
         }
-        .onAppear {
-            store.send(.onAppear)
+        .task {
+          store.send(.onAppear)
         }
+//        .onAppear {
+//            store.send(.onAppear)
+//        }
         .overlay(alignment: .bottomTrailing) {
             if !store.isLoading {
                 ZStack(alignment: .bottomTrailing) {
@@ -80,18 +83,8 @@ public struct TravelView: View {
                 }
             }
         }
-
-//        .navigationDestination(
-//            store: store.scope(state: \.$create, action: \.create)
-//        ) { createStore in
-//            CreateTravelView(store: createStore)
-//        }
-//        .navigationDestination(item: $store.scope(state: \.profile, action: \.profile)) { profilestore in
-//            ProfileCoordinatorView(store: profilestore)
-//                .navigationBarBackButtonHidden(true)
-//        }
         .overlay {
-            if store.isInviteModalPresented {
+            if store.isPresentInvitationView {
                 InviteCodeModalView(
                     code: store.inviteCode,
                     onCodeChange: { store.send(.inviteCodeChanged($0)) },
