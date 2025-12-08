@@ -10,34 +10,33 @@ import ComposableArchitecture
 import TCACoordinators
 import TravelFeature
 import SettlementFeature
-import ExpenseFeature
 import ProfileFeature
 
 public struct MainCoordinatorView: View {
     let store: StoreOf<MainCoordinator>
-
+    
     public init(store: StoreOf<MainCoordinator>) {
         self.store = store
     }
-
+    
     public var body: some View {
         TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
             switch screen.case {
             case .settlementCoordinator(let store):
                 SettlementCoordinatorView(store: store)
-                  .enableSwipeBack()
+                    .enableSwipeBack()
             case .travelList(let store):
                 TravelView(store: store)
-                  .enableSwipeBack()
+                    .enableSwipeBack()
             case .createTravel(let store):
                 CreateTravelView(store: store)
             case .travelSetting(let store):
                 TravelSettingView(store: store)
-                  .enableSwipeBack()
-              case .profile(let store):
+                    .enableSwipeBack()
+            case .profile(let store):
                 ProfileCoordinatorView(store: store)
-                  .navigationBarBackButtonHidden()
-                  .enableSwipeBack()
+                    .navigationBarBackButtonHidden()
+                    .enableSwipeBack()
             }
         }
     }

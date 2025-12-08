@@ -5,6 +5,7 @@ let project = Project.makeFeature(
     name: .Main,
     dependencies: [
         .SPM.TCACoordinators,
+        .Features.Travel,
         .Features.Settlement,
         .Features.Profile
     ],
