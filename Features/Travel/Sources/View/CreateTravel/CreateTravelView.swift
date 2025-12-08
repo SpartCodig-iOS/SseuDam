@@ -70,6 +70,8 @@ public struct CreateTravelView: View {
                 }
                 .padding(.horizontal, 16)
             }
+            .scrollDismissesKeyboard(.immediately)
+            .scrollIndicators(.hidden)
 
             // MARK: 저장
             SaveButton(isEnabled: store.isSaveEnabled && !store.isSubmitting) {

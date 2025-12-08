@@ -101,6 +101,7 @@ private extension TravelSettingView {
                 }
                 .padding(16)
             }
+            .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)
         }
         .background(.primary50)
