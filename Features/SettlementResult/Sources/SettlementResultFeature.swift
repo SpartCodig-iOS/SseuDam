@@ -12,7 +12,8 @@ import ComposableArchitecture
 @Reducer
 public struct SettlementResultFeature {
     @Dependency(\.fetchSettlementUseCase) var fetchSettlementUseCase
-
+    @Shared(.appStorage("userId")) var userId: String? = ""
+    
     public init() {}
 
     @ObservableState
