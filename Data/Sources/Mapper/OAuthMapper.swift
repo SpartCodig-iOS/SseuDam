@@ -19,16 +19,21 @@ extension ChecSignUpResponseDTO {
 
 extension AuthResponseDTO {
     func toDomain() -> AuthResult {
+        // 새 포맷(tokenPair/session) 우선 사용, 없으면 구 포맷 fallback
+        let access = tokenPair?.accessToken ?? accessToken ?? ""
+        let refresh = tokenPair?.refreshToken ?? refreshToken ?? ""
+        let sessionId = session?.sessionId ?? sessionID ?? ""
+
         let token = AuthTokens(
-            authToken: "",
-            accessToken: self.accessToken,
-            refreshToken: self.refreshToken,
-            sessionID: self.sessionID
+            authToken: access,
+            accessToken: access,
+            refreshToken: refresh,
+            sessionID: sessionId
         )
         let socialtype = SocialType(rawValue: self.loginType ?? "")
         return AuthResult(
           userId: self.user.id,
-          name: self.user.name,
+          name: self.user.name ?? self.user.username ?? "" ,
             provider: socialtype ?? .none,
             token: token
         )

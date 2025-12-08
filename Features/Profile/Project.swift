@@ -4,8 +4,7 @@ import SseuDamPlugin
 let project = Project.makeFeature(
     name: .Profile,
     dependencies: [
-        .Domain,
-        .DesignSystem,
+        .SPM.TCACoordinators,
         .Features.Web
     ],
     hasTests: true

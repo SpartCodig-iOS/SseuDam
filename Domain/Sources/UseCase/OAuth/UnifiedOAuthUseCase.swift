@@ -19,15 +19,18 @@ public struct UnifiedOAuthUseCase {
     private let oAuthUseCase: any OAuthUseCaseProtocol
     private let signUpRepository: any SignUpRepositoryProtocol
     private let loginRepository: any LoginRepositoryProtocol
+    private let kakaoFinalizeRepository: any KakaoFinalizeRepositoryProtocol
 
     public init(
         oAuthUseCase: any OAuthUseCaseProtocol = OAuthUseCase.liveValue,
         signUpRepository: any SignUpRepositoryProtocol = MockSignUpRepository(),
-        loginRepository: any LoginRepositoryProtocol = MockLoginRepository()
+        loginRepository: any LoginRepositoryProtocol = MockLoginRepository(),
+        kakaoFinalizeRepository: any KakaoFinalizeRepositoryProtocol = MockKakaoFinalizeRepository()
     ) {
         self.oAuthUseCase = oAuthUseCase
         self.signUpRepository = signUpRepository
         self.loginRepository = loginRepository
+        self.kakaoFinalizeRepository = kakaoFinalizeRepository
     }
 }
 
@@ -148,7 +151,6 @@ public extension UnifiedOAuthUseCase {
     ) async -> Result<AuthResult, AuthError> {
         Log.info("🔐 Starting unified OAuth flow for: \(socialType.rawValue)")
 
-        // 1단계: OAuth Provider 인증
         let oAuthData = await getOAuthCredentials(
             socialType: socialType,
             appleCredential: appleCredential,
@@ -162,7 +164,6 @@ public extension UnifiedOAuthUseCase {
             }
         }
 
-        // 2단계: 사용자 등록 상태 확인
         let registrationStatus = await checkUserRegistrationStatus(with: authData)
         guard case .success(let checkUser) = registrationStatus else {
             if case .failure(let error) = registrationStatus {
@@ -172,25 +173,19 @@ public extension UnifiedOAuthUseCase {
             }
         }
 
-        // 3단계: 등록 여부에 따른 분기 처리
         let authResult: Result<AuthResult, AuthError>
 
         if checkUser.registered {
-            // 이미 등록된 사용자 -> 로그인 진행
             authResult = await attemptLogin(with: authData)
         } else {
-            // 미등록 사용자 -> 약관 동의 확인 후 회원가입
             if checkUser.needsTerms {
-                // 약관 동의가 필요한 경우 -> 약관 동의 플로우 필요
                 Log.info("📋 Terms agreement required for new user")
                 return .failure(.needsTermsAgreement("약관 동의가 필요합니다"))
             } else {
-                // 약관 동의 완료 -> 회원가입 진행
                 authResult = await attemptSignUp(with: authData)
             }
         }
 
-        // 4단계: 성공 시 토큰 저장 (회원가입은 attemptSignUp에서 이미 처리)
         if case .success(let authEntity) = authResult, checkUser.registered {
             saveTokensAndComplete(authEntity: authEntity)
         }
@@ -230,7 +225,12 @@ private extension UnifiedOAuthUseCase {
                     accessToken: profile.tokens.accessToken,
                     authToken: profile.tokens.authToken,
                     displayName: profile.displayName,
-                    authorizationCode: profile.authCode ?? ""
+                    authorizationCode: profile.authCode,
+                    codeVerifier: nil,
+                    redirectUri: nil,
+                    refreshToken: profile.tokens.refreshToken,
+                    sessionID: profile.tokens.sessionID,
+                    userId: profile.id
                 )
 
 
@@ -243,7 +243,33 @@ private extension UnifiedOAuthUseCase {
                     accessToken: profile.tokens.accessToken,
                     authToken: profile.tokens.authToken,
                     displayName: profile.displayName,
-                    authorizationCode: profile.authCode ?? ""
+                    authorizationCode: profile.authCode,
+                    codeVerifier: nil,
+                    redirectUri: nil,
+                    refreshToken: profile.tokens.refreshToken,
+                    sessionID: profile.tokens.sessionID,
+                    userId: profile.id
+                )
+                return .success(oAuthData)
+            case .kakao:
+                let profile = try await oAuthUseCase.signUp(with: socialType)
+                guard let ticket = profile.authCode else {
+                    return .failure(.invalidCredential("Kakao ticket이 없습니다"))
+                }
+                // 바로 finalize 호출하여 세션/토큰 확보
+                let finalized = try await kakaoFinalizeRepository.finalize(ticket: ticket)
+                let accessToken = finalized.token.authCodeTokenFallback
+                let oAuthData = AuthData(
+                    socialType: profile.provider,
+                    accessToken: accessToken,
+                    authToken: accessToken,
+                    displayName: finalized.name,
+                    authorizationCode: ticket,
+                    codeVerifier: profile.codeVerifier,
+                    redirectUri: "https://sseudam.up.railway.app/api/v1/oauth/kakao/callback",
+                    refreshToken: finalized.token.refreshToken,
+                    sessionID: finalized.token.sessionID,
+                    userId: finalized.userId
                 )
                 return .success(oAuthData)
 
@@ -261,14 +287,34 @@ private extension UnifiedOAuthUseCase {
         with oAuthData: AuthData
     ) async -> Result<AuthResult, AuthError> {
         do {
+            if oAuthData.socialType == .kakao {
+                let tokens = AuthTokens(
+                    authToken: oAuthData.authToken,
+                    accessToken: oAuthData.authToken,
+                    refreshToken: oAuthData.refreshToken,
+                    sessionID: oAuthData.sessionID ?? ""
+                )
+                let authEntity = AuthResult(
+                    userId: oAuthData.userId ?? "kakao-user",
+                    name: oAuthData.displayName ?? "",
+                    provider: .kakao,
+                    token: tokens
+                )
+                Log.info("✅ Kakao finalize-only login completed")
+                return .success(authEntity)
+            }
+
             let input = OAuthUserInput(
                 accessToken: oAuthData.authToken ,
                 socialType: oAuthData.socialType,
-                authorizationCode: oAuthData.authorizationCode
+                authorizationCode: oAuthData.authorizationCode,
+                codeVerifier: oAuthData.codeVerifier,
+                redirectUri: oAuthData.redirectUri
             )
 
             var authEntity = try await loginRepository.login(input: input)
             authEntity.token.authToken = oAuthData.authToken
+            persistSocialType(oAuthData.socialType)
             Log.info("✅ Login successful for \(oAuthData.socialType.rawValue)")
             return .success(authEntity)
 
@@ -283,10 +329,16 @@ private extension UnifiedOAuthUseCase {
         with oAuthData: AuthData
     ) async -> Result<OAuthCheckUser, AuthError> {
         do {
+            if oAuthData.socialType == .kakao {
+                return .success(OAuthCheckUser(registered: true, needsTerms: false))
+            }
+
             let checkInput = OAuthUserInput(
                 accessToken: oAuthData.authToken,
                 socialType: oAuthData.socialType,
-                authorizationCode: oAuthData.authorizationCode
+                authorizationCode: oAuthData.authorizationCode,
+                codeVerifier: oAuthData.codeVerifier,
+                redirectUri: oAuthData.redirectUri
             )
             let result = try await signUpRepository.checkSignUp(input: checkInput)
             return .success(result)
@@ -301,13 +353,33 @@ private extension UnifiedOAuthUseCase {
         with oAuthData: AuthData
     ) async -> Result<AuthResult, AuthError> {
         do {
+            if oAuthData.socialType == .kakao {
+                let tokens = AuthTokens(
+                    authToken: oAuthData.authToken,
+                    accessToken: oAuthData.authToken,
+                    refreshToken: oAuthData.refreshToken,
+                    sessionID: oAuthData.sessionID ?? ""
+                )
+                let authEntity = AuthResult(
+                  userId: oAuthData.userId ?? "kakao-user",
+                    name: oAuthData.displayName ?? "",
+                    provider: .kakao,
+                    token: tokens
+                )
+                saveTokensAndComplete(authEntity: authEntity)
+                return .success(authEntity)
+            }
+
             let checkInput = OAuthUserInput(
                 accessToken: oAuthData.authToken,
                 socialType: oAuthData.socialType,
-                authorizationCode: oAuthData.authorizationCode
+                authorizationCode: oAuthData.authorizationCode,
+                codeVerifier: oAuthData.codeVerifier,
+                redirectUri: oAuthData.redirectUri
             )
             var authEntity = try await signUpRepository.signUp(input: checkInput)
             authEntity.token.authToken = oAuthData.authToken
+            persistSocialType(oAuthData.socialType)
             saveTokensAndComplete(authEntity: authEntity)
             return .success(authEntity)
         } catch {
@@ -345,7 +417,8 @@ extension UnifiedOAuthUseCase: DependencyKey {
     public static let testValue = UnifiedOAuthUseCase(
         oAuthUseCase: OAuthUseCase.testValue,
         signUpRepository: MockSignUpRepository(),
-        loginRepository: MockLoginRepository()
+        loginRepository: MockLoginRepository(),
+        kakaoFinalizeRepository: MockKakaoFinalizeRepository()
     )
 }
 
