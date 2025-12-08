@@ -7,6 +7,7 @@
 
 import Foundation
 import Domain
+import DesignSystem
 import ComposableArchitecture
 
 @Reducer
@@ -24,6 +25,7 @@ public struct TravelSettingFeature {
         var isLoading = false
         var shouldDismiss = false
         var errorMessage: String?
+        var alert: DSAlertState<AlertAction>?
 
         public init(travelId: String) {
             self.travelId = travelId
@@ -45,10 +47,18 @@ public struct TravelSettingFeature {
         case dismiss
 
         case delegate(Delegate)
+        case alert(AlertAction)
 
         public enum Delegate: Equatable {
             case done  
         }
+    }
+
+    public enum AlertAction: Equatable {
+        case confirmLeave
+        case confirmDelete
+        case cancel
+        case dismiss
     }
 
     @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
@@ -111,6 +121,14 @@ public struct TravelSettingFeature {
                 state.errorMessage = message
                 return .none
 
+            case .manage(.delegate(.showLeaveAlert)):
+                state.alert = state.confirmLeaveAlert()
+                return .none
+
+            case .manage(.delegate(.showDeleteAlert)):
+                state.alert = state.confirmDeleteAlert()
+                return .none
+
             case .memberSetting(.delegate(.needRefresh)):
                 // 멤버 관련 변경 발생 → 서버에서 Travel 다시 가져오기
                 return .send(.fetchDetail)
@@ -122,6 +140,18 @@ public struct TravelSettingFeature {
                 // 직접 dismiss (뒤로가기 버튼 등)
             case .dismiss:
                 state.shouldDismiss = true
+                return .none
+
+            case .alert(.confirmLeave):
+                state.alert = nil
+                return .send(.manage(.performLeave))
+
+            case .alert(.confirmDelete):
+                state.alert = nil
+                return .send(.manage(.performDelete))
+
+            case .alert(.cancel), .alert(.dismiss):
+                state.alert = nil
                 return .none
 
             case .basicInfo, .memberSetting, .manage:
@@ -139,5 +169,41 @@ public struct TravelSettingFeature {
         .ifLet(\.manage, action: \.manage) {
             TravelManageFeature()
         }
+    }
+}
+
+private extension TravelSettingFeature.State {
+    func confirmLeaveAlert() -> DSAlertState<TravelSettingFeature.AlertAction> {
+        DSAlertState(
+            title: "여행을 나가시겠어요?",
+            message: "여행을 나가면 다시 초대받기 전까지 접근할 수 없어요.",
+            primary: .init(
+                title: "나가기",
+                role: .destructive,
+                action: .confirmLeave
+            ),
+            secondary: .init(
+                title: "취소",
+                role: .cancel,
+                action: .cancel
+            )
+        )
+    }
+
+    func confirmDeleteAlert() -> DSAlertState<TravelSettingFeature.AlertAction> {
+        DSAlertState(
+            title: "여행을 삭제할까요?",
+            message: "모든 여행 기록이 삭제되며 복구할 수 없어요.",
+            primary: .init(
+                title: "삭제하기",
+                role: .destructive,
+                action: .confirmDelete
+            ),
+            secondary: .init(
+                title: "취소",
+                role: .cancel,
+                action: .cancel
+            )
+        )
     }
 }
