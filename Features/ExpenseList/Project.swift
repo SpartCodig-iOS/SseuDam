@@ -2,11 +2,10 @@ import ProjectDescription
 import SseuDamPlugin
 
 let project = Project.makeFeature(
-    name: .Settlement,
+    name: .ExpenseList,
     dependencies: [
-        .Features.ExpenseList,
-        .Features.SaveExpense,
-        .Features.SettlementResult
+        .Domain,
+        .DesignSystem
     ],
     hasTests: true
 )

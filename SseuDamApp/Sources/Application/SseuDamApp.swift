@@ -42,6 +42,7 @@ struct SseuDamApp: App {
         $0.deleteTravelUseCase = makeDeleteTravelUseCase()
         $0.fetchCountriesUseCase = makeFetchCountriesUseCase()
         $0.fetchExchangeRateUseCase = makeFetchExchangeRateUseCase()
+        $0.fetchSettlementUseCase = makeFetchSettlementUseCase()
         $0.versionUseCase = makeVersionUseCase()
     }
 
@@ -219,6 +220,14 @@ private extension SseuDamApp {
         FetchExchangeRateUseCase(
             repository: ExchangeRateRepository(
                 remote: ExchangeRateRemoteDataSource()
+            )
+        )
+    }
+
+    static func makeFetchSettlementUseCase() -> FetchSettlementUseCaseProtocol {
+        FetchSettlementUseCase(
+            repository: SettlementRepository(
+                remote: SettlementRemoteDataSource()
             )
         )
     }
