@@ -1,29 +1,35 @@
 //
-//  OAuthCheckUserInput.swift
+//  KakaoOAuthPayload.swift
 //  Domain
 //
-//  Created by Wonji Suh  on 11/21/25.
+//  Created by Assistant on 12/4/25.
 //
 
 import Foundation
 
-public struct OAuthUserInput {
+public struct KakaoOAuthPayload {
+    public let idToken: String
     public let accessToken: String
-    public let socialType: SocialType
+    public let refreshToken: String?
     public let authorizationCode: String?
+    public let displayName: String?
     public let codeVerifier: String?
     public let redirectUri: String?
     
     public init(
+        idToken: String,
         accessToken: String,
-        socialType: SocialType,
+        refreshToken: String?,
         authorizationCode: String?,
-        codeVerifier: String? = nil,
-        redirectUri: String? = nil
+        displayName: String?,
+        codeVerifier: String?,
+        redirectUri: String?
     ) {
+        self.idToken = idToken
         self.accessToken = accessToken
-        self.socialType = socialType
+        self.refreshToken = refreshToken
         self.authorizationCode = authorizationCode
+        self.displayName = displayName
         self.codeVerifier = codeVerifier
         self.redirectUri = redirectUri
     }

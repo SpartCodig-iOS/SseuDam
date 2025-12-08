@@ -7,7 +7,10 @@ import Foundation
 
 @main
 struct SseuDamApp: App {
-    private let store = Store(
+
+  @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
+  private let store = Store(
         initialState: AppFeature.State()
     ) {
         AppFeature()
@@ -47,6 +50,8 @@ struct SseuDamApp: App {
                 store: store
             )
             .onOpenURL { url in
+                // Kakao 딥링크(ticket/code) 저장
+                handleKakaoTicket(from: url)
                 store.send(.view(.handleDeepLink(url.absoluteString)))
             }
             .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { userActivity in
@@ -58,7 +63,6 @@ struct SseuDamApp: App {
     }
 }
 
-
 private extension SseuDamApp {
     static func makeLoginUseCase() -> LoginUseCaseProtocol {
         LoginUseCase(repository: LoginRepository())
@@ -68,7 +72,8 @@ private extension SseuDamApp {
         OAuthUseCase(
             repository: OAuthRepository(),
             googleRepository: GoogleOAuthRepository(),
-            appleRepository: AppleOAuthRepository()
+            appleRepository: AppleOAuthRepository(),
+            kakaoRepository: KakaoOAuthRepository(presentationContextProvider: AppPresentationContextProvider())
         )
     }
 
@@ -82,7 +87,8 @@ private extension SseuDamApp {
         UnifiedOAuthUseCase(
             oAuthUseCase: makeOAuthUseCase(),
             signUpRepository: SignUpRepository(),
-            loginRepository: LoginRepository()
+            loginRepository: LoginRepository(),
+            kakaoFinalizeRepository: KakaoFinalizeRepository()
         )
     }
 

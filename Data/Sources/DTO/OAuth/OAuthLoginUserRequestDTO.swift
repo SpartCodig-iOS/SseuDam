@@ -11,4 +11,7 @@ import Domain
 public struct LoginUserRequestDTO: Encodable {
     let accessToken: String
     let loginType: String
+    let authorizationCode: String?
+    let codeVerifier: String?
+    let redirectUri: String?
 }

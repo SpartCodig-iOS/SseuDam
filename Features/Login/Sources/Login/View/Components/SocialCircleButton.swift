@@ -59,6 +59,21 @@ struct SocialCircleButtonView: View {
       }
       .buttonStyle(.plain)
 
+    case .kakao:
+      Button(action: onTap) {
+        Circle()
+          .fill(Color.yellow.opacity(0.9))
+          .overlay(Circle().stroke(.gray2, lineWidth: 1))
+          .frame(width: circleSize, height: circleSize)
+          .overlay(
+            Image(assetName: type.image)
+              .resizable()
+              .scaledToFit()
+              .frame(width: 30, height: 30)
+          )
+      }
+      .buttonStyle(.plain)
+
     case .none:
       EmptyView()
     }
