@@ -46,7 +46,6 @@ public struct SettlementFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
-        case scope(ScopeAction)
 
         @CasePathable
         public enum ViewAction {
@@ -65,14 +64,7 @@ public struct SettlementFeature {
         public enum AsyncAction {
             case fetchTravel
         }
-        
-        @CasePathable
-        public enum ScopeAction {
-            case alert(PresentationAction<Alert>)
-        }
-        
-        public enum Alert: Equatable {}
-        
+
         @CasePathable
         public enum DelegateAction {
             case onTapSettingsButton(travelId: String)
