@@ -16,7 +16,7 @@ import Data
 
 @Reducer
 struct AppFeature {
-    
+
     // MARK: - State
     @ObservableState
     struct State: Equatable {
@@ -25,17 +25,19 @@ struct AppFeature {
         var main: MainCoordinator.State?
         var pendingInviteCode: String?
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+        @Shared(.appStorage("appVersion")) var appVersion: String? = ""
 
         init() {
             self.splash = .init()
             self.login = nil
             self.main = nil
             self.pendingInviteCode = nil
+            self.$appVersion.withLock { $0  =   Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""}
         }
     }
-    
+
     // MARK: - Action
-    
+
     enum Action: ViewAction {
         case view(View)
         case inner(InnerAction)
@@ -47,28 +49,28 @@ struct AppFeature {
         case login
         case main
     }
-    
+
     @CasePathable
     enum View {
         case presentLogin
         case presentMain
         case handleDeepLink(String)
     }
-    
+
     enum InnerAction {
         case setLoginState
         case setMainState
         case handleDeepLinkJoin(String)
         case setPendingInviteCode(String?)
     }
-    
+
     @CasePathable
     enum ScopeAction {
         case login(LoginCoordinator.Action)
         case splash(SplashFeature.Action)
         case main(MainCoordinator.Action)
     }
-    
+
     @Dependency(\.continuousClock) var clock
     @Dependency(\.sessionUseCase) var sessionUseCase
 
@@ -78,20 +80,20 @@ struct AppFeature {
         case transitionToMain
         case transitionToProfile
     }
-    
+
     // MARK: - body
-    
+
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .view(let viewAction):
-                return handleViewAction(&state, action: viewAction)
-                
-            case .inner(let innerAction):
-                return handleInnerAction(&state, action: innerAction)
-                
-            case .scope(let scopeAction):
-                return handleScopeAction(&state, action: scopeAction)
+                case .view(let viewAction):
+                    return handleViewAction(&state, action: viewAction)
+
+                case .inner(let innerAction):
+                    return handleInnerAction(&state, action: innerAction)
+
+                case .scope(let scopeAction):
+                    return handleScopeAction(&state, action: scopeAction)
             }
         }
         .ifLet(\.login, action: \.scope.login) {
@@ -126,135 +128,135 @@ extension AppFeature {
         action: View
     ) -> Effect<Action> {
         switch action {
-        case .presentLogin:
-            return .merge(
-                .cancel(id: CancelID.transitionToLogin),
-                .cancel(id: CancelID.transitionToMain),
-                .send(.inner(.setLoginState))
-            )
-
-        case .presentMain:
-            return .merge(
-                .cancel(id: CancelID.transitionToLogin),
-                .cancel(id: CancelID.transitionToMain),
-                .send(.inner(.setMainState))
-            )
-
-        case .handleDeepLink(let urlString):
-            var processedUrlString = urlString
-            if urlString.hasPrefix("https://sseudam.up.railway.app/") {
-                processedUrlString = urlString.replacingOccurrences(
-                    of: "https://sseudam.up.railway.app/",
-                    with: "sseudam://"
+            case .presentLogin:
+                return .merge(
+                    .cancel(id: CancelID.transitionToLogin),
+                    .cancel(id: CancelID.transitionToMain),
+                    .send(.inner(.setLoginState))
                 )
-            }
 
-            guard let url = URL(string: processedUrlString) else { return .none }
+            case .presentMain:
+                return .merge(
+                    .cancel(id: CancelID.transitionToLogin),
+                    .cancel(id: CancelID.transitionToMain),
+                    .send(.inner(.setMainState))
+                )
 
-            // Kakao 로그인 ticket/code 수신 시 저장
-            if url.scheme == "sseudam",
-               url.host == "oauth",
-               url.path == "/kakao",
-               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-               let ticket = components.queryItems?.first(where: { $0.name == "ticket" || $0.name == "code" })?.value {
-              Task {
-                await  KakaoAuthCodeStore.shared.save(ticket)
-              }
-            }
+            case .handleDeepLink(let urlString):
+                var processedUrlString = urlString
+                if urlString.hasPrefix("https://sseudam.up.railway.app/") {
+                    processedUrlString = urlString.replacingOccurrences(
+                        of: "https://sseudam.up.railway.app/",
+                        with: "sseudam://"
+                    )
+                }
 
-            var inviteCode: String?
-            if url.scheme == "sseudam",
-               let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-                inviteCode = components.queryItems?.first(where: {
-                    $0.name == "inviteCode" || $0.name == "code"
-                })?.value
-            }
+                guard let url = URL(string: processedUrlString) else { return .none }
 
-            if let code = inviteCode {
-                return .send(.inner(.handleDeepLinkJoin(code)))
-            }
+                // Kakao 로그인 ticket/code 수신 시 저장
+                if url.scheme == "sseudam",
+                   url.host == "oauth",
+                   url.path == "/kakao",
+                   let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+                   let ticket = components.queryItems?.first(where: { $0.name == "ticket" || $0.name == "code" })?.value {
+                    Task {
+                        await  KakaoAuthCodeStore.shared.save(ticket)
+                    }
+                }
 
-            return .none
+                var inviteCode: String?
+                if url.scheme == "sseudam",
+                   let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+                    inviteCode = components.queryItems?.first(where: {
+                        $0.name == "inviteCode" || $0.name == "code"
+                    })?.value
+                }
+
+                if let code = inviteCode {
+                    return .send(.inner(.handleDeepLinkJoin(code)))
+                }
+
+                return .none
         }
     }
-    
+
     func handleInnerAction(
         _ state: inout State,
         action: InnerAction
     ) -> Effect<Action> {
         switch action {
-        case .setLoginState:
-            state.login = .init()
-            state.splash = nil
-            state.main = nil
-            return .none
-            
-        case .setMainState:
-            let inviteCode = state.pendingInviteCode
-            state.pendingInviteCode = nil
-            state.main = .init(pendingInviteCode: inviteCode)
-            state.splash = nil
-            state.login = nil
-            return .none
+            case .setLoginState:
+                state.login = .init()
+                state.splash = nil
+                state.main = nil
+                return .none
 
-        case .handleDeepLinkJoin(let inviteCode):
-            // 딥링크를 통한 여행 참여 처리 (팝업 우선 표시)
-            return .run { [sessionId = state.sessionId,
-                           sessionUseCase,
-                           hasMain = state.main != nil] send in
-                let hasValidSession: Bool = await {
-                    guard let sid = sessionId, !sid.isEmpty else { return false }
-                    return (try? await sessionUseCase.checkSession(sessionId: sid)) != nil
-                }()
+            case .setMainState:
+                let inviteCode = state.pendingInviteCode
+                state.pendingInviteCode = nil
+                state.main = .init(pendingInviteCode: inviteCode)
+                state.splash = nil
+                state.login = nil
+                return .none
 
-                if hasValidSession {
-                    if hasMain {
-                        await send(.scope(.main(.router(.routeAction(id: 0, action: .travelList(.openInviteCode(inviteCode)))))))
-                        await send(.scope(.main(.refreshTravelList)))
-                        await send(.inner(.setPendingInviteCode(nil)))
+            case .handleDeepLinkJoin(let inviteCode):
+                // 딥링크를 통한 여행 참여 처리 (팝업 우선 표시)
+                return .run { [sessionId = state.sessionId,
+                               sessionUseCase,
+                               hasMain = state.main != nil] send in
+                    let hasValidSession: Bool = await {
+                        guard let sid = sessionId, !sid.isEmpty else { return false }
+                        return (try? await sessionUseCase.checkSession(sessionId: sid)) != nil
+                    }()
+
+                    if hasValidSession {
+                        if hasMain {
+                            await send(.scope(.main(.router(.routeAction(id: 0, action: .travelList(.openInviteCode(inviteCode)))))))
+                            await send(.scope(.main(.refreshTravelList)))
+                            await send(.inner(.setPendingInviteCode(nil)))
+                        } else {
+                            await send(.inner(.setPendingInviteCode(inviteCode)))
+                            await send(.view(.presentMain))
+                        }
                     } else {
+                        // 로그인되어 있지 않으면 초대 코드를 저장하고 로그인 화면으로
                         await send(.inner(.setPendingInviteCode(inviteCode)))
-                        await send(.view(.presentMain))
+                        await send(.view(.presentLogin))
                     }
-                } else {
-                    // 로그인되어 있지 않으면 초대 코드를 저장하고 로그인 화면으로
-                    await send(.inner(.setPendingInviteCode(inviteCode)))
-                    await send(.view(.presentLogin))
                 }
-            }
 
-        case .setPendingInviteCode(let code):
-            state.pendingInviteCode = code
-            return .none
+            case .setPendingInviteCode(let code):
+                state.pendingInviteCode = code
+                return .none
         }
     }
-    
+
     func handleScopeAction(
         _ state: inout State,
         action: ScopeAction
     ) -> Effect<Action> {
         switch action {
-        case .splash(.delegate(.presentLogin)):
-            return .send(.view(.presentLogin), animation: .easeIn(duration: 0.18))
-            
-        case .splash(.delegate(.presentMain)):
-            return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
-            
-        case .login(.delegate(.presentMain)):
-            return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
-            
-        case .main(.delegate(.presentLogin)):
-            return .send(
-                .view(.presentLogin),
-                animation: .interactiveSpring(
-                    response: 0.5,
-                    dampingFraction: 0.9,
-                    blendDuration: 0.1
+            case .splash(.delegate(.presentLogin)):
+                return .send(.view(.presentLogin), animation: .easeIn(duration: 0.18))
+
+            case .splash(.delegate(.presentMain)):
+                return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
+
+            case .login(.delegate(.presentMain)):
+                return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
+
+            case .main(.delegate(.presentLogin)):
+                return .send(
+                    .view(.presentLogin),
+                    animation: .interactiveSpring(
+                        response: 0.5,
+                        dampingFraction: 0.9,
+                        blendDuration: 0.1
+                    )
                 )
-            )
-            
-        default:
-            return .none
+                
+            default:
+                return .none
         }
     }
 }
