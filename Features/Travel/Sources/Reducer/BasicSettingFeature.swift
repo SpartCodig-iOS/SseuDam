@@ -8,6 +8,7 @@
 import Foundation
 import Domain
 import ComposableArchitecture
+import DesignSystem
 
 @Reducer
 public struct BasicSettingFeature {
@@ -48,11 +49,13 @@ public struct BasicSettingFeature {
             self.selectedCountryName = travel.koreanCountryName
             self.selectedCurrency = travel.baseCurrency
             self.exchangeRate = "\(travel.baseExchangeRate)"
+            self.currencies = travel.currencies ?? [travel.baseCurrency]
         }
 
         // 필수 조건 체크
         var canSave: Bool {
-            guard !title.isEmpty,
+            let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedTitle.isEmpty,
                   let countryCode = selectedCountryCode,
                   startDate <= endDate else { return false }
 
@@ -222,9 +225,10 @@ public struct BasicSettingFeature {
                 state.isSubmitting = true
 
                 let rate = Double(state.exchangeRate) ?? state.travel.baseExchangeRate
+                let trimmedTitle = state.title.trimmingCharacters(in: .whitespacesAndNewlines)
 
                 let input = UpdateTravelInput(
-                    title: state.title,
+                    title: trimmedTitle,
                     startDate: state.startDate,
                     endDate: state.endDate,
                     countryCode: state.selectedCountryCode ?? "KR",
@@ -247,8 +251,45 @@ public struct BasicSettingFeature {
 
             case .updateResponse(.success(let updated)):
                 state.isSubmitting = false
-                state.travel = updated
-                return .send(.updated(updated))
+                let previous = state.travel
+                let mergedMembers = updated.members.isEmpty ? previous.members : updated.members
+
+                state.travel = Travel(
+                    id: updated.id,
+                    title: updated.title,
+                    startDate: updated.startDate,
+                    endDate: updated.endDate,
+                    countryCode: updated.countryCode,
+                    koreanCountryName: updated.koreanCountryName,
+                    baseCurrency: updated.baseCurrency,
+                    baseExchangeRate: updated.baseExchangeRate,
+                    destinationCurrency: updated.destinationCurrency,
+                    inviteCode: updated.inviteCode ?? previous.inviteCode,
+                    deepLink: updated.deepLink ?? previous.deepLink,
+                    status: updated.status,
+                    role: updated.role ?? previous.role,
+                    createdAt: updated.createdAt,
+                    ownerName: updated.ownerName,
+                    members: mergedMembers,
+                    currencies: previous.currencies
+                )
+
+                state.title = updated.title
+                state.startDate = updated.startDate
+                state.endDate = updated.endDate
+                state.selectedCountryName = updated.koreanCountryName
+                state.selectedCountryCode = updated.countryCode
+                state.selectedCurrency = updated.baseCurrency
+                state.exchangeRate = String(updated.baseExchangeRate)
+
+                return .merge(
+                    .send(.updated(state.travel)),
+                    .run { _ in
+                        await MainActor.run {
+                            ToastManager.shared.showSuccess("수정이 완료되었어요.")
+                        }
+                    }
+                )
 
             case .updateResponse(.failure(let error)):
                 state.isSubmitting = false

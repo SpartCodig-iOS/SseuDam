@@ -56,7 +56,8 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
             role: "owner",
             createdAt: Date(),
             ownerName: "MockOwner",
-            members: []
+            members: [],
+            currencies: ["KRW", "EUR", "USD"]
         )
 
         travels.insert(newTravel, at: 0)
@@ -84,7 +85,8 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
             role: travels[index].role,
             createdAt: travels[index].createdAt,
             ownerName: travels[index].ownerName,
-            members: travels[index].members
+            members: travels[index].members,
+            currencies: travels[index].currencies
         )
 
         travels[index] = updated
@@ -123,7 +125,8 @@ private extension MockTravelRepository {
                 role: "owner",
                 createdAt: today,
                 ownerName: "김민희",
-                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")]
+                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")],
+                currencies: ["KRW", "JPY", "USD"]
             )
         }
     }
