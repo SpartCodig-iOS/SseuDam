@@ -42,7 +42,8 @@ public struct SaveExpenseFeature {
         var convertedAmountKRW: String = ""
         var isLoading: Bool = false
 
-        @Presents var deleteAlert: AlertState<Action.Alert>?
+        @Presents var deleteAlert: AlertState<Action.DeleteAlert>?
+        @Presents var errorAlert: AlertState<Action.ErrorAlert>?
 
         // ParticipantSelector Feature
         var participantSelector: ParticipantSelectorFeature.State
@@ -168,8 +169,13 @@ public struct SaveExpenseFeature {
         }
 
         @CasePathable
-        public enum Alert {
+        public enum DeleteAlert {
             case confirmDelete
+        }
+        
+        @CasePathable
+        public enum ErrorAlert {
+            case confirmTapped
         }
 
         @CasePathable
@@ -187,7 +193,8 @@ public struct SaveExpenseFeature {
         @CasePathable
         public enum ScopeAction {
             case participantSelector(ParticipantSelectorFeature.Action)
-            case deleteAlert(PresentationAction<Alert>)
+            case deleteAlert(PresentationAction<DeleteAlert>)
+            case errorAlert(PresentationAction<ErrorAlert>)
         }
         
         @CasePathable
@@ -232,6 +239,7 @@ public struct SaveExpenseFeature {
             }
         }
         .ifLet(\.$deleteAlert, action: \.scope.deleteAlert)
+        .ifLet(\.$errorAlert, action: \.scope.errorAlert)
     }
 }
 
@@ -278,8 +286,15 @@ extension SaveExpenseFeature {
 
         case .saveExpenseResponse(.failure(let error)):
             state.isLoading = false
-            // TODO: 에러 처리 (알림 표시 등)
-            print("저장 실패: \(error)")
+            state.errorAlert = AlertState {
+                TextState("오류")
+            } actions: {
+                ButtonState(action: .confirmTapped) {
+                    TextState("확인")
+                }
+            } message: {
+                TextState("지출 정보를 저장하는데 실패했습니다.\n\(error.localizedDescription)")
+            }
             return .none
 
         case .deleteExpenseResponse(.success):
@@ -294,8 +309,15 @@ extension SaveExpenseFeature {
 
         case .deleteExpenseResponse(.failure(let error)):
             state.isLoading = false
-            // TODO: 에러 처리 (알림 표시 등)
-            print("삭제 실패: \(error)")
+            state.errorAlert = AlertState {
+                TextState("오류")
+            } actions: {
+                ButtonState(action: .confirmTapped) {
+                    TextState("확인")
+                }
+            } message: {
+                TextState("지출 정보를 삭제하는데 실패했습니다.\n\(error.localizedDescription)")
+            }
             return .none
         }
     }

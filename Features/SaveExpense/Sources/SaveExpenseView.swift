@@ -89,6 +89,7 @@ public struct SaveExpenseView: View {
         .navigationBarBackButtonHidden(true)
         .background(Color.white)
         .alert($store.scope(state: \.deleteAlert, action: \.scope.deleteAlert))
+        .alert($store.scope(state: \.errorAlert, action: \.scope.errorAlert))
         .overlay {
             if store.isLoading {
                 Color.black.opacity(0.3)
