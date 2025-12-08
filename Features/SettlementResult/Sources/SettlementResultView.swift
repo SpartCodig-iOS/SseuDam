@@ -83,7 +83,11 @@ public struct SettlementResultView: View {
     NavigationView {
         SettlementResultView(
             store: Store(
-                initialState: SettlementResultFeature.State(travelId: "test")
+                initialState: SettlementResultFeature.State(
+                    travelId: "test",
+                    travel: .init(value: nil),
+                    expenses: .init(value: [])
+                )
             ) {
                 SettlementResultFeature()
             }

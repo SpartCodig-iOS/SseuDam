@@ -79,7 +79,11 @@ public struct ExpenseListView: View {
     NavigationView {
         ExpenseListView(
             store: Store(
-                initialState: ExpenseListFeature.State(travelId: "travel_01")
+                initialState: ExpenseListFeature.State(
+                    travelId: "travel_01",
+                    travel: .init(value: nil),
+                    expenses: .init(value: [])
+                )
             ) {
                 ExpenseListFeature()
             }
