@@ -7,6 +7,7 @@
 
 import Domain
 import ComposableArchitecture
+import DesignSystem
 
 @Reducer
 public struct TravelListFeature {
@@ -180,7 +181,6 @@ public struct TravelListFeature {
 
             case .inviteConfirm:
                 let code = state.inviteCode
-                state.isPresentInvitationView = false
 
                 return .run { send in
                     do {
@@ -193,6 +193,7 @@ public struct TravelListFeature {
 
             case .joinTravelResponse(.success(let travel)):
                 state.inviteCode = ""
+                state.isPresentInvitationView = false
 
                 // 가입한 여행을 즉시 목록에 반영해 사용자 체감 속도 개선
                 if !state.travels.contains(where: { $0.id == travel.id }) {
@@ -205,10 +206,13 @@ public struct TravelListFeature {
                 state.isLoading = true
                 return .send(.fetch)
 
-            case .joinTravelResponse(.failure(let error)):
+            case .joinTravelResponse(.failure):
                 state.inviteCode = ""
-                // TODO: 에러 Alert or Toast
-                return .none
+                return .run { _ in
+                    await MainActor.run {
+                        ToastManager.shared.showError("잘못된 초대 코드예요. 다시 확인해주세요.")
+                    }
+                }
 
 
             case .create(.dismiss):
