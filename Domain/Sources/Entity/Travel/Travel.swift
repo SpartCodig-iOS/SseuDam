@@ -24,7 +24,7 @@ public struct Travel: Equatable, Hashable {
     public let createdAt: Date
     public let ownerName: String
     public let members: [TravelMember]
-    public let currencies: [String]
+    public let currencies: [String]?
 
     public init(
         id: String,
@@ -43,7 +43,7 @@ public struct Travel: Equatable, Hashable {
         createdAt: Date,
         ownerName: String,
         members: [TravelMember],
-        currencies: [String]
+        currencies: [String]? = nil
     ) {
         self.id = id
         self.title = title

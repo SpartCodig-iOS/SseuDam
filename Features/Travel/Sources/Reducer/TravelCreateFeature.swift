@@ -224,7 +224,8 @@ public struct TravelCreateFeature {
                     countryCode: code,
                     koreanCountryName: state.selectedCountryName ?? "-",
                     baseCurrency: state.selectedCurrency ?? "KRW",
-                    baseExchangeRate: code == "KR" ? 1 : rateValue
+                    baseExchangeRate: code == "KR" ? 1 : rateValue,
+                    currencies: state.currency
                 )
 
                 state.isSubmitting = true

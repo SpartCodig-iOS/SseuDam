@@ -50,6 +50,7 @@ public struct TravelDTO: Decodable {
     let baseCurrency: String
     let baseExchangeRate: Double
     let destinationCurrency: String
+    let countryCurrencies: [String]?
     let inviteCode: String?
     let deepLink: String?
     let status: String
@@ -81,8 +82,7 @@ extension TravelDTO {
             createdAt: dateTimeFormatter.date(from: createdAt) ?? Date(),
             ownerName: ownerName,
             members: members.map { $0.toDomain() },
-            //TODO: API 요청후 변수로 변경
-            currencies: ["USD", "EUR", "CNY", "JPY"]
+            currencies: countryCurrencies
         )
     }
 }

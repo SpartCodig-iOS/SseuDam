@@ -48,7 +48,7 @@ public struct BasicSettingFeature {
             self.selectedCountryName = travel.koreanCountryName
             self.selectedCurrency = travel.baseCurrency
             self.exchangeRate = "\(travel.baseExchangeRate)"
-            self.currencies = travel.currencies
+            self.currencies = travel.currencies ?? [travel.baseCurrency]
         }
 
         // 필수 조건 체크
