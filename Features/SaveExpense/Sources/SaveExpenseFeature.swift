@@ -10,6 +10,20 @@ import ComposableArchitecture
 import Domain
 import IdentifiedCollections
 
+public enum ExpenseEditType {
+    case create
+    case edit
+    case delete
+    
+    public var displayName: String {
+        switch self {
+        case .create: "생성"
+        case .edit: "수정"
+        case .delete: "삭제"
+        }
+    }
+}
+
 @Reducer
 public struct SaveExpenseFeature {
     @Dependency(\.createExpenseUseCase) var createExpenseUseCase
@@ -178,7 +192,8 @@ public struct SaveExpenseFeature {
         
         @CasePathable
         public enum DelegateAction {
-            case finishSaveExpense
+            case finishSaveExpense(type: ExpenseEditType)
+            case onTapBackButton
         }
     }
     
@@ -244,7 +259,7 @@ extension SaveExpenseFeature {
 
         case .backButtonTapped:
             // Coordinator가 pop을 처리하도록 delegate로 전달
-            return .send(.delegate(.finishSaveExpense))
+            return .send(.delegate(.onTapBackButton))
         }
     }
 
@@ -253,7 +268,13 @@ extension SaveExpenseFeature {
         switch action {
         case .saveExpenseResponse(.success):
             state.isLoading = false
-            return .send(.delegate(.finishSaveExpense))
+            return .send(
+                .delegate(
+                    .finishSaveExpense(
+                        type: state.expense == nil ? .create : .edit
+                    )
+                )
+            )
 
         case .saveExpenseResponse(.failure(let error)):
             state.isLoading = false
@@ -263,7 +284,13 @@ extension SaveExpenseFeature {
 
         case .deleteExpenseResponse(.success):
             state.isLoading = false
-            return .send(.delegate(.finishSaveExpense))
+            return .send(
+                .delegate(
+                    .finishSaveExpense(
+                        type: .delete
+                    )
+                )
+            )
 
         case .deleteExpenseResponse(.failure(let error)):
             state.isLoading = false
