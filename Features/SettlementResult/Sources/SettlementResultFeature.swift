@@ -13,24 +13,29 @@ import ComposableArchitecture
 public struct SettlementResultFeature {
     @Dependency(\.fetchSettlementUseCase) var fetchSettlementUseCase
     @Shared(.appStorage("userId")) var userId: String? = ""
-    
+
     public init() {}
 
     @ObservableState
     public struct State: Equatable {
         public let travelId: String
-        public var travel: Travel?
+        @Shared public var travel: Travel?
+        @Shared public var expenses: [Expense]
+        public var currentUserId: String?
+
         public var settlement: TravelSettlement?
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
 
         public var totalExpenseAmount: Int {
-            return 0
+            Int(expenses.reduce(0) { $0 + $1.convertedAmount })
         }
 
         public var myExpenseAmount: Int {
-            // TODO: 내 지출 금액 계산 로직 필요
-            0
+            guard let userId = currentUserId else { return 0 }
+            return Int(expenses
+                .filter { $0.payerId == userId }
+                .reduce(0) { $0 + $1.convertedAmount })
         }
 
         public var totalPersonCount: Int {
@@ -52,8 +57,14 @@ public struct SettlementResultFeature {
             return settlement.recommendedSettlements.filter { $0.status == .pending }
         }
 
-        public init(travelId: String) {
+        public init(
+            travelId: String,
+            travel: Shared<Travel?>,
+            expenses: Shared<[Expense]>
+        ) {
             self.travelId = travelId
+            self._travel = travel
+            self._expenses = expenses
         }
     }
 
@@ -118,6 +129,7 @@ extension SettlementResultFeature {
     private func handleViewAction(state: inout State, action: Action.ViewAction) -> Effect<Action> {
         switch action {
         case .onAppear:
+            state.currentUserId = userId
             return .send(.async(.fetchData))
 
         case .backButtonTapped:

@@ -20,20 +20,25 @@ public struct SettlementFeature {
     @ObservableState
     public struct State: Equatable {
         public let travelId: String
-        public var travel: Travel?
+        @Shared public var travel: Travel?
+        @Shared public var expenses: [Expense]
         public var travelTitle: String {
             return travel?.title ?? String()
         }
         public var selectedTab: Int = 0
-        
+
         // Child States
         public var expenseList: ExpenseListFeature.State
         public var settlementResult: SettlementResultFeature.State
 
         public init(_ travelId: String) {
             self.travelId = travelId
-            self.expenseList = ExpenseListFeature.State(travelId: travelId)
-            self.settlementResult = SettlementResultFeature.State(travelId: travelId)
+            let travel = Shared<Travel?>(value: nil)
+            let expenses = Shared<[Expense]>(value: [])
+            self._travel = travel
+            self._expenses = expenses
+            self.expenseList = ExpenseListFeature.State(travelId: travelId, travel: travel, expenses: expenses)
+            self.settlementResult = SettlementResultFeature.State(travelId: travelId, travel: travel, expenses: expenses)
         }
     }
 
@@ -143,17 +148,17 @@ extension SettlementFeature {
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
         case let .travelDetailResponse(.success(travel)):
-            state.travel = travel
-            
+            state.$travel.withLock {
+                $0 = travel
+            }
+
             // Pass data to children
-            state.expenseList.travel = travel
             state.expenseList.startDate = travel.startDate
             state.expenseList.endDate = travel.endDate
             state.expenseList.selectedDate = travel.startDate // Initialize selectedDate
-            
-            state.settlementResult.travel = travel
+
             return .none
-            
+
         case let .travelDetailResponse(.failure(error)):
             print("Failed to fetch travel detail: \(error)")
             // TODO: Error handling

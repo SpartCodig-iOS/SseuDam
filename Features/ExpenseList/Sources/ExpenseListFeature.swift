@@ -17,13 +17,13 @@ public struct ExpenseListFeature {
 
     @ObservableState
     public struct State: Equatable {
-        public var allExpenses: [Expense] = [] // 전체 지출 데이터 (캐싱)
-        public var currentExpense: [Expense] = [] // 현재 선택된 날짜의 지출
+        @Shared public var travel: Travel?
+        @Shared public var allExpenses: [Expense]
+        public var currentExpense: [Expense] = []
         public var startDate: Date = Date()
         public var endDate: Date = Date()
         public var selectedDate: Date = Date()
         public let travelId: String
-        public var travel: Travel? = nil
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
         public var totalAmount: Int {
@@ -35,8 +35,14 @@ public struct ExpenseListFeature {
             totalAmount
         }
 
-        public init(travelId: String) {
+        public init(
+            travelId: String,
+            travel: Shared<Travel?>,
+            expenses: Shared<[Expense]>
+        ) {
             self.travelId = travelId
+            self._travel = travel
+            self._allExpenses = expenses
         }
     }
 
@@ -130,7 +136,9 @@ extension ExpenseListFeature {
         switch action {
         case let .expensesResponse(.success(expenses)):
             // 전체 지출 데이터를 캐싱
-            state.allExpenses = expenses
+            state.$allExpenses.withLock {
+                $0 = expenses
+            }
             // 현재 선택된 날짜로 필터링
             filterExpensesByDate(&state, date: state.selectedDate)
             state.isLoading = false
@@ -156,7 +164,10 @@ extension ExpenseListFeature {
         switch action {
         case .fetchData:
             let travelId = state.travelId
-            state.isLoading = true
+            // allExpenses가 비어있을 때만 로딩 표시
+            if state.allExpenses.isEmpty {
+                state.isLoading = true
+            }
             return .run { send in
                 // 전체 지출 내역 조회 (date: nil로 전체 조회)
                 let expensesResult = await Result {
