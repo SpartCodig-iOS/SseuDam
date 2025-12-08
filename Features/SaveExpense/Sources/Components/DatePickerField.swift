@@ -47,13 +47,15 @@ public struct DatePickerField: View {
                 HStack {
                     Image(systemName: "calendar")
                         .foregroundStyle(.gray)
+                        .allowsHitTesting(false)
                     
                     Text(dateFormatter.string(from: date))
                         .foregroundStyle(Color.black)
+                        .allowsHitTesting(false)
                     
                     Spacer()
                 }
-                .overlay {
+                .overlay(alignment: .leading) {
                     DatePicker(
                         "",
                         selection: $date,
