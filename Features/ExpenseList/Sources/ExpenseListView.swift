@@ -44,10 +44,14 @@ public struct ExpenseListView: View {
                 }
                 .scrollIndicators(.hidden)
             } else {
-                Spacer()
-                Text("지출이 없습니다.")
-                    .foregroundStyle(.gray)
-                Spacer()
+                VStack {
+                    Image(asset: .expenseEmpty)
+                        .resizable()
+                        .frame(width: 167, height: 167)
+                    Text("지출을 추가해보세요!")
+                        .font(.app(.title3, weight: .medium))
+                }
+                .frame(maxHeight: .infinity)
             }
         }
         .overlay {
@@ -67,6 +71,7 @@ public struct ExpenseListView: View {
         .onAppear {
             send(.onAppear)
         }
+        .alert($store.scope(state: \.alert, action: \.scope.alert))
     }
 }
 
