@@ -45,19 +45,19 @@ extension TravelSettlement {
     public static var mock: TravelSettlement {
         TravelSettlement(
             balances: [
-                BalanceEntry(
+                MemberBalance(
                     id: "1",
                     memberId: "member1",
                     name: "홍길동",
                     balance: 50000
                 ),
-                BalanceEntry(
+                MemberBalance(
                     id: "2",
                     memberId: "member2",
                     name: "김철수",
                     balance: -30000
                 ),
-                BalanceEntry(
+                MemberBalance(
                     id: "3",
                     memberId: "member3",
                     name: "이영희",
@@ -66,7 +66,7 @@ extension TravelSettlement {
             ],
             savedSettlements: [],
             recommendedSettlements: [
-                SettlementEntry(
+                Settlement(
                     id: "1",
                     fromMemberId: "member2",
                     fromMemberName: "김철수",
@@ -75,7 +75,7 @@ extension TravelSettlement {
                     amount: 30000,
                     status: .pending
                 ),
-                SettlementEntry(
+                Settlement(
                     id: "2",
                     fromMemberId: "member3",
                     fromMemberName: "이영희",

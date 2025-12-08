@@ -8,14 +8,14 @@
 import Foundation
 
 public struct TravelSettlement: Equatable, Hashable {
-    public let balances: [BalanceEntry]
-    public let savedSettlements: [SettlementEntry]
-    public let recommendedSettlements: [SettlementEntry]
+    public let balances: [MemberBalance]
+    public let savedSettlements: [Settlement]
+    public let recommendedSettlements: [Settlement]
 
     public init(
-        balances: [BalanceEntry],
-        savedSettlements: [SettlementEntry],
-        recommendedSettlements: [SettlementEntry]
+        balances: [MemberBalance],
+        savedSettlements: [Settlement],
+        recommendedSettlements: [Settlement]
     ) {
         self.balances = balances
         self.savedSettlements = savedSettlements

@@ -1,5 +1,5 @@
 //
-//  BalanceEntry.swift
+//  MemberBalance.swift
 //  Domain
 //
 //  Created by 홍석현 on 12/4/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct BalanceEntry: Equatable, Hashable, Identifiable {
+public struct MemberBalance: Equatable, Hashable, Identifiable {
     public let id: String
     public let memberId: String
     public let name: String

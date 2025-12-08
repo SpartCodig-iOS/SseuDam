@@ -1,5 +1,5 @@
 //
-//  SettlementEntry.swift
+//  Settlement.swift
 //  Domain
 //
 //  Created by 홍석현 on 12/4/25.
@@ -13,7 +13,7 @@ public enum SettlementStatus: String, Equatable, Hashable {
     case cancelled = "CANCELLED"
 }
 
-public struct SettlementEntry: Equatable, Hashable, Identifiable {
+public struct Settlement: Equatable, Hashable, Identifiable {
     public let id: String
     public let fromMemberId: String
     public let fromMemberName: String
