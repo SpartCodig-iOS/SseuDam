@@ -26,5 +26,6 @@ public struct SettlementCoordinatorView: View {
                 SettlementView(store: store)
             }
         }
+        .toastOverlay()
     }
 }
