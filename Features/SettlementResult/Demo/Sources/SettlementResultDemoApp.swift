@@ -8,13 +8,16 @@
 
 import SwiftUI
 import SettlementResultFeature
+import ComposableArchitecture
 
 @main
 struct SettlementResultDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                SettlementresultView()
+                SettlementResultView(store: Store(initialState: SettlementResultFeature.State(travelId: "travel_01"), reducer: {
+                    SettlementResultFeature()
+                }))
             }
         }
     }
