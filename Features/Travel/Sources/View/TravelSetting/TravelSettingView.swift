@@ -49,6 +49,7 @@ public struct TravelSettingView: View {
             store.scope(state: \.alert, action: \.alert),
             dismissAction: .dismiss
         )
+        .toastOverlay()
     }
 }
 

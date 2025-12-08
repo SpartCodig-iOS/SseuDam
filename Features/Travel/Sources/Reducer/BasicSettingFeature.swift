@@ -8,6 +8,7 @@
 import Foundation
 import Domain
 import ComposableArchitecture
+import DesignSystem
 
 @Reducer
 public struct BasicSettingFeature {
@@ -279,7 +280,14 @@ public struct BasicSettingFeature {
                 state.selectedCurrency = updated.baseCurrency
                 state.exchangeRate = String(updated.baseExchangeRate)
 
-                return .send(.updated(state.travel))
+                return .merge(
+                    .send(.updated(state.travel)),
+                    .run { _ in
+                        await MainActor.run {
+                            ToastManager.shared.showSuccess("수정이 완료되었어요.")
+                        }
+                    }
+                )
 
             case .updateResponse(.failure(let error)):
                 state.isSubmitting = false

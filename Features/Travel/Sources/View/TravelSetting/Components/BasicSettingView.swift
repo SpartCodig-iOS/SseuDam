@@ -291,7 +291,9 @@ struct BasicSettingView: View {
 
                 //MARK: - 초대 코드
                 Button {
-                    UIPasteboard.general.string = store.travel.inviteCode
+                    guard let inviteCode = store.travel.inviteCode else { return }
+                    UIPasteboard.general.string = inviteCode
+                    ToastManager.shared.showSuccess("클립보드에 복사되었습니다.")
                 } label: {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("초대 코드")
@@ -370,4 +372,3 @@ struct BasicSettingView: View {
         )
     }
 }
-
