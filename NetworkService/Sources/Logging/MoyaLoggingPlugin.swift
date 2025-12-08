@@ -33,29 +33,44 @@ public class MoyaLoggingPlugin: PluginType {
   public func willSend(_ request: RequestType, target: TargetType) {
     guard let httpRequest = request.request else {
 #if DEBUG
-      #logNetwork("--> 유효하지 않은 요청입니다.", (Any).self)
+      #logNetwork("❌ 유효하지 않은 요청입니다.", (Any).self)
 #endif
       return
     }
 
     let method = httpRequest.httpMethod ?? "알 수 없는 HTTP 메서드"
-    let url = httpRequest.description
+    let url = httpRequest.url?.absoluteString ?? httpRequest.description
+
     var log = """
-⎡---------------------서버통신을 시작합니다.----------------------⎤
-[\(method)] \(url)
-API: \(target)
-"""
+
+    ╔════════════════════════════════════════════════════════════════
+    ║ 📤 REQUEST
+    ╠════════════════════════════════════════════════════════════════
+    ║ Method: \(method)
+    ║ URL: \(url)
+    ║ Target: \(target)
+    """
+
     if let headers = httpRequest.allHTTPHeaderFields, !headers.isEmpty {
-      log.append("\n헤더:\n \(headers)\n")
+      log.append("\n╠────────────────────────────────────────────────────────────────")
+      log.append("\n║ 📋 Headers:")
+      for (key, value) in headers.sorted(by: { $0.key < $1.key }) {
+        log.append("\n║   • \(key): \(value)")
+      }
     }
+
     if let body = httpRequest.httpBody,
        let bodyString = String(data: body, encoding: .utf8) {
-      log.append("\n본문:\n \(bodyString)\n")
+      log.append("\n╠────────────────────────────────────────────────────────────────")
+      log.append("\n║ 📦 Body:")
+      let formattedBody = formatJSON(bodyString)
+      log.append("\n\(formattedBody.split(separator: "\n").map { "║   \($0)" }.joined(separator: "\n"))")
     }
-    log.append("⎣------------------ Request END  -------------------------⎦")
+
+    log.append("\n╚════════════════════════════════════════════════════════════════\n")
 
 #if DEBUG
-    #logNetwork("", log)
+    #logNetwork(log, (Any).self)
 #endif
   }
 
@@ -94,16 +109,30 @@ API: \(target)
   public func onSucceed(_ response: Response, target: TargetType, isFromError: Bool) {
     let urlString = response.request?.url?.absoluteString ?? "알 수 없는 URL"
     let statusCode = response.statusCode
-    var log = "⎡------------------서버에게 Response가 도착했습니다. ------------------⎤\n"
-    log.append("API: \(target)\n")
-    log.append("상태 코드: [\(statusCode)]\n")
-    log.append("URL: \(urlString)\n")
+    let statusEmoji = statusCode < 300 ? "✅" : "⚠️"
+
+    var log = """
+
+    ╔════════════════════════════════════════════════════════════════
+    ║ \(statusEmoji) RESPONSE \(isFromError ? "(From Error)" : "")
+    ╠════════════════════════════════════════════════════════════════
+    ║ Status: \(statusCode) \(HTTPURLResponse.localizedString(forStatusCode: statusCode))
+    ║ URL: \(urlString)
+    ║ Target: \(target)
+    ║ Size: \(ByteCountFormatter.string(fromByteCount: Int64(response.data.count), countStyle: .file))
+    """
+
     if let dataString = String(data: response.data, encoding: .utf8) {
-      log.append("데이터:\n  \(dataString)\n")
+      log.append("\n╠────────────────────────────────────────────────────────────────")
+      log.append("\n║ 📦 Response Data:")
+      let formattedData = formatJSON(dataString)
+      log.append("\n\(formattedData.split(separator: "\n").map { "║   \($0)" }.joined(separator: "\n"))")
     }
-    log.append("⎣------------------ END HTTP (\(response.data.count)-byte body) ------------------⎦")
+
+    log.append("\n╚════════════════════════════════════════════════════════════════\n")
+
 #if DEBUG
-    #logNetwork("", log)
+    #logNetwork(log, (Any).self)
 #endif
   }
 
@@ -118,14 +147,34 @@ API: \(target)
       onSucceed(response, target: target, isFromError: true)
       return
     }
-    var log = "⎡------------------ 네트워크 오류 ------------------⎤\n"
-    log.append("오류 코드: \(error.errorCode) – 대상: \(target)\n")
-    log.append("원인: \(error.failureReason ?? error.errorDescription ?? "알 수 없는 오류")\n")
-    log.append("⎣------------------ 오류 종료 ------------------⎦")
+
+    var log = """
+
+    ╔════════════════════════════════════════════════════════════════
+    ║ ❌ NETWORK ERROR
+    ╠════════════════════════════════════════════════════════════════
+    ║ Error Code: \(error.errorCode)
+    ║ Target: \(target)
+    ║ Reason: \(error.failureReason ?? error.errorDescription ?? "알 수 없는 오류")
+    ╚════════════════════════════════════════════════════════════════
+
+    """
 
 #if DEBUG
-    #logNetwork("", log)
+    #logError(log)
 #endif
+  }
+
+  // MARK: - Helper Methods
+
+  private func formatJSON(_ jsonString: String) -> String {
+    guard let data = jsonString.data(using: .utf8),
+          let jsonObject = try? JSONSerialization.jsonObject(with: data),
+          let prettyData = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted, .sortedKeys]),
+          let prettyString = String(data: prettyData, encoding: .utf8) else {
+      return jsonString
+    }
+    return prettyString
   }
 }
 

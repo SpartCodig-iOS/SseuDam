@@ -18,13 +18,14 @@ public struct SettlementRemoteDataSource: SettlementRemoteDataSourceProtocol {
 
     private let provider: MoyaProvider<SettlementAPI>
 
-    public init(provider: MoyaProvider<SettlementAPI> = MoyaProvider<SettlementAPI>()) {
+    public init(provider: MoyaProvider<SettlementAPI> = .authorized) {
         self.provider = provider
     }
 
     public func fetchSettlement(travelId: String) async throws -> TravelSettlementDTO {
-        let response: BaseResponse<TravelSettlementDTO> =
-        try await provider.request(.fetchSettlement(travelId: travelId))
+        let response: BaseResponse<TravelSettlementDTO> = try await provider.request(
+            .fetchSettlement(travelId: travelId)
+        )
 
         guard let data = response.data else {
             throw NetworkError.noData
