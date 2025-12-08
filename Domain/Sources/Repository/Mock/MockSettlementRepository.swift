@@ -68,18 +68,14 @@ extension TravelSettlement {
             recommendedSettlements: [
                 Settlement(
                     id: "1",
-                    fromMemberId: "member2",
                     fromMemberName: "김철수",
-                    toMemberId: "member1",
                     toMemberName: "홍길동",
                     amount: 30000,
                     status: .pending
                 ),
                 Settlement(
                     id: "2",
-                    fromMemberId: "member3",
                     fromMemberName: "이영희",
-                    toMemberId: "member1",
                     toMemberName: "홍길동",
                     amount: 20000,
                     status: .pending

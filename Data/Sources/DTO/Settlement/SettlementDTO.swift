@@ -10,29 +10,23 @@ import Domain
 
 public struct SettlementDTO: Codable {
     public let id: String
-    public let fromMemberId: String
-    public let fromMemberName: String
-    public let toMemberId: String
-    public let toMemberName: String
+    public let fromMember: String
+    public let toMember: String
     public let amount: Double
     public let status: String
     public let updatedAt: String?
 
     public init(
         id: String,
-        fromMemberId: String,
-        fromMemberName: String,
-        toMemberId: String,
-        toMemberName: String,
+        fromMember: String,
+        toMember: String,
         amount: Double,
         status: String,
         updatedAt: String?
     ) {
         self.id = id
-        self.fromMemberId = fromMemberId
-        self.fromMemberName = fromMemberName
-        self.toMemberId = toMemberId
-        self.toMemberName = toMemberName
+        self.fromMember = fromMember
+        self.toMember = toMember
         self.amount = amount
         self.status = status
         self.updatedAt = updatedAt
@@ -52,10 +46,8 @@ extension SettlementDTO {
 
         return Settlement(
             id: id,
-            fromMemberId: fromMemberId,
-            fromMemberName: fromMemberName,
-            toMemberId: toMemberId,
-            toMemberName: toMemberName,
+            fromMemberName: fromMember,
+            toMemberName: toMember,
             amount: amount,
             status: settlementStatus,
             updatedAt: updatedDate
