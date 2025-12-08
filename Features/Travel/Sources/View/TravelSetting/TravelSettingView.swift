@@ -45,6 +45,11 @@ public struct TravelSettingView: View {
         ) {
             Button("확인", role: .cancel) { }
         }
+        .dsAlert(
+            store.scope(state: \.alert, action: \.alert),
+            dismissAction: .dismiss
+        )
+        .toastOverlay()
     }
 }
 
@@ -96,29 +101,9 @@ private extension TravelSettingView {
                 }
                 .padding(16)
             }
+            .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)
         }
         .background(.primary50)
-        .navigationBarBackButtonHidden(true)
-        // 여행 나가기 / 삭제 성공 시 dismiss
-        .onChange(of: store.shouldDismiss) { _, newValue in
-            if newValue {
-                dismiss()
-            }
-        }
-        .onAppear {
-            store.send(.onAppear)
-        }
     }
 }
-
-//#Preview {
-//    TravelSettingView(
-//        store: Store(
-//            initialState: TravelSettingFeature.State(travel: travel),
-//            reducer: {
-//                TravelSettingFeature()
-//            }
-//        )
-//    )
-//}

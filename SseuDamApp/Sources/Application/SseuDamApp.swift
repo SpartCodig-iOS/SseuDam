@@ -8,9 +8,9 @@ import Foundation
 @main
 struct SseuDamApp: App {
 
-  @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-  private let store = Store(
+    private let store = Store(
         initialState: AppFeature.State()
     ) {
         AppFeature()
@@ -43,6 +43,7 @@ struct SseuDamApp: App {
         $0.fetchCountriesUseCase = makeFetchCountriesUseCase()
         $0.fetchExchangeRateUseCase = makeFetchExchangeRateUseCase()
         $0.fetchSettlementUseCase = makeFetchSettlementUseCase()
+        $0.versionUseCase = makeVersionUseCase()
     }
 
     var body: some Scene {
@@ -228,6 +229,12 @@ private extension SseuDamApp {
             repository: SettlementRepository(
                 remote: SettlementRemoteDataSource()
             )
+        )
+    }
+
+    static func makeVersionUseCase() -> VersionUseCaseProtocol {
+        VersionUseCase(
+            repository: VersionRepository()
         )
     }
 }

@@ -15,11 +15,16 @@ struct TravelCardView: View {
     private var ddayText: String {
         let today = Calendar.current.startOfDay(for: Date())
         let startDay = Calendar.current.startOfDay(for: travel.startDate)
-        let diff = Calendar.current.dateComponents([.day], from: today, to: startDay).day ?? 0
+        let endDay = Calendar.current.startOfDay(for: travel.endDate)
 
-        if diff > 0 { return "D-\(diff)" }
-        if diff == 0 { return "D-Day" }
-        return "여행중"
+        if today < startDay {
+            let diff = Calendar.current.dateComponents([.day], from: today, to: startDay).day ?? 0
+            return "D-\(diff)"
+        } else if today <= endDay {
+            return "D-Day"
+        } else {
+            return "완료"
+        }
     }
 
     private var dateRangeText: String {
@@ -113,6 +118,7 @@ struct TravelCardView: View {
         role: "owner",
         createdAt: Date(),
         ownerName: "민희",
-        members: []
+        members: [],
+        currencies: ["USD"]
     ))
 }

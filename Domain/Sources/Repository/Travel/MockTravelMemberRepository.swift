@@ -38,7 +38,8 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             role: current.role,
             createdAt: current.createdAt,
             ownerName: current.ownerName,
-            members: updatedMembers
+            members: updatedMembers,
+            currencies: current.currencies
         )
         travels[index] = updated
     }
@@ -75,7 +76,8 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             role: current.role,
             createdAt: current.createdAt,
             ownerName: current.ownerName,
-            members: updatedMembers
+            members: updatedMembers,
+            currencies: current.currencies
         )
         travels[index] = updated
         return updated
@@ -104,7 +106,8 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             role: current.role,
             createdAt: current.createdAt,
             ownerName: newOwnerName,
-            members: current.members
+            members: current.members,
+            currencies: current.currencies
         )
         travels[index] = updated
         return updated
@@ -133,7 +136,8 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
             role: current.role,
             createdAt: current.createdAt,
             ownerName: current.ownerName,
-            members: updatedMembers
+            members: updatedMembers,
+            currencies: current.currencies
         )
         travels[index] = updated
     }
@@ -166,7 +170,8 @@ private extension MockTravelMemberRepository {
                 role: "owner",
                 createdAt: today,
                 ownerName: "김민희",
-                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")]
+                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")],
+                currencies: ["JPY"]
             )
         }
     }

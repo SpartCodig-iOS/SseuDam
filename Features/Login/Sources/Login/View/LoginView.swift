@@ -120,7 +120,8 @@ extension LoginView {
                     circleSize: socialButtonSize,
                     spacing: socialButtonSpacing
                 )
-                .padding(.top, 8)
+                .padding(recentSocial == .apple ? .leading: .leading, recentSocial == .apple ? 8 : 0)
+//                .padding(.top, 8)
             }
         }
     }

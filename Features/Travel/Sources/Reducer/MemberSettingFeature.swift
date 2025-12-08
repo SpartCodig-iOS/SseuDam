@@ -27,6 +27,12 @@ public struct MemberSettingFeature {
             self.members = travel.members
             self.ownerId = travel.members.first(where: { $0.role == "owner" })?.id ?? ""
         }
+
+        mutating func applyUpdatedTravel(_ travel: Travel) {
+            self.travel = travel
+            self.members = travel.members
+            self.ownerId = travel.members.first(where: { $0.role == "owner" })?.id ?? ""
+        }
     }
 
     public enum Action {
@@ -36,7 +42,6 @@ public struct MemberSettingFeature {
         case deleteMemberResponse(Result<Void, Error>)
         case copyDeepLinkTapped
 
-        case updated(Travel)
         case delegate(Delegate)
 
         public enum Delegate: Equatable {
@@ -68,10 +73,7 @@ public struct MemberSettingFeature {
                 state.travel = updated
                 state.members = updated.members
                 state.ownerId = updated.ownerName
-                return .merge(
-                    .send(.updated(updated)),
-                    .send(.delegate(.needRefresh))
-                )
+                return .send(.delegate(.needRefresh))
 
             case .delegateOwnerResponse(.failure(let err)):
                 state.isSubmitting = false
@@ -106,9 +108,6 @@ public struct MemberSettingFeature {
                 state.deletingMemberId = nil
                 return .none
                 
-            case .updated:
-                return .none
-                
             case .copyDeepLinkTapped:
                 // 딥링크 복사 기능
                 if let deepLink = state.travel.deepLink {
@@ -122,9 +121,6 @@ public struct MemberSettingFeature {
 """
                     UIPasteboard.general.string = shareMessage
                 }
-                return .none
-
-            case .updated:
                 return .none
 
             case .delegate:

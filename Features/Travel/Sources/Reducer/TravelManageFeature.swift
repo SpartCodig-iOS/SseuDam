@@ -27,9 +27,11 @@ public struct TravelManageFeature {
 
     public enum Action {
         case leaveTapped
+        case performLeave
         case leaveResponse(Result<Void, Error>)
 
         case deleteTapped
+        case performDelete
         case deleteResponse(Result<Void, Error>)
 
         /// leave/delete 성공 시 상위에서 시트를 닫기 위한 액션
@@ -40,6 +42,8 @@ public struct TravelManageFeature {
 
         public enum Delegate: Equatable {
             case errorOccurred(String)
+            case showLeaveAlert
+            case showDeleteAlert
         }
     }
 
@@ -59,7 +63,9 @@ public struct TravelManageFeature {
                         "관리자는 여행 나가기가 불가능합니다.\n관리자 변경 후 다시 시도해주세요."
                     )))
                 }
+                return .send(.delegate(.showLeaveAlert))
 
+            case .performLeave:
                 state.isSubmitting = true
 
                 return .run { [id = state.travelId] send in
@@ -82,6 +88,9 @@ public struct TravelManageFeature {
                 // MARK: - 여행 삭제
 
             case .deleteTapped:
+                return .send(.delegate(.showDeleteAlert))
+
+            case .performDelete:
                 state.isSubmitting = true
 
                 return .run { [id = state.travelId] send in

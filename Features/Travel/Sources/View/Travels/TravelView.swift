@@ -93,5 +93,6 @@ public struct TravelView: View {
                 )
             }
         }
+        .toastOverlay()
     }
 }
