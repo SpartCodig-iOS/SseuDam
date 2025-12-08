@@ -161,7 +161,9 @@ extension AppFeature {
                url.path == "/kakao",
                let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
                let ticket = components.queryItems?.first(where: { $0.name == "ticket" || $0.name == "code" })?.value {
-                KakaoAuthCodeStore.shared.save(ticket)
+              Task {
+                await  KakaoAuthCodeStore.shared.save(ticket)
+              }
             }
 
             var inviteCode: String?

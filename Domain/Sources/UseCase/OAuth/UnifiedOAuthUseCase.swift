@@ -10,7 +10,6 @@ import Dependencies
 import LogMacro
 import AuthenticationServices
 import ComposableArchitecture
-import Domain
 
 /// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합
 public struct UnifiedOAuthUseCase {

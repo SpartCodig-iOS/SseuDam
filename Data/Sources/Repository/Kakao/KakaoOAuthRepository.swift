@@ -31,13 +31,15 @@ public final class KakaoOAuthRepository: NSObject, KakaoOAuthRepositoryProtocol 
     private let serverRedirectUri = "https://sseudam.up.railway.app/api/v1/oauth/kakao/callback"
     private let appRedirectUri = "sseudam://oauth/kakao"
     private var authSession: ASWebAuthenticationSession?
+    private let presentationContextProvider: ASWebAuthenticationPresentationContextProviding
 
-    public override init() {}
+    public init(presentationContextProvider: ASWebAuthenticationPresentationContextProviding) {
+        self.presentationContextProvider = presentationContextProvider
+    }
 
-    @MainActor
     public func signIn() async throws -> KakaoOAuthPayload {
         // 이전 시도에서 남은 코드를 제거하고 새 플로우 시작
-        KakaoAuthCodeStore.shared.reset()
+      await KakaoAuthCodeStore.shared.reset()
 
         let pkce = try generatePKCE()
         let state = try encodeState(
@@ -59,7 +61,7 @@ public final class KakaoOAuthRepository: NSObject, KakaoOAuthRepositoryProtocol 
 
         // 카카오톡 설치 시: 톡 앱으로만 진행(웹 세션 표시 없음), 딥링크(ticket/code)는 KakaoAuthCodeStore에서 기다림
         if let talkURL = talkAuthorizeURL(from: authorizeURL) {
-            UIApplication.shared.open(talkURL, options: [:], completionHandler: nil)
+          await UIApplication.shared.open(talkURL, options: [:], completionHandler: nil)
             let ticket = try await KakaoAuthCodeStore.shared.waitForCode()
             return KakaoOAuthPayload(
                 idToken: "",
@@ -133,13 +135,11 @@ private extension KakaoOAuthRepository {
         return UIApplication.shared.canOpenURL(talkURL) ? talkURL : nil
     }
 
-    @MainActor
     func startAuthSession(
         with url: URL,
         callbackScheme: String?
     ) async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
-            let provider = PresentationContextProvider()
             let session = ASWebAuthenticationSession(
                 url: url,
                 callbackURLScheme: callbackScheme
@@ -179,7 +179,7 @@ private extension KakaoOAuthRepository {
 
                 continuation.resume(returning: ticket)
             }
-            session.presentationContextProvider = provider
+            session.presentationContextProvider = presentationContextProvider
             // iCloud Private Relay 등 환경에서도 세션이 유지되도록 무조건 사파리 세션을 에페메럴로 사용
             session.prefersEphemeralWebBrowserSession = true
             self.authSession = session
@@ -207,14 +207,3 @@ private extension KakaoOAuthRepository {
 }
 
 // MARK: - Helpers
-private final class PresentationContextProvider: NSObject, ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        // 가장 앞선 윈도우를 anchor로 사용
-        return UIApplication.shared.connectedScenes
-            .compactMap { scene -> UIWindow? in
-                guard let windowScene = scene as? UIWindowScene else { return nil }
-                return windowScene.windows.first(where: { $0.isKeyWindow })
-            }
-            .first ?? ASPresentationAnchor()
-    }
-}

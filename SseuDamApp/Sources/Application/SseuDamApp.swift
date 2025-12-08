@@ -10,7 +10,7 @@ struct SseuDamApp: App {
 
   @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-    private let store = Store(
+  private let store = Store(
         initialState: AppFeature.State()
     ) {
         AppFeature()
@@ -51,12 +51,7 @@ struct SseuDamApp: App {
             )
             .onOpenURL { url in
                 // Kakao 딥링크(ticket/code) 저장
-                if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-                   components.host == "oauth",
-                   components.path == "/kakao",
-                   let ticket = components.queryItems?.first(where: { $0.name == "ticket" || $0.name == "code" })?.value {
-                    KakaoAuthCodeStore.shared.save(ticket)
-                }
+                handleKakaoTicket(from: url)
                 store.send(.view(.handleDeepLink(url.absoluteString)))
             }
             .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { userActivity in
@@ -68,24 +63,6 @@ struct SseuDamApp: App {
     }
 }
 
-private final class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(
-    _ app: UIApplication,
-    open url: URL,
-    options: [UIApplication.OpenURLOptionsKey : Any] = [:]
-  ) -> Bool {
-    return false
-  }
-
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
-  ) -> Bool {
-    return true
-  }
-}
-
-
 private extension SseuDamApp {
     static func makeLoginUseCase() -> LoginUseCaseProtocol {
         LoginUseCase(repository: LoginRepository())
@@ -96,7 +73,7 @@ private extension SseuDamApp {
             repository: OAuthRepository(),
             googleRepository: GoogleOAuthRepository(),
             appleRepository: AppleOAuthRepository(),
-            kakaoRepository: KakaoOAuthRepository()
+            kakaoRepository: KakaoOAuthRepository(presentationContextProvider: AppPresentationContextProvider())
         )
     }
 
