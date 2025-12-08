@@ -5,12 +5,10 @@ let project = Project.makeFeature(
     name: .Travel,
     dependencies: [
         .Domain,
-        .DesignSystem,
-        .Features.Profile
+        .DesignSystem
     ],
     demoDependencies: [
-        .Data,
-        .NetworkService
+        .Data
     ],
     hasTests: true
 )

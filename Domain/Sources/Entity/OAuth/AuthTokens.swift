@@ -27,3 +27,9 @@ public struct AuthTokens: Equatable, Hashable {
     }
 }
 
+public extension AuthTokens {
+    /// Kakao처럼 accessToken이 비어있을 때 authToken(혹은 authorizationCode)을 대신 사용하기 위한 헬퍼
+    var authCodeTokenFallback: String {
+        return accessToken.isEmpty ? authToken : accessToken
+    }
+}

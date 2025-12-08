@@ -12,5 +12,10 @@ public struct AuthData: Hashable {
     let accessToken: String
     let authToken: String
     let displayName: String?
-    let authorizationCode: String
+    let authorizationCode: String?
+    let codeVerifier: String?
+    let redirectUri: String?
+    let refreshToken: String?
+    let sessionID: String?
+    let userId: String?
 }
