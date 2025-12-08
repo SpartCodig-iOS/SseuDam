@@ -127,20 +127,16 @@ extension AppFeature {
     ) -> Effect<Action> {
         switch action {
         case .presentLogin:
-            return .concatenate(
-                .merge(
-                    .cancel(id: CancelID.transitionToLogin),
-                    .cancel(id: CancelID.transitionToMain)
-                ),
+            return .merge(
+                .cancel(id: CancelID.transitionToLogin),
+                .cancel(id: CancelID.transitionToMain),
                 .send(.inner(.setLoginState))
             )
 
         case .presentMain:
-            return .concatenate(
-                .merge(
-                    .cancel(id: CancelID.transitionToLogin),
-                    .cancel(id: CancelID.transitionToMain)
-                ),
+            return .merge(
+                .cancel(id: CancelID.transitionToLogin),
+                .cancel(id: CancelID.transitionToMain),
                 .send(.inner(.setMainState))
             )
 
