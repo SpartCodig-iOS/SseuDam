@@ -1,5 +1,5 @@
 //
-//  BalanceEntryDTO.swift
+//  MemberBalanceDTO.swift
 //  Data
 //
 //  Created by 홍석현 on 12/4/25.
@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-public struct BalanceEntryDTO: Codable {
+public struct MemberBalanceDTO: Codable {
     public let memberId: String
     public let name: String
     public let balance: Double
@@ -24,9 +24,9 @@ public struct BalanceEntryDTO: Codable {
     }
 }
 
-extension BalanceEntryDTO {
-    func toDomain() -> BalanceEntry {
-        return BalanceEntry(
+extension MemberBalanceDTO {
+    func toDomain() -> MemberBalance {
+        return MemberBalance(
             id: memberId,
             memberId: memberId,
             name: name,

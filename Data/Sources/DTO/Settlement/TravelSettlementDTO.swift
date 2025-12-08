@@ -9,14 +9,14 @@ import Foundation
 import Domain
 
 public struct TravelSettlementDTO: Codable {
-    public let balances: [BalanceEntryDTO]
-    public let savedSettlements: [SettlementEntryDTO]
-    public let recommendedSettlements: [SettlementEntryDTO]
+    public let balances: [MemberBalanceDTO]
+    public let savedSettlements: [SettlementDTO]
+    public let recommendedSettlements: [SettlementDTO]
 
     public init(
-        balances: [BalanceEntryDTO],
-        savedSettlements: [SettlementEntryDTO],
-        recommendedSettlements: [SettlementEntryDTO]
+        balances: [MemberBalanceDTO],
+        savedSettlements: [SettlementDTO],
+        recommendedSettlements: [SettlementDTO]
     ) {
         self.balances = balances
         self.savedSettlements = savedSettlements

@@ -1,5 +1,5 @@
 //
-//  SettlementEntryDTO.swift
+//  SettlementDTO.swift
 //  Data
 //
 //  Created by 홍석현 on 12/4/25.
@@ -8,7 +8,7 @@
 import Foundation
 import Domain
 
-public struct SettlementEntryDTO: Codable {
+public struct SettlementDTO: Codable {
     public let id: String
     public let fromMemberId: String
     public let fromMemberName: String
@@ -39,8 +39,8 @@ public struct SettlementEntryDTO: Codable {
     }
 }
 
-extension SettlementEntryDTO {
-    func toDomain() -> SettlementEntry {
+extension SettlementDTO {
+    func toDomain() -> Settlement {
         let settlementStatus = SettlementStatus(rawValue: status) ?? .pending
 
         let updatedDate: Date? = {
@@ -50,7 +50,7 @@ extension SettlementEntryDTO {
             return formatter.date(from: updatedAt)
         }()
 
-        return SettlementEntry(
+        return Settlement(
             id: id,
             fromMemberId: fromMemberId,
             fromMemberName: fromMemberName,
