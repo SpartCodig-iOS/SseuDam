@@ -28,6 +28,7 @@ public struct CategorySelector: View {
                 InputContainer {
                     HStack {
                         Text(selectedCategory?.displayName ?? "카테고리 선택")
+                            .font(.app(.body, weight: .medium))
                             .foregroundStyle(selectedCategory == nil ? Color.gray : Color.black)
                         
                         Spacer()

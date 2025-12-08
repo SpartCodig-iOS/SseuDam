@@ -91,8 +91,8 @@ private struct ParticipantRowView: View {
                         .frame(width: 40, height: 40)
                     
                     Text(participant.name)
-                        .foregroundStyle(Color.primary800)
-                        .font(.system(size: 16))
+                        .foregroundStyle(Color.black)
+                        .font(.app(.body, weight: .medium))
                     
                     Spacer()
 
