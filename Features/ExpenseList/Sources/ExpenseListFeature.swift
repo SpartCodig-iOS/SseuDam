@@ -25,7 +25,7 @@ public struct ExpenseListFeature {
         public let travelId: String
         public var travel: Travel? = nil
         public var isLoading: Bool = false
-
+        @Presents public var alert: AlertState<Action.AlertAction>?
         public var totalAmount: Int {
             Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
         }
@@ -46,6 +46,7 @@ public struct ExpenseListFeature {
         case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
+        case scope(ScopeAction)
         case delegate(DelegateAction)
 
         @CasePathable
@@ -70,6 +71,16 @@ public struct ExpenseListFeature {
             case onTapAddExpense
             case onTapExpense(Expense)
         }
+        
+        @CasePathable
+        public enum ScopeAction {
+            case alert(PresentationAction<AlertAction>)
+        }
+        
+        @CasePathable
+        public enum AlertAction {
+            case confirmTapped
+        }
     }
 
     public var body: some ReducerOf<Self> {
@@ -83,6 +94,8 @@ public struct ExpenseListFeature {
                 return handleInnerAction(state: &state, action: innerAction)
             case .async(let asyncAction):
                 return handleAsyncAction(state: &state, action: asyncAction)
+            case .scope:
+                return .none
             case .delegate:
                 return .none
             case .binding(\.selectedDate):
@@ -93,6 +106,7 @@ public struct ExpenseListFeature {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.scope.alert)
     }
 }
 
@@ -123,8 +137,16 @@ extension ExpenseListFeature {
             return .none
 
         case let .expensesResponse(.failure(error)):
-            print("Failed to fetch expenses: \(error)")
             state.isLoading = false
+            state.alert = AlertState {
+                TextState("오류")
+            } actions: {
+                ButtonState(action: .confirmTapped) {
+                    TextState("확인")
+                }
+            } message: {
+                TextState("지출 정보를 불러오는데 실패했습니다.\n\(error.localizedDescription)")
+            }
             return .none
         }
     }
