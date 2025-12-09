@@ -52,6 +52,9 @@ public struct TravelView: View {
                                 }
                             }
                             .padding(16)
+                        } 
+                        .refreshable {
+                            store.send(.refresh)  
                         }
                     }
                 }
@@ -60,9 +63,6 @@ public struct TravelView: View {
         .task {
           store.send(.onAppear)
         }
-//        .onAppear {
-//            store.send(.onAppear)
-//        }
         .overlay(alignment: .bottomTrailing) {
             if !store.isLoading {
                 ZStack(alignment: .bottomTrailing) {
