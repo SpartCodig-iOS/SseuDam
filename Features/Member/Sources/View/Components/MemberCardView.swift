@@ -8,8 +8,11 @@
 import Foundation
 import SwiftUI
 import DesignSystem
+import Domain
 
 struct MemberCardView: View {
+    let member: TravelMember
+
     var body: some View {
         ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 8)
@@ -18,7 +21,6 @@ struct MemberCardView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray2, lineWidth: 1)
                 )
-                .shadow(color: Color.black.opacity(0.06), radius: 4, x: -4, y: 0)
 
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.appWhite)
@@ -42,54 +44,51 @@ struct MemberCardView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         HStack(spacing: 4) {
-                            Text("이영희")
+                            Text(member.name)
                                 .font(.app(.body, weight: .medium))
                                 .foregroundStyle(Color.appBlack)
 
-                            Text("참여자")
+                            Text(member.role.rawValue)
                                 .font(.app(.caption2, weight: .medium))
-                                .foregroundStyle(Color.gray7)
+                                .foregroundColor(Color.gray7)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 4)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(Color.gray2, lineWidth: 1)
                                 )
+
+                            Spacer()
+
+                            Button {
+                                print("삭제")
+                            } label: {
+                                Image(assetName: "trash")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 20)
+                                    .foregroundStyle(Color.gray6)
+                            }
                         }
 
-                        Text("yh@example.com")
+                        Text(member.email ?? "")
                             .font(.app(.body, weight: .medium))
                             .tint(Color.gray6)
                     }
                 }
 
                 HStack(spacing: 4) {
-                    Spacer()
-
                     Button {
                         print("관리자 지정")
                     } label: {
                         Text("관리자 지정")
                             .font(.app(.caption1, weight: .medium))
                             .foregroundStyle(Color.gray7)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color.primary100)
-                            )
-                    }
-
-                    Button {
-                        print("삭제")
-                    } label: {
-                        Text("삭제")
-                            .font(.app(.caption1, weight: .medium))
-                            .foregroundStyle(Color.error)
-                            .padding(8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.error.opacity(0.2))
                             )
                     }
                 }
@@ -101,6 +100,3 @@ struct MemberCardView: View {
     }
 }
 
-#Preview {
-    MemberCardView()
-}

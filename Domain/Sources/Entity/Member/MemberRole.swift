@@ -8,6 +8,6 @@
 import Foundation
 
 public enum MemberRole: String, Equatable, Hashable, Decodable {
-    case owner
-    case member
+    case owner = "관리자"
+    case member = "참여자"
 }

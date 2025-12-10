@@ -8,11 +8,16 @@
 
 import SwiftUI
 import DesignSystem
+import ComposableArchitecture
+import Domain
 
 public struct MemberView: View {
     @Environment(\.dismiss) private var dismiss
+    @Bindable var store: StoreOf<MemberManageFeature>
 
-    public init() {}
+    public init(store: StoreOf<MemberManageFeature>) {
+        self.store = store
+    }
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -37,13 +42,13 @@ public struct MemberView: View {
             .padding(.vertical, 20)
 
             ScrollView {
-                VStack(spacing: 35) {
+                VStack(spacing: 32) {
                     MyCardView()
 
                     VStack(spacing: 8) {
-                        MemberCardView()
-
-                        MemberCardView()
+                        ForEach(store.members, id: \.id) { member in
+                            MemberCardView(member: member)
+                        }
                     }
                 }
                 .padding(16)
@@ -54,7 +59,19 @@ public struct MemberView: View {
 }
 
 #Preview {
-    NavigationView {
-        MemberView()
-    }
+    MemberView(
+        store: Store(
+            initialState: MemberManageFeature.State(
+                members: [
+                    TravelMember(
+                        id: "",
+                        name: "김민희",
+                        role: .owner,
+                        email: "123@example.com"
+                    )
+                ]
+            ),
+            reducer: { MemberManageFeature() }
+        )
+    )
 }

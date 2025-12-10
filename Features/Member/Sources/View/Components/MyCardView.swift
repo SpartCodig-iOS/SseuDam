@@ -18,7 +18,6 @@ struct MyCardView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.primary100, lineWidth: 1)
                 )
-                .shadow(color: Color.black.opacity(0.06), radius: 4, x: -4, y: 0)
 
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.appWhite)
@@ -33,10 +32,10 @@ struct MyCardView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(height: 40)
-                    .foregroundStyle(Color.primary500)
+                    .foregroundStyle(Color.gray3)
                     .background(
                         Circle()
-                            .fill(Color.primary50)
+                            .fill(Color.gray1)
                     )
 
                 VStack(alignment: .leading, spacing: 4) {
