@@ -17,9 +17,9 @@ public enum ExpenseEditType {
     
     public var displayName: String {
         switch self {
-        case .create: "생성"
-        case .edit: "수정"
-        case .delete: "삭제"
+        case .create: "생성이"
+        case .edit: "수정이"
+        case .delete: "삭제가"
         }
     }
 }
