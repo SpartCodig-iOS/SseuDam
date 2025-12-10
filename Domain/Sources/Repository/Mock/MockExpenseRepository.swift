@@ -36,9 +36,7 @@ final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
     }
     
     nonisolated public func fetchTravelExpenses(
-        travelId: String,
-        page: Int,
-        limit: Int
+        travelId: String
     ) -> AsyncStream<Result<[Expense], any Error>> {
         AsyncStream { continuation in
             Task {

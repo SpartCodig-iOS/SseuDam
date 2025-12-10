@@ -22,9 +22,7 @@ public final class ExpenseRepository: ExpenseRepositoryProtocol {
     }
     
     public func fetchTravelExpenses(
-        travelId: String,
-        page: Int,
-        limit: Int
+        travelId: String
     ) -> AsyncStream<Result<[Expense], Error>> {
         AsyncStream { continuation in
             Task {
@@ -36,17 +34,15 @@ public final class ExpenseRepository: ExpenseRepositoryProtocol {
                 
                 // 2. 네트워크
                 do {
-                    let responseDTO = try await remote.fetchTravelExpenses(
-                        travelId: travelId,
-                        page: page,
-                        limit: limit
+                    let expensesDTO = try await remote.fetchTravelExpenses(
+                        travelId: travelId
                     )
-                    let expenses = responseDTO.items.compactMap { $0.toDomain() }
+                    let expenses = expensesDTO.compactMap { $0.toDomain() }
                     
                     Task.detached { [weak self] in
                         let cache = ExpenseCache(
                             travelId: travelId,
-                            expenses: responseDTO.items
+                            expenses: expensesDTO
                         )
                         
                         try? await self?.local.saveCachedExpenses(cache)
