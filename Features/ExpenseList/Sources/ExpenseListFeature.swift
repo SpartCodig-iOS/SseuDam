@@ -169,18 +169,17 @@ extension ExpenseListFeature {
                 state.isLoading = true
             }
             return .run { send in
-                // 전체 지출 내역 조회 (date: nil로 전체 조회)
-                let expensesResult = await Result {
-                    try await fetchTravelExpenseUseCase.execute(travelId: travelId, date: nil)
+                // AsyncStream을 순회하며 결과 처리
+                for await result in fetchTravelExpenseUseCase.execute(travelId: travelId, date: nil) {
+                    await send(.inner(.expensesResponse(result)))
                 }
-
-                await send(.inner(.expensesResponse(expensesResult)))
             }
         }
     }
 
     // MARK: - Helper Methods
-    private func filterExpensesByDate(_ state: inout State, date: Date) {
+    private func filterExpensesByDate(_ state: inout State, date: Date?) {
+        guard let date = date else { return }
         let calendar = Calendar.current
         state.currentExpense = state.allExpenses.filter { expense in
             calendar.isDate(expense.expenseDate, inSameDayAs: date)
