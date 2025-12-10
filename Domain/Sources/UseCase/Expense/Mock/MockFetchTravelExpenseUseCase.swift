@@ -10,7 +10,11 @@ import Foundation
 public struct MockFetchTravelExpenseUseCase: FetchTravelExpenseUseCaseProtocol {
     public init() {}
 
-    public func execute(travelId: String, date: Date?) async throws -> [Expense] {
-        return Expense.mockList
+    public func execute(travelId: String, date: Date?) -> AsyncStream<Result<[Expense], any Error>> {
+        AsyncStream { continuation in
+            // Mock 데이터를 즉시 emit
+            continuation.yield(.success(Expense.mockList))
+            continuation.finish()
+        }
     }
 }

@@ -3,7 +3,7 @@ import ProjectDescription
 // MARK: - Project Environment
 public enum Environment {
     // MARK: - App Configuration
-    public static let appName = "쓰담"
+    public static let appName = "Sseudam"
     public static let organizationName = "io.sseudam.co"
     public static let deploymentTarget: DeploymentTargets = .iOS("17.0")
     public static let organizationTeamId = "N94CS4N6VR"

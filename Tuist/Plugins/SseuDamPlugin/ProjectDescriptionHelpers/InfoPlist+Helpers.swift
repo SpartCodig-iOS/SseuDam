@@ -43,13 +43,14 @@ public extension InfoPlist {
           .string("UIInterfaceOrientationPortrait")
         ]),
         "UIUserInterfaceStyle": .string("Light"),
-        "CFBundleShortVersionString": .string("1.0.0"),
+        "CFBundleShortVersionString": .string("1.0.1"),
         "ITSAppUsesNonExemptEncryption": .boolean(false),
-        "CFBundleVersion": .string("7"),
+        "CFBundleVersion": .string("14"),
         "LSApplicationQueriesSchemes": .array([
               .string("kakaokompassauth"), // 카카오톡 로그인
               .string("kakaolink"),        // 카카오톡 공유
             ]),
+        "CFBundleName": .string("쓰담")
 
 
       ])

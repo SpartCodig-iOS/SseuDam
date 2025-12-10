@@ -152,11 +152,6 @@ extension SettlementFeature {
                 $0 = travel
             }
 
-            // Pass data to children
-            state.expenseList.startDate = travel.startDate
-            state.expenseList.endDate = travel.endDate
-            state.expenseList.selectedDate = travel.startDate // Initialize selectedDate
-
             return .none
 
         case let .travelDetailResponse(.failure(error)):
