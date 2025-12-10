@@ -91,7 +91,7 @@ public struct TravelSettingFeature {
                 state.memberSetting = MemberSettingFeature.State(travel: travel)
                 state.manage = TravelManageFeature.State(
                     travelId: travel.id,
-                    isOwner: travel.members.first(where: { $0.role == "owner" })?.id
+                    isOwner: travel.members.first(where: { $0.role == .owner })?.id
                     == travel.members.first?.id
                 )
 

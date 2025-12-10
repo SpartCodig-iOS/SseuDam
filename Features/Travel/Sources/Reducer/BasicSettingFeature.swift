@@ -77,7 +77,7 @@ public struct BasicSettingFeature {
 
         var isOwner: Bool {
             guard let myId = travel.members.first?.id else { return false }
-            let ownerId = travel.members.first(where: { $0.role == "owner" })?.id
+            let ownerId = travel.members.first(where: { $0.role == .owner })?.id
             return ownerId == myId
         }
     }

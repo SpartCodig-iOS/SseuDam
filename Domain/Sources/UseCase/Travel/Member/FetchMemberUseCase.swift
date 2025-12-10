@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchMemberUseCaseProtocol {
-    func execute(travelId: String) async throw -> [TravelMember]
+    func execute(travelId: String) async throws -> [TravelMember]
 }
 
 public struct FetchMemberUseCase: FetchMemberUseCaseProtocol {
