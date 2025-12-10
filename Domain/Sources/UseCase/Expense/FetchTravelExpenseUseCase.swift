@@ -26,9 +26,7 @@ public struct FetchTravelExpenseUseCase: FetchTravelExpenseUseCaseProtocol {
         AsyncStream { continuation in
             Task {
                 for await result in repository.fetchTravelExpenses(
-                    travelId: travelId,
-                    page: 1,
-                    limit: 1000
+                    travelId: travelId
                 ) {
                     // 날짜 필터링 적용
                     let filteredResult = result.map { expenses in

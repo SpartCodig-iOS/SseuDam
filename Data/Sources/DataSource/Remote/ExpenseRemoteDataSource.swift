@@ -11,7 +11,7 @@ import Moya
 import NetworkService
 
 public protocol ExpenseRemoteDataSourceProtocol {
-    func fetchTravelExpenses(travelId: String, page: Int, limit: Int) async throws -> TravelExpenseResponseDTO
+    func fetchTravelExpenses(travelId: String) async throws -> [ExpenseDTO]
     func createExpense(travelId: String, body: CreateExpenseRequestDTO) async throws
     func updateExpense(travelId: String, expenseId: String, body: UpdateExpenseRequestDTO) async throws
     func deleteExpense(travelId: String, expenseId: String) async throws
@@ -26,12 +26,10 @@ public struct ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
     }
 
     public func fetchTravelExpenses(
-        travelId: String,
-        page: Int,
-        limit: Int
-    ) async throws -> TravelExpenseResponseDTO {
-        let response: BaseResponse<TravelExpenseResponseDTO> =
-        try await provider.request(.fetchTravelExpenses(travelId: travelId, page: page, limit: limit))
+        travelId: String
+    ) async throws -> [ExpenseDTO] {
+        let response: BaseResponse<[ExpenseDTO]> =
+        try await provider.request(.fetchTravelExpenses(travelId: travelId))
 
         guard let data = response.data else {
             throw NetworkError.noData
@@ -55,7 +53,7 @@ public struct ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
 
 // MARK: - ExpenseAPI
 public enum ExpenseAPI {
-    case fetchTravelExpenses(travelId: String, page: Int, limit: Int)
+    case fetchTravelExpenses(travelId: String)
     case createExpense(travelId: String, body: CreateExpenseRequestDTO)
     case updateExpense(travelId: String, expenseId: String, body: UpdateExpenseRequestDTO)
     case deleteExpense(travelId: String, expenseId: String)
@@ -71,7 +69,7 @@ extension ExpenseAPI: BaseTargetType {
 
     public var urlPath: String {
         switch self {
-        case .fetchTravelExpenses(let travelId, _, _):
+        case .fetchTravelExpenses(let travelId):
             return "/\(travelId)/expenses"
         case .createExpense(let travelId, _):
             return "/\(travelId)/expenses"
@@ -93,11 +91,8 @@ extension ExpenseAPI: BaseTargetType {
 
     public var parameters: [String: Any]? {
         switch self {
-        case .fetchTravelExpenses(_, let page, let limit):
-            return [
-                "page": page,
-                "limit": limit
-            ]
+        case .fetchTravelExpenses:
+            return nil
         case .createExpense(_, let body):
             return body.toDictionary
         case .updateExpense(_, _, let body):

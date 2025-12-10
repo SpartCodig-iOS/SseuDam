@@ -9,7 +9,7 @@ import Foundation
 
 public struct ExpenseCache: Codable {
     let travelId: String
-    let expenses: [TravelExpenseResponseDTO.ExpenseDTO]
+    let expenses: [ExpenseDTO]
     let cachedAt: Date
     let expiredAt: Date
     
@@ -19,7 +19,7 @@ public struct ExpenseCache: Codable {
     
     init(
         travelId: String,
-        expenses: [TravelExpenseResponseDTO.ExpenseDTO],
+        expenses: [ExpenseDTO],
     ) {
         self.travelId = travelId
         self.expenses = expenses
