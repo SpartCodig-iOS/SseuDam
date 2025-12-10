@@ -54,7 +54,7 @@ public struct SettlementView: View {
         }
         .background(Color.primary50)
         .navigationBarBackButtonHidden(true)
-        .task(id: store.travelId) {
+        .task {
             send(.onAppear)
         }
     }
