@@ -21,7 +21,7 @@ public struct ExpenseRemoteDataSource: ExpenseRemoteDataSourceProtocol {
 
     private let provider: MoyaProvider<ExpenseAPI>
 
-    public init(provider: MoyaProvider<ExpenseAPI> = MoyaProvider<ExpenseAPI>()) {
+    public init(provider: MoyaProvider<ExpenseAPI> = .default) {
         self.provider = provider
     }
 
@@ -75,7 +75,7 @@ extension ExpenseAPI: BaseTargetType {
             return "/\(travelId)/expenses"
         case .createExpense(let travelId, _):
             return "/\(travelId)/expenses"
-        case .updateExpense(let travelId, let expenseId, let _):
+        case .updateExpense(let travelId, let expenseId, _):
             return "/\(travelId)/expenses/\(expenseId)"
         case .deleteExpense(let travelId, let expenseId):
             return "/\(travelId)/expenses/\(expenseId)"
