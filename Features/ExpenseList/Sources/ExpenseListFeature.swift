@@ -20,9 +20,20 @@ public struct ExpenseListFeature {
         @Shared public var travel: Travel?
         @Shared public var allExpenses: [Expense]
         public var currentExpense: [Expense] = []
-        public var startDate: Date = Date()
-        public var endDate: Date = Date()
-        public var selectedDate: Date = Date()
+        public var startDate: Date {
+            return travel?.startDate ?? Date()
+        }
+        public var endDate: Date {
+            return travel?.endDate ?? Date()
+        }
+        var _selectedDate: Date? = nil
+        public var selectedDate: Date {
+            get {
+                return _selectedDate ?? startDate
+            } set {
+                _selectedDate = newValue
+            }
+        }
         public let travelId: String
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
