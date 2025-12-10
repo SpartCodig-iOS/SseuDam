@@ -67,7 +67,10 @@ public enum LiveDependencies {
         // Country & Exchange
         dependencies.fetchCountriesUseCase = FetchCountriesUseCase(repository: countryRepository)
         dependencies.fetchExchangeRateUseCase = FetchExchangeRateUseCase(repository: exchangeRateRepository)
+
+        // Settlement
         dependencies.fetchSettlementUseCase = FetchSettlementUseCase(repository: settlementRepository)
+        dependencies.calculateSettlementUseCase = CalculateSettlementUseCase()
     }
     
     // MARK: - Factory Methods
