@@ -14,7 +14,10 @@ public enum LiveDependencies {
     public static func register(_ dependencies: inout DependencyValues) {
         // Repository 인스턴스 생성 (재사용)
         let travelRepository = TravelRepository(remote: TravelRemoteDataSource())
-        let expenseRepository = ExpenseRepository(remote: ExpenseRemoteDataSource())
+        let expenseRepository = ExpenseRepository(
+            remote: ExpenseRemoteDataSource(),
+            local: ExpenseLocalDataSource()
+        )
         let travelMemberRepository = TravelMemberRepository(remote: TravelMemberRemoteDataSource())
         let loginRepository = LoginRepository()
         let signUpRepository = SignUpRepository()
