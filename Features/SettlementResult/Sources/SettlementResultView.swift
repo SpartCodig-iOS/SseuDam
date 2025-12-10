@@ -35,18 +35,18 @@ public struct SettlementResultView: View {
                                 totalAmount: store.paymentsToMake.reduce(0) { $0 + $1.amount },
                                 amountColor: .red,
                                 payments: store.paymentsToMake.map {
-                                    PaymentItem(id: $0.id, name: $0.toMemberName, amount: Int($0.amount))
+                                    PaymentItem(id: $0.id, name: $0.memberName, amount: Int($0.amount))
                                 }
                             )
                         }
-                        
+
                         if !store.paymentsToReceive.isEmpty {
                             PaymentSectionView(
                                 title: "수령 예정 금액",
                                 totalAmount: store.paymentsToReceive.reduce(0) { $0 + $1.amount },
                                 amountColor: .primary500,
                                 payments: store.paymentsToReceive.map {
-                                    PaymentItem(id: $0.id, name: $0.fromMemberName, amount: Int($0.amount))
+                                    PaymentItem(id: $0.id, name: $0.memberName, amount: Int($0.amount))
                                 }
                             )
                         }
@@ -64,12 +64,6 @@ public struct SettlementResultView: View {
             }
         }
         .padding(.horizontal, 16)
-        .overlay(content: {
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        })
         .background(Color.primary50)
         .scrollIndicators(.hidden)
         .onAppear {
