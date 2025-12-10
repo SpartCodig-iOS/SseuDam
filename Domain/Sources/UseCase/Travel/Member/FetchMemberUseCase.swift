@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol FetchMemberUseCaseProtocol {
-    func execute(travelId: String) async throws -> [TravelMember]
+    func execute(travelId: String) async throws -> MyTravelMember
 }
 
 public struct FetchMemberUseCase: FetchMemberUseCaseProtocol {
@@ -18,7 +18,7 @@ public struct FetchMemberUseCase: FetchMemberUseCaseProtocol {
         self.repository = repository
     }
     
-    public func execute(travelId: String) async throws -> [TravelMember] {
+    public func execute(travelId: String) async throws -> MyTravelMember {
         try await repository.fetchMember(travelId: travelId)
     }
 }

@@ -142,13 +142,27 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
         travels[index] = updated
     }
 
-    public func fetchMember(travelId: String) async throws -> [TravelMember] {
+    public func fetchMember(travelId: String) async throws -> MyTravelMember {
         guard let travel = travels.first(where: { $0.id == travelId }) else {
-                throw NSError(domain: "Mock", code: 404, userInfo: [
-                    NSLocalizedDescriptionKey: "Travel not found"
-                ])
-            }
-            return travel.members
+            throw NSError(
+                domain: "Mock",
+                code: 404,
+                userInfo: [NSLocalizedDescriptionKey: "Travel not found"]
+            )
+        }
+
+        let myInfo = TravelMember(
+            id: "MOCK_OWNER",
+            name: travel.ownerName,
+            role: .owner
+        )
+
+        let memberInfo = travel.members.filter { $0.id != myInfo.id }
+
+        return MyTravelMember(
+            myInfo: myInfo,
+            memberInfo: memberInfo
+        )
     }
 }
 

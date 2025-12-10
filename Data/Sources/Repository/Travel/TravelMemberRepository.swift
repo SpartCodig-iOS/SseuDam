@@ -48,8 +48,8 @@ public final class TravelMemberRepository: TravelMemberRepositoryProtocol {
 
     public func fetchMember(
         travelId: String
-    ) async throws -> [TravelMember] {
+    ) async throws -> MyTravelMember {
         let response = try await remote.fetchMember(travelId: travelId)
-        return response.map { $0.toDomain() }
+        return response.toDomain()
     }
 }
