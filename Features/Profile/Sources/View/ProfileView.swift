@@ -10,6 +10,7 @@ import SwiftUI
 import DesignSystem
 import ComposableArchitecture
 import PhotosUI
+import Domain
 
 public struct ProfileView: View {
     @Bindable var store: StoreOf<ProfileFeature>
@@ -108,9 +109,16 @@ extension ProfileView {
             Spacer()
                 .frame(height: 5)
 
+          HStack(spacing: .zero) {
+            socialImage(social: store.profile?.provider ?? .none)
+
+            Spacer()
+              .frame(width: 4)
+
             Text(store.profile?.email ?? "")
                 .font(.app(.body, weight: .medium))
                 .foregroundStyle(.gray6)
+          }
 
             Spacer()
                 .frame(height: 24)
@@ -123,9 +131,53 @@ extension ProfileView {
         .padding(.horizontal, 16)
     }
 
+  @ViewBuilder
+  fileprivate func socialImage(
+    social: SocialType
+  ) -> some View {
+    switch social {
+      case .apple:
+        Circle()
+          .fill(.appBlack)
+          .frame(width: 16, height: 16)
+          .overlay {
+            Image(systemName: social.image)
+              .resizable()
+              .scaledToFit()
+              .frame(width: 7, height: 11)
+              .foregroundStyle(.appWhite)
+          }
+      case .google:
+        Circle()
+          .fill(.appWhite)
+          .overlay(Circle().stroke(.gray2, lineWidth: 1))
+          .frame(width: 16, height: 16)
+          .overlay {
+            Image(assetName: social.image)
+              .resizable()
+              .scaledToFit()
+              .frame(width: 7, height: 11)
+          }
+
+      case .kakao:
+        Circle()
+          .fill(.clear)
+          .frame(width: 16, height: 16)
+          .overlay {
+            Image(assetName: social.image)
+              .resizable()
+              .scaledToFit()
+              .frame(width: 16, height: 16)
+          }
+
+      case .none:
+        EmptyView()
+    }
+  }
+
     @ViewBuilder
     fileprivate func termsSection() -> some View {
-        VStack(alignment: .leading) {
+      VStack(alignment: .leading, spacing: .zero) {
             Spacer()
                 .frame(height: 24)
 
@@ -170,7 +222,6 @@ extension ProfileView {
             .padding(.horizontal, 16)
             .background(.white)
             .cornerRadius(8)
-            .shadow(color: .shadow ,radius: 5, x: 2, y: 2)
         }
         .padding(.horizontal, 16)
     }
@@ -222,7 +273,6 @@ extension ProfileView {
           .padding(.horizontal, 16)
           .background(.white)
           .cornerRadius(8)
-          .shadow(color: .shadow ,radius: 5, x: 2, y: 2)
       }
       .padding(.horizontal, 16)
   }
