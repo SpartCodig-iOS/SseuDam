@@ -11,4 +11,5 @@ public struct SignUpUserRequestDTO: Encodable {
     let authorizationCode: String?
     let codeVerifier: String?
     let redirectUri: String?
+    let deviceToken: String?
 }
