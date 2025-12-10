@@ -14,6 +14,7 @@ public protocol TravelMemberRemoteDataSourceProtocol {
     func joinTravel(_ body: JoinTravelRequestDTO) async throws -> TravelDTO
     func delegateOwner(travelId: String, body: DelegateOwnerRequestDTO) async throws -> TravelDTO
     func leaveTravel(travelId: String) async throws
+    func fetchMember(travelId: String) async throws -> [FetchMemberResponseDTO]
 }
 
 public final class TravelMemberRemoteDataSource: TravelMemberRemoteDataSourceProtocol {
@@ -49,5 +50,15 @@ public final class TravelMemberRemoteDataSource: TravelMemberRemoteDataSourcePro
 
     public func leaveTravel(travelId: String) async throws {
         let _: BaseResponse<EmptyDTO> = try await provider.request(.leaveTravel(travelId: travelId))
+    }
+
+    public func fetchMember(travelId: String) async throws -> [FetchMemberResponseDTO] {
+        let response: BaseResponse<[FetchMemberResponseDTO]> = try await provider.request(.fetchMember(travelId: travelId))
+
+        guard let data = response.data else {
+            throw NetworkError.noData
+        }
+
+        return data
     }
 }
