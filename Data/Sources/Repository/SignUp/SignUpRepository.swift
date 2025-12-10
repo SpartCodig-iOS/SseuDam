@@ -9,7 +9,6 @@ import Foundation
 import Domain
 import Moya
 import NetworkService
-import UIKit
 
 final public class SignUpRepository: SignUpRepositoryProtocol {
     private var provider: MoyaProvider<OAuthAPITarget>
