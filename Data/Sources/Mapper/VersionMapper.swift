@@ -11,8 +11,8 @@ import Domain
 extension VersionResponseDTO {
   func toDomain() -> Version {
     return Version(
-      message: self.message,
-      shouldUpdate: self.shouldUpdate,
+      message: self.message ?? "",
+      shouldUpdate: self.forceUpdate ?? false,
       appStoreUrl: self.appStoreURL,
       version: self.latestVersion
     )

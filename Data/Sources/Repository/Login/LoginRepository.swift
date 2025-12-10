@@ -9,6 +9,7 @@ import Foundation
 import Domain
 import Moya
 import NetworkService
+import UIKit
 
 public final class LoginRepository: LoginRepositoryProtocol {
 
@@ -25,13 +26,16 @@ public final class LoginRepository: LoginRepositoryProtocol {
     ) async throws -> Domain.AuthResult {
         // 로그인 시에는 기본적으로 accessToken/loginType만 전달.
         // Kakao처럼 추가 값이 필요하면 해당 소셜에 한해 포함.
-        let body = LoginUserRequestDTO(
+      let token = UserDefaults.standard.string(forKey: "Token") ?? ""
+      let body =  LoginUserRequestDTO(
             accessToken: input.accessToken,
             loginType: input.socialType.rawValue,
             authorizationCode: input.socialType == .kakao ? input.authorizationCode : input.authorizationCode,
             codeVerifier: input.socialType == .kakao ? input.codeVerifier : input.codeVerifier,
-            redirectUri: input.socialType == .kakao ? input.redirectUri : nil
+            redirectUri: input.socialType == .kakao ? input.redirectUri : nil,
+            deviceToken: token
         )
+      print(token)
         let respons: BaseResponse<AuthResponseDTO> = try await provider.request(.loginOAuth(body: body))
         guard let data = respons.data  else {
             throw NetworkError.noData
