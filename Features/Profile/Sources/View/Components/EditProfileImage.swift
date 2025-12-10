@@ -77,7 +77,6 @@ public struct EditProfileImage: View {
     .frame(width: size, height: size)
     .clipShape(Circle())
     .contentShape(Circle())
-    .shadow(radius: 10)
 
   }
 

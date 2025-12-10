@@ -68,7 +68,7 @@ public struct SettlementCoordinator {
                 state.routes.pop()
                 return .run { _ in
                     await MainActor.run {
-                        ToastManager.shared.showSuccess("\(type.displayName)이 완료되었어요.")
+                        ToastManager.shared.showSuccess("\(type.displayName) 완료되었어요.")
                     }
                 }
             case .router(.routeAction(_, .saveExpense(.delegate(.onTapBackButton)))):

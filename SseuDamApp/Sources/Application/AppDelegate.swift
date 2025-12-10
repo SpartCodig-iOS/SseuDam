@@ -6,8 +6,38 @@
 //
 
 import UIKit
+import UserNotifications
 
-final class AppDelegate: NSObject, UIApplicationDelegate {
+@MainActor
+final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+    ) -> Bool {
+
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+
+        center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            if let error = error {
+                print("🔔 Notification auth error:", error)
+                return
+            }
+
+            guard granted else {
+                print("🔔 Notification permission not granted")
+                return
+            }
+
+            Task { @MainActor in
+                UIApplication.shared.registerForRemoteNotifications()
+            }
+        }
+
+        return true
+    }
+
     func application(
         _ app: UIApplication,
         open url: URL,
@@ -16,10 +46,40 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         return false
     }
 
+    // APNs 토큰 성공
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
-    ) -> Bool {
-        return true
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        let tokenString = deviceToken.map { String(format: "%02x", $0) }.joined()
+        UserDefaults.standard.set(tokenString, forKey: "Token")
+
+    }
+
+    // APNs 토큰 실패
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+
+    }
+
+    // 포그라운드 알림 표시
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .badge, .sound])
+    }
+
+    // 알림 터치 처리
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        completionHandler()
     }
 }

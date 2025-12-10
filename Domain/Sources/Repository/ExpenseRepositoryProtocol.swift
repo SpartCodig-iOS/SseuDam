@@ -10,7 +10,7 @@ import Dependencies
 
 public protocol ExpenseRepositoryProtocol {
     // 여행의 지출 내역 조회
-    func fetchTravelExpenses(travelId: String, page: Int, limit: Int) async throws -> [Expense]
+    func fetchTravelExpenses(travelId: String) -> AsyncStream<Result<[Expense], Error>>
 
     // 지출 내역 저장
     func save(travelId: String, expense: Expense) async throws

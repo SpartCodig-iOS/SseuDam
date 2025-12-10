@@ -135,7 +135,7 @@ platform :ios do
         }
       )
 
-      # clean_symbols_from_ipa(ipa_path: ipa_path)
+      #clean_symbols_from_ipa(ipa_path: ipa_path)
 
       upload_to_app_store(
         app_version: options[:version],

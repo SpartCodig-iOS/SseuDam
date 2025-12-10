@@ -12,6 +12,10 @@ public extension Project {
   ) -> Project {
     return Project(
       name: name,
+      options: .options(
+        defaultKnownRegions: ["en", "ko"],
+        developmentRegion: "ko"
+      ),
       targets: [
         .target(
           name: name,

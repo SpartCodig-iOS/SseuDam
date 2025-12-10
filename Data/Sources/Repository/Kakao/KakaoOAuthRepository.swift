@@ -32,14 +32,24 @@ public final class KakaoOAuthRepository: NSObject, KakaoOAuthRepositoryProtocol 
     private let appRedirectUri = "sseudam://oauth/kakao"
     private var authSession: ASWebAuthenticationSession?
     private let presentationContextProvider: ASWebAuthenticationPresentationContextProviding
+    private let sessionQueue = DispatchQueue(label: "com.sseudam.oauth.session", qos: .userInitiated)
 
     public init(presentationContextProvider: ASWebAuthenticationPresentationContextProviding) {
         self.presentationContextProvider = presentationContextProvider
     }
 
+    deinit {
+        // Repository 해제 시 세션도 함께 정리
+        authSession?.cancel()
+        authSession = nil
+    }
+
     public func signIn() async throws -> KakaoOAuthPayload {
         // 이전 시도에서 남은 코드를 제거하고 새 플로우 시작
-      await KakaoAuthCodeStore.shared.reset()
+        await KakaoAuthCodeStore.shared.reset()
+
+        // 기존 인증 세션이 있으면 정리
+        await cancelExistingSession()
 
         let pkce = try generatePKCE()
         let state = try encodeState(
@@ -61,31 +71,44 @@ public final class KakaoOAuthRepository: NSObject, KakaoOAuthRepositoryProtocol 
 
         // 카카오톡 설치 시: 톡 앱으로만 진행(웹 세션 표시 없음), 딥링크(ticket/code)는 KakaoAuthCodeStore에서 기다림
         if let talkURL = talkAuthorizeURL(from: authorizeURL) {
-          await UIApplication.shared.open(talkURL, options: [:], completionHandler: nil)
-            let ticket = try await KakaoAuthCodeStore.shared.waitForCode()
+            await UIApplication.shared.open(talkURL, options: [:], completionHandler: nil)
+
+            do {
+                let ticket = try await KakaoAuthCodeStore.shared.waitForCode()
+                return KakaoOAuthPayload(
+                    idToken: "",
+                    accessToken: "",
+                    refreshToken: nil,
+                    authorizationCode: ticket,
+                    displayName: nil,
+                    codeVerifier: pkce.codeVerifier,
+                    redirectUri: serverRedirectUri
+                )
+            } catch {
+                // 카카오톡 인증 실패 시 정리
+                await KakaoAuthCodeStore.shared.reset()
+                throw error
+            }
+        }
+
+        // 카카오톡 미설치: 웹 authorize (ASWebAuthenticationSession)
+        do {
+            let ticket = try await startAuthSession(with: authorizeURL, callbackScheme: URL(string: appRedirectUri)?.scheme)
+
             return KakaoOAuthPayload(
                 idToken: "",
                 accessToken: "",
                 refreshToken: nil,
-                authorizationCode: ticket,
+                authorizationCode: ticket,          // ticket 혹은 code를 authorizationCode로 전달
                 displayName: nil,
-                codeVerifier: pkce.codeVerifier,
-                redirectUri: serverRedirectUri
+                codeVerifier: pkce.codeVerifier,    // 서버 토큰 교환 시 사용
+                redirectUri: serverRedirectUri      // 서버 콜백 URI
             )
+        } catch {
+            // 웹 인증 실패 시 세션 정리
+            await cleanupSession()
+            throw error
         }
-
-        // 카카오톡 미설치: 웹 authorize (ASWebAuthenticationSession)
-        let ticket = try await startAuthSession(with: authorizeURL, callbackScheme: URL(string: appRedirectUri)?.scheme)
-
-        return KakaoOAuthPayload(
-            idToken: "",
-            accessToken: "",
-            refreshToken: nil,
-            authorizationCode: ticket,          // ticket 혹은 code를 authorizationCode로 전달
-            displayName: nil,
-            codeVerifier: pkce.codeVerifier,    // 서버 토큰 교환 시 사용
-            redirectUri: serverRedirectUri      // 서버 콜백 URI
-        )
     }
 }
 
@@ -139,7 +162,34 @@ private extension KakaoOAuthRepository {
         with url: URL,
         callbackScheme: String?
     ) async throws -> String {
-        return try await withCheckedThrowingContinuation { continuation in
+        // 기존 세션이 있으면 정리
+        await cancelExistingSession()
+
+        return try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self else {
+                continuation.resume(throwing: AuthError.unknownError("Repository가 해제되었습니다"))
+                return
+            }
+
+            // 한 번만 호출되도록 보장하는 래퍼
+            var isResumed = false
+            let safeResume: (Result<String, Error>) -> Void = { result in
+                guard !isResumed else { return }
+                isResumed = true
+
+                // 세션 정리
+                Task { [weak self] in
+                    await self?.cleanupSession()
+                }
+
+                switch result {
+                case .success(let ticket):
+                    continuation.resume(returning: ticket)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+
             let session = ASWebAuthenticationSession(
                 url: url,
                 callbackURLScheme: callbackScheme
@@ -147,25 +197,25 @@ private extension KakaoOAuthRepository {
                 if let error = error {
                     let nsError = error as NSError
                     if nsError.code == ASWebAuthenticationSessionError.canceledLogin.rawValue {
-                        continuation.resume(throwing: AuthError.userCancelled)
+                        safeResume(.failure(AuthError.userCancelled))
                         return
                     }
-                    continuation.resume(throwing: AuthError.unknownError(error.localizedDescription))
+                    safeResume(.failure(AuthError.unknownError(error.localizedDescription)))
                     return
                 }
 
                 guard let callbackURL else {
-                    continuation.resume(throwing: AuthError.unknownError("Kakao 로그인 콜백이 없습니다"))
+                    safeResume(.failure(AuthError.unknownError("Kakao 로그인 콜백이 없습니다")))
                     return
                 }
 
                 guard let components = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false) else {
-                    continuation.resume(throwing: AuthError.invalidCredential("잘못된 Kakao 콜백 URL"))
+                    safeResume(.failure(AuthError.invalidCredential("잘못된 Kakao 콜백 URL")))
                     return
                 }
 
                 if let error = components.queryItems?.first(where: { $0.name == "error" })?.value {
-                    continuation.resume(throwing: AuthError.unknownError(error))
+                    safeResume(.failure(AuthError.unknownError(error)))
                     return
                 }
 
@@ -173,17 +223,51 @@ private extension KakaoOAuthRepository {
                     ?? components.queryItems?.first(where: { $0.name == "code" })?.value
 
                 guard let ticket else {
-                    continuation.resume(throwing: AuthError.unknownError("Kakao ticket을 찾을 수 없습니다"))
+                    safeResume(.failure(AuthError.unknownError("Kakao ticket을 찾을 수 없습니다")))
                     return
                 }
 
-                continuation.resume(returning: ticket)
+                safeResume(.success(ticket))
             }
-            session.presentationContextProvider = presentationContextProvider
+
+            session.presentationContextProvider = self.presentationContextProvider
             // iCloud Private Relay 등 환경에서도 세션이 유지되도록 무조건 사파리 세션을 에페메럴로 사용
             session.prefersEphemeralWebBrowserSession = true
-            self.authSession = session
-            session.start()
+
+            // 스레드 안전하게 세션 저장
+            self.sessionQueue.async { [weak self] in
+                self?.authSession = session
+
+                // 메인 스레드에서 세션 시작
+                DispatchQueue.main.async {
+                    if !session.start() {
+                        safeResume(.failure(AuthError.unknownError("세션 시작에 실패했습니다")))
+                    }
+                }
+            }
+        }
+    }
+
+    /// 기존 세션을 안전하게 취소
+    private func cancelExistingSession() async {
+        return await withCheckedContinuation { continuation in
+            sessionQueue.async { [weak self] in
+                if let session = self?.authSession {
+                    session.cancel()
+                }
+                self?.authSession = nil
+                continuation.resume()
+            }
+        }
+    }
+
+    /// 세션 정리
+    private func cleanupSession() async {
+        return await withCheckedContinuation { continuation in
+            sessionQueue.async { [weak self] in
+                self?.authSession = nil
+                continuation.resume()
+            }
         }
     }
 
