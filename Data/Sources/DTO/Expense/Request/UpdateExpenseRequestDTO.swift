@@ -14,6 +14,7 @@ public struct UpdateExpenseRequestDTO: Encodable {
     let currency: String
     let expenseDate: String
     let category: String
+    let payerId: String
     let participantIds: [String]
 }
 
@@ -33,6 +34,7 @@ extension Expense {
             currency: currency,
             expenseDate: dateString,
             category: category.rawValue,
+            payerId: payerId,
             participantIds: participants.map { $0.id }
         )
     }
