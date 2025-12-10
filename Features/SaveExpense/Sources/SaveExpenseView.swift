@@ -119,8 +119,8 @@ public struct SaveExpenseView: View {
         createdAt: Date(),
         ownerName: "홍길동",
         members: [
-            TravelMember(id: "user1", name: "홍길동", role: "owner"),
-            TravelMember(id: "user2", name: "김철수", role: "member")
+            TravelMember(id: "user1", name: "홍길동", role: .owner),
+            TravelMember(id: "user2", name: "김철수", role: .member)
         ],
         currencies: ["JPY"]
     )

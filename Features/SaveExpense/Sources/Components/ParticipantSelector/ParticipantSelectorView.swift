@@ -121,9 +121,9 @@ private struct ParticipantRowView: View {
 
 #Preview {
     let sampleParticipants = IdentifiedArray(uniqueElements: [
-        TravelMember(id: "1", name: "김민수", role: "owner"),
-        TravelMember(id: "2", name: "이영희", role: "member"),
-        TravelMember(id: "3", name: "박철수", role: "member")
+        TravelMember(id: "1", name: "김민수", role: .owner),
+        TravelMember(id: "2", name: "이영희", role: .member),
+        TravelMember(id: "3", name: "박철수", role: .member)
     ])
 
     ParticipantSelectorView(

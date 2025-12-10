@@ -35,7 +35,7 @@ public struct TravelExpenseResponseDTO: Decodable {
                 TravelMember(
                     id: memberId,
                     name: name,
-                    role: "member"
+                    role: .member
                 )
             }
         }

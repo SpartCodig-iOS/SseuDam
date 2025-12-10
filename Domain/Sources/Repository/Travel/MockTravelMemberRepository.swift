@@ -54,7 +54,7 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
         let newMember = TravelMember(
             id: "MOCK_JOIN_\(UUID().uuidString.prefix(6))",
             name: "NewMember-\(counter)",
-            role: "member"
+            role: .member
         )
         counter += 1
 
@@ -170,7 +170,7 @@ private extension MockTravelMemberRepository {
                 role: "owner",
                 createdAt: today,
                 ownerName: "김민희",
-                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")],
+                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: .member)],
                 currencies: ["JPY"]
             )
         }
