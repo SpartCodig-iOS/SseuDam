@@ -8,6 +8,7 @@
 import Foundation
 
 final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
+    
     private var storage: [String: Expense] = [:]
     private var shouldFailSave = false
     private var shouldFailUpdate = false
@@ -34,12 +35,17 @@ final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
         saveErrorReason = nil
     }
     
-    public func fetchTravelExpenses(
+    nonisolated public func fetchTravelExpenses(
         travelId: String,
         page: Int,
         limit: Int
-    ) async throws -> [Expense] {
-        return Expense.mockList
+    ) -> AsyncStream<Result<[Expense], any Error>> {
+        AsyncStream { continuation in
+            Task {
+                continuation.yield(.success(Expense.mockList))
+                continuation.finish()
+            }
+        }
     }
     
     public func save(

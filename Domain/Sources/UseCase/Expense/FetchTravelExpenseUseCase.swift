@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 public protocol FetchTravelExpenseUseCaseProtocol {
-    func execute(travelId: String, date: Date?) async throws -> [Expense]
+    func execute(travelId: String, date: Date?) -> AsyncStream<Result<[Expense], Error>>
 }
 
 public struct FetchTravelExpenseUseCase: FetchTravelExpenseUseCaseProtocol {
@@ -22,22 +22,34 @@ public struct FetchTravelExpenseUseCase: FetchTravelExpenseUseCaseProtocol {
     public func execute(
         travelId: String,
         date: Date?
-    ) async throws -> [Expense] {
-        // TODO: 페이지네이션 처리 없이 전체 데이터를 가져오기 위해 큰 limit 사용
-        // 추후 전체 조회 API가 있다면 교체 필요
-        let allExpenses = try await repository.fetchTravelExpenses(
-            travelId: travelId,
-            page: 1,
-            limit: 1000
-        )
-        
-        if let date = date {
-            let calendar = Calendar.current
-            return allExpenses.filter { expense in
-                calendar.isDate(expense.expenseDate, inSameDayAs: date)
+    ) -> AsyncStream<Result<[Expense], Error>> {
+        AsyncStream { continuation in
+            Task {
+                for await result in repository.fetchTravelExpenses(
+                    travelId: travelId,
+                    page: 1,
+                    limit: 1000
+                ) {
+                    // 날짜 필터링 적용
+                    let filteredResult = result.map { expenses in
+                        filterExpenses(expenses, by: date)
+                    }
+                    
+                    continuation.yield(filteredResult)
+                }
+                
+                continuation.finish()
             }
-        } else {
-            return allExpenses
+        }
+    }
+    
+    // 헬퍼 메서드
+    private func filterExpenses(_ expenses: [Expense], by date: Date?) -> [Expense] {
+        guard let date = date else { return expenses }
+        
+        let calendar = Calendar.current
+        return expenses.filter { expense in
+            calendar.isDate(expense.expenseDate, inSameDayAs: date)
         }
     }
 }

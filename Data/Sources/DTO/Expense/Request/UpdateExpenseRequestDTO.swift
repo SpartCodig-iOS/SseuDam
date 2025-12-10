@@ -19,8 +19,12 @@ public struct UpdateExpenseRequestDTO: Encodable {
 
 extension Expense {
     func toUpdateRequestDTO() -> UpdateExpenseRequestDTO {
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withFullDate]
+        // yyyy-MM-dd 형식으로 날짜 변환 (사용자가 선택한 날짜 그대로 전송)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.calendar = Calendar(identifier: .gregorian)
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        // Plain date는 timezone 변환하지 않음 (기본값 = TimeZone.current)
         let dateString = dateFormatter.string(from: expenseDate)
 
         return UpdateExpenseRequestDTO(

@@ -14,7 +14,7 @@ public struct TravelExpenseResponseDTO: Decodable {
     let limit: Int
     let items: [ExpenseDTO]
 
-    struct ExpenseDTO: Decodable {
+    struct ExpenseDTO: Codable {
         let id: String
         let title: String
         let amount: Double
@@ -27,7 +27,7 @@ public struct TravelExpenseResponseDTO: Decodable {
         let authorId: String
         let participants: [ParticipantDTO]
 
-        struct ParticipantDTO: Decodable {
+        struct ParticipantDTO: Codable {
             let memberId: String
             let name: String
 
@@ -41,12 +41,12 @@ public struct TravelExpenseResponseDTO: Decodable {
         }
 
         func toDomain() -> Expense? {
-            // yyyy-MM-dd 날짜 파싱
+            // yyyy-MM-dd 날짜 파싱 (서버에서 받은 날짜 그대로 사용)
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
             dateFormatter.calendar = Calendar(identifier: .gregorian)
-            dateFormatter.locale = Locale(identifier: "ko_KR")
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            // Plain date는 timezone 변환하지 않음 (기본값 = TimeZone.current)
 
             guard let date = dateFormatter.date(from: expenseDate) else {
                 return nil
