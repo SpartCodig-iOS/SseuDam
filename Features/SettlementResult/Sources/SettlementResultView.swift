@@ -8,14 +8,16 @@
 import SwiftUI
 import DesignSystem
 import ComposableArchitecture
+import SettlementDetailFeature
 
+@ViewAction(for: SettlementResultFeature.self)
 public struct SettlementResultView: View {
-    @Bindable var store: StoreOf<SettlementResultFeature>
-    
+    @Bindable public var store: StoreOf<SettlementResultFeature>
+
     public init(store: StoreOf<SettlementResultFeature>) {
         self.store = store
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             // 헤더 (총 지출, 통계)
@@ -24,7 +26,7 @@ public struct SettlementResultView: View {
                 myExpenseAmount: store.myExpenseAmount,
                 totalPersonCount: store.totalPersonCount
             )
-            
+
             if !store.paymentsToMake.isEmpty || !store.paymentsToReceive.isEmpty {
                 // 지급/수령 예정 금액 섹션
                 ScrollView {
@@ -50,6 +52,27 @@ public struct SettlementResultView: View {
                                 }
                             )
                         }
+
+                        // 상세보기 버튼
+                        Button {
+                            send(.detailButtonTapped)
+                        } label: {
+                            HStack {
+                                Text("멤버별 정산 상세보기")
+                                    .font(.app(.body, weight: .semibold))
+                                    .foregroundStyle(Color.primary500)
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(Color.primary500)
+                            }
+                            .padding(16)
+                            .background(Color.white)
+                            .cornerRadius(12)
+                        }
+                        .padding(.top, 8)
                     }
                 }
             } else {
@@ -67,9 +90,14 @@ public struct SettlementResultView: View {
         .background(Color.primary50)
         .scrollIndicators(.hidden)
         .onAppear {
-            store.send(.view(.onAppear))
+           send(.onAppear)
         }
         .alert($store.scope(state: \.alert, action: \.scope.alert))
+        .sheet(item: $store.scope(state: \.settlementDetail, action: \.scope.settlementDetail)) { store in
+            NavigationView {
+                SettlementDetailView(store: store)
+            }
+        }
     }
 }
 

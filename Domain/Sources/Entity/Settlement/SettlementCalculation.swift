@@ -1,5 +1,5 @@
 //
-//  CalculateSettlementUseCaseProtocol.swift
+//  SettlementCalculation.swift
 //  Domain
 //
 //  Created by 홍석현 on 12/10/25.
@@ -14,9 +14,9 @@ public struct SettlementCalculation: Equatable {
     public let totalPersonCount: Int // 인원수
     public let averagePerPerson: Double // 1인 평균 지출
     public let myNetBalance: Double // 내 순 차액 (Pay - Owe)
-    public let memberBalances: [String: Double] // 각 멤버의 순 차액
     public let paymentsToMake: [PaymentInfo] // 지급 예정 금액
     public let paymentsToReceive: [PaymentInfo] // 수령 예정 금액
+    public let memberDetails: [MemberSettlementDetail] // 멤버별 정산 상세
 
     public init(
         totalExpenseAmount: Double,
@@ -24,18 +24,18 @@ public struct SettlementCalculation: Equatable {
         totalPersonCount: Int,
         averagePerPerson: Double,
         myNetBalance: Double,
-        memberBalances: [String: Double],
         paymentsToMake: [PaymentInfo],
-        paymentsToReceive: [PaymentInfo]
+        paymentsToReceive: [PaymentInfo],
+        memberDetails: [MemberSettlementDetail]
     ) {
         self.totalExpenseAmount = totalExpenseAmount
         self.myShareAmount = myShareAmount
         self.totalPersonCount = totalPersonCount
         self.averagePerPerson = averagePerPerson
         self.myNetBalance = myNetBalance
-        self.memberBalances = memberBalances
         self.paymentsToMake = paymentsToMake
         self.paymentsToReceive = paymentsToReceive
+        self.memberDetails = memberDetails
     }
 }
 
@@ -57,12 +57,4 @@ public struct PaymentInfo: Equatable, Identifiable {
         self.memberName = memberName
         self.amount = amount
     }
-}
-
-public protocol CalculateSettlementUseCaseProtocol {
-    func execute(
-        expenses: [Expense],
-        members: [TravelMember],
-        currentUserId: String?
-    ) -> SettlementCalculation
 }

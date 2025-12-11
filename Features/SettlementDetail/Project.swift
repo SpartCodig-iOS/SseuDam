@@ -2,9 +2,10 @@ import ProjectDescription
 import SseuDamPlugin
 
 let project = Project.makeFeature(
-    name: .SettlementResult,
+    name: .SettlementDetail,
     dependencies: [
-        .Features.SettlementDetail
+        .Domain,
+        .DesignSystem
     ],
     hasTests: true
 )
