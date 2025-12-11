@@ -12,11 +12,20 @@ import Foundation
 
 final public class AuthRepository: AuthRepositoryProtocol {
     private var provider: MoyaProvider<AuthAPITarget>
+    private let loginRepository: any LoginRepositoryProtocol
+    private let signUpRepository: any SignUpRepositoryProtocol
+    private let kakaoFinalizeRepository: any KakaoFinalizeRepositoryProtocol
     
     public init(
-        provider: MoyaProvider<AuthAPITarget> = MoyaProvider<AuthAPITarget>.authorized
+        provider: MoyaProvider<AuthAPITarget> = MoyaProvider<AuthAPITarget>.authorized,
+        loginRepository: any LoginRepositoryProtocol = LoginRepository(),
+        signUpRepository: any SignUpRepositoryProtocol = SignUpRepository(),
+        kakaoFinalizeRepository: any KakaoFinalizeRepositoryProtocol = KakaoFinalizeRepository()
     ) {
         self.provider = provider
+        self.loginRepository = loginRepository
+        self.signUpRepository = signUpRepository
+        self.kakaoFinalizeRepository = kakaoFinalizeRepository
     }
     
     
@@ -77,6 +86,23 @@ final public class AuthRepository: AuthRepositoryProtocol {
 
     private func persistPendingKey(_ key: String) {
         UserDefaults.standard.set(key, forKey: "auth.pendingKey")
+    }
+
+    // MARK: - Auth / SignUp / Kakao finalize
+    public func checkUser(input: Domain.OAuthUserInput) async throws -> Domain.OAuthCheckUser {
+        try await signUpRepository.checkSignUp(input: input)
+    }
+
+    public func login(input: Domain.OAuthUserInput) async throws -> Domain.AuthResult {
+        try await loginRepository.login(input: input)
+    }
+
+    public func signUp(input: Domain.OAuthUserInput) async throws -> Domain.AuthResult {
+        try await signUpRepository.signUp(input: input)
+    }
+
+    public func finalizeKakao(ticket: String) async throws -> Domain.AuthResult {
+        try await kakaoFinalizeRepository.finalize(ticket: ticket)
     }
 }
 

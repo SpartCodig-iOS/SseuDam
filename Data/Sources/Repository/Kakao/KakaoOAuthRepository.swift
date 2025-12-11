@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AuthenticationServices
+@preconcurrency import AuthenticationServices
 import UIKit
 import CryptoKit
 import Security
@@ -236,7 +236,8 @@ private extension KakaoOAuthRepository {
 
             // 스레드 안전하게 세션 저장
             self.sessionQueue.async { [weak self] in
-                self?.authSession = session
+                guard let strongSelf = self else { return }
+                strongSelf.authSession = session
 
                 // 메인 스레드에서 세션 시작
                 DispatchQueue.main.async {
@@ -252,10 +253,15 @@ private extension KakaoOAuthRepository {
     private func cancelExistingSession() async {
         return await withCheckedContinuation { continuation in
             sessionQueue.async { [weak self] in
-                if let session = self?.authSession {
+                guard let strongSelf = self else {
+                    continuation.resume()
+                    return
+                }
+
+                if let session = strongSelf.authSession {
                     session.cancel()
                 }
-                self?.authSession = nil
+                strongSelf.authSession = nil
                 continuation.resume()
             }
         }
@@ -265,7 +271,11 @@ private extension KakaoOAuthRepository {
     private func cleanupSession() async {
         return await withCheckedContinuation { continuation in
             sessionQueue.async { [weak self] in
-                self?.authSession = nil
+                guard let strongSelf = self else {
+                    continuation.resume()
+                    return
+                }
+                strongSelf.authSession = nil
                 continuation.resume()
             }
         }

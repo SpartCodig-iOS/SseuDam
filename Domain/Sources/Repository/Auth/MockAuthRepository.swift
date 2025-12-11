@@ -12,6 +12,40 @@ public actor MockAuthRepository: AuthRepositoryProtocol {
   public var shouldThrowError: Bool = false
   public var errorToThrow: Error?
   public var mockTokenResult: TokenResult?
+  public var mockCheckUser: OAuthCheckUser = OAuthCheckUser(registered: true, needsTerms: false)
+  public var mockLoginResult: AuthResult = AuthResult(
+    userId: "mock-user",
+    name: "Mock User",
+    provider: .google,
+    token: AuthTokens(
+      authToken: "mock_auth",
+      accessToken: "mock_access",
+      refreshToken: "mock_refresh",
+      sessionID: "mock_session"
+    )
+  )
+  public var mockSignUpResult: AuthResult = AuthResult(
+    userId: "mock-user-signup",
+    name: "Mock User Signup",
+    provider: .google,
+    token: AuthTokens(
+      authToken: "mock_auth_signup",
+      accessToken: "mock_access_signup",
+      refreshToken: "mock_refresh_signup",
+      sessionID: "mock_session_signup"
+    )
+  )
+  public var mockFinalizeResult: AuthResult = AuthResult(
+    userId: "mock-kakao-user",
+    name: "Mock Kakao",
+    provider: .kakao,
+    token: AuthTokens(
+      authToken: "mock_kakao_auth",
+      accessToken: "mock_kakao_access",
+      refreshToken: "mock_kakao_refresh",
+      sessionID: "mock_kakao_session"
+    )
+  )
   public var mockDeviceToken: DeviceToken?
   public var delay: TimeInterval = 0
   private let persistentPendingKey: String = UUID().uuidString
@@ -133,6 +167,34 @@ public actor MockAuthRepository: AuthRepositoryProtocol {
       deviceToken: token,
       pendingKey: persistentPendingKey
     )
+  }
+
+  public func checkUser(input: OAuthUserInput) async throws -> OAuthCheckUser {
+    if shouldThrowError {
+      throw errorToThrow ?? MockAuthError.networkError
+    }
+    return mockCheckUser
+  }
+
+  public func login(input: OAuthUserInput) async throws -> AuthResult {
+    if shouldThrowError {
+      throw errorToThrow ?? MockAuthError.networkError
+    }
+    return mockLoginResult
+  }
+
+  public func signUp(input: OAuthUserInput) async throws -> AuthResult {
+    if shouldThrowError {
+      throw errorToThrow ?? MockAuthError.networkError
+    }
+    return mockSignUpResult
+  }
+
+  public func finalizeKakao(ticket: String) async throws -> AuthResult {
+    if shouldThrowError {
+      throw errorToThrow ?? MockAuthError.networkError
+    }
+    return mockFinalizeResult
   }
 
 }
