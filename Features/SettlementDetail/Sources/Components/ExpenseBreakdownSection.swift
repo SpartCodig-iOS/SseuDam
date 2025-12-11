@@ -56,45 +56,6 @@ struct ExpenseBreakdownSection: View {
     }
 }
 
-// MARK: - Expense Row
-private struct ExpenseRow: View {
-    let expense: ExpenseDetail
-
-    var body: some View {
-        HStack(spacing: 8) {
-            // 지출 제목 + 날짜
-            VStack(alignment: .leading, spacing: 4) {
-                Text(expense.title)
-                    .font(.app(.body, weight: .medium))
-                    .foregroundStyle(Color.black)
-
-                Text(formatDate(expense.expenseDate))
-                    .font(.app(.caption2, weight: .medium))
-                    .foregroundStyle(Color.gray7)
-            }
-
-            Spacer()
-
-            // 내 부담 금액
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("₩\(Int(expense.shareAmount).formatted())")
-                    .font(.app(.body, weight: .semibold))
-                    .foregroundStyle(Color.black)
-
-                Text("(전체 ₩\(Int(expense.amount).formatted()) ÷ \(expense.participantCount))")
-                    .font(.app(.caption2, weight: .medium))
-                    .foregroundStyle(Color.gray7)
-            }
-        }
-    }
-
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd"
-        return formatter.string(from: date)
-    }
-}
-
 #Preview("지출이 있는 경우") {
     let calendar = Calendar.current
     let today = Date()

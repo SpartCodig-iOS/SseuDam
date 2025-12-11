@@ -49,7 +49,7 @@ struct MemberDetailCard: View {
                     }
 
                     // 펼치기 아이콘
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                    Image(systemName: "chevron.up")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Color.gray7)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))

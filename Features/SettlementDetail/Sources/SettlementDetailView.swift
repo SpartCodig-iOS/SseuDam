@@ -62,6 +62,7 @@ public struct SettlementDetailView: View {
             }
             .padding(16)
         }
+        .scrollIndicators(.hidden)
         .background(Color.primary50)
         .navigationTitle("정산 상세")
         .navigationBarTitleDisplayMode(.inline)
