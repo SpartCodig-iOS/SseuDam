@@ -13,6 +13,7 @@ import Firebase
 import FirebaseAnalytics
 
 
+
 @MainActor
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
@@ -22,8 +23,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     ) -> Bool {
 
       #if DEBUG
-      // Enable Firebase Analytics verbose logging in debug builds without needing scheme args.
-      setenv("FIRAnalyticsDebugEnabled", "1", 1)
+        setenv("FIRAnalyticsDebugEnabled", "1", 1)
+        setenv("FIRDebugEnabled", "1", 1)
       #endif
 
       FirebaseApp.configure()
@@ -32,12 +33,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 
         center.requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             if let error = error {
-                print("🔔 Notification auth error:", error)
+              #logDebug("🔔 Notification auth error:", error)
                 return
             }
 
             guard granted else {
-                print("🔔 Notification permission not granted")
+              #logDebug("🔔 Notification permission not granted")
                 return
             }
 

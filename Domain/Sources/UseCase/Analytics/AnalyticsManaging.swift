@@ -8,7 +8,7 @@ public protocol AnalyticsManaging: Sendable {
     func trackExpenseOpenDetail(travelId: String, expenseId: String, source: String)
     func trackLoginSuccess(socialType: String, isFirst: Bool?)
     func trackSignupSuccess(socialType: String)
-
+    
     // Travel
     func trackTravelUpdate(_ travelId: String)
     func trackTravelDelete(_ travelId: String)
