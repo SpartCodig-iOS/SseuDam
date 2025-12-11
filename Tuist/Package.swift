@@ -10,6 +10,10 @@ let packageSettings = PackageSettings(
         "TCACoordinators": .framework,
         "Moya": .framework,
         "LogMacro": .framework,
+        "FirebaseCore": .staticLibrary,
+        "FirebaseFirestore": .staticLibrary,
+        "FirebaseAnalytics": .staticLibrary,
+        "FirebaseCrashlytics": .staticLibrary,
 //        "GoogleSignIn": .framework
 
     ]

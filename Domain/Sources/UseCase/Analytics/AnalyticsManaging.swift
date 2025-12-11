@@ -17,16 +17,17 @@ public protocol AnalyticsManaging: Sendable {
     func trackTravelOwnerDelegate(travelId: String, newOwnerId: String)
 }
 
-struct NoOpAnalyticsManager: AnalyticsManaging {
-    func trackDeeplinkOpen(deeplink: String, type: String) {}
-    func trackExpenseOpenDetail(travelId: String, expenseId: String, source: String) {}
-    func trackLoginSuccess(socialType: String, isFirst: Bool?) {}
-    func trackSignupSuccess(socialType: String) {}
-    func trackTravelUpdate(_ travelId: String) {}
-    func trackTravelDelete(_ travelId: String) {}
-    func trackTravelLeave(travelId: String, userId: String?) {}
-    func trackTravelMemberLeave(travelId: String, memberId: String, role: String?) {}
-    func trackTravelOwnerDelegate(travelId: String, newOwnerId: String) {}
+public struct NoOpAnalyticsManager: AnalyticsManaging {
+    public init() {}
+    public func trackDeeplinkOpen(deeplink: String, type: String) {}
+    public func trackExpenseOpenDetail(travelId: String, expenseId: String, source: String) {}
+    public func trackLoginSuccess(socialType: String, isFirst: Bool?) {}
+    public func trackSignupSuccess(socialType: String) {}
+    public func trackTravelUpdate(_ travelId: String) {}
+    public func trackTravelDelete(_ travelId: String) {}
+    public func trackTravelLeave(travelId: String, userId: String?) {}
+    public func trackTravelMemberLeave(travelId: String, memberId: String, role: String?) {}
+    public func trackTravelOwnerDelegate(travelId: String, newOwnerId: String) {}
 }
 
 private enum AnalyticsManagerKey: DependencyKey {

@@ -4,7 +4,7 @@ import Domain
 import LogMacro
 
 /// FirebaseAnalytics를 사용해 이벤트를 전송하는 Live 구현체.
-public struct FirebaseAnalyticsManager: AnalyticsManaging {
+public class FirebaseAnalyticsManager: AnalyticsManaging, @unchecked Sendable {
     public init() {
         Analytics.logEvent("app_analytics_initialized", parameters: [
             "timestamp": Date().timeIntervalSince1970,

@@ -9,7 +9,11 @@ let project = Project.makeFramework(
     .SPM.Supabase,
     .SPM.GoogleSignIn,
     .SPM.FirebaseAnalytics,
-    .SPM.FirebaseCrashlytics
+    .SPM.FirebaseCrashlytics,
   ],
   hasTests: true,
+  settings: .settings(
+    base: SettingsDictionary()
+      .otherLinkerFlags(["-all_load"]),
+  )
 )
