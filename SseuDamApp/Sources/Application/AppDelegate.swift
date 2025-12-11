@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
       #endif
 
       FirebaseApp.configure()
+      Analytics.setAnalyticsCollectionEnabled(true)
         let center = UNUserNotificationCenter.current()
         center.delegate = self
 

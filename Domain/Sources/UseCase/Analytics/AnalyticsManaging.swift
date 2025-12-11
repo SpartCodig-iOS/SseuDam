@@ -8,13 +8,20 @@ public protocol AnalyticsManaging: Sendable {
     func trackExpenseOpenDetail(travelId: String, expenseId: String, source: String)
     func trackLoginSuccess(socialType: String, isFirst: Bool?)
     func trackSignupSuccess(socialType: String)
-    
+
     // Travel
     func trackTravelUpdate(_ travelId: String)
     func trackTravelDelete(_ travelId: String)
     func trackTravelLeave(travelId: String, userId: String?)
     func trackTravelMemberLeave(travelId: String, memberId: String, role: String?)
     func trackTravelOwnerDelegate(travelId: String, newOwnerId: String)
+
+    // Additional Events from CSV
+    func trackExpenseView(travelId: String, tab: String, expenseDate: String)
+    func trackExpenseCreateSuccess(travelId: String, expenseId: String, amount: Double, currency: String, category: String, payerId: String)
+    func trackExpenseCreateFailure(travelId: String, amount: Double, currency: String, category: String, payerId: String, errorCode: String)
+    func trackExpenseUpdate(travelId: String, expenseId: String, amount: Double, currency: String, category: String, payerId: String)
+    func trackExpenseDelete(travelId: String, expenseId: String, source: String)
 }
 
 public struct NoOpAnalyticsManager: AnalyticsManaging {
@@ -28,6 +35,11 @@ public struct NoOpAnalyticsManager: AnalyticsManaging {
     public func trackTravelLeave(travelId: String, userId: String?) {}
     public func trackTravelMemberLeave(travelId: String, memberId: String, role: String?) {}
     public func trackTravelOwnerDelegate(travelId: String, newOwnerId: String) {}
+    public func trackExpenseView(travelId: String, tab: String, expenseDate: String) {}
+    public func trackExpenseCreateSuccess(travelId: String, expenseId: String, amount: Double, currency: String, category: String, payerId: String) {}
+    public func trackExpenseCreateFailure(travelId: String, amount: Double, currency: String, category: String, payerId: String, errorCode: String) {}
+    public func trackExpenseUpdate(travelId: String, expenseId: String, amount: Double, currency: String, category: String, payerId: String) {}
+    public func trackExpenseDelete(travelId: String, expenseId: String, source: String) {}
 }
 
 private enum AnalyticsManagerKey: DependencyKey {
