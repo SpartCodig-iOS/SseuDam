@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import DesignSystem
 
 public struct EditProfileImage: View {
   private let size: CGFloat
@@ -44,7 +45,7 @@ public struct EditProfileImage: View {
     return ZStack {
 
       Circle()
-        .fill(.appWhite)
+        .fill(imageURL != nil ? .clear : .gray1)
         .frame(width: size, height: size)
 
       if let imageURL, let url = URL(string: imageURL) {
@@ -81,17 +82,16 @@ public struct EditProfileImage: View {
   }
 
   private func editBadge() -> some View {
-    let badgeHeight: CGFloat = 29
-    let pencilBadgeSize = size * 0.34
+    let badgeHeight: CGFloat = 22
 
     return VStack(spacing: 0) {
-      Spacer(minLength: 0)      // 위는 비워두고
-      Rectangle()               // 아래 29만 회색
-        .fill(Color.shadow)
+      Spacer(minLength: 0)
+      Rectangle()
+        .fill(.shadow)
         .frame(height: badgeHeight)
         .overlay {
           Image(systemName: "pencil")
-            .font(.system(size: pencilBadgeSize * 0.45, weight: .semibold))
+            .font(.system(size: 12, weight: .semibold))
             .fontWeight(.heavy)
             .foregroundColor(.white)
         }
@@ -101,10 +101,11 @@ public struct EditProfileImage: View {
   }
 
   private func placeholder(iconSize: CGFloat) -> some View {
-    Image(systemName: "person.fill")
+    Image(asset: .person)
       .resizable()
       .scaledToFit()
-      .frame(width: iconSize, height: 90)
+      .offset(y: 11)
+      .frame(width: 82, height: 90)
       .foregroundStyle(.primary500)
   }
 }

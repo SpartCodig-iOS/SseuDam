@@ -11,26 +11,20 @@ import LogMacro
 import AuthenticationServices
 import ComposableArchitecture
 
-/// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합
+/// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합 (AuthFacade 역할)
 public struct UnifiedOAuthUseCase {
-    @Shared(.appStorage("socialType"))  var socialType: SocialType? = nil
-    @Shared(.appStorage("userId")) var userId: String? = ""
-  
     private let oAuthUseCase: any OAuthUseCaseProtocol
-    private let signUpRepository: any SignUpRepositoryProtocol
-    private let loginRepository: any LoginRepositoryProtocol
-    private let kakaoFinalizeRepository: any KakaoFinalizeRepositoryProtocol
+    private let authRepository: any AuthRepositoryProtocol
+    private let sessionStoreRepository: any SessionStoreRepositoryProtocol
 
     public init(
         oAuthUseCase: any OAuthUseCaseProtocol = OAuthUseCase.liveValue,
-        signUpRepository: any SignUpRepositoryProtocol = MockSignUpRepository(),
-        loginRepository: any LoginRepositoryProtocol = MockLoginRepository(),
-        kakaoFinalizeRepository: any KakaoFinalizeRepositoryProtocol = MockKakaoFinalizeRepository()
+        authRepository: any AuthRepositoryProtocol = MockAuthRepository(),
+        sessionStoreRepository: any SessionStoreRepositoryProtocol = SessionStoreRepository()
     ) {
         self.oAuthUseCase = oAuthUseCase
-        self.signUpRepository = signUpRepository
-        self.loginRepository = loginRepository
-        self.kakaoFinalizeRepository = kakaoFinalizeRepository
+        self.authRepository = authRepository
+        self.sessionStoreRepository = sessionStoreRepository
     }
 }
 
@@ -257,8 +251,8 @@ private extension UnifiedOAuthUseCase {
                     return .failure(.invalidCredential("Kakao ticket이 없습니다"))
                 }
                 // 바로 finalize 호출하여 세션/토큰 확보
-                let finalized = try await kakaoFinalizeRepository.finalize(ticket: ticket)
-                let accessToken = finalized.token.authCodeTokenFallback
+                let finalized = try await authRepository.finalizeKakao(ticket: ticket)
+                let accessToken = finalized.token.accessToken
                 let oAuthData = AuthData(
                     socialType: profile.provider,
                     accessToken: accessToken,
@@ -312,9 +306,8 @@ private extension UnifiedOAuthUseCase {
                 redirectUri: oAuthData.redirectUri
             )
 
-            var authEntity = try await loginRepository.login(input: input)
+            var authEntity = try await authRepository.login(input: input)
             authEntity.token.authToken = oAuthData.authToken
-            persistSocialType(oAuthData.socialType)
             Log.info("✅ Login successful for \(oAuthData.socialType.rawValue)")
             return .success(authEntity)
 
@@ -340,7 +333,7 @@ private extension UnifiedOAuthUseCase {
                 codeVerifier: oAuthData.codeVerifier,
                 redirectUri: oAuthData.redirectUri
             )
-            let result = try await signUpRepository.checkSignUp(input: checkInput)
+            let result = try await authRepository.checkUser(input: checkInput)
             return .success(result)
         } catch {
             let authError = error as? AuthError ?? .unknownError(error.localizedDescription)
@@ -377,9 +370,8 @@ private extension UnifiedOAuthUseCase {
                 codeVerifier: oAuthData.codeVerifier,
                 redirectUri: oAuthData.redirectUri
             )
-            var authEntity = try await signUpRepository.signUp(input: checkInput)
+            var authEntity = try await authRepository.signUp(input: checkInput)
             authEntity.token.authToken = oAuthData.authToken
-            persistSocialType(oAuthData.socialType)
             saveTokensAndComplete(authEntity: authEntity)
             return .success(authEntity)
         } catch {
@@ -392,15 +384,11 @@ private extension UnifiedOAuthUseCase {
     func saveTokensAndComplete(
         authEntity: AuthResult
     ) {
-        // Keychain에 토큰 저장
-        KeychainManager.shared.saveTokens(
-            accessToken: authEntity.token.accessToken,
-            refreshToken: authEntity.token.refreshToken
+        sessionStoreRepository.save(
+            tokens: authEntity.token,
+            socialType: authEntity.provider,
+            userId: authEntity.userId
         )
-
-        persistSocialType(authEntity.provider)
-
-        self.$userId.withLock { $0 = authEntity.userId }
         // 완료 로깅 (저장 확인을 위한 불필요한 재로드 제거)
         Log.info("💾 Tokens saved to Keychain successfully")
         Log.info("🎉 OAuth flow completed for \(authEntity.provider.rawValue)")
@@ -416,16 +404,9 @@ extension UnifiedOAuthUseCase: DependencyKey {
 
     public static let testValue = UnifiedOAuthUseCase(
         oAuthUseCase: OAuthUseCase.testValue,
-        signUpRepository: MockSignUpRepository(),
-        loginRepository: MockLoginRepository(),
-        kakaoFinalizeRepository: MockKakaoFinalizeRepository()
+        authRepository: MockAuthRepository(),
+        sessionStoreRepository: SessionStoreRepository()
     )
-}
-
-private extension UnifiedOAuthUseCase {
-    func persistSocialType(_ socialType: SocialType) {
-      $socialType.withLock { $0 = socialType }
-    }
 }
 
 extension DependencyValues {

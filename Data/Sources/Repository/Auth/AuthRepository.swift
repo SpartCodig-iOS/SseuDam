@@ -8,43 +8,55 @@
 import Domain
 import Moya
 import NetworkService
+import Foundation
 
 final public class AuthRepository: AuthRepositoryProtocol {
-    private var provider: MoyaProvider<AuthAPITarget>
+    private let remote: any AuthRemoteDataSourceProtocol
     
     public init(
-        provider: MoyaProvider<AuthAPITarget> = MoyaProvider<AuthAPITarget>.authorized
+        remote: any AuthRemoteDataSourceProtocol = AuthRemoteDataSource(
+            authProvider: MoyaProvider<AuthAPITarget>.authorized,
+            oauthProvider: MoyaProvider<OAuthAPITarget>.default
+        )
     ) {
-        self.provider = provider
+        self.remote = remote
     }
     
-    
     public func refresh(token: String) async throws -> Domain.TokenResult {
-        let body = RefreshRequestDTO(refreshToken: token)
-        let response: BaseResponse<RefreshResponseDTO> = try await provider.request(.refreshToken(body: body))
-        guard let data = response.data else {
-            throw NetworkError.noData
-        }
-        return data.toDomain()
+        try await remote.refresh(token: token)
     }
     
     public func logout(
         sessionId: String
     ) async throws -> Domain.LogoutStatus {
-        let body = SessionRequestDTO(sessionId: sessionId)
-        let response: BaseResponse<LogoutResponseDTO> = try await provider.request(.logout(body: body))
-        guard let data = response.data  else {
-            throw NetworkError.noData
-        }
-        return data.toDomain()
+        try await remote.logout(sessionId: sessionId)
     }
     
     public func delete() async throws -> Domain.AuthDeleteStatus {
-        let response: BaseResponse<AuthDeleteResponseDTO> = try await provider.request(.deleteAccount)
-        guard let data = response.data else {
-            throw  NetworkError.noData
-        }
-        return data.toDomain()
+        try await remote.delete()
+    }
+
+    public func registerDeviceToken(
+        token: String
+    ) async throws -> Domain.DeviceToken {
+        try await remote.registerDeviceToken(token: token)
+    }
+
+    // MARK: - Auth / SignUp / Kakao finalize
+    public func checkUser(input: Domain.OAuthUserInput) async throws -> Domain.OAuthCheckUser {
+        try await remote.checkUser(input: input)
+    }
+
+    public func login(input: Domain.OAuthUserInput) async throws -> Domain.AuthResult {
+        try await remote.login(input: input)
+    }
+
+    public func signUp(input: Domain.OAuthUserInput) async throws -> Domain.AuthResult {
+        try await remote.signUp(input: input)
+    }
+
+    public func finalizeKakao(ticket: String) async throws -> Domain.AuthResult {
+        try await remote.finalizeKakao(ticket: ticket)
     }
 }
 

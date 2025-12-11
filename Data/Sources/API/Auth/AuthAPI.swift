@@ -11,6 +11,7 @@ public enum AuthAPI  {
   case refresh
   case logOut
   case deleteAccount
+  case registerDevice
 
   var description: String {
     switch self {
@@ -22,6 +23,9 @@ public enum AuthAPI  {
 
       case .deleteAccount:
         return "/account"
+
+      case .registerDevice:
+        return "/device-token"
 
     }
   }

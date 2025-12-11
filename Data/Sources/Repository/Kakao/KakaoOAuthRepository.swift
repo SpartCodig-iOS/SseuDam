@@ -17,6 +17,7 @@ import LogMacro
 /// 1) authorize 호출 (카카오톡/웹)
 /// 2) 서버 콜백 → 앱 딥링크(sseudam://oauth/kakao?ticket=...)
 /// 3) ticket + code_verifier/redirectUri를 전달해 서버에서 토큰 교환
+@MainActor
 public final class KakaoOAuthRepository: NSObject, KakaoOAuthRepositoryProtocol {
     public struct StatePayload: Codable {
         let codeVerifier: String
@@ -32,7 +33,6 @@ public final class KakaoOAuthRepository: NSObject, KakaoOAuthRepositoryProtocol 
     private let appRedirectUri = "sseudam://oauth/kakao"
     private var authSession: ASWebAuthenticationSession?
     private let presentationContextProvider: ASWebAuthenticationPresentationContextProviding
-    private let sessionQueue = DispatchQueue(label: "com.sseudam.oauth.session", qos: .userInitiated)
 
     public init(presentationContextProvider: ASWebAuthenticationPresentationContextProviding) {
         self.presentationContextProvider = presentationContextProvider
@@ -173,20 +173,20 @@ private extension KakaoOAuthRepository {
 
             // 한 번만 호출되도록 보장하는 래퍼
             var isResumed = false
-            let safeResume: (Result<String, Error>) -> Void = { result in
+            let safeResume: (Result<String, Error>) -> Void = { [weak self] result in
                 guard !isResumed else { return }
                 isResumed = true
 
-                // 세션 정리
-                Task { [weak self] in
-                    await self?.cleanupSession()
-                }
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.authSession = nil
 
-                switch result {
-                case .success(let ticket):
-                    continuation.resume(returning: ticket)
-                case .failure(let error):
-                    continuation.resume(throwing: error)
+                    switch result {
+                    case .success(let ticket):
+                        continuation.resume(returning: ticket)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
 
@@ -231,44 +231,26 @@ private extension KakaoOAuthRepository {
             }
 
             session.presentationContextProvider = self.presentationContextProvider
-            // iCloud Private Relay 등 환경에서도 세션이 유지되도록 무조건 사파리 세션을 에페메럴로 사용
             session.prefersEphemeralWebBrowserSession = true
 
-            // 스레드 안전하게 세션 저장
-            self.sessionQueue.async { [weak self] in
-                self?.authSession = session
-
-                // 메인 스레드에서 세션 시작
-                DispatchQueue.main.async {
-                    if !session.start() {
-                        safeResume(.failure(AuthError.unknownError("세션 시작에 실패했습니다")))
-                    }
-                }
+            self.authSession = session
+            if !session.start() {
+                safeResume(.failure(AuthError.unknownError("세션 시작에 실패했습니다")))
             }
         }
     }
 
     /// 기존 세션을 안전하게 취소
     private func cancelExistingSession() async {
-        return await withCheckedContinuation { continuation in
-            sessionQueue.async { [weak self] in
-                if let session = self?.authSession {
-                    session.cancel()
-                }
-                self?.authSession = nil
-                continuation.resume()
-            }
+        if let session = authSession {
+            session.cancel()
         }
+        authSession = nil
     }
 
     /// 세션 정리
     private func cleanupSession() async {
-        return await withCheckedContinuation { continuation in
-            sessionQueue.async { [weak self] in
-                self?.authSession = nil
-                continuation.resume()
-            }
-        }
+        authSession = nil
     }
 
     func randomData(length: Int) throws -> Data {

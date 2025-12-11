@@ -43,7 +43,7 @@ public extension InfoPlist {
           .string("UIInterfaceOrientationPortrait")
         ]),
         "UIUserInterfaceStyle": .string("Light"),
-        "CFBundleShortVersionString": .string("1.0.1"),
+        "CFBundleShortVersionString": .string("1.0.2"),
         "ITSAppUsesNonExemptEncryption": .boolean(false),
         "CFBundleVersion": .string("14"),
         "LSApplicationQueriesSchemes": .array([

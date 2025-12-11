@@ -34,3 +34,12 @@ public extension AuthDeleteResponseDTO {
     return AuthDeleteStatus(isDeleted: self.supabaseDeleted)
   }
 }
+
+public extension DeviceTokenResponseDTO {
+  func toDomain() -> DeviceToken {
+    return DeviceToken(
+      deviceToken: self.deviceToken,
+      pendingKey: self.pendingKey
+    )
+  }
+}

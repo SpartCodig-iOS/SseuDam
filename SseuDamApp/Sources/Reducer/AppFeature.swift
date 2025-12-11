@@ -23,7 +23,7 @@ struct AppFeature {
         var splash: SplashFeature.State?
         var login: LoginCoordinator.State?
         var main: MainCoordinator.State?
-        var pendingInviteCode: String?
+        var pendingDeepLink: PendingDeepLink?
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
         @Shared(.appStorage("appVersion")) var appVersion: String? = ""
 
@@ -31,7 +31,7 @@ struct AppFeature {
             self.splash = .init()
             self.login = nil
             self.main = nil
-            self.pendingInviteCode = nil
+            self.pendingDeepLink = nil
             self.$appVersion.withLock { $0  =   Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""}
         }
     }
@@ -55,13 +55,17 @@ struct AppFeature {
         case presentLogin
         case presentMain
         case handleDeepLink(String)
+        case handlePushNotificationDeepLink(String)
     }
 
     enum InnerAction {
         case setLoginState
         case setMainState
         case handleDeepLinkJoin(String)
-        case setPendingInviteCode(String?)
+        case setPendingDeepLink(PendingDeepLink?)
+        case setupPushNotificationObserver
+        case handlePushDeepLink(String)
+        case checkPendingPushDeepLink
     }
 
     @CasePathable
@@ -69,6 +73,11 @@ struct AppFeature {
         case login(LoginCoordinator.Action)
         case splash(SplashFeature.Action)
         case main(MainCoordinator.Action)
+    }
+
+    enum PendingDeepLink: Equatable {
+        case invite(String)
+        case push(String)
     }
 
     @Dependency(\.continuousClock) var clock
@@ -177,6 +186,9 @@ extension AppFeature {
                 }
 
                 return .none
+
+            case .handlePushNotificationDeepLink(let urlString):
+                return .send(.inner(.handlePushDeepLink(urlString)))
         }
     }
 
@@ -192,11 +204,25 @@ extension AppFeature {
                 return .none
 
             case .setMainState:
-                let inviteCode = state.pendingInviteCode
-                state.pendingInviteCode = nil
+                let pending = state.pendingDeepLink
+                state.pendingDeepLink = nil
+
+                let inviteCode: String?
+                if case .invite(let code) = pending {
+                    inviteCode = code
+                } else {
+                    inviteCode = nil
+                }
+
                 state.main = .init(pendingInviteCode: inviteCode)
                 state.splash = nil
                 state.login = nil
+
+                // 대기 중인 푸시 딥 링크가 있으면 처리
+                if case .push(let deepLink) = pending {
+                    return .send(.inner(.handlePushDeepLink(deepLink)))
+                }
+
                 return .none
 
             case .handleDeepLinkJoin(let inviteCode):
@@ -213,21 +239,46 @@ extension AppFeature {
                         if hasMain {
                             await send(.scope(.main(.router(.routeAction(id: 0, action: .travelList(.openInviteCode(inviteCode)))))))
                             await send(.scope(.main(.refreshTravelList)))
-                            await send(.inner(.setPendingInviteCode(nil)))
+                            await send(.inner(.setPendingDeepLink(nil)))
                         } else {
-                            await send(.inner(.setPendingInviteCode(inviteCode)))
+                            await send(.inner(.setPendingDeepLink(.invite(inviteCode))))
                             await send(.view(.presentMain))
                         }
                     } else {
-                        // 로그인되어 있지 않으면 초대 코드를 저장하고 로그인 화면으로
-                        await send(.inner(.setPendingInviteCode(inviteCode)))
+                        await send(.inner(.setPendingDeepLink(.invite(inviteCode))))
                         await send(.view(.presentLogin))
                     }
                 }
 
-            case .setPendingInviteCode(let code):
-                state.pendingInviteCode = code
+            case .setPendingDeepLink(let pending):
+                state.pendingDeepLink = pending
                 return .none
+
+            case .handlePushDeepLink(let urlString):
+                guard state.main != nil else {
+                    state.pendingDeepLink = .push(urlString)
+                    return .send(.view(.presentMain))
+                }
+
+                return .send(.scope(.main(.handlePushDeepLink(urlString))))
+
+            case .checkPendingPushDeepLink:
+                return .run { send in
+                    // UserDefaults에서 대기 중인 푸시 딥 링크 확인
+                    if let pendingDeepLink = UserDefaults.standard.string(forKey: UserDefaultsKey.pendingPushDeepLink.rawValue) {
+                        UserDefaults.standard.removeObject(forKey: UserDefaultsKey.pendingPushDeepLink.rawValue)
+                        await send(.inner(.setPendingDeepLink(.push(pendingDeepLink))))
+                    }
+                }
+
+            case .setupPushNotificationObserver:
+                return .run { send in
+                    for await notification in NotificationCenter.default.notifications(named: .pushNotificationDeepLink) {
+                        if let urlString = notification.userInfo?["url"] as? String {
+                            await send(.view(.handlePushNotificationDeepLink(urlString)))
+                        }
+                    }
+                }
         }
     }
 
@@ -243,7 +294,20 @@ extension AppFeature {
                 return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
 
             case .login(.delegate(.presentMain)):
-                return .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
+                let effect: Effect<Action> = .send(.view(.presentMain), animation: .easeIn(duration: 0.18))
+
+                // 로그인 후 대기 중인 푸시 딥 링크가 있으면 처리
+                if case .push(let pendingDeepLink) = state.pendingDeepLink {
+                    return .merge(
+                        effect,
+                        .run { send in
+                            // 메인 화면이 로드된 후 딥 링크 처리
+                            await send(.inner(.handlePushDeepLink(pendingDeepLink)))
+                        }
+                    )
+                }
+
+                return effect
 
             case .main(.delegate(.presentLogin)):
                 return .send(

@@ -17,7 +17,6 @@ struct ExpenseValidationTests {
         let expense = Expense(
             id: "1",
             title: "점심",
-            note: nil,
             amount: -1000,  // ❌ 음수
             currency: "KRW",
             convertedAmount: -1000,
@@ -40,7 +39,6 @@ struct ExpenseValidationTests {
         let expense = Expense(
             id: "1",
             title: "   ",  // ❌ 공백만
-            note: nil,
             amount: 1000,
             currency: "KRW",
             convertedAmount: 1000,
@@ -65,7 +63,6 @@ struct ExpenseValidationTests {
         let expense = Expense(
             id: "1",
             title: "점심",
-            note: nil,
             amount: 12_000,
             currency: "KRW",
             convertedAmount: 12_000,
@@ -88,7 +85,6 @@ struct ExpenseValidationTests {
         let expense = Expense(
             id: "1",
             title: "점심",
-            note: nil,
             amount: 12_000,
             currency: "KRW",
             convertedAmount: 12_000,
@@ -109,7 +105,6 @@ struct ExpenseValidationTests {
         let expense = Expense(
             id: "1",
             title: "점심",
-            note: nil,
             amount: 12_000,
             currency: "KRW",
             convertedAmount: 12_000,
@@ -133,7 +128,6 @@ struct ExpenseValidationTests {
         let expense = Expense(
             id: "1",
             title: "점심",
-            note: "회식",
             amount: 50_000,
             currency: "KRW",
             convertedAmount: 50_000,
