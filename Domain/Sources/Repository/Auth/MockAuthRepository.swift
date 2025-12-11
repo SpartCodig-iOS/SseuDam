@@ -8,13 +8,13 @@
 import Foundation
 
 public actor MockAuthRepository: AuthRepositoryProtocol {
-
-
   // 테스트 시나리오를 위한 설정
   public var shouldThrowError: Bool = false
   public var errorToThrow: Error?
   public var mockTokenResult: TokenResult?
+  public var mockDeviceToken: DeviceToken?
   public var delay: TimeInterval = 0
+  private let persistentPendingKey: String = UUID().uuidString
 
   public init() {}
 
@@ -115,6 +115,26 @@ public actor MockAuthRepository: AuthRepositoryProtocol {
 
     return AuthDeleteStatus(isDeleted: true)
   }
+
+  public func registerDeviceToken(token: String) async throws -> DeviceToken {
+    if delay > 0 {
+      try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+    }
+
+    if shouldThrowError {
+      throw errorToThrow ?? MockAuthError.networkError
+    }
+
+    if let custom = mockDeviceToken {
+      return custom
+    }
+
+    return DeviceToken(
+      deviceToken: token,
+      pendingKey: persistentPendingKey
+    )
+  }
+
 }
 
 // Mock 전용 에러 타입

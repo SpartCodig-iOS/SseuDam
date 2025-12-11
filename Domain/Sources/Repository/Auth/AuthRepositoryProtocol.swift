@@ -11,4 +11,5 @@ public protocol AuthRepositoryProtocol {
   func refresh(token: String) async throws -> TokenResult
   func logout(sessionId: String) async throws -> LogoutStatus
   func delete() async throws -> AuthDeleteStatus
+  func registerDeviceToken(token: String)  async throws -> DeviceToken
 }

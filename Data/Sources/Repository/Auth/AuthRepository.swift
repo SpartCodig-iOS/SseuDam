@@ -8,6 +8,7 @@
 import Domain
 import Moya
 import NetworkService
+import Foundation
 
 final public class AuthRepository: AuthRepositoryProtocol {
     private var provider: MoyaProvider<AuthAPITarget>
@@ -45,6 +46,37 @@ final public class AuthRepository: AuthRepositoryProtocol {
             throw  NetworkError.noData
         }
         return data.toDomain()
+    }
+
+    public func registerDeviceToken(
+        token: String
+    ) async throws -> Domain.DeviceToken {
+        let pendingKey = getOrCreatePendingKey()
+        let body = DeviceTokenRequestDTO(deviceToken: token, pendingKey: pendingKey)
+        let response: BaseResponse<DeviceTokenResponseDTO> = try await provider.request(.registerDeviceToken(body: body))
+        guard let data = response.data else {
+            throw NetworkError.noData
+        }
+
+        if let returnedKey = data.pendingKey {
+            persistPendingKey(returnedKey)
+        }
+
+        return data.toDomain()
+    }
+
+    private func getOrCreatePendingKey() -> String {
+        let key = "auth.pendingKey"
+        if let saved = UserDefaults.standard.string(forKey: key) {
+            return saved
+        }
+        let newKey = UUID().uuidString
+        UserDefaults.standard.set(newKey, forKey: key)
+        return newKey
+    }
+
+    private func persistPendingKey(_ key: String) {
+        UserDefaults.standard.set(key, forKey: "auth.pendingKey")
     }
 }
 
