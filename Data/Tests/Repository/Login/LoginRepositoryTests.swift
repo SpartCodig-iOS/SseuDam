@@ -31,7 +31,9 @@ struct LoginRepositoryTests {
             input: Domain.OAuthUserInput(
                 accessToken: "google-access-token",
                 socialType: Domain.SocialType.google,
-                authorizationCode: "google-auth-code"
+                authorizationCode: "google-auth-code",
+                codeVerifier: nil,
+                redirectUri: nil
             )
         )
 
@@ -39,7 +41,7 @@ struct LoginRepositoryTests {
         #expect(result.provider == Domain.SocialType.google)
         #expect(result.name == "Test Google User")
         #expect(result.token.accessToken == "mock-access-token")
-        #expect(result.token.authToken == "")
+        #expect(result.token.authToken == "mock-access-token")
     }
 
     @Test("Apple 로그인이 성공적으로 AuthEntity를 반환한다")
@@ -56,7 +58,9 @@ struct LoginRepositoryTests {
             input: Domain.OAuthUserInput(
                 accessToken: "apple-access-token",
                 socialType: Domain.SocialType.apple,
-                authorizationCode: "apple-auth-code"
+                authorizationCode: "apple-auth-code",
+                codeVerifier: nil,
+                redirectUri: nil
             )
         )
 
@@ -64,7 +68,7 @@ struct LoginRepositoryTests {
         #expect(result.provider == Domain.SocialType.apple)
         #expect(result.name == "Test Apple User")
         #expect(result.token.accessToken == "mock-access-token")
-        #expect(result.token.authToken == "")
+        #expect(result.token.authToken == "mock-access-token")
     }
 
     @Test("잘못된 액세스 토큰으로 401 에러를 반환한다")
@@ -82,7 +86,9 @@ struct LoginRepositoryTests {
                 input: Domain.OAuthUserInput(
                     accessToken: "invalid-token",
                     socialType: Domain.SocialType.google,
-                    authorizationCode: "test-auth-code"
+                    authorizationCode: "test-auth-code",
+                    codeVerifier: nil,
+                    redirectUri: nil
                 )
             )
         }
@@ -103,7 +109,9 @@ struct LoginRepositoryTests {
                 input: Domain.OAuthUserInput(
                     accessToken: "test-token",
                     socialType: Domain.SocialType.apple,
-                    authorizationCode: "test-auth-code"
+                    authorizationCode: "test-auth-code",
+                    codeVerifier: nil,
+                    redirectUri: nil
                 )
             )
         }
@@ -112,7 +120,14 @@ struct LoginRepositoryTests {
     @Test("API 타겟이 올바른 로그인 경로를 사용한다")
     func testLoginRepository_UsesCorrectAPIPath() throws {
         // Given
-        let body = LoginUserRequestDTO(accessToken: "test-token", loginType: "google")
+        let body = LoginUserRequestDTO(
+            accessToken: "test-token",
+            loginType: "google",
+            authorizationCode: nil,
+            codeVerifier: nil,
+            redirectUri: nil,
+            deviceToken: nil
+        )
         let target = OAuthAPITarget.loginOAuth(body: body)
 
         // Then
@@ -123,7 +138,14 @@ struct LoginRepositoryTests {
     @Test("요청 바디가 올바르게 구성된다")
     func testLoginRepository_BuildsRequestBodyCorrectly() throws {
         // Given
-        let body = LoginUserRequestDTO(accessToken: "token-123", loginType: "apple")
+        let body = LoginUserRequestDTO(
+            accessToken: "token-123",
+            loginType: "apple",
+            authorizationCode: "auth-code",
+            codeVerifier: "code-verifier",
+            redirectUri: "redirect://uri",
+            deviceToken: "device-token"
+        )
         let target = OAuthAPITarget.loginOAuth(body: body)
 
         // When
@@ -132,6 +154,10 @@ struct LoginRepositoryTests {
         // Then
         #expect(params?["accessToken"] as? String == "token-123")
         #expect(params?["loginType"] as? String == "apple")
+        #expect(params?["authorizationCode"] as? String == "auth-code")
+        #expect(params?["codeVerifier"] as? String == "code-verifier")
+        #expect(params?["redirectUri"] as? String == "redirect://uri")
+        #expect(params?["deviceToken"] as? String == "device-token")
     }
 
     // MARK: - 데이터 매핑 테스트
@@ -158,7 +184,7 @@ struct LoginRepositoryTests {
         // Then
         #expect(result.name == "Custom Test User")
         #expect(result.provider == Domain.SocialType.google)
-        #expect(result.token.authToken == "")
+        #expect(result.token.authToken == "mock-access-token")
         #expect(!result.token.sessionID.isEmpty)
     }
 }

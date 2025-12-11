@@ -18,7 +18,7 @@ struct RecordExpenseUseCaseTests {
         let expense = Expense(
             id: id,
             title: "점심",
-            note: nil,
+//            note: nil,
             amount: 12_000,
             currency: "KRW",
             convertedAmount: 12_000,
@@ -31,7 +31,7 @@ struct RecordExpenseUseCaseTests {
             ]
         )
         
-        try await useCase.execute(expense: expense)
+      try await useCase.execute(travelId: "", expense: expense)
         let saved = await repository.fetch(id: id)
         #expect(saved?.title == "점심")
     }
