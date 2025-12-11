@@ -6,7 +6,8 @@ let project = Project.makeFeature(
     dependencies: [
         .Features.ExpenseList,
         .Features.SaveExpense,
-        .Features.SettlementResult
+        .Features.SettlementResult,
+        .Features.SettlementDetail
     ],
     hasTests: true
 )
