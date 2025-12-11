@@ -38,9 +38,17 @@ public struct ExpenseListView: View {
                                 .onTapGesture {
                                     send(.onTapExpense(expense))
                                 }
+                                .transition(.asymmetric(
+                                    insertion: .scale(scale: 0.95, anchor: .top)
+                                        .combined(with: .opacity)
+                                        .combined(with: .move(edge: .top)),
+                                    removal: .scale(scale: 0.95, anchor: .top)
+                                        .combined(with: .opacity)
+                                ))
                         }
                     }
                     .padding(.vertical, 10)
+                    .animation(.spring(response: 0.35, dampingFraction: 0.75), value: store.currentExpense.count)
                 }
                 .scrollIndicators(.hidden)
             } else {
