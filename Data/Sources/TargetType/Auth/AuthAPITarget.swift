@@ -13,6 +13,7 @@ public enum AuthAPITarget {
     case refreshToken(body: RefreshRequestDTO)
     case logout(body: SessionRequestDTO)
     case deleteAccount
+    case registerDeviceToken(body: DeviceTokenRequestDTO)
 }
 
 
@@ -25,7 +26,7 @@ extension AuthAPITarget: BaseTargetType {
     
     public var requiresAuthorization: Bool {
         switch self {
-            case .refreshToken:
+          case .refreshToken, .registerDeviceToken:
                 return false
             case .logout, .deleteAccount:
                 return true
@@ -42,6 +43,9 @@ extension AuthAPITarget: BaseTargetType {
                 
             case .deleteAccount:
                 return AuthAPI.deleteAccount.description
+
+          case .registerDeviceToken:
+            return AuthAPI.registerDevice.description
         }
     }
     
@@ -59,12 +63,15 @@ extension AuthAPITarget: BaseTargetType {
                 
             case .deleteAccount:
                 return nil
+
+          case .registerDeviceToken(let body):
+            return body.toDictionary
         }
     }
     
     public var method: Moya.Method {
         switch self {
-            case .refreshToken, .logout:
+          case .refreshToken, .logout, .registerDeviceToken:
                 return .post
                 
             case .deleteAccount:

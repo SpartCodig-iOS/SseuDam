@@ -7,6 +7,9 @@
 
 import UIKit
 import UserNotifications
+import LogMacro
+import Data
+
 
 @MainActor
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -53,7 +56,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     ) {
         let tokenString = deviceToken.map { String(format: "%02x", $0) }.joined()
         UserDefaults.standard.set(tokenString, forKey: "Token")
+      let repo = AuthRepository()
 
+      Task {
+        let repodata =  try await repo.registerDeviceToken(token: tokenString)
+        #logDebug("토큰 결과 값", repodata)
+      }
     }
 
     // APNs 토큰 실패
@@ -80,6 +88,52 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
+
+        if let urlString = Self.extractDeepLink(from: userInfo) {
+            #logDebug("🔗 Processing push notification deep link: \(urlString)")
+
+            // UserDefaults에도 저장 (앱이 종료된 상태에서 푸시 알림을 탭한 경우 대비)
+            UserDefaults.standard.set(urlString, forKey: UserDefaultsKey.pendingPushDeepLink.rawValue)
+
+            // 메인 스레드에서 딥 링크 처리
+            Task { @MainActor in
+                NotificationCenter.default.post(
+                    name: .pushNotificationDeepLink,
+                    object: nil,
+                    userInfo: ["url": urlString]
+                )
+            }
+        }
+
         completionHandler()
     }
+
+    /// 여러 가능한 경로에서 딥링크 문자열을 추출
+    nonisolated private static func extractDeepLink(from userInfo: [AnyHashable: Any]) -> String? {
+        // 1) 단일 문자열 필드 우선
+        let stringKeys = ["deeplink", "url"]
+        for key in stringKeys {
+            if let url = userInfo[key] as? String { return url }
+        }
+
+        // 2) 중첩 객체에서 url 필드 찾기 (호환 키: deeplink, data, custom)
+        let containerKeys = ["deeplink", "data", "custom"]
+        for key in containerKeys {
+            guard let container = userInfo[key] as? [String: Any],
+                  let url = container["url"] as? String else { continue }
+            return url
+        }
+
+        #logDebug("❌ No deep link found in push notification")
+        #logDebug("Available keys: \(userInfo.keys)")
+        return nil
+    }
+}
+
+extension Notification.Name {
+    static let pushNotificationDeepLink = Notification.Name("pushNotificationDeepLink")
+}
+
+enum UserDefaultsKey: String {
+    case pendingPushDeepLink
 }

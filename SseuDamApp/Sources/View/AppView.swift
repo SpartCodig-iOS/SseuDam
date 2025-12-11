@@ -50,5 +50,9 @@ struct AppView: View {
             .spring(response: 0.52, dampingFraction: 0.94, blendDuration: 0.14),
             value: store.caseKey
         )
+        .onAppear {
+            store.send(.inner(.setupPushNotificationObserver))
+            store.send(.inner(.checkPendingPushDeepLink))
+        }
     }
 }

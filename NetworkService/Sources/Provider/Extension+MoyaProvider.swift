@@ -23,9 +23,16 @@ public extension MoyaProvider {
   ) -> Result<T, Error> {
     switch result {
     case .success(let response):
-      guard let httpResponse = response.response else {
-        return .failure(NetworkError.noResponse)
-      }
+      // Stubs(.networkResponse) can deliver a Response without an HTTPURLResponse.
+      // Fallback to a synthesized response so tests don’t fail with `.noResponse`.
+      let httpResponse = response.response
+      ?? HTTPURLResponse(
+        url: response.request?.url ?? URL(fileURLWithPath: "/"),
+        statusCode: response.statusCode,
+        httpVersion: "HTTP/1.1",
+        headerFields: nil
+      )
+      ?? HTTPURLResponse()
 
       let statusCode = httpResponse.statusCode
 

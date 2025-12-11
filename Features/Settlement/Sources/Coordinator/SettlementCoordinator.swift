@@ -18,7 +18,7 @@ public struct SettlementCoordinator {
     @ObservableState
     public struct State: Equatable {
         var routes: [Route<SettlementScreen.State>]
-        let travelId: String
+        public let travelId: String
         
         public init(travelId: String) {
             self.travelId = travelId
@@ -30,6 +30,8 @@ public struct SettlementCoordinator {
     public enum Action {
         case router(IndexedRouterActionOf<SettlementScreen>)
         case delegate(DelegateAction)
+        case navigateToExpenseTab(String)
+        case navigateToSettlementTab
         
         @CasePathable
         public enum DelegateAction {
@@ -74,6 +76,13 @@ public struct SettlementCoordinator {
             case .router(.routeAction(_, .saveExpense(.delegate(.onTapBackButton)))):
                 state.routes.pop()
                 return .none
+
+            case .navigateToExpenseTab(let expenseId):
+                return .send(.router(.routeAction(id: 0, action: .settlement(.navigateToExpense(expenseId)))))
+
+            case .navigateToSettlementTab:
+                return .send(.router(.routeAction(id: 0, action: .settlement(.navigateToSettlement))))
+
             default:
                 break
             }
