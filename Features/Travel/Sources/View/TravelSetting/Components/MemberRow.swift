@@ -12,9 +12,6 @@ struct MemberRow: View {
     let name: String
     let isMe: Bool
     let isOwner: Bool
-    let isEditing: Bool
-    let onDelegateOwner: () -> Void
-    let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: 0) {
@@ -53,30 +50,6 @@ struct MemberRow: View {
                 Text("관리자")
                     .font(.app(.body, weight: .medium))
                     .foregroundStyle(Color.gray7)
-            }
-
-            // 편집 모드
-            if isEditing && !isOwner && !isMe {
-                HStack(spacing: 0) {
-                    Button(action: onDelegateOwner) {
-                        Text("관리자")
-                            .underline(true, color: Color.gray7)
-                            .font(.app(.caption1, weight: .medium))
-                            .foregroundColor(.gray7)
-                    }
-
-                    Divider()
-                        .frame(width: 1, height: 12)
-                        .foregroundColor(.gray1)
-                        .padding(.horizontal, 4)
-
-                    Button(action: onDelete) {
-                        Text("삭제")
-                            .underline(true, color: .red)
-                            .font(.app(.caption1, weight: .medium))
-                            .foregroundColor(.red)
-                    }
-                }
             }
         }
     }

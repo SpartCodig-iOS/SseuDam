@@ -12,7 +12,6 @@ import ComposableArchitecture
 import Domain
 
 public struct MemberView: View {
-    @Environment(\.dismiss) private var dismiss
     @Bindable var store: StoreOf<MemberManageFeature>
 
     public init(store: StoreOf<MemberManageFeature>) {
@@ -23,7 +22,7 @@ public struct MemberView: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Button {
-                    dismiss()
+                    store.send(.backButtonTapped)
                 } label: {
                     Image(assetName: "chevronLeft")
                         .resizable()
@@ -43,18 +42,28 @@ public struct MemberView: View {
 
             ScrollView {
                 VStack(spacing: 32) {
-                    MyCardView()
+                    if let myInfo = store.myInfo {
+                        MyCardView(myInfo: myInfo)
+                    }
 
                     VStack(spacing: 8) {
                         ForEach(store.members, id: \.id) { member in
-                            MemberCardView(member: member)
+                            MemberCardView(member: member, store: store)
                         }
                     }
                 }
                 .padding(16)
             }
         }
+        .navigationBarBackButtonHidden(true)
         .background(Color.primary50)
+        .onAppear {
+            store.send(.onAppear)
+        }
+        .dsAlert(
+            store.scope(state: \.alert, action: \.alert),
+            dismissAction: .dismiss
+        )
     }
 }
 
@@ -62,6 +71,7 @@ public struct MemberView: View {
     MemberView(
         store: Store(
             initialState: MemberManageFeature.State(
+                travelId: "123",
                 members: [
                     TravelMember(
                         id: "",
@@ -69,9 +79,15 @@ public struct MemberView: View {
                         role: .owner,
                         email: "123@example.com"
                     )
-                ]
+                ],
+                myInfo: TravelMember(
+                    id: "",
+                    name: "이영희",
+                    role: .member
+                )
             ),
             reducer: { MemberManageFeature() }
         )
     )
 }
+

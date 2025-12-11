@@ -8,8 +8,11 @@
 import Foundation
 import SwiftUI
 import DesignSystem
+import Domain
 
 struct MyCardView: View {
+    let myInfo: TravelMember
+
     var body: some View {
         ZStack(alignment: .leading) {
             RoundedRectangle(cornerRadius: 8)
@@ -40,11 +43,11 @@ struct MyCardView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 4) {
-                        Text("김민수")
+                        Text(myInfo.name)
                             .font(.app(.body, weight: .medium))
                             .foregroundStyle(Color.appBlack)
 
-                        Text("관리자")
+                        Text(myInfo.role.displayName)
                             .font(.app(.caption2, weight: .medium))
                             .foregroundStyle(Color.gray7)
                             .padding(.horizontal, 6)
@@ -55,7 +58,7 @@ struct MyCardView: View {
                             )
                     }
 
-                    Text("yh@example.com")
+                    Text(myInfo.email ?? "")
                         .font(.app(.body, weight: .medium))
                         .tint(Color.gray6)
                 }
@@ -65,8 +68,4 @@ struct MyCardView: View {
         }
         .fixedSize(horizontal: false, vertical: true)
     }
-}
-
-#Preview {
-    MyCardView()
 }

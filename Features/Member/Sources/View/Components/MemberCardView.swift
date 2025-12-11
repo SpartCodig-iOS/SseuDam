@@ -9,9 +9,11 @@ import Foundation
 import SwiftUI
 import DesignSystem
 import Domain
+import ComposableArchitecture
 
 struct MemberCardView: View {
     let member: TravelMember
+    let store: StoreOf<MemberManageFeature>
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -48,7 +50,7 @@ struct MemberCardView: View {
                                 .font(.app(.body, weight: .medium))
                                 .foregroundStyle(Color.appBlack)
 
-                            Text(member.role.rawValue)
+                            Text(member.role.displayName)
                                 .font(.app(.caption2, weight: .medium))
                                 .foregroundColor(Color.gray7)
                                 .padding(.horizontal, 6)
@@ -61,7 +63,7 @@ struct MemberCardView: View {
                             Spacer()
 
                             Button {
-                                print("삭제")
+                                store.send(.deleteButtonTapped(member))
                             } label: {
                                 Image(assetName: "trash")
                                     .resizable()
@@ -79,7 +81,7 @@ struct MemberCardView: View {
 
                 HStack(spacing: 4) {
                     Button {
-                        print("관리자 지정")
+                        store.send(.delegateOwnerButtonTapped(member))
                     } label: {
                         Text("관리자 지정")
                             .font(.app(.caption1, weight: .medium))
@@ -99,4 +101,3 @@ struct MemberCardView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 }
-

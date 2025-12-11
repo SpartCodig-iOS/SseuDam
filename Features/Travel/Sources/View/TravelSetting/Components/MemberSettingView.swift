@@ -11,11 +11,8 @@ import ComposableArchitecture
 // MARK: - 멤버 섹션
 struct MemberSettingView: View {
     @Bindable var store: StoreOf<MemberSettingFeature>
-    @State private var isEditing = false
-
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-
             let myId = store.members.first?.id ?? ""
             let ownerId = store.members.first(where: { $0.role == .owner })?.id
             let isOwner = (ownerId == myId)
@@ -23,20 +20,16 @@ struct MemberSettingView: View {
             SectionHeader(
                 title: "멤버",
                 isOWner: isOwner,
-                isEditing: $isEditing
+                isEditing: Binding.constant(false),
+                editAction: {
+                    store.send(.editButtonTapped)
+                }
             )
 
             MemberListView(
                 members: store.members,
                 myId: myId,
-                ownerId: ownerId ?? "",
-                isEditing: isEditing,
-                onDelegateOwner: { memberId in
-                    store.send(.delegateOwnerTapped(memberId))
-                },
-                onDelete: { memberId in
-                    store.send(.deleteMemberTapped(memberId))
-                }
+                ownerId: ownerId ?? ""
             )
             .padding(16)
             .background(

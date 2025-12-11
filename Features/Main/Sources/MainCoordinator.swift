@@ -9,6 +9,7 @@ import Foundation
 import TCACoordinators
 import ComposableArchitecture
 import SettlementFeature
+import MemberFeature
 
 @Reducer
 public struct MainCoordinator {
@@ -17,6 +18,7 @@ public struct MainCoordinator {
     @ObservableState
     public struct State: Equatable {
         var routes: [Route<Screen.State>]
+        var travelSettingRouteIndex: Int? = nil
 
         public init(pendingInviteCode: String? = nil) {
             self.routes = [.root(.travelList(.init(pendingInviteCode: pendingInviteCode)), embedInNavigationView: true)]
@@ -84,13 +86,34 @@ extension MainCoordinator {
 
             case .routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId)))):
                 state.routes.push(.travelSetting(.init(travelId: travelId)))
+                state.travelSettingRouteIndex = state.routes.count - 1
                 return .none
 
             case .routeAction(_, .travelSetting(.delegate(.done))):
+                state.travelSettingRouteIndex = nil
 //              state.routes.goBackTo(\.travelList)
             return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
               $0.goBackTo(\.travelList)
             }
+            
+            case let .routeAction(_, .travelSetting(.delegate(.openMemberManage(travelId)))):
+                state.routes.push(.memberManage(.init(travelId: travelId)))
+                return .none
+
+            case .routeAction(_, .memberManage(.delegate(.back))):
+                state.routes.goBack()
+                return .none
+
+            case .routeAction(_, .memberManage(.delegate(.finish))):
+                state.routes.goBack()
+                if let travelSettingIndex = state.travelSettingRouteIndex {
+                    return .send(.router(.routeAction(
+                        id: travelSettingIndex,
+                        action: .travelSetting(.fetchDetail)
+                    )))
+                } else {
+                    return .none
+                }
 
           case .routeAction(id: _, action: .settlementCoordinator(.delegate(.onTapBackButton))):
             state.routes.goBack()

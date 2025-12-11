@@ -8,6 +8,14 @@
 import Foundation
 
 public struct MyTravelMember {
-    let myInfo: TravelMember
-    let memberInfo: [TravelMember]
+    public let myInfo: TravelMember
+    public let memberInfo: [TravelMember]
+
+    public init(
+        myInfo: TravelMember,
+        memberInfo: [TravelMember]
+    ) {
+        self.myInfo = myInfo
+        self.memberInfo = memberInfo
+    }
 }

@@ -50,7 +50,8 @@ public struct TravelSettingFeature {
         case alert(AlertAction)
 
         public enum Delegate: Equatable {
-            case done  
+            case done
+            case openMemberManage(travelId: String)
         }
     }
 
@@ -129,9 +130,8 @@ public struct TravelSettingFeature {
                 state.alert = state.confirmDeleteAlert()
                 return .none
 
-            case .memberSetting(.delegate(.needRefresh)):
-                // 멤버 관련 변경 발생 → 서버에서 Travel 다시 가져오기
-                return .send(.fetchDetail)
+            case let .memberSetting(.delegate(.openMemberManage(travelId))):
+                return .send(.delegate(.openMemberManage(travelId: travelId)))
 
             case .clearError:
                 state.errorMessage = nil

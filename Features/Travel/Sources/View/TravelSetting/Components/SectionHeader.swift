@@ -12,6 +12,7 @@ struct SectionHeader: View {
     let title: String
     let isOWner: Bool
     @Binding var isEditing: Bool
+    var editAction: (() -> Void)? = nil
 
     var body: some View {
         HStack {
@@ -22,8 +23,12 @@ struct SectionHeader: View {
 
             if isOWner {
                 Button {
-                    withAnimation {
-                        isEditing.toggle()
+                    if let editAction {
+                        editAction()
+                    } else {
+                        withAnimation {
+                            isEditing.toggle()
+                        }
                     }
                 } label: {
                     Text(isEditing ? "완료" : "수정")
