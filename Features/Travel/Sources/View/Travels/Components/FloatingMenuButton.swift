@@ -14,15 +14,24 @@ struct FloatingMenuButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(assetName: isOpen ? "xmark" : "plus")
-                .resizable()
-                .scaledToFit()
-                .frame(height: isOpen ?  12 : 14)
-                .foregroundStyle(isOpen ? Color.gray7 : Color.appWhite)
-                .padding(isOpen ? 20 : 19)
-                .background(isOpen ? Color.appWhite : Color.primary500)
-                .clipShape(Circle())
-                .shadow(color: Color.black.opacity(0.2), radius: 2, x: 1, y: 1)
+            if isOpen {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.gray7)
+                    .frame(width: 52, height: 52)
+                    .background(Color.appWhite)
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+
+            } else {
+                Image(systemName: "plus")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 52, height: 52)
+                    .background(Color.primary500)
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
+            }
         }
     }
 }

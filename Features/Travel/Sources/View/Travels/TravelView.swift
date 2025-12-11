@@ -31,7 +31,8 @@ public struct TravelView: View {
                     }
                     
                     TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
-                    
+                        .padding(.horizontal, 20)
+
                     if store.travels.isEmpty {
                         TravelEmptyView()
                     } else {
