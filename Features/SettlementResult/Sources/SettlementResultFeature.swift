@@ -8,6 +8,7 @@
 import Foundation
 import Domain
 import ComposableArchitecture
+import SettlementDetailFeature
 
 @Reducer
 public struct SettlementResultFeature {
@@ -24,6 +25,7 @@ public struct SettlementResultFeature {
         public var currentUserId: String?
 
         @Presents public var alert: AlertState<Action.AlertAction>?
+        @Presents public var settlementDetail: SettlementDetailFeature.State?
 
         // 정산 계산 결과
         public var settlementCalculation: SettlementCalculation = SettlementCalculation(
@@ -83,11 +85,13 @@ public struct SettlementResultFeature {
         public enum ViewAction {
             case onAppear
             case backButtonTapped
+            case detailButtonTapped
         }
 
         @CasePathable
         public enum ScopeAction {
             case alert(PresentationAction<AlertAction>)
+            case settlementDetail(PresentationAction<SettlementDetailFeature.Action>)
         }
 
         @CasePathable
@@ -116,10 +120,22 @@ public struct SettlementResultFeature {
             case .view(.backButtonTapped):
                 return .none
 
+            case .view(.detailButtonTapped):
+                // 상세보기 sheet 열기
+                guard let currentUserId = state.currentUserId else { return .none }
+                state.settlementDetail = SettlementDetailFeature.State(
+                    memberDetails: state.settlementCalculation.memberDetails,
+                    currentUserId: currentUserId
+                )
+                return .none
+
             case .scope, .binding:
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.scope.alert)
+        .ifLet(\.$settlementDetail, action: \.scope.settlementDetail) {
+            SettlementDetailFeature()
+        }
     }
 }
