@@ -31,9 +31,7 @@ public enum LiveDependencies {
 
         // Auth & Session
         let oAuthUseCase = makeOAuthUseCase(repository: oAuthRepository)
-        dependencies.loginUseCase = LoginUseCase(repository: loginRepository)
         dependencies.oAuthUseCase = oAuthUseCase
-        dependencies.signUpUseCase = SignUpUseCase(repository: signUpRepository)
         dependencies.unifiedOAuthUseCase = UnifiedOAuthUseCase(
             oAuthUseCase: oAuthUseCase,
             authRepository: authRepository,

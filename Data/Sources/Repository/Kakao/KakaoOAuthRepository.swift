@@ -13,6 +13,11 @@ import Security
 import Domain
 import LogMacro
 
+@available(iOS 12.0, *)
+extension ASWebAuthenticationSession: @unchecked Sendable {}
+
+extension KakaoOAuthRepository: @unchecked Sendable {}
+
 /// Kakao OAuth - 백엔드 콜백 기반(PKCE) 플로우
 /// 1) authorize 호출 (카카오톡/웹)
 /// 2) 서버 콜백 → 앱 딥링크(sseudam://oauth/kakao?ticket=...)
