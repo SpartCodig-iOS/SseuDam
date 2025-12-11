@@ -45,12 +45,14 @@ public struct SettlementFeature {
     @CasePathable
     public enum Action: BindableAction, ViewAction {
         case binding(BindingAction<State>)
-        
+
         case view(ViewAction)
         case inner(InnerAction)
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case navigateToExpense(String)
+        case navigateToSettlement
 
         @CasePathable
         public enum ViewAction {
@@ -119,6 +121,15 @@ public struct SettlementFeature {
                 return .none
                 
             case .delegate:
+                return .none
+
+            case .navigateToExpense(let expenseId):
+                // 지출 목록 탭으로 이동 (index 0)
+                state.selectedTab = 0
+                return .send(.scope(.expenseList(.highlightExpense(expenseId))))
+
+            case .navigateToSettlement:
+                state.selectedTab = 1
                 return .none
             }
         }

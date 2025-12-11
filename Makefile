@@ -7,25 +7,67 @@ TUIST_PATH := $(shell command -v tuist 2>/dev/null || find /usr/local/bin /opt/h
 
 # Create a new feature module
 feature:
-	@echo "🚀 새로운 Feature를 생성합니다..."
-	@echo "💡 Tip: 'Feature' 접미사는 자동으로 추가됩니다 (예: main → MainFeature)"
+	@echo "========================================="
+	@echo "Feature 생성"
+	@echo "========================================="
+	@echo ""
+	@echo "💡 팁:"
+	@echo "  - 공백이나 하이픈을 사용하면 자동으로 카멜케이스로 변환됩니다"
+	@echo "  - 예: 'settlement detail' → 'SettlementDetail'"
+	@echo "  - 취소하려면 빈 값을 입력하거나 Ctrl+C를 누르세요"
+	@echo ""
 	@if [ -z "$(TUIST_PATH)" ]; then \
 		echo "❌ Tuist를 찾을 수 없습니다."; \
 		echo "다음 명령어로 설치해주세요:"; \
 		echo "curl -Ls https://install.tuist.io | bash"; \
 		exit 1; \
 	fi
-	@read -p "Feature 이름을 입력하세요: " input && \
-	name=$$(echo "$$input" | sed -E 's/[Ff]eature$$//' | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}') && \
-	echo "📝 생성할 Feature: $${name}Feature" && \
+	@read -p "Feature 이름을 입력하세요: " input; \
+	if [ -z "$$input" ]; then \
+		echo ""; \
+		echo "❌ 취소되었습니다."; \
+		exit 0; \
+	fi; \
+	name=$$(echo "$$input" | sed -E 's/[-_[:space:]]+/ /g' | awk '{for(i=1;i<=NF;i++) $$i=toupper(substr($$i,1,1)) substr($$i,2)}1' | sed 's/ //g'); \
+	if [ "$$input" != "$$name" ]; then \
+		echo "✨ 자동 변환: '$$input' → '$$name'"; \
+	fi; \
+	if ! echo "$$name" | grep -qE '^[A-Za-z][A-Za-z0-9]*$$'; then \
+		echo ""; \
+		echo "❌ 잘못된 Feature 이름입니다: $$name"; \
+		echo "   알파벳으로 시작하고 알파벳과 숫자만 사용할 수 있습니다."; \
+		exit 1; \
+	fi; \
+	echo ""; \
+	echo "📦 생성할 Feature: $$name"; \
+	echo "   경로: Features/$$name/"; \
+	echo ""; \
+	read -p "계속하시겠습니까? (y/N): " confirm; \
+	if [ "$$confirm" != "y" ] && [ "$$confirm" != "Y" ]; then \
+		echo ""; \
+		echo "❌ 취소되었습니다."; \
+		exit 0; \
+	fi; \
+	echo ""; \
+	echo "🚀 Feature를 생성하는 중..."; \
+	echo ""; \
 	$(TUIST_PATH) scaffold feature --name $$name && \
 	./Scripts/update-modules.sh && \
-	echo "✅ Feature '$${name}'이 성공적으로 생성되었습니다!" && \
-	echo "📦 TargetDependency+Modules.swift가 자동으로 업데이트되었습니다!" && \
+	echo "" && \
+	echo "=========================================" && \
+	echo "✅ Feature '$$name'가 성공적으로 생성되었습니다!" && \
+	echo "=========================================" && \
+	echo "" && \
+	echo "📂 생성된 파일:" && \
+	echo "   - Features/$$name/Project.swift" && \
+	echo "   - Features/$$name/Sources/$${name}View.swift" && \
+	echo "   - Features/$$name/Tests/$${name}FeatureTests.swift" && \
+	echo "   - Features/$$name/Demo/" && \
 	echo "" && \
 	echo "다음 단계:" && \
-	echo "1. 'make generate'로 Xcode 프로젝트 업데이트" && \
-	echo "2. '$${name}FeatureDemo' 스킴을 선택해서 테스트"
+	echo "   1. make generate" && \
+	echo "   2. Xcode에서 $$name 작업 시작" && \
+	echo ""
 
 # Generate Xcode project
 generate:

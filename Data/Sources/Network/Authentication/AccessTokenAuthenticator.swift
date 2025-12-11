@@ -18,10 +18,13 @@ enum TokenRefreshError: Error {
 final class AccessTokenAuthenticator: Authenticator {
   typealias Credential = AccessTokenCredential
 
-  private let repository: AuthRepository
+  private let remote: any AuthRemoteDataSourceProtocol
 
-  init(repository: AuthRepository = AuthRepository(provider: MoyaProvider<AuthAPITarget>.default)) {
-    self.repository = repository
+  init(remote: any AuthRemoteDataSourceProtocol = AuthRemoteDataSource(
+    authProvider: MoyaProvider<AuthAPITarget>.default,
+    oauthProvider: MoyaProvider<OAuthAPITarget>.default
+  )) {
+    self.remote = remote
   }
 
   func apply(_ credential: Credential, to urlRequest: inout URLRequest) {
@@ -62,7 +65,7 @@ private extension AccessTokenAuthenticator {
     }
 
     do {
-      let result = try await repository.refresh(token: credential.refreshToken)
+      let result = try await remote.refresh(token: credential.refreshToken)
       let tokens = result.token
 
       KeychainManager.shared.saveTokens(

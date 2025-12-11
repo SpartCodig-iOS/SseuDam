@@ -15,9 +15,17 @@ struct SettlementResultDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                SettlementResultView(store: Store(initialState: SettlementResultFeature.State(travelId: "travel_01"), reducer: {
-                    SettlementResultFeature()
-                }))
+                SettlementResultView(
+                    store: Store(
+                        initialState: SettlementResultFeature.State(
+                            travelId: "travel_id",
+                            travel: .init(value: nil),
+                            expenses: .init(value: [])
+                        ),
+                        reducer: {
+                            SettlementResultFeature()
+                        })
+                )
             }
         }
     }

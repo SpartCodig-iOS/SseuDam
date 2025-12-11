@@ -8,14 +8,16 @@
 import SwiftUI
 import DesignSystem
 import ComposableArchitecture
+import SettlementDetailFeature
 
+@ViewAction(for: SettlementResultFeature.self)
 public struct SettlementResultView: View {
-    @Bindable var store: StoreOf<SettlementResultFeature>
-    
+    @Bindable public var store: StoreOf<SettlementResultFeature>
+
     public init(store: StoreOf<SettlementResultFeature>) {
         self.store = store
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             // 헤더 (총 지출, 통계)
@@ -24,7 +26,7 @@ public struct SettlementResultView: View {
                 myExpenseAmount: store.myExpenseAmount,
                 totalPersonCount: store.totalPersonCount
             )
-            
+
             if !store.paymentsToMake.isEmpty || !store.paymentsToReceive.isEmpty {
                 // 지급/수령 예정 금액 섹션
                 ScrollView {
@@ -35,21 +37,42 @@ public struct SettlementResultView: View {
                                 totalAmount: store.paymentsToMake.reduce(0) { $0 + $1.amount },
                                 amountColor: .red,
                                 payments: store.paymentsToMake.map {
-                                    PaymentItem(id: $0.id, name: $0.toMemberName, amount: Int($0.amount))
+                                    PaymentItem(id: $0.id, name: $0.memberName, amount: Int($0.amount))
                                 }
                             )
                         }
-                        
+
                         if !store.paymentsToReceive.isEmpty {
                             PaymentSectionView(
                                 title: "수령 예정 금액",
                                 totalAmount: store.paymentsToReceive.reduce(0) { $0 + $1.amount },
                                 amountColor: .primary500,
                                 payments: store.paymentsToReceive.map {
-                                    PaymentItem(id: $0.id, name: $0.fromMemberName, amount: Int($0.amount))
+                                    PaymentItem(id: $0.id, name: $0.memberName, amount: Int($0.amount))
                                 }
                             )
                         }
+
+                        // 상세보기 버튼
+                        Button {
+                            send(.detailButtonTapped)
+                        } label: {
+                            HStack {
+                                Text("멤버별 정산 상세보기")
+                                    .font(.app(.body, weight: .semibold))
+                                    .foregroundStyle(Color.primary500)
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(Color.primary500)
+                            }
+                            .padding(16)
+                            .background(Color.white)
+                            .cornerRadius(12)
+                        }
+                        .padding(.top, 8)
                     }
                 }
             } else {
@@ -64,18 +87,17 @@ public struct SettlementResultView: View {
             }
         }
         .padding(.horizontal, 16)
-        .overlay(content: {
-            if store.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        })
         .background(Color.primary50)
         .scrollIndicators(.hidden)
         .onAppear {
-            store.send(.view(.onAppear))
+           send(.onAppear)
         }
         .alert($store.scope(state: \.alert, action: \.scope.alert))
+        .sheet(item: $store.scope(state: \.settlementDetail, action: \.scope.settlementDetail)) { store in
+            NavigationView {
+                SettlementDetailView(store: store)
+            }
+        }
     }
 }
 

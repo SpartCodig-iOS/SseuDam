@@ -8,10 +8,11 @@
 import Foundation
 import Domain
 import ComposableArchitecture
+import SettlementDetailFeature
 
 @Reducer
 public struct SettlementResultFeature {
-    @Dependency(\.fetchSettlementUseCase) var fetchSettlementUseCase
+    @Dependency(\.calculateSettlementUseCase) var calculateSettlementUseCase
     @Shared(.appStorage("userId")) var userId: String? = ""
 
     public init() {}
@@ -23,38 +24,44 @@ public struct SettlementResultFeature {
         @Shared public var expenses: [Expense]
         public var currentUserId: String?
 
-        public var settlement: TravelSettlement?
-        public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
+        @Presents public var settlementDetail: SettlementDetailFeature.State?
 
+        // 정산 계산 결과
+        public var settlementCalculation: SettlementCalculation = SettlementCalculation(
+            totalExpenseAmount: 0,
+            myShareAmount: 0,
+            totalPersonCount: 0,
+            averagePerPerson: 0,
+            myNetBalance: 0,
+            paymentsToMake: [],
+            paymentsToReceive: [],
+            memberDetails: []
+        )
+
+        // 총 지출 금액
         public var totalExpenseAmount: Int {
-            Int(expenses.reduce(0) { $0 + $1.convertedAmount })
+            Int(settlementCalculation.totalExpenseAmount)
         }
 
+        // 내 부담 금액 (내가 실제로 부담해야 할 금액)
         public var myExpenseAmount: Int {
-            guard let userId = currentUserId else { return 0 }
-            return Int(expenses
-                .filter { $0.payerId == userId }
-                .reduce(0) { $0 + $1.convertedAmount })
+            Int(settlementCalculation.myShareAmount)
         }
 
+        // 인원수
         public var totalPersonCount: Int {
-            guard let travel = travel else { return 0 }
-            return travel.members.count
+            settlementCalculation.totalPersonCount
         }
 
-        public var paymentsToMake: [Settlement] {
-            guard let settlement = settlement else { return [] }
-            // 내가 지급해야 하는 정산 (내가 fromMember인 경우)
-            // TODO: 현재 사용자 ID 가져오기
-            return settlement.recommendedSettlements.filter { $0.status == .pending }
+        // 지급 예정 금액
+        public var paymentsToMake: [PaymentInfo] {
+            settlementCalculation.paymentsToMake
         }
 
-        public var paymentsToReceive: [Settlement] {
-            guard let settlement = settlement else { return [] }
-            // 내가 받아야 하는 정산 (내가 toMember인 경우)
-            // TODO: 현재 사용자 ID 가져오기
-            return settlement.recommendedSettlements.filter { $0.status == .pending }
+        // 수령 예정 금액
+        public var paymentsToReceive: [PaymentInfo] {
+            settlementCalculation.paymentsToReceive
         }
 
         public init(
@@ -72,31 +79,21 @@ public struct SettlementResultFeature {
     public enum Action: BindableAction, ViewAction {
         case binding(BindingAction<State>)
         case view(ViewAction)
-        case inner(InnerAction)
-        case async(AsyncAction)
         case scope(ScopeAction)
 
         @CasePathable
         public enum ViewAction {
             case onAppear
             case backButtonTapped
-        }
-
-        @CasePathable
-        public enum InnerAction {
-            case settlementResponse(Result<TravelSettlement, Error>)
-        }
-
-        @CasePathable
-        public enum AsyncAction {
-            case fetchData
+            case detailButtonTapped
         }
 
         @CasePathable
         public enum ScopeAction {
             case alert(PresentationAction<AlertAction>)
+            case settlementDetail(PresentationAction<SettlementDetailFeature.Action>)
         }
-        
+
         @CasePathable
         public enum AlertAction {
             case confirmTapped
@@ -108,79 +105,37 @@ public struct SettlementResultFeature {
 
         Reduce { state, action in
             switch action {
-            case .view(let viewAction):
-                return handleViewAction(state: &state, action: viewAction)
-            case .inner(let innerAction):
-                return handleInnerAction(state: &state, action: innerAction)
-            case .async(let asyncAction):
-                return handleAsyncAction(state: &state, action: asyncAction)
-            case .scope(let scopeAction):
-                return handleScopeAction(state: &state, action: scopeAction)
-            case .binding:
+            case .view(.onAppear):
+                state.currentUserId = userId
+                // 정산 계산
+                if let travel = state.travel {
+                    state.settlementCalculation = calculateSettlementUseCase.execute(
+                        expenses: state.expenses,
+                        members: travel.members,
+                        currentUserId: state.currentUserId
+                    )
+                }
+                return .none
+
+            case .view(.backButtonTapped):
+                return .none
+
+            case .view(.detailButtonTapped):
+                // 상세보기 sheet 열기
+                guard let currentUserId = state.currentUserId else { return .none }
+                state.settlementDetail = SettlementDetailFeature.State(
+                    memberDetails: state.settlementCalculation.memberDetails,
+                    currentUserId: currentUserId
+                )
+                return .none
+
+            case .scope, .binding:
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.scope.alert)
-    }
-}
-
-extension SettlementResultFeature {
-    // MARK: - View Action Handler
-    private func handleViewAction(state: inout State, action: Action.ViewAction) -> Effect<Action> {
-        switch action {
-        case .onAppear:
-            state.currentUserId = userId
-            return .send(.async(.fetchData))
-
-        case .backButtonTapped:
-            return .none
-        }
-    }
-
-    // MARK: - Inner Action Handler
-    private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
-        switch action {
-        case let .settlementResponse(.success(settlement)):
-            state.settlement = settlement
-            state.isLoading = false
-            return .none
-
-        case let .settlementResponse(.failure(error)):
-            state.isLoading = false
-            state.alert = AlertState {
-                TextState("오류")
-            } actions: {
-                ButtonState(action: .confirmTapped) {
-                    TextState("확인")
-                }
-            } message: {
-                TextState("정산 정보를 불러오는데 실패했습니다.\n\(error.localizedDescription)")
-            }
-            return .none
-        }
-    }
-
-    // MARK: - Async Action Handler
-    private func handleAsyncAction(state: inout State, action: Action.AsyncAction) -> Effect<Action> {
-        switch action {
-        case .fetchData:
-            let travelId = state.travelId
-            state.isLoading = true
-            return .run { send in
-                let settlementResult = await Result {
-                    try await fetchSettlementUseCase.execute(travelId: travelId)
-                }
-
-                await send(.inner(.settlementResponse(settlementResult)))
-            }
-        }
-    }
-
-    // MARK: - Scope Action Handler
-    private func handleScopeAction(state: inout State, action: Action.ScopeAction) -> Effect<Action> {
-        switch action {
-        case .alert:
-            return .none
+        .ifLet(\.$settlementDetail, action: \.scope.settlementDetail) {
+            SettlementDetailFeature()
         }
     }
 }

@@ -128,7 +128,7 @@ extension ProfileView {
                 .background(.gray2)
 
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
     }
 
   @ViewBuilder
@@ -219,11 +219,11 @@ extension ProfileView {
                 )
 
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .background(.white)
             .cornerRadius(8)
         }
-        .padding(.horizontal, 16)
+      .padding(.horizontal, 20)
     }
 
   @ViewBuilder
@@ -274,7 +274,7 @@ extension ProfileView {
           .background(.white)
           .cornerRadius(8)
       }
-      .padding(.horizontal, 16)
+      .padding(.horizontal, 20)
   }
 
 }

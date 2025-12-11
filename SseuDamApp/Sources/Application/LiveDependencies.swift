@@ -11,7 +11,7 @@ import Data
 import Domain
 
 public enum LiveDependencies {
-    public static func register(_ dependencies: inout DependencyValues) {
+  @MainActor public static func register(_ dependencies: inout DependencyValues) {
         // Repository 인스턴스 생성 (재사용)
         let travelRepository = TravelRepository(remote: TravelRemoteDataSource())
         let expenseRepository = ExpenseRepository(
@@ -19,8 +19,7 @@ public enum LiveDependencies {
             local: ExpenseLocalDataSource()
         )
         let travelMemberRepository = TravelMemberRepository(remote: TravelMemberRemoteDataSource())
-        let loginRepository = LoginRepository()
-        let signUpRepository = SignUpRepository()
+        let authRepository = AuthRepository()
         let oAuthRepository = OAuthRepository()
         let countryRepository = CountryRepository(remote: CountryRemoteDataSource())
         let exchangeRateRepository = ExchangeRateRepository(remote: ExchangeRateRemoteDataSource())
@@ -30,17 +29,14 @@ public enum LiveDependencies {
 
         // Auth & Session
         let oAuthUseCase = makeOAuthUseCase(repository: oAuthRepository)
-        dependencies.loginUseCase = LoginUseCase(repository: loginRepository)
         dependencies.oAuthUseCase = oAuthUseCase
-        dependencies.signUpUseCase = SignUpUseCase(repository: signUpRepository)
         dependencies.unifiedOAuthUseCase = UnifiedOAuthUseCase(
             oAuthUseCase: oAuthUseCase,
-            signUpRepository: signUpRepository,
-            loginRepository: loginRepository,
-            kakaoFinalizeRepository: KakaoFinalizeRepository()
+            authRepository: authRepository,
+            sessionStoreRepository: SessionStoreRepository()
         )
         dependencies.sessionUseCase = SessionUseCase(repository: SessionRepository())
-        dependencies.authUseCase = AuthUseCase(repository: AuthRepository())
+        dependencies.authUseCase = AuthUseCase(repository: authRepository)
         dependencies.profileUseCase = ProfileUseCase(repository: profileRepository)
         dependencies.versionUseCase = VersionUseCase(repository: versionRepository)
 
@@ -68,10 +64,14 @@ public enum LiveDependencies {
         // Country & Exchange
         dependencies.fetchCountriesUseCase = FetchCountriesUseCase(repository: countryRepository)
         dependencies.fetchExchangeRateUseCase = FetchExchangeRateUseCase(repository: exchangeRateRepository)
+
+        // Settlement
         dependencies.fetchSettlementUseCase = FetchSettlementUseCase(repository: settlementRepository)
+        dependencies.calculateSettlementUseCase = CalculateSettlementUseCase()
     }
     
     // MARK: - Factory Methods
+    @MainActor
     private static func makeOAuthUseCase(repository: OAuthRepository) -> OAuthUseCaseProtocol {
         OAuthUseCase(
             repository: repository,
