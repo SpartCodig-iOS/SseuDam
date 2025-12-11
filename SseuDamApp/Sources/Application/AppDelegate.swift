@@ -93,7 +93,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
             #logDebug("🔗 Processing push notification deep link: \(urlString)")
 
             // UserDefaults에도 저장 (앱이 종료된 상태에서 푸시 알림을 탭한 경우 대비)
-            UserDefaults.standard.set(urlString, forKey: "pendingPushDeepLink")
+            UserDefaults.standard.set(urlString, forKey: UserDefaultsKey.pendingPushDeepLink.rawValue)
 
             // 메인 스레드에서 딥 링크 처리
             Task { @MainActor in
@@ -110,14 +110,19 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 
     /// 여러 가능한 경로에서 딥링크 문자열을 추출
     nonisolated private static func extractDeepLink(from userInfo: [AnyHashable: Any]) -> String? {
-        if let url = userInfo["deeplink"] as? String { return url }
-        if let deeplinkData = userInfo["deeplink"] as? [String: Any],
-           let url = deeplinkData["url"] as? String { return url }
-        if let url = userInfo["url"] as? String { return url }
-        if let customData = userInfo["custom"] as? [String: Any],
-           let url = customData["url"] as? String { return url }
-        if let data = userInfo["data"] as? [String: Any],
-           let url = data["url"] as? String { return url }
+        // 1) 단일 문자열 필드 우선
+        let stringKeys = ["deeplink", "url"]
+        for key in stringKeys {
+            if let url = userInfo[key] as? String { return url }
+        }
+
+        // 2) 중첩 객체에서 url 필드 찾기 (호환 키: deeplink, data, custom)
+        let containerKeys = ["deeplink", "data", "custom"]
+        for key in containerKeys {
+            guard let container = userInfo[key] as? [String: Any],
+                  let url = container["url"] as? String else { continue }
+            return url
+        }
 
         #logDebug("❌ No deep link found in push notification")
         #logDebug("Available keys: \(userInfo.keys)")
@@ -127,4 +132,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 
 extension Notification.Name {
     static let pushNotificationDeepLink = Notification.Name("pushNotificationDeepLink")
+}
+
+enum UserDefaultsKey: String {
+    case pendingPushDeepLink
 }

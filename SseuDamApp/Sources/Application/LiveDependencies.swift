@@ -19,8 +19,6 @@ public enum LiveDependencies {
             local: ExpenseLocalDataSource()
         )
         let travelMemberRepository = TravelMemberRepository(remote: TravelMemberRemoteDataSource())
-        let loginRepository = LoginRepository()
-        let signUpRepository = SignUpRepository()
         let authRepository = AuthRepository()
         let oAuthRepository = OAuthRepository()
         let countryRepository = CountryRepository(remote: CountryRemoteDataSource())
