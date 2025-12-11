@@ -2,7 +2,7 @@
 //  SettlementDetailFeature.swift
 //  SettlementDetailFeature
 //
-//  Created by SseuDam on 2025.
+//  Created by 홍석현 on 2025.
 //
 
 import Foundation
