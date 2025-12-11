@@ -43,6 +43,16 @@ struct CalculateSettlementUseCaseTests {
         #expect(result.myNetBalance == 0)
         #expect(result.paymentsToMake.isEmpty)
         #expect(result.paymentsToReceive.isEmpty)
+
+        // memberDetails 검증
+        #expect(result.memberDetails.count == 3)
+        for detail in result.memberDetails {
+            #expect(detail.totalPaid == 0)
+            #expect(detail.totalOwe == 0)
+            #expect(detail.netBalance == 0)
+            #expect(detail.paidExpenses.isEmpty)
+            #expect(detail.sharedExpenses.isEmpty)
+        }
     }
 
     @Test("총 지출 금액 계산 - 단일 지출")
@@ -410,6 +420,33 @@ struct CalculateSettlementUseCaseTests {
 
         // 줄 돈 없음
         #expect(result.paymentsToMake.isEmpty)
+
+        // memberDetails 검증
+        #expect(result.memberDetails.count == 3)
+
+        // 나 (홍석현) - 모든 지출을 결제함
+        let myDetail = try #require(result.memberDetails.first(where: { $0.memberId == "user1" }))
+        #expect(Int(myDetail.totalPaid) == 90_000)
+        #expect(Int(myDetail.totalOwe) == 개인당지불해야할돈)
+        #expect(Int(myDetail.netBalance) == 90_000 - 개인당지불해야할돈)
+        #expect(myDetail.paidExpenses.count == 2) // 호텔, 식사
+        #expect(myDetail.sharedExpenses.count == 2) // 모든 지출에 참여
+
+        // 철수 - 아무것도 결제 안함
+        let 철수Detail = try #require(result.memberDetails.first(where: { $0.memberId == "user2" }))
+        #expect(철수Detail.totalPaid == 0)
+        #expect(Int(철수Detail.totalOwe) == 개인당지불해야할돈)
+        #expect(Int(철수Detail.netBalance) == -개인당지불해야할돈)
+        #expect(철수Detail.paidExpenses.isEmpty)
+        #expect(철수Detail.sharedExpenses.count == 2)
+
+        // 영희 - 아무것도 결제 안함
+        let 영희Detail = try #require(result.memberDetails.first(where: { $0.memberId == "user3" }))
+        #expect(영희Detail.totalPaid == 0)
+        #expect(Int(영희Detail.totalOwe) == 개인당지불해야할돈)
+        #expect(Int(영희Detail.netBalance) == -개인당지불해야할돈)
+        #expect(영희Detail.paidExpenses.isEmpty)
+        #expect(영희Detail.sharedExpenses.count == 2)
     }
 
     @Test("일부 지출에만 참여 - 참여하지 않은 지출은 제외")
@@ -467,6 +504,33 @@ struct CalculateSettlementUseCaseTests {
         #expect(Int(영희에게받을돈) == 60_000)
 
         #expect(result.paymentsToMake.isEmpty)
+
+        // memberDetails 검증
+        #expect(result.memberDetails.count == 3)
+
+        // 나 (홍석현) - 호텔만 결제, 호텔만 참여
+        let myDetail = try #require(result.memberDetails.first(where: { $0.memberId == "user1" }))
+        #expect(Int(myDetail.totalPaid) == 90_000)
+        #expect(Int(myDetail.totalOwe) == 30_000) // 90,000 / 3
+        #expect(Int(myDetail.netBalance) == 60_000)
+        #expect(myDetail.paidExpenses.count == 1) // 호텔만
+        #expect(myDetail.sharedExpenses.count == 1) // 호텔만 참여
+
+        // 철수 - 술집 결제, 호텔+술집 참여
+        let 철수Detail = try #require(result.memberDetails.first(where: { $0.memberId == "user2" }))
+        #expect(Int(철수Detail.totalPaid) == 60_000)
+        #expect(Int(철수Detail.totalOwe) == 60_000) // 30,000 + 30,000
+        #expect(Int(철수Detail.netBalance) == 0)
+        #expect(철수Detail.paidExpenses.count == 1) // 술집만
+        #expect(철수Detail.sharedExpenses.count == 2) // 호텔+술집
+
+        // 영희 - 아무것도 결제 안함, 호텔+술집 참여
+        let 영희Detail = try #require(result.memberDetails.first(where: { $0.memberId == "user3" }))
+        #expect(영희Detail.totalPaid == 0)
+        #expect(Int(영희Detail.totalOwe) == 60_000) // 30,000 + 30,000
+        #expect(Int(영희Detail.netBalance) == -60_000)
+        #expect(영희Detail.paidExpenses.isEmpty)
+        #expect(영희Detail.sharedExpenses.count == 2) // 호텔+술집
     }
 
     @Test("결제자가 여러 번 바뀌는 복잡한 시나리오")
