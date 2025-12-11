@@ -40,14 +40,14 @@ struct OAuthAPITargetTests {
         )
         let target = OAuthAPITarget.checkSignUpUser(body: body)
 
-        let params = target.parameters as? [String: Any]
+        let params = target.parameters ?? [:]
 
-        #expect(params?["accessToken"] as? String == "token-123")
-        #expect(params?["loginType"] as? String == "apple")
-        #expect(params?["authorizationCode"] as? String == "auth-code")
-        #expect(params?["codeVerifier"] as? String == "code-verifier")
-        #expect(params?["redirectUri"] as? String == "redirect://uri")
-        #expect(params?["deviceToken"] as? String == "device-token")
+        #expect(params["accessToken"] as? String == "token-123")
+        #expect(params["loginType"] as? String == "apple")
+        #expect(params["authorizationCode"] as? String == "auth-code")
+        #expect(params["codeVerifier"] as? String == "code-verifier")
+        #expect(params["redirectUri"] as? String == "redirect://uri")
+        #expect(params["deviceToken"] as? String == "device-token")
     }
 
     @Test("baseURL와 path 조합이 올바른 전체 URL을 만든다")

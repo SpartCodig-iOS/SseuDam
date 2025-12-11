@@ -45,7 +45,8 @@ struct AuthRepositoryTests {
         let sut = AuthRepository(remote: remote)
 
         _ = try await sut.checkUser(input: OAuthUserInput(accessToken: "acc", socialType: .google, authorizationCode: "code"))
-        #expect(remote.didCallCheckUser == true)
+        let didCall = await remote.didCallCheckUser
+        #expect(didCall == true)
     }
 
     @Test("login은 remote로 위임된다")
@@ -54,7 +55,8 @@ struct AuthRepositoryTests {
         let sut = AuthRepository(remote: remote)
 
         _ = try await sut.login(input: OAuthUserInput(accessToken: "acc", socialType: .google, authorizationCode: "code"))
-        #expect(remote.didCallLogin == true)
+        let didCall = await remote.didCallLogin
+        #expect(didCall == true)
     }
 
     @Test("signUp은 remote로 위임된다")
@@ -63,7 +65,8 @@ struct AuthRepositoryTests {
         let sut = AuthRepository(remote: remote)
 
         _ = try await sut.signUp(input: OAuthUserInput(accessToken: "acc", socialType: .google, authorizationCode: "code"))
-        #expect(remote.didCallSignUp == true)
+        let didCall = await remote.didCallSignUp
+        #expect(didCall == true)
     }
 
     @Test("finalizeKakao는 remote로 위임된다")
@@ -72,20 +75,21 @@ struct AuthRepositoryTests {
         let sut = AuthRepository(remote: remote)
 
         _ = try await sut.finalizeKakao(ticket: "ticket")
-        #expect(remote.didCallFinalize == true)
+        let didCall = await remote.didCallFinalize
+        #expect(didCall == true)
     }
 }
 
 // MARK: - Stub Remote DataSource
-private final class StubAuthRemoteDataSource: AuthRemoteDataSourceProtocol {
-    var checkUserResult: OAuthCheckUser
-    var loginResult: AuthResult
-    var signUpResult: AuthResult
-    var finalizeResult: AuthResult
-    var deviceTokenResult: DeviceToken
-    var refreshResult: TokenResult
-    var logoutResult: LogoutStatus = LogoutStatus(revoked: true)
-    var deleteResult: AuthDeleteStatus = AuthDeleteStatus(isDeleted: true)
+private actor StubAuthRemoteDataSource: AuthRemoteDataSourceProtocol {
+    let checkUserResult: OAuthCheckUser
+    let loginResult: AuthResult
+    let signUpResult: AuthResult
+    let finalizeResult: AuthResult
+    let deviceTokenResult: DeviceToken
+    let refreshResult: TokenResult
+    let logoutResult: LogoutStatus = LogoutStatus(revoked: true)
+    let deleteResult: AuthDeleteStatus = AuthDeleteStatus(isDeleted: true)
 
     var didCallCheckUser = false
     var didCallLogin = false

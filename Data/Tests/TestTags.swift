@@ -11,4 +11,5 @@ import Testing
 extension Tag {
     @Tag static var repository: Self
     @Tag static var unit: Self
+    @Tag static var datasource: Self
 }

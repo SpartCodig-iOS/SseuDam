@@ -26,8 +26,8 @@ struct SessionRepositoryTests {
         // Then
         #expect(target.urlPath == SessionAPI.checkSessionLogin.description)
         #expect(target.method == Moya.Method.get)
-        let params = target.parameters as? [String: Any]
-        #expect(params?["sessionId"] as? String == "session-123")
+      let params = (target.parameters) ?? [:]
+      #expect(params["sessionId"] as? String == "session-123")
     }
 
     // MARK: - Repository 동작 검증 (stubbed)
