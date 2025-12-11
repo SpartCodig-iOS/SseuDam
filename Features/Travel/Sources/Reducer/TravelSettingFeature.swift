@@ -71,7 +71,6 @@ public struct TravelSettingFeature {
                 // MARK: - Lifecycle
 
             case .onAppear:
-                guard state.basicInfo == nil else { return .none }
                 return .send(.fetchDetail)
 
             case .fetchDetail:
