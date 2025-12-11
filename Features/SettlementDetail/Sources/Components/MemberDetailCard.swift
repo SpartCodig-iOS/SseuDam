@@ -7,6 +7,7 @@
 
 import SwiftUI
 import DesignSystem
+import Domain
 
 struct MemberDetailCard: View {
     let detail: MemberSettlementDetail
@@ -17,7 +18,11 @@ struct MemberDetailCard: View {
     var body: some View {
         VStack(spacing: 0) {
             // 헤더 (이름, 순 차액, 펼치기 버튼)
-            Button(action: onToggle) {
+            Button(action: {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                    onToggle()
+                }
+            }) {
                 HStack(spacing: 12) {
                     // 프로필 아이콘
                     Image(asset: .profile)
@@ -47,6 +52,7 @@ struct MemberDetailCard: View {
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Color.gray7)
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
                 .padding(16)
                 .contentShape(Rectangle())
@@ -66,6 +72,8 @@ struct MemberDetailCard: View {
                         expenses: detail.paidExpenses,
                         showEmpty: true
                     )
+                    .opacity(isExpanded ? 1 : 0)
+                    .scaleEffect(isExpanded ? 1 : 0.95, anchor: .top)
 
                     // 부담 금액
                     ExpenseBreakdownSection(
@@ -74,9 +82,15 @@ struct MemberDetailCard: View {
                         expenses: detail.sharedExpenses,
                         showEmpty: false
                     )
+                    .opacity(isExpanded ? 1 : 0)
+                    .scaleEffect(isExpanded ? 1 : 0.95, anchor: .top)
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
+                .transition(.asymmetric(
+                    insertion: .scale(scale: 0.95, anchor: .top).combined(with: .opacity),
+                    removal: .scale(scale: 0.95, anchor: .top).combined(with: .opacity)
+                ))
             }
         }
         .background(Color.white)

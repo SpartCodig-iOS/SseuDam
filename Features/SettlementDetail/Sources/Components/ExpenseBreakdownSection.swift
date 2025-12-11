@@ -7,6 +7,7 @@
 
 import SwiftUI
 import DesignSystem
+import Domain
 
 struct ExpenseBreakdownSection: View {
     let title: String

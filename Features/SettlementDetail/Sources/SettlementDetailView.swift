@@ -8,9 +8,10 @@
 import SwiftUI
 import DesignSystem
 import ComposableArchitecture
+import Domain
 
 public struct SettlementDetailView: View {
-    @Bindable var store: StoreOf<SettlementDetailFeature>
+    private let store: StoreOf<SettlementDetailFeature>
 
     public init(store: StoreOf<SettlementDetailFeature>) {
         self.store = store
