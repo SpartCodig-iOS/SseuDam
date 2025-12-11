@@ -198,12 +198,6 @@ extension SplashFeature {
                 .cancellable(id: CancelID.session, cancelInFlight: true)
 
             case .checkVersion:
-                if let savedVersion = state.appVersion,
-                   let currentVersion = state.appLastVersion,
-                   savedVersion == currentVersion && savedVersion == "1.0.0" {
-                    return sessionRoutingEffect(sessionId: state.sessionId ?? "")
-                }
-
                 return .run { [appVersion = state.appVersion] send in
                     let result = await Result {
                         try await versionUseCase.getVersion(bundleId: "io.sseudam.co", version: appVersion ?? "")
@@ -262,7 +256,12 @@ extension SplashFeature {
                     case .success(let versionData):
                         state.version = versionData
                         state.$appLastVersion.withLock { $0 = versionData.version }
-                        return .send(.view(.showVersionAlert))
+                        // 최신 버전(latestVersion)이 저장된 앱 버전보다 높으면 알럿 표시
+                        if let savedVersion = state.appVersion,
+                           versionData.version.compare(savedVersion, options: .numeric) == .orderedDescending {
+                            return .send(.view(.showVersionAlert))
+                        }
+                        return sessionRoutingEffect(sessionId: state.sessionId ?? "")
                     case .failure(let error):
                         state.errorMessage = error.localizedDescription
                         state.$appLastVersion.withLock { $0 = "" }
