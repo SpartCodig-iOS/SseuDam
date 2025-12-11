@@ -32,9 +32,9 @@ public struct SettlementResultFeature {
             totalPersonCount: 0,
             averagePerPerson: 0,
             myNetBalance: 0,
-            memberBalances: [:],
             paymentsToMake: [],
-            paymentsToReceive: []
+            paymentsToReceive: [],
+            memberDetails: []
         )
 
         // 총 지출 금액
