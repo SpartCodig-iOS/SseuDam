@@ -37,6 +37,7 @@ public struct ExpenseListFeature {
         public let travelId: String
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
+        public var pendingHighlightExpenseId: String?
         public var totalAmount: Int {
             Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
         }
@@ -65,6 +66,7 @@ public struct ExpenseListFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case highlightExpense(String)
 
         @CasePathable
         public enum ViewAction {
@@ -121,6 +123,11 @@ public struct ExpenseListFeature {
                 return .none
             case .binding:
                 return .none
+
+            case .highlightExpense(let expenseId):
+                state.pendingHighlightExpenseId = expenseId
+                applyExpenseHighlight(&state)
+                return .none
             }
         }
         .ifLet(\.$alert, action: \.scope.alert)
@@ -150,6 +157,7 @@ extension ExpenseListFeature {
             state.$allExpenses.withLock {
                 $0 = expenses
             }
+            applyExpenseHighlight(&state)
             // 현재 선택된 날짜로 필터링
             filterExpensesByDate(&state, date: state.selectedDate)
             state.isLoading = false
@@ -195,5 +203,15 @@ extension ExpenseListFeature {
         state.currentExpense = state.allExpenses.filter { expense in
             calendar.isDate(expense.expenseDate, inSameDayAs: date)
         }
+    }
+
+    private func applyExpenseHighlight(_ state: inout State) {
+        guard let targetId = state.pendingHighlightExpenseId else { return }
+        guard let expense = state.allExpenses.first(where: { $0.id == targetId }) else { return }
+        let calendar = Calendar.current
+        let targetDate = calendar.startOfDay(for: expense.expenseDate)
+        state.selectedDate = targetDate
+        filterExpensesByDate(&state, date: targetDate)
+        state.pendingHighlightExpenseId = nil
     }
 }
