@@ -9,6 +9,8 @@ import UIKit
 import UserNotifications
 import LogMacro
 import Data
+import Firebase
+import FirebaseAnalytics
 
 
 @MainActor
@@ -19,6 +21,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
 
+      #if DEBUG
+      // Enable Firebase Analytics verbose logging in debug builds without needing scheme args.
+      setenv("FIRAnalyticsDebugEnabled", "1", 1)
+      #endif
+
+      FirebaseApp.configure()
         let center = UNUserNotificationCenter.current()
         center.delegate = self
 
@@ -100,7 +108,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
                 NotificationCenter.default.post(
                     name: .pushNotificationDeepLink,
                     object: nil,
-                    userInfo: ["url": urlString]
+                    userInfo: [
+                        "url": urlString,
+                        "deeplink_type": "push"
+                    ]
                 )
             }
         }

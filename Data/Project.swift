@@ -8,7 +8,7 @@ let project = Project.makeFramework(
     .NetworkService,
     .SPM.Supabase,
     .SPM.GoogleSignIn,
-    .SPM.AppAuth
+    .SPM.FirebaseAnalytics
   ],
   hasTests: true,
 )

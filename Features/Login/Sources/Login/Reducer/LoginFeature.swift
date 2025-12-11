@@ -84,6 +84,7 @@ public struct LoginFeature {
 
     @Dependency(UnifiedOAuthUseCase.self) var unifiedOAuthUseCase
     @Dependency(SessionUseCase.self) var sessionUseCase
+    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
 
     nonisolated enum CancelID: Hashable {
@@ -202,6 +203,14 @@ extension LoginFeature {
                 state.authResult = authEntity
                 state.statusMessage = "\(authEntity.provider.rawValue) 인증 성공!"
                 state.$sessionId.withLock { $0 = authEntity.token.sessionID }
+                // Analytics: 로그인/회원가입 구분 전송
+                let social = authEntity.provider.rawValue
+                if case .signUpSuccess = outcome {
+                    analyticsUseCase.trackSignupSuccess(socialType: social)
+                    analyticsUseCase.trackLoginSuccess(socialType: social, isFirst: true)
+                } else {
+                    analyticsUseCase.trackLoginSuccess(socialType: social, isFirst: false)
+                }
                 return .send(.delegate(.presentTravelList))
 
             case .needsTermsAgreement(let authData):

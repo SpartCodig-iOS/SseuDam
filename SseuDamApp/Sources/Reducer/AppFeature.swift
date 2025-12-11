@@ -17,6 +17,8 @@ import Data
 @Reducer
 struct AppFeature {
 
+    @Dependency(\.analyticsUseCase) var analyticsUseCase
+
     // MARK: - State
     @ObservableState
     struct State: Equatable {
@@ -274,7 +276,12 @@ extension AppFeature {
             case .setupPushNotificationObserver:
                 return .run { send in
                     for await notification in NotificationCenter.default.notifications(named: .pushNotificationDeepLink) {
-                        if let urlString = notification.userInfo?["url"] as? String {
+                        if let urlString = notification.userInfo?["url"] as? String,
+                           let deeplinkType = notification.userInfo?["deeplink_type"] as? String {
+
+                            // Analytics 이벤트 전송
+                            analyticsUseCase.trackDeeplinkOpen(deeplink: urlString, type: deeplinkType)
+
                             await send(.view(.handlePushNotificationDeepLink(urlString)))
                         }
                     }
@@ -318,7 +325,16 @@ extension AppFeature {
                         blendDuration: 0.1
                     )
                 )
-                
+
+            case .main(.delegate(.trackExpenseOpenDetail(let travelId, let expenseId, let source))):
+                return .run { _ in
+                    analyticsUseCase.trackExpenseOpenDetail(
+                        travelId: travelId,
+                        expenseId: expenseId,
+                        source: source
+                    )
+                }
+
             default:
                 return .none
         }

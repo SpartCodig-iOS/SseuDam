@@ -34,6 +34,7 @@ public struct MainCoordinator {
 
     public enum DelegateAction {
         case presentLogin
+        case trackExpenseOpenDetail(travelId: String, expenseId: String, source: String)
     }
 
     public var body: some ReducerOf<Self> {
@@ -113,6 +114,9 @@ extension MainCoordinator {
 
             case .presentLogin:
                 return .none
+
+            case .trackExpenseOpenDetail:
+                return .none
         }
     }
 
@@ -182,9 +186,13 @@ extension MainCoordinator {
         if remainingComponents.count >= 2, remainingComponents[0] == "expense" {
             let expenseId = remainingComponents[1]
             #logDebug("💰 Navigating to expense detail: \(expenseId)")
+
             // 지출 목록 탭으로 이동하고 특정 지출을 찾아서 표시
             let routeIndex = state.routes.count - 1
-            return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToExpenseTab(expenseId)))))
+            return .merge(
+                .send(.delegate(.trackExpenseOpenDetail(travelId: travelId, expenseId: expenseId, source: "deeplink"))),
+                .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToExpenseTab(expenseId)))))
+            )
 
         } else if remainingComponents.count >= 1, remainingComponents[0] == "settlement" {
             #logDebug("📊 Navigating to settlement tab")
