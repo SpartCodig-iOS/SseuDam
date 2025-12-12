@@ -225,25 +225,19 @@ extension MainCoordinator {
 
     private func navigateToTravelDetail(state: inout State, travelId: String) -> Effect<Action> {
         #logDebug("🏝️ Navigating to travel detail")
-        let currentTravelId = getCurrentTravelId(from: state)
-        if currentTravelId != travelId {
-            clearSettlementScreens(state: &state)
-            state.routes.push(.settlementCoordinator(.init(travelId: travelId)))
-        }
+        _ = ensureSettlementCoordinatorRoute(state: &state, travelId: travelId)
         return .none
     }
 
     private func navigateToExpenseDetail(state: inout State, travelId: String, expenseId: String) -> Effect<Action> {
         #logDebug("💰 Navigating to expense detail: \(expenseId)")
-        _ = navigateToTravelDetail(state: &state, travelId: travelId)
-        let routeIndex = state.routes.count - 1
+        let routeIndex = ensureSettlementCoordinatorRoute(state: &state, travelId: travelId)
         return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToExpenseTab(expenseId)))))
     }
 
     private func navigateToSettlementTab(state: inout State, travelId: String) -> Effect<Action> {
         #logDebug("📊 Navigating to settlement tab")
-        _ = navigateToTravelDetail(state: &state, travelId: travelId)
-        let routeIndex = state.routes.count - 1
+        let routeIndex = ensureSettlementCoordinatorRoute(state: &state, travelId: travelId)
         return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToSettlementTab))))
     }
 
@@ -255,6 +249,24 @@ extension MainCoordinator {
         }) {
             state.routes.removeSubrange(travelSettingIndex...)
         }
+    }
+
+    private func ensureSettlementCoordinatorRoute(state: inout State, travelId: String) -> Int {
+        if let existingIndex = state.routes.lastIndex(where: {
+            if case let .settlementCoordinator(settlementState) = $0.screen {
+                return settlementState.travelId == travelId
+            }
+            return false
+        }) {
+            if existingIndex < state.routes.count - 1 {
+                state.routes.removeSubrange((existingIndex + 1)...)
+            }
+            return existingIndex
+        }
+
+        clearSettlementScreens(state: &state)
+        state.routes.push(.settlementCoordinator(.init(travelId: travelId)))
+        return state.routes.count - 1
     }
 
     private func clearSettlementScreens(state: inout State) {
