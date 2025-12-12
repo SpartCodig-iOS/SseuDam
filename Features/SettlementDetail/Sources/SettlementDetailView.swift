@@ -18,55 +18,65 @@ public struct SettlementDetailView: View {
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // 내 정산 상세
-                if let myDetail = store.myDetail {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("내 정산 내역")
-                            .font(.app(.title3, weight: .semibold))
-                            .foregroundStyle(Color.black)
+        VStack(spacing: 0) {
+            Capsule()
+                .fill(Color.gray3)
+                .frame(width: 36, height: 5)
+                .padding(.top, 8)
 
-                        MemberDetailCard(
-                            detail: myDetail,
-                            isExpanded: store.expandedMemberIds.contains(myDetail.memberId),
-                            isCurrentUser: true,
-                            onToggle: {
-                                store.send(.toggleMemberExpansion(myDetail.memberId))
-                            }
-                        )
+            Text("정산 내역")
+                .font(.app(.title3, weight: .medium))
+                .foregroundStyle(Color.black)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(16)
+            
+            ScrollView {
+                VStack(spacing: 16) {
+                    // 내 정산 상세
+                    if let myDetail = store.myDetail {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("내 정산 내역")
+                                .font(.app(.title3, weight: .semibold))
+                                .foregroundStyle(Color.black)
+                            
+                            MemberDetailCard(
+                                detail: myDetail,
+                                isExpanded: store.expandedMemberIds.contains(myDetail.memberId),
+                                isCurrentUser: true,
+                                onToggle: {
+                                    store.send(.toggleMemberExpansion(myDetail.memberId))
+                                }
+                            )
+                        }
                     }
-                }
-
-                // 다른 멤버들
-                if !store.otherMemberDetails.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("다른 멤버")
-                            .font(.app(.title3, weight: .semibold))
-                            .foregroundStyle(Color.black)
-
-                        VStack(spacing: 12) {
-                            ForEach(store.otherMemberDetails) { detail in
-                                MemberDetailCard(
-                                    detail: detail,
-                                    isExpanded: store.expandedMemberIds.contains(detail.memberId),
-                                    isCurrentUser: false,
-                                    onToggle: {
-                                        store.send(.toggleMemberExpansion(detail.memberId))
-                                    }
-                                )
+                    
+                    // 다른 멤버들
+                    if !store.otherMemberDetails.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("다른 멤버")
+                                .font(.app(.title3, weight: .semibold))
+                                .foregroundStyle(Color.black)
+                            
+                            VStack(spacing: 12) {
+                                ForEach(store.otherMemberDetails) { detail in
+                                    MemberDetailCard(
+                                        detail: detail,
+                                        isExpanded: store.expandedMemberIds.contains(detail.memberId),
+                                        isCurrentUser: false,
+                                        onToggle: {
+                                            store.send(.toggleMemberExpansion(detail.memberId))
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                 }
+                .padding(16)
             }
-            .padding(16)
+            .scrollIndicators(.hidden)
         }
-        .scrollIndicators(.hidden)
         .background(Color.primary50)
-        .presentationDragIndicator(.visible)
-        .navigationTitle("정산 내역")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
