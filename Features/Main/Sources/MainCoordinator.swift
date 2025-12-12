@@ -105,11 +105,10 @@ extension MainCoordinator {
                 state.routes.push(.memberManage(.init(travelId: travelId)))
                 return .none
 
-            case let .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(travelId)))):
-                // 여행 수정 완료 후 해당 여행의 상세 페이지로 이동
-                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
-                    $0.goBackTo(\.travelList)
-                }
+//            case let .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(travelId)))):
+//                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+//                    $0.goBackTo(\.travelList)
+//                }
 
             case .routeAction(_, .memberManage(.delegate(.back))):
                 state.routes.goBack()
