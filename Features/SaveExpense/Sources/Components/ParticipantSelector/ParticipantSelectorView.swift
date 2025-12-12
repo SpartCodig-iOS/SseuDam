@@ -87,7 +87,7 @@ private struct ParticipantRowView: View {
                     // Avatar
                     Image(asset: .profile)
                         .resizable()
-                        .foregroundStyle(Color.primary500)
+                        .aspectRatio(contentMode: .fit)
                         .frame(width: 40, height: 40)
                     
                     Text(participant.name)
