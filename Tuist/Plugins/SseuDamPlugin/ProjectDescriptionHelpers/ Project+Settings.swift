@@ -37,7 +37,8 @@ extension Settings {
       .setVersioningSystem()
       .setProvisioningProfileSpecifier("match Development \(Environment.organizationName)")
       .setDevelopmentTeam(Environment.organizationTeamId)
-      .setCFBundleDevelopmentRegion(),
+      .setCFBundleDevelopmentRegion()
+      .otherLinkerFlags(["-ObjC"]),
     configurations: [
       .debug(
         name: .debug,

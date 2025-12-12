@@ -10,7 +10,15 @@ let packageSettings = PackageSettings(
         "TCACoordinators": .framework,
         "Moya": .framework,
         "LogMacro": .framework,
-        "AppAuth": .framework
+        "AppAuth": .framework,
+        "AppAuthCore": .framework,
+        "GTMAppAuth": .framework,
+        "GTMSessionFetcherCore": .framework,
+        "IssueReporting": .framework,
+        "IssueReportingPackageSupport": .framework,
+        "XCTestDynamicOverlay": .framework,
+        "Clocks": .framework,
+        "ConcurrencyExtras": .framework
 //        "FirebaseCore": .staticLibrary,
 //        "FirebaseAuth": .staticLibrary,
 //        "FirebaseFirestore": .staticLibrary,
@@ -31,6 +39,7 @@ let package = Package(
         .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "9.0.0"),
         .package(url: "https://github.com/Roy-wonji/LogMacro.git", from: "1.1.1"),
         .package(url: "https://github.com/Moya/Moya.git", exact: "15.0.3"),
-//        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", exact: "12.7.0")
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", exact: "12.7.0"),
+        .package(url: "https://github.com/openid/AppAuth-iOS.git", from: "2.0.0")
     ]
 )
