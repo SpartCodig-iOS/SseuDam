@@ -15,9 +15,19 @@ struct MemberDetailCard: View {
     let isCurrentUser: Bool
     let onToggle: () -> Void
 
+    // 날짜별로 그룹핑된 결제 항목
+    private var groupedPaidExpenses: [ExpensesByDate] {
+        detail.paidExpenses.groupedByDate()
+    }
+
+    // 날짜별로 그룹핑된 부담 항목
+    private var groupedSharedExpenses: [ExpensesByDate] {
+        detail.sharedExpenses.groupedByDate()
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-            // 헤더 (이름, 순 차액, 펼치기 버튼)
+            // 헤더 (이름, 총 금액, 펼치기 버튼)
             Button(action: {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                     onToggle()
@@ -27,7 +37,7 @@ struct MemberDetailCard: View {
                     // 프로필 아이콘
                     Image(asset: .profile)
                         .resizable()
-                        .foregroundStyle(Color.primary500)
+                        .aspectRatio(contentMode: .fit)
                         .frame(width: 40, height: 40)
 
                     // 이름
@@ -37,16 +47,10 @@ struct MemberDetailCard: View {
 
                     Spacer()
 
-                    // 순 차액
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text(netBalanceLabel)
-                            .font(.app(.caption1, weight: .medium))
-                            .foregroundStyle(Color.gray7)
-
-                        Text(formatAmount(detail.netBalance))
-                            .font(.app(.title3, weight: .semibold))
-                            .foregroundStyle(netBalanceColor)
-                    }
+                    // 총 금액 (결제한 금액 + 부담 금액 합산)
+                    Text("₩\(Int(detail.totalPaid + detail.totalOwe).formatted())")
+                        .font(.app(.title3, weight: .semibold))
+                        .foregroundStyle(Color.black)
 
                     // 펼치기 아이콘
                     Image(systemName: "chevron.up")
@@ -61,32 +65,84 @@ struct MemberDetailCard: View {
 
             // 상세 내용 (펼쳤을 때만 표시)
             if isExpanded {
-                VStack(spacing: 16) {
+                VStack(spacing: 0) {
                     Divider()
                         .background(Color.gray2)
 
-                    // 결제 금액
-                    ExpenseBreakdownSection(
-                        title: "결제한 금액",
-                        totalAmount: detail.totalPaid,
-                        expenses: detail.paidExpenses,
-                        showEmpty: true
-                    )
-                    .opacity(isExpanded ? 1 : 0)
-                    .scaleEffect(isExpanded ? 1 : 0.95, anchor: .top)
+                    // 플랫 리스트
+                    VStack(spacing: 0) {
+                        // 1. 결제한 금액 섹션
+                        SectionHeaderRow(title: "결제한 금액", amount: detail.totalPaid)
+                            .padding(.vertical, 16)
 
-                    // 부담 금액
-                    ExpenseBreakdownSection(
-                        title: "부담 금액",
-                        totalAmount: detail.totalOwe,
-                        expenses: detail.sharedExpenses,
-                        showEmpty: false
-                    )
-                    .opacity(isExpanded ? 1 : 0)
-                    .scaleEffect(isExpanded ? 1 : 0.95, anchor: .top)
+                        if detail.paidExpenses.isEmpty {
+                            Text("결제한 내역이 없습니다")
+                                .font(.app(.caption1, weight: .medium))
+                                .foregroundStyle(Color.gray7)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                        } else {
+                            ForEach(groupedPaidExpenses) { dateGroup in
+                                VStack(spacing: 0) {
+                                    DateHeaderRow(date: dateGroup.date)
+
+                                    VStack(spacing: 12) {
+                                        ForEach(dateGroup.expenses) { expense in
+                                            ExpenseRow(expense: expense)
+                                        }
+                                    }
+                                    .padding(.top, 8)
+                                }
+                                .padding(.bottom, 16)
+                            }
+                        }
+
+                        // 2. 부담 금액 섹션
+                        SectionHeaderRow(title: "부담 금액", amount: detail.totalOwe)
+                            .padding(.top, 8)
+                            .padding(.vertical, 16)
+
+                        if detail.sharedExpenses.isEmpty {
+                            Text("부담할 금액이 없습니다")
+                                .font(.app(.caption1, weight: .medium))
+                                .foregroundStyle(Color.gray7)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                        } else {
+                            ForEach(groupedSharedExpenses) { dateGroup in
+                                VStack(spacing: 0) {
+                                    DateHeaderRow(date: dateGroup.date)
+
+                                    VStack(spacing: 12) {
+                                        ForEach(dateGroup.expenses) { expense in
+                                            ExpenseRow(expense: expense)
+                                        }
+                                    }
+                                    .padding(.top, 8)
+                                }
+                                .padding(.bottom, 16)
+                            }
+                        }
+
+                        Divider()
+                            .background(Color.gray2)
+                            
+                        // 3. 받을 돈 / 줄 돈 최종 결과
+                        HStack {
+                            Text(netBalanceLabel)
+                                .font(.app(.body, weight: .medium))
+                                .foregroundStyle(Color.black)
+
+                            Spacer()
+
+                            Text(formatAmount(detail.netBalance))
+                                .font(.app(.body, weight: .medium))
+                                .foregroundStyle(netBalanceColor)
+                        }
+                        .padding(.vertical, 16)
+                    }
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 16)
                 .transition(.asymmetric(
                     insertion: .scale(scale: 0.95, anchor: .top).combined(with: .opacity),
                     removal: .scale(scale: 0.95, anchor: .top).combined(with: .opacity)
@@ -94,10 +150,10 @@ struct MemberDetailCard: View {
             }
         }
         .background(Color.white)
-        .cornerRadius(16)
+        .cornerRadius(8)
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.gray1, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.gray2, lineWidth: 1)
         )
     }
 
@@ -115,9 +171,9 @@ struct MemberDetailCard: View {
         if detail.netBalance > 0 {
             return .primary500
         } else if detail.netBalance < 0 {
-            return .red
+            return Color.error
         } else {
-            return .black
+            return Color.primary500
         }
     }
 
