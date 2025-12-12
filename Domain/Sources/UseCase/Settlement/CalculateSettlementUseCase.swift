@@ -11,20 +11,21 @@ import ComposableArchitecture
 public protocol CalculateSettlementUseCaseProtocol {
     func execute(
         expenses: [Expense],
-        members: [TravelMember],
         currentUserId: String?
     ) -> SettlementCalculation
 }
 
 public struct CalculateSettlementUseCase: CalculateSettlementUseCaseProtocol {
-    
+
     public init() {}
-    
+
     public func execute(
         expenses: [Expense],
-        members: [TravelMember],
         currentUserId: String?
     ) -> SettlementCalculation {
+
+        // expenses에서 모든 멤버 추출 (payer + participants)
+        let members = extractMembers(from: expenses)
         
         // 1. 총 지출 금액
         let totalExpenseAmount = expenses.reduce(0) { $0 + $1.convertedAmount }
@@ -67,7 +68,7 @@ public struct CalculateSettlementUseCase: CalculateSettlementUseCaseProtocol {
             let amountPerPerson = expense.convertedAmount / participantCount
             
             // 결제자는 전체 금액을 지불한 것으로 (+)
-            memberBalances[expense.payerId, default: 0] += expense.convertedAmount
+            memberBalances[expense.payer.id, default: 0] += expense.convertedAmount
             
             // 참여자들은 각자 분담금을 빚진 것으로 (-)
             for participant in expense.participants {
@@ -114,7 +115,24 @@ public struct CalculateSettlementUseCase: CalculateSettlementUseCaseProtocol {
     }
     
     // MARK: - Private Helper Methods
-    
+
+    // expenses에서 모든 멤버 추출 (중복 제거)
+    private func extractMembers(from expenses: [Expense]) -> [TravelMember] {
+        var memberDict: [String: TravelMember] = [:]
+
+        for expense in expenses {
+            // payer 추가
+            memberDict[expense.payer.id] = expense.payer
+
+            // participants 추가
+            for participant in expense.participants {
+                memberDict[participant.id] = participant
+            }
+        }
+
+        return Array(memberDict.values)
+    }
+
     // 지급 예정 금액 (내가 빚진 사람들에게 갚아야 할 돈)
     private func calculatePaymentsToMake(
         myBalance: Double,
@@ -215,7 +233,7 @@ public struct CalculateSettlementUseCase: CalculateSettlementUseCaseProtocol {
             )
             
             // 결제자에게 추가
-            memberPaidExpenses[expense.payerId, default: []].append(expenseDetail)
+            memberPaidExpenses[expense.payer.id, default: []].append(expenseDetail)
             
             // 참여자들에게 추가
             for participant in expense.participants {
