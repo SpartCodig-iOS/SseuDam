@@ -106,7 +106,6 @@ extension MainCoordinator {
                 // 여행 수정 완료 후 해당 여행의 상세 페이지로 이동
                 return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
                     $0.goBackTo(\.travelList)
-                    $0.push(.settlementCoordinator(.init(travelId: travelId)))
                 }
 
             case .routeAction(_, .memberManage(.delegate(.back))):
