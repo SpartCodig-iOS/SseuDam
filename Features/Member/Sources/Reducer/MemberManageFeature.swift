@@ -67,6 +67,7 @@ public struct MemberManageFeature {
     @Dependency(\.fetchMemberUseCase) var fetchMemberUseCase
     @Dependency(\.deleteTravelMemberUseCase) var deleteTravelMemberUseCase
     @Dependency(\.delegateOwnerUseCase) var delegateOwnerUseCase
+    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -131,6 +132,7 @@ public struct MemberManageFeature {
 
             case let .deleteMemberResponse(.success(memberId)):
                 state.members.removeAll { $0.id == memberId }
+                analyticsUseCase.track(.travel(.memberLeave, TravelEventData(travelId: state.travelId, memberId: memberId)))
                 return .none
 
             case .deleteMemberResponse(.failure):
@@ -186,6 +188,12 @@ public struct MemberManageFeature {
                 }
                 let excludedId = state.myInfo?.id
                 state.members = travel.members.filter { $0.id != excludedId }
+
+                // 새 관리자 ID 찾기
+                if let newOwnerId = travel.members.first(where: { $0.role == .owner })?.id {
+                    analyticsUseCase.track(.travel(.ownerDelegate, TravelEventData(travelId: state.travelId, newOwnerId: newOwnerId)))
+                }
+
                 return .send(.delegate(.finish))
 
             case .delegateOwnerResponse(.failure):

@@ -9,6 +9,7 @@ public extension Project {
     resources: ResourceFileElements? = nil,
     infoPlist: InfoPlist = .defaultSwiftUIApp,
     entitlements: ProjectDescription.Entitlements? = nil,
+    schemes: [Scheme] = []
   ) -> Project {
     return Project(
       name: name,
@@ -30,7 +31,8 @@ public extension Project {
           dependencies: dependencies,
           settings: .appMainSetting,
         )
-      ]
+      ],
+      schemes: schemes
     )
   }
 

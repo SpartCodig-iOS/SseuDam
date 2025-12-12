@@ -105,6 +105,12 @@ extension MainCoordinator {
                 state.routes.push(.memberManage(.init(travelId: travelId)))
                 return .none
 
+            case let .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(travelId)))):
+                // 여행 수정 완료 후 해당 여행의 상세 페이지로 이동
+                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+                    $0.goBackTo(\.travelList)
+                }
+
             case .routeAction(_, .memberManage(.delegate(.back))):
                 state.routes.goBack()
                 return .none
@@ -151,7 +157,6 @@ extension MainCoordinator {
         action: DelegateAction
     ) -> Effect<Action> {
         switch action {
-
             case .presentLogin:
                 return .none
         }
@@ -206,6 +211,28 @@ extension MainCoordinator {
         }
 
 
+        // settings 경로인 경우 바로 TravelSetting으로 이동
+        if remainingComponents.count >= 1, remainingComponents[0] == "settings" {
+            #logDebug("⚙️ Navigating to travel settings")
+            // 기존 여행 관련 화면들 정리
+            if let settlementIndex = state.routes.lastIndex(where: {
+                if case .settlementCoordinator = $0.screen { return true }
+                return false
+            }) {
+                state.routes.removeSubrange(settlementIndex...)
+            }
+            if let travelSettingIndex = state.routes.lastIndex(where: {
+                if case .travelSetting = $0.screen { return true }
+                return false
+            }) {
+                state.routes.removeSubrange(travelSettingIndex...)
+            }
+            // 여행 설정 페이지로 직접 이동
+            state.routes.push(.travelSetting(.init(travelId: travelId)))
+            return .none
+        }
+
+        // 일반적인 여행 상세 페이지 처리
         let currentTravelId = getCurrentTravelId(from: state)
         if currentTravelId != travelId {
             // 다른 여행이거나 여행 화면이 없으면 새로 열기
@@ -223,6 +250,7 @@ extension MainCoordinator {
         if remainingComponents.count >= 2, remainingComponents[0] == "expense" {
             let expenseId = remainingComponents[1]
             #logDebug("💰 Navigating to expense detail: \(expenseId)")
+
             // 지출 목록 탭으로 이동하고 특정 지출을 찾아서 표시
             let routeIndex = state.routes.count - 1
             return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToExpenseTab(expenseId)))))

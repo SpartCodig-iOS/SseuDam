@@ -27,7 +27,7 @@ extension Settings {
     base: SettingsDictionary()
       .setProductName(Environment.appName)
       .setCFBundleDisplayName(Environment.appName)
-      .setMarketingVersion("1.0.0")
+      .setMarketingVersion("1.0.2")
       .setASAuthenticationServicesEnabled()
       .setCurrentProjectVersion("10")
       .setCodeSignIdentity()

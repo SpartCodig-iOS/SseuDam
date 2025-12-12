@@ -40,6 +40,9 @@ public enum LiveDependencies {
         dependencies.profileUseCase = ProfileUseCase(repository: profileRepository)
         dependencies.versionUseCase = VersionUseCase(repository: versionRepository)
 
+        // Analytics
+        dependencies.analyticsUseCase = AnalyticsUseCase(repository: FirebaseAnalyticsRepository())
+
         // Travel
         dependencies.fetchTravelsUseCase = FetchTravelsUseCase(repository: travelRepository)
         dependencies.createTravelUseCase = CreateTravelUseCase(repository: travelRepository)
