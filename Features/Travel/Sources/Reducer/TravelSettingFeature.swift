@@ -50,7 +50,8 @@ public struct TravelSettingFeature {
         case alert(AlertAction)
 
         public enum Delegate: Equatable {
-            case done  
+            case done
+            case openMemberManage(travelId: String)
         }
     }
 
@@ -70,7 +71,6 @@ public struct TravelSettingFeature {
                 // MARK: - Lifecycle
 
             case .onAppear:
-                guard state.basicInfo == nil else { return .none }
                 return .send(.fetchDetail)
 
             case .fetchDetail:
@@ -91,7 +91,7 @@ public struct TravelSettingFeature {
                 state.memberSetting = MemberSettingFeature.State(travel: travel)
                 state.manage = TravelManageFeature.State(
                     travelId: travel.id,
-                    isOwner: travel.members.first(where: { $0.role == "owner" })?.id
+                    isOwner: travel.members.first(where: { $0.role == .owner })?.id
                     == travel.members.first?.id
                 )
 
@@ -129,9 +129,8 @@ public struct TravelSettingFeature {
                 state.alert = state.confirmDeleteAlert()
                 return .none
 
-            case .memberSetting(.delegate(.needRefresh)):
-                // 멤버 관련 변경 발생 → 서버에서 Travel 다시 가져오기
-                return .send(.fetchDetail)
+            case let .memberSetting(.delegate(.openMemberManage(travelId))):
+                return .send(.delegate(.openMemberManage(travelId: travelId)))
 
             case .clearError:
                 state.errorMessage = nil

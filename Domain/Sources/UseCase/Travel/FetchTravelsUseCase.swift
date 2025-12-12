@@ -9,7 +9,7 @@ import Foundation
 import Dependencies
 
 public protocol FetchTravelsUseCaseProtocol {
-    func excute(input: FetchTravelsInput) async throws -> [Travel]
+    func execute(input: FetchTravelsInput) async throws -> [Travel]
 }
 
 public struct FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
@@ -19,7 +19,7 @@ public struct FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
         self.repository = repository
     }
     
-    public func excute(input: FetchTravelsInput) async throws -> [Travel] {
+    public func execute(input: FetchTravelsInput) async throws -> [Travel] {
         try await repository.fetchTravels(input: input)
     }
 }
