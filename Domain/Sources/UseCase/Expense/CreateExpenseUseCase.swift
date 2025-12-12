@@ -15,22 +15,9 @@ public struct CreateExpenseUseCase {
         self.repository = repository
     }
 
-    public func execute(travelId: String, input: CreateExpenseInput) async throws {
-        let expense = Expense(
-            id: UUID().uuidString,
-            title: input.title,
-            amount: input.amount,
-            currency: input.currency,
-            convertedAmount: input.convertedAmount,
-            expenseDate: input.expenseDate,
-            category: input.category,
-            payerId: input.payerId,
-            payerName: input.payerName,
-            participants: input.participants
-        )
-
-        try expense.validate()
-        try await repository.save(travelId: travelId, expense: expense)
+    public func execute(travelId: String, input: ExpenseInput) async throws {
+        try input.validate()
+        try await repository.save(travelId: travelId, input: input)
     }
 }
 

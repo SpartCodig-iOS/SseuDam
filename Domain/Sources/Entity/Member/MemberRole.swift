@@ -10,6 +10,10 @@ import Foundation
 public enum MemberRole: String, Equatable, Hashable, Decodable {
     case owner = "owner"
     case member = "member"
+    
+    public init(value: String?) {
+        self = .init(rawValue: value?.lowercased() ?? "member") ?? .member
+    }
 
     public var displayName: String {
         switch self {

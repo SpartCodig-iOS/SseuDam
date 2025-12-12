@@ -9,28 +9,8 @@ import Foundation
 import Domain
 
 public struct FetchMemberResponseDTO: Decodable {
-    let currentUser: MemberInfo
-    let members: [MemberInfo]
-
-    struct MemberInfo: Decodable {
-        let userId: String
-        let name: String
-        let email: String?
-        let role: String
-        let avatarUrl: String?
-    }
-}
-
-private extension FetchMemberResponseDTO.MemberInfo {
-    func toDomain() -> TravelMember {
-        TravelMember(
-            id: userId,
-            name: name,
-            role: MemberRole(rawValue: role.lowercased()) ?? .member,
-            email: email,
-            avatarUrl: avatarUrl
-        )
-    }
+    let currentUser: MemberDTO
+    let members: [MemberDTO]
 }
 
 extension FetchMemberResponseDTO {
