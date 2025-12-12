@@ -126,7 +126,7 @@ public struct TravelSettingFeature {
                 return .send(.delegate(.openUpdateTravel(travel: travel)))
 
             case .basicInfo(.updated(let updatedTravel)):
-                if var memberSetting = state.memberSetting {
+                if let memberSetting = state.memberSetting {
                     memberSetting.applyUpdatedTravel(updatedTravel)
                     state.memberSetting = memberSetting
                 }
