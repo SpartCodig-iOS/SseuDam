@@ -16,23 +16,9 @@ public struct ExpenseDTO: Codable {
     let convertedAmount: Double
     let expenseDate: String
     let category: String
-    let payerId: String
-    let payerName: String
+    let payer: MemberDTO
     let authorId: String
-    let participants: [ParticipantDTO]
-
-    struct ParticipantDTO: Codable {
-        let memberId: String
-        let name: String
-
-        func toDomain() -> TravelMember {
-            TravelMember(
-                id: memberId,
-                name: name,
-                role: .member
-            )
-        }
-    }
+    let expenseMembers: [MemberDTO]
 
     func toDomain() -> Expense? {
         // yyyy-MM-dd 날짜 파싱 (서버에서 받은 날짜 그대로 사용)
@@ -50,7 +36,7 @@ public struct ExpenseDTO: Codable {
         let expenseCategory = ExpenseCategory(rawValue: category) ?? .other
 
         // Participant 변환
-        let members = participants.map { $0.toDomain() }
+        let members = expenseMembers.map { $0.toDomain() }
 
         return Expense(
             id: id,
@@ -60,8 +46,7 @@ public struct ExpenseDTO: Codable {
             convertedAmount: convertedAmount,
             expenseDate: date,
             category: expenseCategory,
-            payerId: payerId,
-            payerName: payerName,
+            payer: payer.toDomain(),
             participants: members
         )
     }
