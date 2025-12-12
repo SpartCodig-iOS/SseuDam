@@ -24,13 +24,16 @@ public protocol AuthRemoteDataSourceProtocol: Sendable {
 public struct AuthRemoteDataSource: AuthRemoteDataSourceProtocol {
     private let authProvider: MoyaProvider<AuthAPITarget>
     private let oauthProvider: MoyaProvider<OAuthAPITarget>
+    private let noAuthProvider: MoyaProvider<AuthAPITarget>
 
     public init(
         authProvider: MoyaProvider<AuthAPITarget> = .authorized,
-        oauthProvider: MoyaProvider<OAuthAPITarget> = .default
+        oauthProvider: MoyaProvider<OAuthAPITarget> = .default,
+        noAuthProvider: MoyaProvider<AuthAPITarget> = .default
     ) {
         self.authProvider = authProvider
         self.oauthProvider = oauthProvider
+        self.noAuthProvider = noAuthProvider
     }
 
     public func refresh(token: String) async throws -> TokenResult {
@@ -56,7 +59,7 @@ public struct AuthRemoteDataSource: AuthRemoteDataSourceProtocol {
     public func registerDeviceToken(token: String) async throws -> DeviceToken {
         let pendingKey = getOrCreatePendingKey()
         let body = DeviceTokenRequestDTO(deviceToken: token, pendingKey: pendingKey)
-        let response: BaseResponse<DeviceTokenResponseDTO> = try await authProvider.request(.registerDeviceToken(body: body))
+        let response: BaseResponse<DeviceTokenResponseDTO> = try await noAuthProvider.request(.registerDeviceToken(body: body))
         guard let data = response.data else { throw NetworkError.noData }
         if let returnedKey = data.pendingKey { persistPendingKey(returnedKey) }
         return data.toDomain()
