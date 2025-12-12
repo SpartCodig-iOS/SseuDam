@@ -283,7 +283,7 @@ public struct BasicSettingFeature {
                 state.selectedCurrency = updated.baseCurrency
                 state.exchangeRate = String(updated.baseExchangeRate)
 
-                analyticsUseCase.trackTravelUpdate(updated.id)
+                analyticsUseCase.track(.travel(.update, TravelEventData(travelId: updated.id)))
 
                 return .merge(
                     .send(.updated(state.travel)),

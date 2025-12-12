@@ -41,9 +41,7 @@ public enum LiveDependencies {
         dependencies.versionUseCase = VersionUseCase(repository: versionRepository)
 
         // Analytics
-        let analyticsManager = FirebaseAnalyticsManager()
-        dependencies.analyticsManager = analyticsManager
-        dependencies.analyticsUseCase = AnalyticsUseCase(manager: analyticsManager)
+        dependencies.analyticsUseCase = AnalyticsUseCase(repository: FirebaseAnalyticsRepository())
 
         // Travel
         dependencies.fetchTravelsUseCase = FetchTravelsUseCase(repository: travelRepository)

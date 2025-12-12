@@ -280,7 +280,7 @@ extension AppFeature {
                            let deeplinkType = notification.userInfo?["deeplink_type"] as? String {
 
                             // Analytics 이벤트 전송
-                            analyticsUseCase.trackDeeplinkOpen(deeplink: urlString, type: deeplinkType)
+                            analyticsUseCase.track(.deeplink(DeeplinkEventData(deeplink: urlString, type: deeplinkType)))
 
                             await send(.view(.handlePushNotificationDeepLink(urlString)))
                         }
@@ -326,14 +326,6 @@ extension AppFeature {
                     )
                 )
 
-            case .main(.delegate(.trackExpenseOpenDetail(let travelId, let expenseId, let source))):
-                return .run { _ in
-                    analyticsUseCase.trackExpenseOpenDetail(
-                        travelId: travelId,
-                        expenseId: expenseId,
-                        source: source
-                    )
-                }
 
             default:
                 return .none

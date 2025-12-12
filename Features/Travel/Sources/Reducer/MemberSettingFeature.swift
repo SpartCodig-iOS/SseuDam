@@ -74,7 +74,7 @@ public struct MemberSettingFeature {
                 state.travel = updated
                 state.members = updated.members
                 state.ownerId = updated.ownerName
-                analyticsUseCase.trackTravelOwnerDelegate(travelId: updated.id, newOwnerId: updated.ownerName)
+                analyticsUseCase.track(.travel(.ownerDelegate, TravelEventData(travelId: updated.id, newOwnerId: updated.ownerName)))
                 return .send(.delegate(.needRefresh))
 
             case .delegateOwnerResponse(.failure(let err)):
@@ -100,7 +100,7 @@ public struct MemberSettingFeature {
                 state.isSubmitting = false
                 if let id = state.deletingMemberId {
                     state.members.removeAll { $0.id == id }
-                    analyticsUseCase.trackTravelMemberLeave(travelId: state.travel.id, memberId: id, role: nil)
+                    analyticsUseCase.track(.travel(.memberLeave, TravelEventData(travelId: state.travel.id, memberId: id, role: nil)))
                 }
                 state.deletingMemberId = nil
                 return .send(.delegate(.needRefresh))

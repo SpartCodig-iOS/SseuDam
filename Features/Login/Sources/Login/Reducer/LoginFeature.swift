@@ -206,10 +206,10 @@ extension LoginFeature {
                 // Analytics: 로그인/회원가입 구분 전송
                 let social = authEntity.provider.rawValue
                 if case .signUpSuccess = outcome {
-                    analyticsUseCase.trackSignupSuccess(socialType: social)
-                    analyticsUseCase.trackLoginSuccess(socialType: social, isFirst: true)
+                    analyticsUseCase.track(.auth(.signupSuccess, AuthEventData(socialType: social)))
+                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: true)))
                 } else {
-                    analyticsUseCase.trackLoginSuccess(socialType: social, isFirst: false)
+                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: false)))
                 }
                 return .send(.delegate(.presentTravelList))
 

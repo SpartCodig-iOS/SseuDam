@@ -80,7 +80,7 @@ public struct TravelManageFeature {
 
             case .leaveResponse(.success):
                 state.isSubmitting = false
-                analyticsUseCase.trackTravelLeave(travelId: state.travelId, userId: nil)
+                analyticsUseCase.track(.travel(.leave, TravelEventData(travelId: state.travelId, userId: nil)))
                 return .send(.dismissRequested)
 
             case .leaveResponse(.failure(let err)):
@@ -106,7 +106,7 @@ public struct TravelManageFeature {
 
             case .deleteResponse(.success):
                 state.isSubmitting = false
-                analyticsUseCase.trackTravelDelete(state.travelId)
+                analyticsUseCase.track(.travel(.delete, TravelEventData(travelId: state.travelId)))
                 return .send(.dismissRequested)
 
             case .deleteResponse(.failure(let err)):
