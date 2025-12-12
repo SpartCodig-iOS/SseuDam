@@ -54,7 +54,7 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
         let newMember = TravelMember(
             id: "MOCK_JOIN_\(UUID().uuidString.prefix(6))",
             name: "NewMember-\(counter)",
-            role: "member"
+            role: .member
         )
         counter += 1
 
@@ -141,6 +141,29 @@ public final class MockTravelMemberRepository: TravelMemberRepositoryProtocol {
         )
         travels[index] = updated
     }
+
+    public func fetchMember(travelId: String) async throws -> MyTravelMember {
+        guard let travel = travels.first(where: { $0.id == travelId }) else {
+            throw NSError(
+                domain: "Mock",
+                code: 404,
+                userInfo: [NSLocalizedDescriptionKey: "Travel not found"]
+            )
+        }
+
+        let myInfo = TravelMember(
+            id: "MOCK_OWNER",
+            name: travel.ownerName,
+            role: .owner
+        )
+
+        let memberInfo = travel.members.filter { $0.id != myInfo.id }
+
+        return MyTravelMember(
+            myInfo: myInfo,
+            memberInfo: memberInfo
+        )
+    }
 }
 
 private extension MockTravelMemberRepository {
@@ -170,7 +193,7 @@ private extension MockTravelMemberRepository {
                 role: "owner",
                 createdAt: today,
                 ownerName: "김민희",
-                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")],
+                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: .member)],
                 currencies: ["JPY"]
             )
         }

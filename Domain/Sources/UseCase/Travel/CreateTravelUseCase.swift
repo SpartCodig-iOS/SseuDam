@@ -9,7 +9,7 @@ import Foundation
 import Dependencies
 
 public protocol CreateTravelUseCaseProtocol {
-    func excute(input: CreateTravelInput) async throws -> Travel
+    func execute(input: CreateTravelInput) async throws -> Travel
 }
 
 public struct CreateTravelUseCase: CreateTravelUseCaseProtocol {
@@ -19,7 +19,7 @@ public struct CreateTravelUseCase: CreateTravelUseCaseProtocol {
         self.repository = repository
     }
     
-    public func excute(input: CreateTravelInput) async throws -> Travel {
+    public func execute(input: CreateTravelInput) async throws -> Travel {
         try await repository.createTravel(input: input)
     }
 }

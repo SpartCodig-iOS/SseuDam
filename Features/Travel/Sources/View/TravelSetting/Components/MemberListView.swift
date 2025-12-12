@@ -13,9 +13,6 @@ struct MemberListView: View {
     let members: [TravelMember]
     let myId: String
     let ownerId: String
-    let isEditing: Bool
-    let onDelegateOwner: (String) -> Void
-    let onDelete: (String) -> Void
     
     var body: some View {
         VStack(spacing: 0) {
@@ -23,10 +20,7 @@ struct MemberListView: View {
                 MemberRow(
                     name: member.name,
                     isMe: member.id == myId,
-                    isOwner: ownerId == member.id,
-                    isEditing: isEditing,
-                    onDelegateOwner: { onDelegateOwner(member.id) },
-                    onDelete: { onDelete(member.id) }
+                    isOwner: ownerId == member.id
                 )
                 
                 if member.id != members.last?.id {

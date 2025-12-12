@@ -11,6 +11,7 @@ import TCACoordinators
 import TravelFeature
 import SettlementFeature
 import ProfileFeature
+import MemberFeature
 
 public struct MainCoordinatorView: View {
     let store: StoreOf<MainCoordinator>
@@ -36,6 +37,9 @@ public struct MainCoordinatorView: View {
             case .profile(let store):
                 ProfileCoordinatorView(store: store)
                     .navigationBarBackButtonHidden()
+                    .enableSwipeBack()
+            case .memberManage(let store):
+                MemberView(store: store)
                     .enableSwipeBack()
             }
         }

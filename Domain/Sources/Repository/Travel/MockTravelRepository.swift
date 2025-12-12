@@ -125,7 +125,7 @@ private extension MockTravelRepository {
                 role: "owner",
                 createdAt: today,
                 ownerName: "김민희",
-                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: "member")],
+                members: [TravelMember(id: "MOCKmember-\(i)", name: "친구1", role: .member)],
                 currencies: ["KRW", "JPY", "USD"]
             )
         }

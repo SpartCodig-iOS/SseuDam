@@ -45,4 +45,11 @@ public final class TravelMemberRepository: TravelMemberRepositoryProtocol {
     ) async throws {
         try await remote.leaveTravel(travelId: travelId)
     }
+
+    public func fetchMember(
+        travelId: String
+    ) async throws -> MyTravelMember {
+        let response = try await remote.fetchMember(travelId: travelId)
+        return response.toDomain()
+    }
 }
