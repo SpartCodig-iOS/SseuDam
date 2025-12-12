@@ -10,7 +10,9 @@ let packageSettings = PackageSettings(
         "TCACoordinators": .framework,
         "Moya": .framework,
         "LogMacro": .framework,
-
+        "GoogleSignIn": .framework,
+        "AppAuth": .framework,        
+        "GTMAppAuth": .framework
     ]
 )
 #endif
@@ -25,6 +27,6 @@ let package = Package(
         .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "9.0.0"),
         .package(url: "https://github.com/Roy-wonji/LogMacro.git", from: "1.1.1"),
         .package(url: "https://github.com/Moya/Moya.git", exact: "15.0.3"),
-        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", exact: "11.0.0")
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", exact: "12.7.0")
     ]
 )
