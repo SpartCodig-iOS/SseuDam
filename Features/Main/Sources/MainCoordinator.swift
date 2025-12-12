@@ -19,7 +19,6 @@ public struct MainCoordinator {
     @ObservableState
     public struct State: Equatable {
         var routes: [Route<Screen.State>]
-        var travelSettingRouteIndex: Int? = nil
 
         public init(pendingInviteCode: String? = nil) {
             self.routes = [.root(.travelList(.init(pendingInviteCode: pendingInviteCode)), embedInNavigationView: true)]
@@ -91,11 +90,9 @@ extension MainCoordinator {
 
             case .routeAction(_, .settlementCoordinator(.delegate(.onTapTravelSettingsButton(let travelId)))):
                 state.routes.push(.travelSetting(.init(travelId: travelId)))
-                state.travelSettingRouteIndex = state.routes.count - 1
                 return .none
 
             case .routeAction(_, .travelSetting(.delegate(.done))):
-                state.travelSettingRouteIndex = nil
 //              state.routes.goBackTo(\.travelList)
             return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
               $0.goBackTo(\.travelList)
@@ -111,7 +108,10 @@ extension MainCoordinator {
 
             case .routeAction(_, .memberManage(.delegate(.finish))):
                 state.routes.goBack()
-                if let travelSettingIndex = state.travelSettingRouteIndex {
+                if let travelSettingIndex = state.routes.lastIndex(where: {
+                    if case .travelSetting = $0.screen { return true }
+                    return false
+                }) {
                     return .send(.router(.routeAction(
                         id: travelSettingIndex,
                         action: .travelSetting(.fetchDetail)
