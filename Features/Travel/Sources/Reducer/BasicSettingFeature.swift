@@ -84,6 +84,7 @@ public struct BasicSettingFeature {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case editButtonTapped
 
         // 기본 정보 변경
         case titleChanged(String)
@@ -107,12 +108,17 @@ public struct BasicSettingFeature {
         case updated(Travel)      // 부모로 전달
 
         case errorDismissed
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case openUpdate(Travel)
+        }
     }
 
     @Dependency(\.fetchCountriesUseCase) var fetchCountriesUseCase
     @Dependency(\.fetchExchangeRateUseCase) var fetchExchangeRateUseCase
     @Dependency(\.updateTravelUseCase) var updateTravelUseCase
-    @Dependency(\.analyticsUseCase) var analyticsUseCase
+//    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
@@ -121,6 +127,9 @@ public struct BasicSettingFeature {
             switch action {
 
             // MARK: 기본 정보
+            case .editButtonTapped:
+                return .send(.delegate(.openUpdate(state.travel)))
+
             case .titleChanged(let value):
                 state.title = value
                 return .none
@@ -283,7 +292,7 @@ public struct BasicSettingFeature {
                 state.selectedCurrency = updated.baseCurrency
                 state.exchangeRate = String(updated.baseExchangeRate)
 
-                analyticsUseCase.track(.travel(.update, TravelEventData(travelId: updated.id)))
+//                analyticsUseCase.track(.travel(.update, TravelEventData(travelId: updated.id)))
 
                 return .merge(
                     .send(.updated(state.travel)),
@@ -304,6 +313,9 @@ public struct BasicSettingFeature {
 
             case .errorDismissed:
                 state.errorMessage = nil
+                return .none
+
+            case .delegate:
                 return .none
 
             case .binding:

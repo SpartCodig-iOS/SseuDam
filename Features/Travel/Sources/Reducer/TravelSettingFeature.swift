@@ -52,7 +52,7 @@ public struct TravelSettingFeature {
         public enum Delegate: Equatable {
             case done
             case openMemberManage(travelId: String)
-            case navigateToTravelDetail(travelId: String)
+            case openUpdateTravel(travel: Travel)
         }
     }
 
@@ -87,7 +87,6 @@ public struct TravelSettingFeature {
 
             case .fetchDetailResponse(.success(let travel)):
                 state.isLoading = false
-
                 state.basicInfo = BasicSettingFeature.State(travel: travel)
                 state.memberSetting = MemberSettingFeature.State(travel: travel)
                 state.manage = TravelManageFeature.State(
@@ -105,13 +104,6 @@ public struct TravelSettingFeature {
 
                 // MARK: - Child features
 
-            case .basicInfo(.updated(let updatedTravel)):
-                if var memberSetting = state.memberSetting {
-                    memberSetting.applyUpdatedTravel(updatedTravel)
-                    state.memberSetting = memberSetting
-                }
-                return .none
-
             case .manage(.dismissRequested):
                 // 여행 나가기 / 삭제 성공 시
                 state.shouldDismiss = true
@@ -128,6 +120,16 @@ public struct TravelSettingFeature {
 
             case .manage(.delegate(.showDeleteAlert)):
                 state.alert = state.confirmDeleteAlert()
+                return .none
+
+            case .basicInfo(.delegate(.openUpdate(let travel))):
+                return .send(.delegate(.openUpdateTravel(travel: travel)))
+
+            case .basicInfo(.updated(let updatedTravel)):
+                if var memberSetting = state.memberSetting {
+                    memberSetting.applyUpdatedTravel(updatedTravel)
+                    state.memberSetting = memberSetting
+                }
                 return .none
 
             case let .memberSetting(.delegate(.openMemberManage(travelId))):

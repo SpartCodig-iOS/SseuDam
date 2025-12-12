@@ -72,7 +72,7 @@ extension TravelDTO {
             endDate: dateFormatter.date(from: endDate) ?? Date(),
             countryCode: countryCode,
             koreanCountryName: countryNameKr,
-            baseCurrency: destinationCurrency,
+            baseCurrency: baseCurrency,
             baseExchangeRate: baseExchangeRate,
             destinationCurrency: destinationCurrency,
             inviteCode: inviteCode,

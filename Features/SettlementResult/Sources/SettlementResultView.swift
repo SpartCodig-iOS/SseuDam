@@ -52,27 +52,6 @@ public struct SettlementResultView: View {
                                 }
                             )
                         }
-
-                        // 상세보기 버튼
-                        Button {
-                            send(.detailButtonTapped)
-                        } label: {
-                            HStack {
-                                Text("멤버별 정산 상세보기")
-                                    .font(.app(.body, weight: .semibold))
-                                    .foregroundStyle(Color.primary500)
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundStyle(Color.primary500)
-                            }
-                            .padding(16)
-                            .background(Color.white)
-                            .cornerRadius(12)
-                        }
-                        .padding(.top, 8)
                     }
                 }
             } else {
@@ -85,6 +64,18 @@ public struct SettlementResultView: View {
                 }
                 .frame(maxHeight: .infinity)
             }
+            
+            
+            // 상세보기 버튼
+            Button {
+                send(.detailButtonTapped)
+            } label: {
+                Text("정산 내역 보기")
+                    .font(.app(.body, weight: .medium))
+                    .foregroundStyle(Color.gray9)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(16)
         }
         .padding(.horizontal, 16)
         .background(Color.primary50)
@@ -94,9 +85,7 @@ public struct SettlementResultView: View {
         }
         .alert($store.scope(state: \.alert, action: \.scope.alert))
         .sheet(item: $store.scope(state: \.settlementDetail, action: \.scope.settlementDetail)) { store in
-            NavigationView {
-                SettlementDetailView(store: store)
-            }
+            SettlementDetailView(store: store)
         }
     }
 }

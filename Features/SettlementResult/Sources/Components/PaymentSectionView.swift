@@ -56,11 +56,10 @@ private struct PaymentRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "person.fill")
+            Image(asset: .profile)
                 .resizable()
-                .foregroundStyle(Color.primary500)
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 24, height: 24)
+                .frame(width: 32, height: 32)
 
             Text(payment.name)
                 .font(.app(.title3, weight: .medium))

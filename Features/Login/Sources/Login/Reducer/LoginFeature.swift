@@ -84,7 +84,7 @@ public struct LoginFeature {
 
     @Dependency(UnifiedOAuthUseCase.self) var unifiedOAuthUseCase
     @Dependency(SessionUseCase.self) var sessionUseCase
-    @Dependency(\.analyticsUseCase) var analyticsUseCase
+//    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
 
     nonisolated enum CancelID: Hashable {
@@ -206,10 +206,10 @@ extension LoginFeature {
                 // Analytics: 로그인/회원가입 구분 전송
                 let social = authEntity.provider.rawValue
                 if case .signUpSuccess = outcome {
-                    analyticsUseCase.track(.auth(.signupSuccess, AuthEventData(socialType: social)))
-                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: true)))
+//                    analyticsUseCase.track(.auth(.signupSuccess, AuthEventData(socialType: social)))
+//                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: true)))
                 } else {
-                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: false)))
+//                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: false)))
                 }
                 return .send(.delegate(.presentTravelList))
 

@@ -11,6 +11,7 @@ import ComposableArchitecture
 import SettlementFeature
 import LogMacro
 import MemberFeature
+import Domain
 
 @Reducer
 public struct MainCoordinator {
@@ -36,6 +37,8 @@ public struct MainCoordinator {
     public enum DelegateAction {
         case presentLogin
     }
+
+    @Dependency(\.deeplinkRouter) var deeplinkRouter
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -93,26 +96,49 @@ extension MainCoordinator {
                 return .none
 
             case .routeAction(_, .travelSetting(.delegate(.done))):
-//              state.routes.goBackTo(\.travelList)
             return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
               $0.goBackTo(\.travelList)
             }
+
+            case let .routeAction(_, .travelSetting(.delegate(.openUpdateTravel(travel)))):
+                state.routes.push(.updateTravel(.init(travel: travel)))
+                return .none
             
             case let .routeAction(_, .travelSetting(.delegate(.openMemberManage(travelId)))):
                 state.routes.push(.memberManage(.init(travelId: travelId)))
                 return .none
 
-            case let .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(travelId)))):
-                // 여행 수정 완료 후 해당 여행의 상세 페이지로 이동
-                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
-                    $0.goBackTo(\.travelList)
-                }
+
+//           case .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(_)))):
+//                 return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+//                     $0.goBackTo(\.travelList)
+//                 }
+
+//            case let .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(travelId)))):
+//                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+//                    $0.goBackTo(\.travelList)
+//                }
+
 
             case .routeAction(_, .memberManage(.delegate(.back))):
                 state.routes.goBack()
                 return .none
 
             case .routeAction(_, .memberManage(.delegate(.finish))):
+                state.routes.goBack()
+                if let travelSettingIndex = state.routes.lastIndex(where: {
+                    if case .travelSetting = $0.screen { return true }
+                    return false
+                }) {
+                    return .send(.router(.routeAction(
+                        id: travelSettingIndex,
+                        action: .travelSetting(.fetchDetail)
+                    )))
+                } else {
+                    return .none
+                }
+            
+            case .routeAction(_, .updateTravel(.updated)):
                 state.routes.goBack()
                 if let travelSettingIndex = state.routes.lastIndex(where: {
                     if case .travelSetting = $0.screen { return true }
@@ -150,120 +176,132 @@ extension MainCoordinator {
     }
 
     private func handlePushDeepLink(state: inout State, urlString: String) -> Effect<Action> {
-        guard let url = URL(string: urlString),
-              url.scheme == "sseudam" else {
-            #logDebug("❌ Invalid push deep link URL: \(urlString)")
-            return .none
-        }
+        #logDebug("🔗 Processing deeplink: \(urlString)")
 
-        let pathComponents = url.pathComponents.filter { $0 != "/" }
-        #logDebug("🔗 Path components: \(pathComponents)")
+        let result = deeplinkRouter.parse(urlString)
 
-        // URL 구조: sseudam://travel/123/expense/456 또는 sseudam://invite?code=123
-        if url.host == "invite" || pathComponents.first == "invite" {
-            return handleInviteDeepLink(state: &state, url: url)
-        } else if url.host == "travel" || pathComponents.first == "travel" {
-            return handleTravelDeepLink(state: &state, url: url, pathComponents: pathComponents)
-        } else {
-            #logDebug("❌ Unknown deep link scheme. Host: \(url.host ?? "nil"), Path: \(pathComponents)")
+        switch result {
+        case .success(let destination):
+            return routeToDestination(state: &state, destination: destination)
+        case .requiresLogin(let destination):
+            return handleRequiresLogin(state: &state, destination: destination)
+        case .invalid(let url, let reason):
+            #logDebug("❌ Invalid deeplink: \(url) - \(reason)")
             return .none
         }
     }
 
-    private func handleTravelDeepLink(
+    // MARK: - DeepLink Routing
+
+    private func routeToDestination(
         state: inout State,
-        url: URL,
-        pathComponents: [String]
+        destination: DeeplinkDestination
     ) -> Effect<Action> {
+        switch destination {
+        case .travel(let travelDeeplink):
+            return handleTravelDestination(state: &state, travelDeeplink: travelDeeplink)
+        case .invite(let code):
+            // 이미 로그인된 상태에서 초대 코드 처리
+            return .send(.router(.routeAction(id: 0, action: .travelList(.openInviteCode(code)))))
+        case .unknown(let url):
+            #logDebug("🤷‍♂️ Unknown deeplink: \(url)")
+            return .none
+        }
+    }
 
-        var travelId: String
-        var remainingComponents: [String]
-
-        // URL 구조 분석: sseudam://travel/123/expense/456 또는 sseudam://travel/{id}/...
-        if pathComponents.first == "travel" && pathComponents.count >= 2 {
-            // 표준 구조: ["travel", "123", "expense", "456"]
-            travelId = pathComponents[1]
-            remainingComponents = Array(pathComponents.dropFirst(2))
-        } else if url.host == "travel" && pathComponents.count >= 1 {
-            // 일부 푸시 페이로드는 host에만 travel이 있고 path는 ["{id}", "expense", "{expenseId}"] 형태
-            travelId = pathComponents[0]
-            remainingComponents = Array(pathComponents.dropFirst(1))
-        } else {
-            #logDebug("❌ Invalid travel deep link structure: \(pathComponents)")
+    private func handleRequiresLogin(
+        state: inout State,
+        destination: DeeplinkDestination
+    ) -> Effect<Action> {
+        // 초대 코드의 경우 AppFeature로 전달하여 로그인 상태 체크
+        // TODO: 필요시 다른 destination들도 처리
+        guard case .invite(_) = destination else {
+            #logDebug("❌ Unhandled requiresLogin destination: \(destination)")
             return .none
         }
 
+        // AppFeature의 기존 로직을 사용하기 위해 다시 전달
+        return .send(.delegate(.presentLogin))
+    }
 
-        // settings 경로인 경우 바로 TravelSetting으로 이동
-        if remainingComponents.count >= 1, remainingComponents[0] == "settings" {
-            #logDebug("⚙️ Navigating to travel settings")
-            // 기존 여행 관련 화면들 정리
-            if let settlementIndex = state.routes.lastIndex(where: {
-                if case .settlementCoordinator = $0.screen { return true }
-                return false
-            }) {
-                state.routes.removeSubrange(settlementIndex...)
-            }
-            if let travelSettingIndex = state.routes.lastIndex(where: {
-                if case .travelSetting = $0.screen { return true }
-                return false
-            }) {
-                state.routes.removeSubrange(travelSettingIndex...)
-            }
-            // 여행 설정 페이지로 직접 이동
-            state.routes.push(.travelSetting(.init(travelId: travelId)))
-            return .none
+    private func handleTravelDestination(
+        state: inout State,
+        travelDeeplink: TravelDeeplink
+    ) -> Effect<Action> {
+        switch travelDeeplink {
+        case .detail(let travelId):
+            return navigateToTravelDetail(state: &state, travelId: travelId)
+        case .settings(let travelId):
+            return navigateToTravelSettings(state: &state, travelId: travelId)
+        case .expense(let travelId, let expenseId):
+            return navigateToExpenseDetail(state: &state, travelId: travelId, expenseId: expenseId)
+        case .settlement(let travelId):
+            return navigateToSettlementTab(state: &state, travelId: travelId)
         }
+    }
 
-        // 일반적인 여행 상세 페이지 처리
-        let currentTravelId = getCurrentTravelId(from: state)
-        if currentTravelId != travelId {
-            // 다른 여행이거나 여행 화면이 없으면 새로 열기
-            if let settlementIndex = state.routes.lastIndex(where: {
-                if case .settlementCoordinator = $0.screen { return true }
-                return false
-            }) {
-                // 기존 여행 화면 제거하고 새로운 여행 화면 추가
-                state.routes.removeSubrange(settlementIndex...)
-            }
-            state.routes.push(.settlementCoordinator(.init(travelId: travelId)))
-        }
-
-        // 추가 네비게이션 처리
-        if remainingComponents.count >= 2, remainingComponents[0] == "expense" {
-            let expenseId = remainingComponents[1]
-            #logDebug("💰 Navigating to expense detail: \(expenseId)")
-
-            // 지출 목록 탭으로 이동하고 특정 지출을 찾아서 표시
-            let routeIndex = state.routes.count - 1
-            return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToExpenseTab(expenseId)))))
-
-        } else if remainingComponents.count >= 1, remainingComponents[0] == "settlement" {
-            #logDebug("📊 Navigating to settlement tab")
-            // 정산 탭으로 이동
-            let routeIndex = state.routes.count - 1
-            return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToSettlementTab))))
-        }
-
-        #logDebug("🏝️ Navigating to travel detail only")
+    private func navigateToTravelSettings(state: inout State, travelId: String) -> Effect<Action> {
+        #logDebug("⚙️ Navigating to travel settings")
+        clearTravelRelatedScreens(state: &state)
+        state.routes.push(.travelSetting(.init(travelId: travelId)))
         return .none
     }
 
-    private func handleInviteDeepLink(
-        state: inout State,
-        url: URL
-    ) -> Effect<Action> {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let inviteCode = components.queryItems?.first(where: { $0.name == "code" })?.value else {
-            print("❌ Invalid invite deep link: missing code")
-            return .none
+    private func navigateToTravelDetail(state: inout State, travelId: String) -> Effect<Action> {
+        #logDebug("🏝️ Navigating to travel detail")
+        _ = ensureSettlementCoordinatorRoute(state: &state, travelId: travelId)
+        return .none
+    }
+
+    private func navigateToExpenseDetail(state: inout State, travelId: String, expenseId: String) -> Effect<Action> {
+        #logDebug("💰 Navigating to expense detail: \(expenseId)")
+        let routeIndex = ensureSettlementCoordinatorRoute(state: &state, travelId: travelId)
+        return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToExpenseTab(expenseId)))))
+    }
+
+    private func navigateToSettlementTab(state: inout State, travelId: String) -> Effect<Action> {
+        #logDebug("📊 Navigating to settlement tab")
+        let routeIndex = ensureSettlementCoordinatorRoute(state: &state, travelId: travelId)
+        return .send(.router(.routeAction(id: routeIndex, action: .settlementCoordinator(.navigateToSettlementTab))))
+    }
+
+    private func clearTravelRelatedScreens(state: inout State) {
+        clearSettlementScreens(state: &state)
+        if let travelSettingIndex = state.routes.lastIndex(where: {
+            if case .travelSetting = $0.screen { return true }
+            return false
+        }) {
+            state.routes.removeSubrange(travelSettingIndex...)
+        }
+    }
+
+    private func ensureSettlementCoordinatorRoute(state: inout State, travelId: String) -> Int {
+        if let existingIndex = state.routes.lastIndex(where: {
+            if case let .settlementCoordinator(settlementState) = $0.screen {
+                return settlementState.travelId == travelId
+            }
+            return false
+        }) {
+            if existingIndex < state.routes.count - 1 {
+                state.routes.removeSubrange((existingIndex + 1)...)
+            }
+            return existingIndex
         }
 
-        #logDebug("🎫 Processing invite code: \(inviteCode)")
-
-        // 초대 코드 처리를 위해 TravelListFeature로 전달
-        return .send(.router(.routeAction(id: 0, action: .travelList(.openInviteCode(inviteCode)))))
+        clearSettlementScreens(state: &state)
+        state.routes.push(.settlementCoordinator(.init(travelId: travelId)))
+        return state.routes.count - 1
     }
+
+    private func clearSettlementScreens(state: inout State) {
+        if let settlementIndex = state.routes.lastIndex(where: {
+            if case .settlementCoordinator = $0.screen { return true }
+            return false
+        }) {
+            state.routes.removeSubrange(settlementIndex...)
+        }
+    }
+
 
     private func getCurrentTravelId(from state: State) -> String? {
         // 현재 열려있는 SettlementCoordinator에서 travelId 추출

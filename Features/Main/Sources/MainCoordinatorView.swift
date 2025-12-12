@@ -34,6 +34,9 @@ public struct MainCoordinatorView: View {
             case .travelSetting(let store):
                 TravelSettingView(store: store)
                     .enableSwipeBack()
+            case .updateTravel(let store):
+                UpdateTravelView(store: store)
+                    .enableSwipeBack()
             case .profile(let store):
                 ProfileCoordinatorView(store: store)
                     .navigationBarBackButtonHidden()
