@@ -171,9 +171,9 @@ struct MemberDetailCard: View {
         if detail.netBalance > 0 {
             return .primary500
         } else if detail.netBalance < 0 {
-            return .red
+            return Color.error
         } else {
-            return .black
+            return Color.primary500
         }
     }
 
