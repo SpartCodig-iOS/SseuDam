@@ -11,6 +11,7 @@ import TCACoordinators
 import TravelFeature
 import SettlementFeature
 import ProfileFeature
+import MemberFeature
 
 @Reducer
 public enum Screen {
@@ -19,6 +20,7 @@ public enum Screen {
     case settlementCoordinator(SettlementCoordinator)
     case travelSetting(TravelSettingFeature)
     case profile(ProfileCoordinator)
+    case memberManage(MemberManageFeature)
 }
 
 extension Screen.State: Equatable {}

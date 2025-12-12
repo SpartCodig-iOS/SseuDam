@@ -31,7 +31,8 @@ public struct TravelView: View {
                     }
                     
                     TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
-                    
+                        .padding(.horizontal, 20)
+
                     if store.travels.isEmpty {
                         TravelEmptyView()
                     } else {
@@ -52,6 +53,9 @@ public struct TravelView: View {
                                 }
                             }
                             .padding(16)
+                        } 
+                        .refreshable {
+                            store.send(.refresh)  
                         }
                     }
                 }
@@ -60,9 +64,6 @@ public struct TravelView: View {
         .task {
           store.send(.onAppear)
         }
-//        .onAppear {
-//            store.send(.onAppear)
-//        }
         .overlay(alignment: .bottomTrailing) {
             if !store.isLoading {
                 ZStack(alignment: .bottomTrailing) {

@@ -11,7 +11,7 @@ import Domain
 struct TravelMemberDTO: Decodable {
     let userId: String
     let name: String
-    let role: String
+    let role: MemberRole
 }
 
 extension TravelMemberDTO {

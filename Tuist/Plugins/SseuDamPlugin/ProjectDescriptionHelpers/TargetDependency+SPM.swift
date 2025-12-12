@@ -17,4 +17,6 @@ public extension TargetDependency.SPM {
   static let GoogleSignIn: TargetDependency = .external(name: "GoogleSignIn")
   static let AppAuth: TargetDependency = .external(name: "AppAuth")
   static let LogMacro: TargetDependency = .external(name: "LogMacro")
+  static let FirebaseAnalytics = TargetDependency.external(name: "FirebaseAnalytics", condition: .none)
+  static let FirebaseCrashlytics = TargetDependency.external(name: "FirebaseCrashlytics", condition: .none)
 }

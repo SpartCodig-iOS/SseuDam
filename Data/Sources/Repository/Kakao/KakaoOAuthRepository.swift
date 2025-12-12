@@ -71,7 +71,7 @@ public final class KakaoOAuthRepository: NSObject, KakaoOAuthRepositoryProtocol 
 
         // 카카오톡 설치 시: 톡 앱으로만 진행(웹 세션 표시 없음), 딥링크(ticket/code)는 KakaoAuthCodeStore에서 기다림
         if let talkURL = talkAuthorizeURL(from: authorizeURL) {
-            await UIApplication.shared.open(talkURL, options: [:], completionHandler: nil)
+             UIApplication.shared.open(talkURL, options: [:], completionHandler: nil)
 
             do {
                 let ticket = try await KakaoAuthCodeStore.shared.waitForCode()

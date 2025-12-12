@@ -237,7 +237,7 @@ public struct TravelCreateFeature {
                 return .run {
                     [createTravelUseCase = self.createTravelUseCase, input] send in
                     do {
-                        let travel = try await createTravelUseCase.excute(input: input)
+                        let travel = try await createTravelUseCase.execute(input: input)
                         await send(.saveTravelResponse(.success(travel)))
                     } catch {
                         await send(.saveTravelResponse(.failure(error)))

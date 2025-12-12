@@ -9,7 +9,7 @@ public enum Environment {
     public static let organizationTeamId = "N94CS4N6VR"
 
     // MARK: - Version Management
-    public static let mainAppVersion = "1.0.0"
+    public static let mainAppVersion = "1.0.2"
     public static let demoAppVersion = "0.1.0"  // Demo app용 별도 버전
 
     // MARK: - Platform

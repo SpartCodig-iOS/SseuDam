@@ -74,10 +74,10 @@ public extension Travel {
             createdAt: Date().addingTimeInterval(-86400 * 30), // 30일 전
             ownerName: "홍석현",
             members: [
-                TravelMember(id: "member-1", name: "홍석현", role: "owner"),
-                TravelMember(id: "member-2", name: "김철수", role: "member"),
-                TravelMember(id: "member-3", name: "이영희", role: "member"),
-                TravelMember(id: "member-4", name: "박민수", role: "member")
+                TravelMember(id: "member-1", name: "홍석현", role: .owner),
+                TravelMember(id: "member-2", name: "김철수", role: .member),
+                TravelMember(id: "member-3", name: "이영희", role: .member),
+                TravelMember(id: "member-4", name: "박민수", role: .member)
             ],
             currencies: ["JPY"]
         )
@@ -100,8 +100,8 @@ public extension Travel {
             createdAt: Date().addingTimeInterval(-86400 * 7), // 7일 전
             ownerName: "김철수",
             members: [
-                TravelMember(id: "member-1", name: "김철수", role: "owner"),
-                TravelMember(id: "member-2", name: "홍석현", role: "member")
+                TravelMember(id: "member-1", name: "김철수", role: .owner),
+                TravelMember(id: "member-2", name: "홍석현", role: .member)
             ],
             currencies: ["USD"]
         )
@@ -124,9 +124,9 @@ public extension Travel {
             createdAt: Date().addingTimeInterval(-86400 * 60), // 60일 전
             ownerName: "이영희",
             members: [
-                TravelMember(id: "member-1", name: "이영희", role: "owner"),
-                TravelMember(id: "member-2", name: "박민수", role: "member"),
-                TravelMember(id: "member-3", name: "홍석현", role: "member")
+                TravelMember(id: "member-1", name: "이영희", role: .owner),
+                TravelMember(id: "member-2", name: "박민수", role: .member),
+                TravelMember(id: "member-3", name: "홍석현", role: .member)
             ],
             currencies: ["EUR"]
         )
@@ -149,10 +149,10 @@ public extension Travel {
             createdAt: Date().addingTimeInterval(-86400 * 90), // 90일 전
             ownerName: "박민수",
             members: [
-                TravelMember(id: "member-1", name: "박민수", role: "owner"),
-                TravelMember(id: "member-2", name: "홍석현", role: "member"),
-                TravelMember(id: "member-3", name: "김철수", role: "member"),
-                TravelMember(id: "member-4", name: "이영희", role: "member")
+                TravelMember(id: "member-1", name: "박민수", role: .owner),
+                TravelMember(id: "member-2", name: "홍석현", role: .member),
+                TravelMember(id: "member-3", name: "김철수", role: .member),
+                TravelMember(id: "member-4", name: "이영희", role: .member)
             ],
             currencies: ["KRW"]
         )

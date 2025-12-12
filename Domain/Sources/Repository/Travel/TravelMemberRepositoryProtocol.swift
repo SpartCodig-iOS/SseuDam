@@ -12,4 +12,5 @@ public protocol TravelMemberRepositoryProtocol {
     func joinTravel(inviteCode: String) async throws -> Travel
     func delegateOwner(travelId: String, newOwnerId: String) async throws -> Travel
     func leaveTravel(travelId: String) async throws
+    func fetchMember(travelId: String) async throws -> MyTravelMember
 }

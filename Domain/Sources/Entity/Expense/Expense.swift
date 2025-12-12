@@ -70,9 +70,9 @@ extension Expense {
 // MARK: - Mock Data
 extension Expense {
     public static let mockMembers = [
-        TravelMember(id: "user1", name: "김민수", role: "owner"),
-        TravelMember(id: "user2", name: "이지은", role: "member"),
-        TravelMember(id: "user3", name: "박서준", role: "member")
+        TravelMember(id: "user1", name: "김민수", role: .owner),
+        TravelMember(id: "user2", name: "이지은", role: .member),
+        TravelMember(id: "user3", name: "박서준", role: .member)
     ]
 
     public static let mock1 = Expense(

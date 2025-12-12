@@ -40,6 +40,9 @@ public enum LiveDependencies {
         dependencies.profileUseCase = ProfileUseCase(repository: profileRepository)
         dependencies.versionUseCase = VersionUseCase(repository: versionRepository)
 
+        // Analytics
+        dependencies.analyticsUseCase = AnalyticsUseCase(repository: FirebaseAnalyticsRepository())
+
         // Travel
         dependencies.fetchTravelsUseCase = FetchTravelsUseCase(repository: travelRepository)
         dependencies.createTravelUseCase = CreateTravelUseCase(repository: travelRepository)
@@ -59,6 +62,7 @@ public enum LiveDependencies {
         dependencies.delegateOwnerUseCase = DelegateOwnerUseCase(repository: travelMemberRepository)
         dependencies.deleteTravelMemberUseCase = DeleteTravelMemberUseCase(repository: travelMemberRepository)
         dependencies.leaveTravelUseCase = LeaveTravelUseCase(repository: travelMemberRepository)
+        dependencies.fetchMemberUseCase = FetchMemberUseCase(repository: travelMemberRepository)
 
         // Country & Exchange
         dependencies.fetchCountriesUseCase = FetchCountriesUseCase(repository: countryRepository)

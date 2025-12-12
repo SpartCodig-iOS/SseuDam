@@ -98,7 +98,7 @@ public struct TravelListFeature {
                 
                 return .run { send in
                     do {
-                        let result = try await fetchTravelsUseCase.excute(input: input)
+                        let result = try await fetchTravelsUseCase.execute(input: input)
                         await send(.fetchTravelsResponse(.success(result)))
                     } catch {
                         await send(.fetchTravelsResponse(.failure(error)))

@@ -29,7 +29,7 @@ public struct ExpenseDTO: Codable {
             TravelMember(
                 id: memberId,
                 name: name,
-                role: "member"
+                role: .member
             )
         }
     }
