@@ -23,7 +23,7 @@ DerivedData/
 !default.perspectivev3
 Config/
 .env
-
+GoogleService-Info.plist
 ## Obj-C/Swift specific
 *.hmap
 

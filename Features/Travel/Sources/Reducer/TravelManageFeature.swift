@@ -49,6 +49,7 @@ public struct TravelManageFeature {
 
     @Dependency(\.leaveTravelUseCase) var leaveTravelUseCase
     @Dependency(\.deleteTravelUseCase) var deleteTravelUseCase
+    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -79,6 +80,7 @@ public struct TravelManageFeature {
 
             case .leaveResponse(.success):
                 state.isSubmitting = false
+                analyticsUseCase.track(.travel(.leave, TravelEventData(travelId: state.travelId, userId: nil)))
                 return .send(.dismissRequested)
 
             case .leaveResponse(.failure(let err)):
@@ -104,6 +106,7 @@ public struct TravelManageFeature {
 
             case .deleteResponse(.success):
                 state.isSubmitting = false
+                analyticsUseCase.track(.travel(.delete, TravelEventData(travelId: state.travelId)))
                 return .send(.dismissRequested)
 
             case .deleteResponse(.failure(let err)):

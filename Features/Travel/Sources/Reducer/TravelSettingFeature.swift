@@ -52,6 +52,7 @@ public struct TravelSettingFeature {
         public enum Delegate: Equatable {
             case done
             case openMemberManage(travelId: String)
+            case navigateToTravelDetail(travelId: String)
         }
     }
 
