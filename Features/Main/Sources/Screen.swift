@@ -19,6 +19,7 @@ public enum Screen {
     case createTravel(TravelCreateFeature)
     case settlementCoordinator(SettlementCoordinator)
     case travelSetting(TravelSettingFeature)
+    case updateTravel(BasicSettingFeature)
     case profile(ProfileCoordinator)
     case memberManage(MemberManageFeature)
 }

@@ -84,6 +84,7 @@ public struct BasicSettingFeature {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case editButtonTapped
 
         // 기본 정보 변경
         case titleChanged(String)
@@ -107,6 +108,11 @@ public struct BasicSettingFeature {
         case updated(Travel)      // 부모로 전달
 
         case errorDismissed
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case openUpdate(Travel)
+        }
     }
 
     @Dependency(\.fetchCountriesUseCase) var fetchCountriesUseCase
@@ -120,6 +126,9 @@ public struct BasicSettingFeature {
             switch action {
 
             // MARK: 기본 정보
+            case .editButtonTapped:
+                return .send(.delegate(.openUpdate(state.travel)))
+
             case .titleChanged(let value):
                 state.title = value
                 return .none
@@ -301,6 +310,9 @@ public struct BasicSettingFeature {
 
             case .errorDismissed:
                 state.errorMessage = nil
+                return .none
+
+            case .delegate:
                 return .none
 
             case .binding:
