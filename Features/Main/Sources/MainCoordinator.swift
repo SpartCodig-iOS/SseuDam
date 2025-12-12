@@ -96,25 +96,49 @@ extension MainCoordinator {
                 return .none
 
             case .routeAction(_, .travelSetting(.delegate(.done))):
-//              state.routes.goBackTo(\.travelList)
             return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
               $0.goBackTo(\.travelList)
             }
+
+            case let .routeAction(_, .travelSetting(.delegate(.openUpdateTravel(travel)))):
+                state.routes.push(.updateTravel(.init(travel: travel)))
+                return .none
             
             case let .routeAction(_, .travelSetting(.delegate(.openMemberManage(travelId)))):
                 state.routes.push(.memberManage(.init(travelId: travelId)))
                 return .none
 
-          case .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(_)))):
-                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
-                    $0.goBackTo(\.travelList)
-                }
+
+//           case .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(_)))):
+//                 return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+//                     $0.goBackTo(\.travelList)
+//                 }
+
+//            case let .routeAction(_, .travelSetting(.delegate(.navigateToTravelDetail(travelId)))):
+//                return .routeWithDelaysIfUnsupported(state.routes, action: \.router) {
+//                    $0.goBackTo(\.travelList)
+//                }
+
 
             case .routeAction(_, .memberManage(.delegate(.back))):
                 state.routes.goBack()
                 return .none
 
             case .routeAction(_, .memberManage(.delegate(.finish))):
+                state.routes.goBack()
+                if let travelSettingIndex = state.routes.lastIndex(where: {
+                    if case .travelSetting = $0.screen { return true }
+                    return false
+                }) {
+                    return .send(.router(.routeAction(
+                        id: travelSettingIndex,
+                        action: .travelSetting(.fetchDetail)
+                    )))
+                } else {
+                    return .none
+                }
+            
+            case .routeAction(_, .updateTravel(.updated)):
                 state.routes.goBack()
                 if let travelSettingIndex = state.routes.lastIndex(where: {
                     if case .travelSetting = $0.screen { return true }
