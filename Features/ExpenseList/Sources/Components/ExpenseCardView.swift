@@ -49,7 +49,7 @@ public struct ExpenseCardView: View {
                     Image(asset: .receipt)
                         .resizable()
                         .frame(width: 16, height: 16)
-                    Text(expense.payerName)
+                    Text(expense.payer.name)
                 }
 
                 // 구분선 (|)

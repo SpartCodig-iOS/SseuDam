@@ -108,13 +108,10 @@ public struct SettlementResultFeature {
             case .view(.onAppear):
                 state.currentUserId = userId
                 // 정산 계산
-                if let travel = state.travel {
-                    state.settlementCalculation = calculateSettlementUseCase.execute(
-                        expenses: state.expenses,
-                        members: travel.members,
-                        currentUserId: state.currentUserId
-                    )
-                }
+                state.settlementCalculation = calculateSettlementUseCase.execute(
+                    expenses: state.expenses,
+                    currentUserId: state.currentUserId
+                )
                 return .none
 
             case .view(.backButtonTapped):
