@@ -16,7 +16,8 @@ final public class AuthRepository: AuthRepositoryProtocol {
     public init(
         remote: any AuthRemoteDataSourceProtocol = AuthRemoteDataSource(
             authProvider: MoyaProvider<AuthAPITarget>.authorized,
-            oauthProvider: MoyaProvider<OAuthAPITarget>.default
+            oauthProvider: MoyaProvider<OAuthAPITarget>.default,
+            noAuthProvider: MoyaProvider<AuthAPITarget>.default
         )
     ) {
         self.remote = remote
