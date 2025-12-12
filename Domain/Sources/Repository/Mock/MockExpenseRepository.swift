@@ -45,28 +45,27 @@ final public actor MockExpenseRepository: ExpenseRepositoryProtocol {
             }
         }
     }
-    
-    public func save(
-        travelId: String,
-        expense: Expense
-    ) async throws {
+
+    public func save(travelId: String, input: ExpenseInput) async throws {
         if shouldFailSave {
             let reason = saveErrorReason ?? "Unknown error"
             throw ExpenseRepositoryError.saveFailed(reason: reason)
         }
-        
-        storage[expense.id] = expense
+
+        storage[input.payerId] = Expense.mock1
     }
+    
     
     public func update(
         travelId: String,
-        expense: Expense
+        expenseId: String,
+        input: ExpenseInput
     ) async throws {
         if shouldFailUpdate {
             throw ExpenseRepositoryError.updateFailed(reason: "업데이트 실패")
         }
 
-        storage[expense.id] = expense
+        storage[expenseId] = Expense.mock1
     }
 
     public func delete(

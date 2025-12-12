@@ -9,7 +9,7 @@ import Foundation
 import ComposableArchitecture
 
 public protocol UpdateExpenseUseCaseProtocol {
-    func execute(travelId: String, expense: Expense) async throws
+    func execute(travelId: String, expenseId: String, input: ExpenseInput) async throws
 }
 
 public struct UpdateExpenseUseCase: UpdateExpenseUseCaseProtocol {
@@ -19,9 +19,9 @@ public struct UpdateExpenseUseCase: UpdateExpenseUseCaseProtocol {
         self.repository = repository
     }
 
-    public func execute(travelId: String, expense: Expense) async throws {
-        try expense.validate()
-        try await repository.update(travelId: travelId, expense: expense)
+    public func execute(travelId: String, expenseId: String, input: ExpenseInput) async throws {
+        try input.validate()
+        try await repository.update(travelId: travelId, expenseId: expenseId, input: input)
     }
 }
 

@@ -56,14 +56,31 @@ public final class ExpenseRepository: ExpenseRepositoryProtocol {
         }
     }
     
-    public func save(travelId: String, expense: Expense) async throws {
-        let requestDTO = expense.toCreateRequestDTO()
+    public func save(travelId: String, input: ExpenseInput) async throws {
+        let requestDTO = CreateExpenseRequestDTO(
+            title: input.title,
+            amount: input.amount,
+            currency: input.currency,
+            expenseDate: input.formatExpenseDate(),
+            payerId: input.payerId,
+            category: input.category.rawValue,
+            participantIds: input.participantIds
+        )
+
         try await remote.createExpense(travelId: travelId, body: requestDTO)
     }
 
-    public func update(travelId: String, expense: Expense) async throws {
-        let requestDTO = expense.toUpdateRequestDTO()
-        try await remote.updateExpense(travelId: travelId, expenseId: expense.id, body: requestDTO)
+    public func update(travelId: String, expenseId: String, input: ExpenseInput) async throws {
+        let requestDTO = UpdateExpenseRequestDTO(
+            title: input.title,
+            amount: input.amount,
+            currency: input.currency,
+            expenseDate: input.formatExpenseDate(),
+            category: input.category.rawValue,
+            payerId: input.payerId,
+            participantIds: input.participantIds
+        )
+        try await remote.updateExpense(travelId: travelId, expenseId: expenseId, body: requestDTO)
     }
 
     public func delete(travelId: String, expenseId: String) async throws {

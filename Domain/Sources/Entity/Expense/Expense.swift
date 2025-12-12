@@ -15,8 +15,7 @@ public struct Expense: Identifiable, Equatable, Hashable {
     public let convertedAmount: Double // 환산 금액
     public let expenseDate: Date
     public let category: ExpenseCategory
-    public let payerId: String
-    public let payerName: String
+    public let payer: TravelMember
     public let participants: [TravelMember]
     public init(
         id: String,
@@ -26,8 +25,7 @@ public struct Expense: Identifiable, Equatable, Hashable {
         convertedAmount: Double,
         expenseDate: Date,
         category: ExpenseCategory,
-        payerId: String,
-        payerName: String,
+        payer: TravelMember,
         participants: [TravelMember]
     ) {
         self.id = id
@@ -37,12 +35,12 @@ public struct Expense: Identifiable, Equatable, Hashable {
         self.convertedAmount = convertedAmount
         self.expenseDate = expenseDate
         self.category = category
-        self.payerId = payerId
-        self.payerName = payerName
+        self.payer = payer
         self.participants = participants
     }
 }
 
+// MARK: - Validation
 extension Expense {
     public func validate() throws {
         // 금액 검증
@@ -61,9 +59,20 @@ extension Expense {
         }
 
         // 지불자가 참가자 목록에 있는지 검증
-        guard participants.contains(where: { $0.id == payerId }) else {
+        guard participants.contains(where: { $0.id == payer.id }) else {
             throw ExpenseError.payerNotInParticipants
         }
+    }
+}
+
+// MARK: - Helper
+extension Expense {
+    public func formatExpenseDate() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.calendar = Calendar(identifier: .gregorian)
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        return dateFormatter.string(from: expenseDate)
     }
 }
 
@@ -83,8 +92,7 @@ extension Expense {
         convertedAmount: 405000,
         expenseDate: Date().addingTimeInterval(-86400 * 2),
         category: .accommodation,
-        payerId: "user1",
-        payerName: "김민수",
+        payer: mockMembers[0],
         participants: mockMembers
     )
 
@@ -96,8 +104,7 @@ extension Expense {
         convertedAmount: 32400,
         expenseDate: Date().addingTimeInterval(-86400),
         category: .foodAndDrink,
-        payerId: "user2",
-        payerName: "이지은",
+        payer: mockMembers[1],
         participants: mockMembers
     )
 
@@ -109,8 +116,7 @@ extension Expense {
         convertedAmount: 243000,
         expenseDate: Date().addingTimeInterval(-86400),
         category: .activity,
-        payerId: "user1",
-        payerName: "김민수",
+        payer: mockMembers[0],
         participants: mockMembers
     )
 
@@ -122,8 +128,7 @@ extension Expense {
         convertedAmount: 22500,
         expenseDate: Date().addingTimeInterval(-3600),
         category: .transportation,
-        payerId: "user3",
-        payerName: "박서준",
+        payer: mockMembers[2],
         participants: mockMembers
     )
 
@@ -135,8 +140,7 @@ extension Expense {
         convertedAmount: 135000,
         expenseDate: Date(),
         category: .shopping,
-        payerId: "user2",
-        payerName: "이지은",
+        payer: mockMembers[1],
         participants: [mockMembers[0], mockMembers[1]]
     )
 
@@ -148,8 +152,7 @@ extension Expense {
         convertedAmount: 10800,
         expenseDate: Date().addingTimeInterval(-86400 * 2 + 3600), // 2일 전
         category: .foodAndDrink,
-        payerId: "user1",
-        payerName: "김민수",
+        payer: mockMembers[0],
         participants: mockMembers
     )
 
@@ -161,8 +164,7 @@ extension Expense {
         convertedAmount: 18000,
         expenseDate: Date().addingTimeInterval(-86400 * 2 - 3600), // 2일 전
         category: .transportation,
-        payerId: "user2",
-        payerName: "이지은",
+        payer: mockMembers[1],
         participants: mockMembers
     )
 
@@ -174,8 +176,7 @@ extension Expense {
         convertedAmount: 40500,
         expenseDate: Date().addingTimeInterval(-86400), // 1일 전
         category: .foodAndDrink,
-        payerId: "user3",
-        payerName: "박서준",
+        payer: mockMembers[2],
         participants: mockMembers
     )
 
@@ -187,8 +188,7 @@ extension Expense {
         convertedAmount: 13500,
         expenseDate: Date().addingTimeInterval(-3600 * 2), // 오늘
         category: .foodAndDrink,
-        payerId: "user1",
-        payerName: "김민수",
+        payer: mockMembers[0],
         participants: [mockMembers[0], mockMembers[1]]
     )
 
@@ -200,8 +200,7 @@ extension Expense {
         convertedAmount: 28800,
         expenseDate: Date().addingTimeInterval(3600), // 오늘 (미래?) -> 테스트용으로 오늘로 간주
         category: .transportation,
-        payerId: "user2",
-        payerName: "이지은",
+        payer: mockMembers[1],
         participants: mockMembers
     )
 

@@ -13,10 +13,10 @@ public protocol ExpenseRepositoryProtocol {
     func fetchTravelExpenses(travelId: String) -> AsyncStream<Result<[Expense], Error>>
 
     // 지출 내역 저장
-    func save(travelId: String, expense: Expense) async throws
+    func save(travelId: String, input: ExpenseInput) async throws
 
     // 지출 내역 수정
-    func update(travelId: String, expense: Expense) async throws
+    func update(travelId: String, expenseId: String, input: ExpenseInput) async throws
 
     // 지출 내역 삭제
     func delete(travelId: String, expenseId: String) async throws

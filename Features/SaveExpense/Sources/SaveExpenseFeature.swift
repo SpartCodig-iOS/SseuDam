@@ -81,7 +81,7 @@ public struct SaveExpenseFeature {
             // ParticipantSelector 초기화
             self.participantSelector = ParticipantSelectorFeature.State(
                 availableParticipants: IdentifiedArray(uniqueElements: travel.members),
-                payer: travel.members.first { $0.id == expense.payerId },
+                payer: expense.payer,
                 participants: IdentifiedArray(uniqueElements: expense.participants)
             )
 
@@ -137,7 +137,7 @@ public struct SaveExpenseFeature {
             }
 
             // 결제자 변경 확인
-            if participantSelector.payer?.id != original.payerId {
+            if participantSelector.payer?.id != original.payer.id {
                 return true
             }
 
@@ -332,42 +332,41 @@ extension SaveExpenseFeature {
                 return .none
             }
 
-            let expense = Expense(
-                id: state.expenseId ?? UUID().uuidString,
+            let isEditMode = state.isEditMode
+            state.isLoading = true
+
+            // 생성/수정 모두 ExpenseInput 사용
+            let input = ExpenseInput(
                 title: state.title,
                 amount: amountValue,
                 currency: state.baseCurrency,
-                convertedAmount: state.baseCurrency == "KRW" ? amountValue : amountValue * state.baseExchangeRate,
                 expenseDate: state.expenseDate,
                 category: category,
                 payerId: payer.id,
-                payerName: payer.name,
-                participants: Array(state.participantSelector.participants)
+                participantIds: state.participantSelector.participants.map { $0.id }
             )
 
-            let isEditMode = state.isEditMode
-            state.isLoading = true
-            return .run { [travelId = state.travelId] send in
-                do {
-                    if isEditMode {
-                        try await updateExpenseUseCase.execute(travelId: travelId, expense: expense)
-                    } else {
-                        let input = CreateExpenseInput(
-                            title: expense.title,
-                            amount: expense.amount,
-                            currency: expense.currency,
-                            convertedAmount: expense.convertedAmount,
-                            expenseDate: expense.expenseDate,
-                            category: expense.category,
-                            payerId: expense.payerId,
-                            payerName: expense.payerName,
-                            participants: expense.participants
-                        )
-                        try await createExpenseUseCase.execute(travelId: travelId, input: input)
+            if isEditMode {
+                // 수정 모드
+                guard let expenseId = state.expenseId else { return .none }
+
+                return .run { [travelId = state.travelId] send in
+                    do {
+                        try await updateExpenseUseCase.execute(travelId: travelId, expenseId: expenseId, input: input)
+                        await send(.inner(.saveExpenseResponse(.success(()))))
+                    } catch {
+                        await send(.inner(.saveExpenseResponse(.failure(error))))
                     }
-                    await send(.inner(.saveExpenseResponse(.success(()))))
-                } catch {
-                    await send(.inner(.saveExpenseResponse(.failure(error))))
+                }
+            } else {
+                // 생성 모드
+                return .run { [travelId = state.travelId] send in
+                    do {
+                        try await createExpenseUseCase.execute(travelId: travelId, input: input)
+                        await send(.inner(.saveExpenseResponse(.success(()))))
+                    } catch {
+                        await send(.inner(.saveExpenseResponse(.failure(error))))
+                    }
                 }
             }
 

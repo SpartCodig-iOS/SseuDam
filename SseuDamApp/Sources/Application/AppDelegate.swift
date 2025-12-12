@@ -9,8 +9,8 @@ import UIKit
 import UserNotifications
 import LogMacro
 import Data
-//import Firebase
-//import FirebaseAnalytics
+import Firebase
+import FirebaseAnalytics
 
 
 
@@ -27,8 +27,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         setenv("FIRDebugEnabled", "1", 1)
       #endif
 
-//      FirebaseApp.configure()
-//      Analytics.setAnalyticsCollectionEnabled(true)
+      FirebaseApp.configure()
+      Analytics.setAnalyticsCollectionEnabled(true)
         let center = UNUserNotificationCenter.current()
         center.delegate = self
 
