@@ -22,7 +22,7 @@ struct SettlementResultHeaderView: View {
                     .font(.app(.body, weight: .medium))
                     .foregroundStyle(Color.gray7)
 
-                Text("₩\(totalExpenseAmount)")
+                Text(totalExpenseAmount)
                     .font(.app(.title1, weight: .semibold))
                     .foregroundStyle(Color.black)
             }
@@ -32,7 +32,7 @@ struct SettlementResultHeaderView: View {
             HStack(spacing: 0) {
                 StatItemView(
                     label: "내 지출",
-                    value: "₩\(myExpenseAmount)"
+                    value: myExpenseAmount
                 )
 
                 StatItemView(
@@ -42,7 +42,7 @@ struct SettlementResultHeaderView: View {
 
                 StatItemView(
                     label: "1인 평균",
-                    value: "₩\(averageExpensePerPerson)"
+                    value: averageExpensePerPerson
                 )
             }
             .padding(.vertical, 20)

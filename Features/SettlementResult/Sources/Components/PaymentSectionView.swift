@@ -37,7 +37,7 @@ struct PaymentSectionView: View {
 
                 Spacer()
 
-                Text("₩\(totalAmount)")
+                Text(totalAmount)
                     .foregroundStyle(amountColor)
             }
             .font(.app(.title3, weight: .semibold))
@@ -67,7 +67,7 @@ private struct PaymentRowView: View {
 
             Spacer()
 
-            Text("₩\(payment.amount)")
+            Text(payment.amount)
                 .font(.app(.body, weight: .medium))
                 .foregroundStyle(Color.black)
         }
