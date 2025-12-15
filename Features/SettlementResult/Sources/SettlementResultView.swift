@@ -9,6 +9,7 @@ import SwiftUI
 import DesignSystem
 import ComposableArchitecture
 import SettlementDetailFeature
+import Domain
 
 @ViewAction(for: SettlementResultFeature.self)
 public struct SettlementResultView: View {
@@ -22,9 +23,10 @@ public struct SettlementResultView: View {
         VStack(spacing: 0) {
             // 헤더 (총 지출, 통계)
             SettlementResultHeaderView(
-                totalExpenseAmount: store.totalExpenseAmount,
-                myExpenseAmount: store.myExpenseAmount,
-                totalPersonCount: store.totalPersonCount
+                totalExpenseAmount: store.formattedTotalExpenseAmount,
+                myExpenseAmount: store.formattedMyExpenseAmount,
+                totalPersonCount: store.totalPersonCount,
+                averageExpensePerPerson: store.formattedAveragePerPerson
             )
 
             if !store.paymentsToMake.isEmpty || !store.paymentsToReceive.isEmpty {
@@ -34,10 +36,16 @@ public struct SettlementResultView: View {
                         if !store.paymentsToMake.isEmpty {
                             PaymentSectionView(
                                 title: "지급 예정 금액",
-                                totalAmount: store.paymentsToMake.reduce(0) { $0 + $1.amount },
+                                totalAmount: CurrencyFormatter.formatKoreanCurrency(
+                                    store.paymentsToMake.reduce(0.0) { $0 + $1.amount }
+                                ),
                                 amountColor: .red,
                                 payments: store.paymentsToMake.map {
-                                    PaymentItem(id: $0.id, name: $0.memberName, amount: Int($0.amount))
+                                    PaymentItem(
+                                        id: $0.id,
+                                        name: $0.memberName,
+                                        amount: CurrencyFormatter.formatKoreanCurrency($0.amount)
+                                    )
                                 }
                             )
                         }
@@ -45,10 +53,16 @@ public struct SettlementResultView: View {
                         if !store.paymentsToReceive.isEmpty {
                             PaymentSectionView(
                                 title: "수령 예정 금액",
-                                totalAmount: store.paymentsToReceive.reduce(0) { $0 + $1.amount },
+                                totalAmount: CurrencyFormatter.formatKoreanCurrency(
+                                    store.paymentsToReceive.reduce(0.0) { $0 + $1.amount }
+                                ),
                                 amountColor: .primary500,
                                 payments: store.paymentsToReceive.map {
-                                    PaymentItem(id: $0.id, name: $0.memberName, amount: Int($0.amount))
+                                    PaymentItem(
+                                        id: $0.id,
+                                        name: $0.memberName,
+                                        amount: CurrencyFormatter.formatKoreanCurrency($0.amount)
+                                    )
                                 }
                             )
                         }

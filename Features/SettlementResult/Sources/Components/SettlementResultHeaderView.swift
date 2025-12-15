@@ -9,13 +9,10 @@ import SwiftUI
 import DesignSystem
 
 struct SettlementResultHeaderView: View {
-    let totalExpenseAmount: Int
-    let myExpenseAmount: Int
+    let totalExpenseAmount: String
+    let myExpenseAmount: String
     let totalPersonCount: Int
-
-    private var averageExpensePerPerson: Int {
-        totalPersonCount > 0 ? totalExpenseAmount / totalPersonCount : 0
-    }
+    let averageExpensePerPerson: String
 
     var body: some View {
         VStack(spacing: 16) {
@@ -25,7 +22,7 @@ struct SettlementResultHeaderView: View {
                     .font(.app(.body, weight: .medium))
                     .foregroundStyle(Color.gray7)
 
-                Text("₩\(totalExpenseAmount.formatted())")
+                Text("₩\(totalExpenseAmount)")
                     .font(.app(.title1, weight: .semibold))
                     .foregroundStyle(Color.black)
             }
@@ -35,7 +32,7 @@ struct SettlementResultHeaderView: View {
             HStack(spacing: 0) {
                 StatItemView(
                     label: "내 지출",
-                    value: "₩\(myExpenseAmount.formatted())"
+                    value: "₩\(myExpenseAmount)"
                 )
 
                 StatItemView(
@@ -45,7 +42,7 @@ struct SettlementResultHeaderView: View {
 
                 StatItemView(
                     label: "1인 평균",
-                    value: "₩\(averageExpensePerPerson.formatted())"
+                    value: "₩\(averageExpensePerPerson)"
                 )
             }
             .padding(.vertical, 20)
@@ -75,8 +72,9 @@ private struct StatItemView: View {
 
 #Preview {
     SettlementResultHeaderView(
-        totalExpenseAmount: 1245000,
-        myExpenseAmount: 520000,
-        totalPersonCount: 5
+        totalExpenseAmount: "124만 5,000원",
+        myExpenseAmount: "52만원",
+        totalPersonCount: 5,
+        averageExpensePerPerson: "24만 9,000원"
     )
 }

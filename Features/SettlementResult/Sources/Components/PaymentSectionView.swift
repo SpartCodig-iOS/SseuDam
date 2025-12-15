@@ -10,7 +10,7 @@ import DesignSystem
 
 struct PaymentSectionView: View {
     let title: String
-    let totalAmount: Double
+    let totalAmount: String
     let amountColor: Color
     let payments: [PaymentItem]
 
@@ -37,7 +37,7 @@ struct PaymentSectionView: View {
 
                 Spacer()
 
-                Text("₩\(Int(totalAmount).formatted())")
+                Text("₩\(totalAmount)")
                     .foregroundStyle(amountColor)
             }
             .font(.app(.title3, weight: .semibold))
@@ -67,7 +67,7 @@ private struct PaymentRowView: View {
 
             Spacer()
 
-            Text("₩\(Int(payment.amount).formatted())")
+            Text("₩\(payment.amount)")
                 .font(.app(.body, weight: .medium))
                 .foregroundStyle(Color.black)
         }
@@ -78,7 +78,7 @@ private struct PaymentRowView: View {
 struct PaymentItem: Identifiable {
     let id: String
     let name: String
-    let amount: Int
+    let amount: String
 }
 
 // MARK: - Preview
@@ -86,21 +86,21 @@ struct PaymentItem: Identifiable {
     VStack(spacing: 24) {
         PaymentSectionView(
             title: "지급 예정 금액",
-            totalAmount: 90000,
+            totalAmount: "90,000",
             amountColor: Color.red,
             payments: [
-                PaymentItem(id: "1", name: "이영희", amount: 45000),
-                PaymentItem(id: "2", name: "이영민", amount: 45000)
+                PaymentItem(id: "1", name: "이영희", amount: "45,000"),
+                PaymentItem(id: "2", name: "이영민", amount: "45,000")
             ]
         )
 
         PaymentSectionView(
             title: "수령 예정 금액",
-            totalAmount: 100000,
+            totalAmount: "100,000",
             amountColor: Color.primary500,
             payments: [
-                PaymentItem(id: "3", name: "박철수", amount: 50000),
-                PaymentItem(id: "4", name: "박철", amount: 50000)
+                PaymentItem(id: "3", name: "박철수", amount: "50,000"),
+                PaymentItem(id: "4", name: "박철", amount: "50,000")
             ]
         )
     }
