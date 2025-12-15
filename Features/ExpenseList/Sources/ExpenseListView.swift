@@ -27,11 +27,16 @@ public struct ExpenseListView: View {
                 endDate: store.endDate,
                 myExpenseAmount: store.formattedTotalAmount, // 임시로 동일
                 expenses: store.allExpenses,
-                selectedDateRange: $store.selectedDateRange
+                selectedDateRange: $store.selectedDateRange,
+                currentPage: $store.currentPage
             )
 
             // 카테고리 필터
-            CategoryFilterView(selectedCategory: $store.selectedCategory)
+            CategoryFilterView(
+                selectedCategory: $store.selectedCategory
+            )
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
 
             // 지출 내역 리스트
             if !store.currentExpense.isEmpty {

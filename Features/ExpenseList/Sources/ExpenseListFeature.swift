@@ -27,6 +27,7 @@ public struct ExpenseListFeature {
             return travel?.endDate ?? Date()
         }
         public var selectedDateRange: ClosedRange<Date>? = nil
+        public var currentPage: Int = 0
         public var selectedCategory: ExpenseCategory? = nil
         public let travelId: String
         public var isLoading: Bool = false
@@ -110,6 +111,22 @@ public struct ExpenseListFeature {
                 return .none
             case .binding(\.selectedDateRange):
                 // 날짜 범위 변경 시 필터링
+                applyFilters(&state)
+                
+                // 선택된 날짜에 맞는 페이지로 이동
+                if let range = state.selectedDateRange {
+                    let calendar = Calendar.current
+                    let startDay = calendar.startOfDay(for: state.startDate)
+                    let rangeStartDay = calendar.startOfDay(for: range.lowerBound)
+                    
+                    if let days = calendar.dateComponents([.day], from: startDay, to: rangeStartDay).day {
+                        state.currentPage = days / 7
+                    }
+                }
+                return .none
+            case .binding(\.currentPage):
+                // 페이지 변경 시 선택된 날짜 초기화 및 해당 페이지 데이터로 필터링
+                state.selectedDateRange = nil
                 applyFilters(&state)
                 return .none
             case .binding(\.selectedCategory):
@@ -204,6 +221,20 @@ extension ExpenseListFeature {
 
                 guard expenseDay >= rangeStart && expenseDay <= rangeEnd else {
                     return false
+                }
+            } else {
+                // 선택된 날짜가 없으면 현재 페이지(7일)에 해당하는지 확인
+                // 페이지 시작일 = 여행 시작일 + (currentPage * 7)일
+                if let pageStart = calendar.date(byAdding: .day, value: state.currentPage * 7, to: state.startDate) {
+                    let pageStartDay = calendar.startOfDay(for: pageStart)
+                    // 페이지 끝일 = 시작일 + 6일
+                    let pageEndDay = calendar.date(byAdding: .day, value: 6, to: pageStartDay) ?? Date()
+                    
+                    let expenseDay = calendar.startOfDay(for: expense.expenseDate)
+                    
+                    guard expenseDay >= pageStartDay && expenseDay <= pageEndDay else {
+                        return false
+                    }
                 }
             }
 

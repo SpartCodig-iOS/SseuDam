@@ -50,7 +50,6 @@ struct CategoryFilterView: View {
                 }
             }
         }
-        .padding(16)
     }
 }
 

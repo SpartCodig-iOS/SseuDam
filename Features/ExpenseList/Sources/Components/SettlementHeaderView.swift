@@ -16,6 +16,7 @@ public struct SettlementHeaderView: View {
     let myExpenseAmount: String
     let expenses: [Expense]
     @Binding var selectedDateRange: ClosedRange<Date>?
+    @Binding var currentPage: Int
 
     public init(
         totalAmount: String,
@@ -23,7 +24,8 @@ public struct SettlementHeaderView: View {
         endDate: Date,
         myExpenseAmount: String,
         expenses: [Expense],
-        selectedDateRange: Binding<ClosedRange<Date>?>
+        selectedDateRange: Binding<ClosedRange<Date>?>,
+        currentPage: Binding<Int>
     ) {
         self.totalAmount = totalAmount
         self.startDate = startDate
@@ -31,6 +33,7 @@ public struct SettlementHeaderView: View {
         self.myExpenseAmount = myExpenseAmount
         self.expenses = expenses
         self._selectedDateRange = selectedDateRange
+        self._currentPage = currentPage
     }
     
     public var body: some View {
@@ -89,7 +92,8 @@ public struct SettlementHeaderView: View {
                 expense: expenses,
                 startDate: startDate,
                 endDate: endDate,
-                selectedDateRange: $selectedDateRange
+                selectedDateRange: $selectedDateRange,
+                currentPage: $currentPage
             )
             .padding(.horizontal, 16)
         }
@@ -145,6 +149,7 @@ public struct SettlementHeaderView: View {
         endDate: Date(),
         myExpenseAmount: "255,450",
         expenses: [Expense.mock1, Expense.mock2, Expense.mock3],
-        selectedDateRange: .constant(nil)
+        selectedDateRange: .constant(nil),
+        currentPage: .constant(0)
     )
 }
