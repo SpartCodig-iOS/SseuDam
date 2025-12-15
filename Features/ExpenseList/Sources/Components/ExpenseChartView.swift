@@ -15,6 +15,7 @@ struct ExpenseChartView: View {
     private let startDate: Date
     private let endDate: Date
     @Binding var selectedDateRange: ClosedRange<Date>?
+    @Binding var currentPage: Int
 
     private let barWidth: CGFloat = 18
     @State private var dragStartDateString: String?
@@ -45,6 +46,13 @@ struct ExpenseChartView: View {
 
         return dateStrings
     }
+    
+    private var dayChunks: [[String]] {
+        let days = allDayStrings
+        return stride(from: 0, to: days.count, by: 7).map {
+            Array(days[$0..<min($0 + 7, days.count)])
+        }
+    }
 
     private var dailyExpenseMap: [String: Double] {
         expense.reduce(into: [:]) { map, exp in
@@ -52,31 +60,60 @@ struct ExpenseChartView: View {
         }
     }
 
-    private var chartData: [(dateString: String, total: Double)] {
-        allDayStrings.map { ($0, dailyExpenseMap[$0] ?? 0) }
-    }
-
     init(
         expense: [Expense],
         startDate: Date,
         endDate: Date,
-        selectedDateRange: Binding<ClosedRange<Date>?>
+        selectedDateRange: Binding<ClosedRange<Date>?>,
+        currentPage: Binding<Int>
     ) {
         self.expense = expense
         self.startDate = startDate
         self.endDate = endDate
         self._selectedDateRange = selectedDateRange
+        self._currentPage = currentPage
     }
 
     var body: some View {
+        VStack {
+            if dayChunks.isEmpty {
+                ContentUnavailableView("기간이 설정되지 않았습니다.", systemImage: "calendar")
+            } else {
+                TabView(selection: $currentPage) {
+                    ForEach(Array(dayChunks.enumerated()), id: \.offset) { index, chunk in
+                        chartView(for: chunk)
+                            .tag(index)
+                            .padding(.bottom, 16)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .overlay(alignment: .bottom) {
+                    if dayChunks.count > 1 {
+                        HStack(spacing: 8) {
+                            ForEach(0..<dayChunks.count, id: \.self) { index in
+                                Circle()
+                                    .fill(currentPage == index ? Color.black : Color.gray)
+                                    .frame(width: 6, height: 6)
+                            }
+                        }
+                        .padding(.bottom, 10)
+                    }
+                }
+            }
+        }
+        .frame(height: 126)
+    }
+    
+    private func chartView(for chunk: [String]) -> some View {
         Chart {
-            ForEach(Array(chartData.enumerated()), id: \.offset) { _, item in
+            ForEach(chunk, id: \.self) { dateString in
+                let total = dailyExpenseMap[dateString] ?? 0
                 BarMark(
-                    x: .value("Day", item.dateString),
-                    y: .value("Total", item.total),
+                    x: .value("Day", dateString),
+                    y: .value("Total", total),
                     width: MarkDimension(floatLiteral: barWidth)
                 )
-                .foregroundStyle(barColor(for: item.dateString))
+                .foregroundStyle(barColor(for: dateString))
                 .cornerRadius(barWidth / 2)
             }
         }
@@ -103,8 +140,7 @@ struct ExpenseChartView: View {
                     handleDragEnd(value: value, proxy: proxy)
                 }
         }
-        .padding(.horizontal, 4)
-        .frame(height: 120)
+        .frame(height: 94)
     }
 
     // 현재 선택 중인 날짜 (드래그 중일 수도 있음)
@@ -201,7 +237,8 @@ struct ExpenseChartView: View {
         expense: expenses,
         startDate: startDate,
         endDate: endDate,
-        selectedDateRange: $selectedDateRange
+        selectedDateRange: $selectedDateRange,
+        currentPage: .constant(0)
     )
     .padding()
 }
@@ -222,7 +259,8 @@ struct ExpenseChartView: View {
         expense: expenses,
         startDate: startDate,
         endDate: endDate,
-        selectedDateRange: $selectedDateRange
+        selectedDateRange: $selectedDateRange,
+        currentPage: .constant(0)
     )
     .padding()
 }
@@ -243,16 +281,14 @@ struct ExpenseChartView: View {
         Expense.mock6.withDate(Date())
     ]
 
-    ScrollView(.horizontal, showsIndicators: true) {
-        ExpenseChartView(
-            expense: expenses,
-            startDate: startDate,
-            endDate: endDate,
-            selectedDateRange: $selectedDateRange
-        )
-        .frame(width: 700)
-        .padding()
-    }
+    ExpenseChartView(
+        expense: expenses,
+        startDate: startDate,
+        endDate: endDate,
+        selectedDateRange: $selectedDateRange,
+        currentPage: .constant(0)
+    )
+    .padding()
 }
 
 #Preview("빈 데이터 - 지출 없음") {
@@ -266,7 +302,8 @@ struct ExpenseChartView: View {
         expense: [],
         startDate: startDate,
         endDate: endDate,
-        selectedDateRange: $selectedDateRange
+        selectedDateRange: $selectedDateRange,
+        currentPage: .constant(0)
     )
     .padding()
 }
@@ -288,7 +325,8 @@ struct ExpenseChartView: View {
         expense: expenses,
         startDate: startDate,
         endDate: endDate,
-        selectedDateRange: $selectedDateRange
+        selectedDateRange: $selectedDateRange,
+        currentPage: .constant(0)
     )
     .padding()
 }
