@@ -30,6 +30,9 @@ public struct ExpenseListView: View {
                 selectedDateRange: $store.selectedDateRange
             )
 
+            // 카테고리 필터
+            CategoryFilterView(selectedCategory: $store.selectedCategory)
+
             // 지출 내역 리스트
             if !store.currentExpense.isEmpty {
                 ScrollView {
