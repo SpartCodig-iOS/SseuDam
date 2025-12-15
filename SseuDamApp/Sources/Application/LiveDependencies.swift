@@ -13,7 +13,10 @@ import Domain
 public enum LiveDependencies {
   @MainActor public static func register(_ dependencies: inout DependencyValues) {
         // Repository 인스턴스 생성 (재사용)
-        let travelRepository = TravelRepository(remote: TravelRemoteDataSource())
+        let travelRepository = TravelRepository(
+            remote: TravelRemoteDataSource(),
+            local: TravelLocalDataSource()
+        )
         let expenseRepository = ExpenseRepository(
             remote: ExpenseRemoteDataSource(),
             local: ExpenseLocalDataSource()
@@ -45,6 +48,7 @@ public enum LiveDependencies {
 
         // Travel
         dependencies.fetchTravelsUseCase = FetchTravelsUseCase(repository: travelRepository)
+        dependencies.observeTravelCacheUseCase = ObserveTravelCacheUseCase(repository: travelRepository)
         dependencies.createTravelUseCase = CreateTravelUseCase(repository: travelRepository)
         dependencies.fetchTravelDetailUseCase = FetchTravelDetailUseCase(repository: travelRepository)
         dependencies.updateTravelUseCase = UpdateTravelUseCase(repository: travelRepository)
