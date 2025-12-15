@@ -1,7 +1,19 @@
+//
+//  TravelListSkeletonView.swift
+//  DesignSystem
+//
+//  Created by 김민희 on 12/15/25.
+//
+
+import SwiftUI
+
+/// 여행 카드 리스트가 로딩될 때 TravelCardView의 형태를 흉내 내는 스켈레톤 뷰.
 public struct TravelListSkeletonView: View {
     @State private var shimmerPhase: CGFloat = -1.0
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 18) {
                 ForEach(0..<5, id: \.self) { _ in
@@ -12,7 +24,7 @@ public struct TravelListSkeletonView: View {
         }
         .onAppear {
             withAnimation(
-                .linear(duration: 1.2)
+                .linear(duration: 1.8)
                     .repeatForever(autoreverses: false)
             ) {
                 shimmerPhase = 1.2
@@ -39,15 +51,9 @@ public struct TravelListSkeletonView: View {
                     smallBar(width: 120)
                     Divider()
                         .frame(width: 1, height: 16)
-                        .overlay(Color.gray2)
+                        .overlay(Color.gray1)
                     iconPlaceholder()
                     smallBar(width: 60)
-                }
-
-                HStack(spacing: 12) {
-                    smallBar(width: 80)
-                    smallBar(width: 50)
-                    Spacer()
                 }
             }
             .padding(20)
@@ -57,29 +63,33 @@ public struct TravelListSkeletonView: View {
 
     private func capsulePlaceholder(width: CGFloat, height: CGFloat) -> some View {
         Capsule()
-            .fill(Color.gray2)
+            .fill(Color.gray1)
             .frame(width: width, height: height)
             .skeletonShimmer(phase: shimmerPhase)
     }
 
     private func smallBar(width: CGFloat, height: CGFloat = 12) -> some View {
         RoundedRectangle(cornerRadius: 6)
-            .fill(Color.gray2)
+            .fill(Color.gray1)
             .frame(width: width, height: height)
             .skeletonShimmer(phase: shimmerPhase)
     }
 
     private func fullBar(height: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: 6)
-            .fill(Color.gray2)
+            .fill(Color.gray1)
             .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
             .skeletonShimmer(phase: shimmerPhase)
     }
 
     private func iconPlaceholder(size: CGFloat = 18) -> some View {
         RoundedRectangle(cornerRadius: 4)
-            .fill(Color.gray2)
+            .fill(Color.gray1)
             .frame(width: size, height: size)
             .skeletonShimmer(phase: shimmerPhase)
     }
+}
+
+#Preview {
+    TravelListSkeletonView()
 }
