@@ -15,13 +15,13 @@ public extension View {
         LinearGradient(
           colors: [
             .gray2.opacity(0.2),
-            .white.opacity(0.5),
+            .gray2.opacity(0.4),
             .gray2.opacity(0.2)
           ],
           startPoint: .leading,
           endPoint: .trailing
         )
-        .frame(width: proxy.size.width * 1.2)
+        .frame(width: proxy.size.width * 0.8)
         .offset(x: proxy.size.width * phase)
       }
       .clipped()
