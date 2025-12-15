@@ -26,7 +26,7 @@ public struct ExpenseListFeature {
         public var endDate: Date {
             return travel?.endDate ?? Date()
         }
-        public var selectedDate: Date? = nil
+        public var selectedDateRange: ClosedRange<Date>? = nil
         public let travelId: String
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
@@ -107,9 +107,9 @@ public struct ExpenseListFeature {
                 return .none
             case .delegate:
                 return .none
-            case .binding(\.selectedDate):
+            case .binding(\.selectedDateRange):
                 // 로컬 캐시에서 필터링
-                filterExpensesByDate(&state, date: state.selectedDate)
+                filterExpensesByDateRange(&state, range: state.selectedDateRange)
                 return .none
             case .binding:
                 return .none
@@ -148,8 +148,8 @@ extension ExpenseListFeature {
                 $0 = expenses
             }
             applyExpenseHighlight(&state)
-            // 현재 선택된 날짜로 필터링
-            filterExpensesByDate(&state, date: state.selectedDate)
+            // 현재 선택된 날짜 범위로 필터링
+            filterExpensesByDateRange(&state, range: state.selectedDateRange)
             state.isLoading = false
             return .none
 
@@ -187,15 +187,19 @@ extension ExpenseListFeature {
     }
 
     // MARK: - Helper Methods
-    private func filterExpensesByDate(_ state: inout State, date: Date?) {
-        if let date = date {
-            // 특정 날짜가 선택된 경우 필터링
+    private func filterExpensesByDateRange(_ state: inout State, range: ClosedRange<Date>?) {
+        if let range = range {
+            // 날짜 범위가 선택된 경우 필터링
             let calendar = Calendar.current
+            let rangeStart = calendar.startOfDay(for: range.lowerBound)
+            let rangeEnd = calendar.startOfDay(for: range.upperBound)
+
             state.currentExpense = state.allExpenses.filter { expense in
-                calendar.isDate(expense.expenseDate, inSameDayAs: date)
+                let expenseDay = calendar.startOfDay(for: expense.expenseDate)
+                return expenseDay >= rangeStart && expenseDay <= rangeEnd
             }
         } else {
-            // 날짜가 nil이면 전체 지출 표시
+            // 범위가 nil이면 전체 지출 표시
             state.currentExpense = state.allExpenses
         }
     }
@@ -205,8 +209,9 @@ extension ExpenseListFeature {
         guard let expense = state.allExpenses.first(where: { $0.id == targetId }) else { return }
         let calendar = Calendar.current
         let targetDate = calendar.startOfDay(for: expense.expenseDate)
-        state.selectedDate = targetDate
-        filterExpensesByDate(&state, date: targetDate)
+        // 단일 날짜 선택 (같은 날짜의 범위)
+        state.selectedDateRange = targetDate...targetDate
+        filterExpensesByDateRange(&state, range: state.selectedDateRange)
         state.pendingHighlightExpenseId = nil
     }
 }

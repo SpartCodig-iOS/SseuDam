@@ -15,7 +15,7 @@ public struct SettlementHeaderView: View {
     let endDate: Date
     let myExpenseAmount: String
     let expenses: [Expense]
-    @Binding var selectedDate: Date?
+    @Binding var selectedDateRange: ClosedRange<Date>?
 
     public init(
         totalAmount: String,
@@ -23,14 +23,14 @@ public struct SettlementHeaderView: View {
         endDate: Date,
         myExpenseAmount: String,
         expenses: [Expense],
-        selectedDate: Binding<Date?>
+        selectedDateRange: Binding<ClosedRange<Date>?>
     ) {
         self.totalAmount = totalAmount
         self.startDate = startDate
         self.endDate = endDate
         self.myExpenseAmount = myExpenseAmount
         self.expenses = expenses
-        self._selectedDate = selectedDate
+        self._selectedDateRange = selectedDateRange
     }
     
     public var body: some View {
@@ -39,11 +39,11 @@ public struct SettlementHeaderView: View {
                 // 날짜 선택 (드롭다운 느낌)
                 Menu {
                     Button {
-                        selectedDate = nil
+                        selectedDateRange = nil
                     } label: {
                         HStack {
                             Text("전체")
-                            if selectedDate == nil {
+                            if selectedDateRange == nil {
                                 Image(systemName: "checkmark")
                             }
                         }
@@ -51,11 +51,14 @@ public struct SettlementHeaderView: View {
 
                     ForEach(datesRange, id: \.self) { date in
                         Button {
-                            selectedDate = date
+                            // 단일 날짜 선택 (같은 날짜의 범위)
+                            selectedDateRange = date...date
                         } label: {
                             HStack {
                                 Text(dateFormatter.string(from: date))
-                                if let selected = selectedDate, Calendar.current.isDate(selected, inSameDayAs: date) {
+                                if let range = selectedDateRange,
+                                   Calendar.current.isDate(range.lowerBound, inSameDayAs: date),
+                                   Calendar.current.isDate(range.upperBound, inSameDayAs: date) {
                                     Image(systemName: "checkmark")
                                 }
                             }
@@ -86,16 +89,23 @@ public struct SettlementHeaderView: View {
                 expense: expenses,
                 startDate: startDate,
                 endDate: endDate,
-                selectedDate: $selectedDate
+                selectedDateRange: $selectedDateRange
             )
             .padding(.horizontal, 16)
         }
     }
-    
+
     private var selectedDateLabel: String {
-        if let selected = selectedDate {
-            // 특정 날짜가 선택된 경우: "yyyy.MM.dd"
-            return dateFormatter.string(from: selected)
+        if let range = selectedDateRange {
+            let calendar = Calendar.current
+            // 단일 날짜인지 확인 (시작과 끝이 같은 날)
+            if calendar.isDate(range.lowerBound, inSameDayAs: range.upperBound) {
+                // 단일 날짜: "yyyy.MM.dd"
+                return dateFormatter.string(from: range.lowerBound)
+            } else {
+                // 날짜 범위: "yyyy.MM.dd ~ yyyy.MM.dd"
+                return "\(dateFormatter.string(from: range.lowerBound)) ~ \(dateFormatter.string(from: range.upperBound))"
+            }
         } else {
             // 전체 선택된 경우: "yyyy.MM.dd ~ yyyy.MM.dd"
             return "\(dateFormatter.string(from: startDate)) ~ \(dateFormatter.string(from: endDate))"
@@ -135,6 +145,6 @@ public struct SettlementHeaderView: View {
         endDate: Date(),
         myExpenseAmount: "255,450",
         expenses: [Expense.mock1, Expense.mock2, Expense.mock3],
-        selectedDate: .constant(nil)
+        selectedDateRange: .constant(nil)
     )
 }

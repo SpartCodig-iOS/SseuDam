@@ -14,9 +14,10 @@ struct ExpenseChartView: View {
     private let expense: [Expense]
     private let startDate: Date
     private let endDate: Date
-    @Binding var selectedDate: Date?
+    @Binding var selectedDateRange: ClosedRange<Date>?
 
     private let barWidth: CGFloat = 18
+    @State private var dragStartDateString: String?
 
     private static let mmddFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -59,12 +60,12 @@ struct ExpenseChartView: View {
         expense: [Expense],
         startDate: Date,
         endDate: Date,
-        selectedDate: Binding<Date?>
+        selectedDateRange: Binding<ClosedRange<Date>?>
     ) {
         self.expense = expense
         self.startDate = startDate
         self.endDate = endDate
-        self._selectedDate = selectedDate
+        self._selectedDateRange = selectedDateRange
     }
 
     var body: some View {
@@ -92,28 +93,99 @@ struct ExpenseChartView: View {
                 }
             }
         }
-        .chartXSelection(value: selectedDateBinding)
+        .chartXSelection(value: currentSelectionBinding)
+        .chartGesture { proxy in
+            DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    handleDragChange(value: value, proxy: proxy)
+                }
+                .onEnded { value in
+                    handleDragEnd(value: value, proxy: proxy)
+                }
+        }
         .padding(.horizontal, 4)
         .frame(height: 120)
     }
 
-    private var selectedDateBinding: Binding<String?> {
+    // 현재 선택 중인 날짜 (드래그 중일 수도 있음)
+    private var currentSelectionBinding: Binding<String?> {
         Binding(
-            get: { selectedDate.map { Expense.formatDate($0) } },
-            set: { selectedDate = $0.flatMap { Expense.parseDate($0) } }
+            get: {
+                if let dragStart = dragStartDateString {
+                    return dragStart
+                }
+                if let range = selectedDateRange {
+                    return Expense.formatDate(range.lowerBound)
+                }
+                return nil
+            },
+            set: { _ in }
         )
     }
 
+    private func handleDragChange(value: DragGesture.Value, proxy: ChartProxy) {
+        let location = value.location
+        if let dateStr: String = proxy.value(atX: location.x, as: String.self) {
+            if dragStartDateString == nil {
+                // 드래그 시작
+                dragStartDateString = dateStr
+            } else {
+                // 드래그 중 - 범위 업데이트
+                updateRangeSelection(from: dragStartDateString!, to: dateStr)
+            }
+        }
+    }
+
+    private func handleDragEnd(value: DragGesture.Value, proxy: ChartProxy) {
+        let location = value.location
+        if let endDateStr: String = proxy.value(atX: location.x, as: String.self),
+           let startDateStr = dragStartDateString {
+
+            let dragDistance = value.translation.width
+
+            // 드래그가 거의 없었으면 단일 선택 (탭)
+            if abs(dragDistance) < 10 {
+                // 단일 날짜 선택
+                if let date = Expense.parseDate(startDateStr) {
+                    selectedDateRange = date...date
+                }
+            } else {
+                // 범위 선택
+                updateRangeSelection(from: startDateStr, to: endDateStr)
+            }
+        }
+        // 드래그 상태 초기화
+        dragStartDateString = nil
+    }
+
+    private func updateRangeSelection(from startStr: String, to endStr: String) {
+        guard let startDate = Expense.parseDate(startStr),
+              let endDate = Expense.parseDate(endStr) else { return }
+
+        // 시작과 끝을 정렬
+        let lower = min(startDate, endDate)
+        let upper = max(startDate, endDate)
+        selectedDateRange = lower...upper
+    }
+
     private func barColor(for dateString: String) -> Color {
-        guard let selected = selectedDate else { return .primary500 }
-        return Expense.formatDate(selected) == dateString ? .primary500 : .primary100
+        guard let range = selectedDateRange else { return .primary500 }
+        guard let date = Expense.parseDate(dateString) else { return .primary500 }
+
+        let calendar = Calendar.current
+        let dateDay = calendar.startOfDay(for: date)
+        let rangeStart = calendar.startOfDay(for: range.lowerBound)
+        let rangeEnd = calendar.startOfDay(for: range.upperBound)
+
+        // 범위 내에 있으면 primary500, 아니면 primary100
+        return (dateDay >= rangeStart && dateDay <= rangeEnd) ? .primary500 : .primary100
     }
 }
 
 // MARK: - Previews
 
 #Preview("기본 - 여러 날짜") {
-    @Previewable @State var selectedDate: Date? = nil
+    @Previewable @State var selectedDateRange: ClosedRange<Date>? = nil
     let calendar = Calendar.current
 
     let startDate = calendar.date(byAdding: .day, value: -2, to: Date())!
@@ -129,13 +201,13 @@ struct ExpenseChartView: View {
         expense: expenses,
         startDate: startDate,
         endDate: endDate,
-        selectedDate: $selectedDate
+        selectedDateRange: $selectedDateRange
     )
     .padding()
 }
 
 #Preview("2일 여행") {
-    @Previewable @State var selectedDate: Date? = nil
+    @Previewable @State var selectedDateRange: ClosedRange<Date>? = nil
     let calendar = Calendar.current
 
     let startDate = calendar.date(byAdding: .day, value: -5, to: Date())!
@@ -150,13 +222,13 @@ struct ExpenseChartView: View {
         expense: expenses,
         startDate: startDate,
         endDate: endDate,
-        selectedDate: $selectedDate
+        selectedDateRange: $selectedDateRange
     )
     .padding()
 }
 
 #Preview("긴 여행 - 화면 벗어남") {
-    @Previewable @State var selectedDate: Date? = nil
+    @Previewable @State var selectedDateRange: ClosedRange<Date>? = nil
     let calendar = Calendar.current
 
     let startDate = calendar.date(byAdding: .day, value: -13, to: Date())!
@@ -176,7 +248,7 @@ struct ExpenseChartView: View {
             expense: expenses,
             startDate: startDate,
             endDate: endDate,
-            selectedDate: $selectedDate
+            selectedDateRange: $selectedDateRange
         )
         .frame(width: 700)
         .padding()
@@ -184,7 +256,7 @@ struct ExpenseChartView: View {
 }
 
 #Preview("빈 데이터 - 지출 없음") {
-    @Previewable @State var selectedDate: Date? = nil
+    @Previewable @State var selectedDateRange: ClosedRange<Date>? = nil
     let calendar = Calendar.current
 
     let startDate = calendar.date(byAdding: .day, value: -4, to: Date())!
@@ -194,13 +266,13 @@ struct ExpenseChartView: View {
         expense: [],
         startDate: startDate,
         endDate: endDate,
-        selectedDate: $selectedDate
+        selectedDateRange: $selectedDateRange
     )
     .padding()
 }
 
 #Preview("일부 날짜만 지출") {
-    @Previewable @State var selectedDate: Date? = nil
+    @Previewable @State var selectedDateRange: ClosedRange<Date>? = nil
     let calendar = Calendar.current
 
     let startDate = calendar.date(byAdding: .day, value: -6, to: Date())!
@@ -216,7 +288,7 @@ struct ExpenseChartView: View {
         expense: expenses,
         startDate: startDate,
         endDate: endDate,
-        selectedDate: $selectedDate
+        selectedDateRange: $selectedDateRange
     )
     .padding()
 }

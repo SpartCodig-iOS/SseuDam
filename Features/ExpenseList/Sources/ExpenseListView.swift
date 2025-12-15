@@ -27,7 +27,7 @@ public struct ExpenseListView: View {
                 endDate: store.endDate,
                 myExpenseAmount: store.formattedTotalAmount, // 임시로 동일
                 expenses: store.allExpenses,
-                selectedDate: $store.selectedDate
+                selectedDateRange: $store.selectedDateRange
             )
 
             // 지출 내역 리스트
