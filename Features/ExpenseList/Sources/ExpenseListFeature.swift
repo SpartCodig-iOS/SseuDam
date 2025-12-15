@@ -34,8 +34,22 @@ public struct ExpenseListFeature {
         @Presents public var alert: AlertState<Action.AlertAction>?
         public var pendingHighlightExpenseId: String?
         /// 포맷팅된 총 지출 금액 문자열
+        /// 포맷팅된 총 지출 금액 문자열
         public var formattedTotalAmount: String {
-            let total = currentExpense.reduce(0.0) { $0 + $1.convertedAmount }
+            // 날짜 범위가 선택되지 않았을 때(전체 기간)는 페이지네이션과 관계없이 전체 지출의 합계 표시
+            // 단, 카테고리 필터는 적용해야 함
+            let expensesToCalculate: [Expense]
+            if selectedDateRange == nil {
+                if let category = selectedCategory {
+                    expensesToCalculate = allExpenses.filter { $0.category == category }
+                } else {
+                    expensesToCalculate = allExpenses
+                }
+            } else {
+                expensesToCalculate = currentExpense
+            }
+            
+            let total = expensesToCalculate.reduce(0.0) { $0 + $1.convertedAmount }
             return total.formatted(.number.precision(.fractionLength(0)))
         }
 
