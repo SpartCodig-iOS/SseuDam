@@ -2,13 +2,12 @@ import ProjectDescription
 import SseuDamPlugin
 
 let project = Project.makeFeature(
-    name: .Login,
+    name: .OnBoarding,
     dependencies: [
+        .SPM.ComposableArchitecture,
+        .SPM.TCACoordinators,
         .Domain,
-        .DesignSystem,
-        .Features.Web,
-        .Features.OnBoarding
-
+        .DesignSystem
     ],
     hasTests: true
 )
