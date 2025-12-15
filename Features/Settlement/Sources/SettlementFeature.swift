@@ -181,7 +181,7 @@ extension SettlementFeature {
                 let result = await Result {
                     try await fetchTravelDetailUseCase.execute(id: travelId)
                 }
-                await send(.inner(.travelDetailResponse(result)))
+                await send(.inner(.travelDetailResponse(result)), animation: .default)
             }
         }
     }

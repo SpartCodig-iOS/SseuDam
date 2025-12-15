@@ -14,22 +14,23 @@ import Domain
 @ViewAction(for: SettlementResultFeature.self)
 public struct SettlementResultView: View {
     @Bindable public var store: StoreOf<SettlementResultFeature>
-
+    
     public init(store: StoreOf<SettlementResultFeature>) {
         self.store = store
     }
-
+    
     public var body: some View {
         VStack(spacing: 0) {
             // 헤더 (총 지출, 통계)
-            SettlementResultHeaderView(
-                totalExpenseAmount: store.formattedTotalExpenseAmount,
-                myExpenseAmount: store.formattedMyExpenseAmount,
-                totalPersonCount: store.totalPersonCount,
-                averageExpensePerPerson: store.formattedAveragePerPerson
-            )
-
             if !store.paymentsToMake.isEmpty || !store.paymentsToReceive.isEmpty {
+                SettlementResultHeaderView(
+                    totalExpenseAmount: store.formattedTotalExpenseAmount,
+                    myExpenseAmount: store.formattedMyExpenseAmount,
+                    totalPersonCount: store.totalPersonCount,
+                    averageExpensePerPerson: store.formattedAveragePerPerson
+                )
+                
+                
                 // 지급/수령 예정 금액 섹션
                 ScrollView {
                     VStack(spacing: 8) {
@@ -49,7 +50,7 @@ public struct SettlementResultView: View {
                                 }
                             )
                         }
-
+                        
                         if !store.paymentsToReceive.isEmpty {
                             PaymentSectionView(
                                 title: "수령 예정 금액",
@@ -68,37 +69,41 @@ public struct SettlementResultView: View {
                         }
                     }
                 }
+                .scrollIndicators(.hidden)
+                
+                // 상세보기 버튼
+                Button {
+                    send(.detailButtonTapped)
+                } label: {
+                    Text("정산 내역 보기")
+                        .font(.app(.body, weight: .medium))
+                        .foregroundStyle(Color.gray9)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(16)
             } else {
                 VStack {
-                    Image(asset: .expenseEmpty)
+                    Image(asset: .settlementEmpty)
                         .resizable()
                         .frame(width: 167, height: 167)
-                    Text("정산 내역이 없습니다.")
+                    Text("정산 내역이 없습니다")
                         .font(.app(.title3, weight: .medium))
                 }
                 .frame(maxHeight: .infinity)
             }
-            
-            
-            // 상세보기 버튼
-            Button {
-                send(.detailButtonTapped)
-            } label: {
-                Text("정산 내역 보기")
-                    .font(.app(.body, weight: .medium))
-                    .foregroundStyle(Color.gray9)
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(16)
         }
         .padding(.horizontal, 16)
         .background(Color.primary50)
-        .scrollIndicators(.hidden)
         .onAppear {
-           send(.onAppear)
+            send(.onAppear)
         }
         .alert($store.scope(state: \.alert, action: \.scope.alert))
-        .sheet(item: $store.scope(state: \.settlementDetail, action: \.scope.settlementDetail)) { store in
+        .sheet(
+            item: $store.scope(
+                state: \.settlementDetail,
+                action: \.scope.settlementDetail
+            )
+        ) { store in
             SettlementDetailView(store: store)
         }
     }
