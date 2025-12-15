@@ -22,10 +22,11 @@ public struct ExpenseListView: View {
         VStack(spacing: 0) {
             // 헤더
             SettlementHeaderView(
-                totalAmount: store.totalAmount,
+                totalAmount: store.formattedTotalAmount,
                 startDate: store.startDate,
                 endDate: store.endDate,
-                myExpenseAmount: store.myExpenseAmount,
+                myExpenseAmount: store.formattedTotalAmount, // 임시로 동일
+                expenses: store.allExpenses,
                 selectedDate: $store.selectedDate
             )
 

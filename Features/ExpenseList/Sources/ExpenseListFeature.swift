@@ -26,25 +26,15 @@ public struct ExpenseListFeature {
         public var endDate: Date {
             return travel?.endDate ?? Date()
         }
-        var _selectedDate: Date? = nil
-        public var selectedDate: Date {
-            get {
-                return _selectedDate ?? startDate
-            } set {
-                _selectedDate = newValue
-            }
-        }
+        public var selectedDate: Date? = nil
         public let travelId: String
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
         public var pendingHighlightExpenseId: String?
-        public var totalAmount: Int {
-            Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
-        }
-
-        public var myExpenseAmount: Int {
-            // 임시로 전체 금액과 동일하게 처리 (나중에 내 지출 필터링 로직 추가 필요)
-            totalAmount
+        /// 포맷팅된 총 지출 금액 문자열
+        public var formattedTotalAmount: String {
+            let total = currentExpense.reduce(0.0) { $0 + $1.convertedAmount }
+            return total.formatted(.number.precision(.fractionLength(0)))
         }
 
         public init(
@@ -198,10 +188,15 @@ extension ExpenseListFeature {
 
     // MARK: - Helper Methods
     private func filterExpensesByDate(_ state: inout State, date: Date?) {
-        guard let date = date else { return }
-        let calendar = Calendar.current
-        state.currentExpense = state.allExpenses.filter { expense in
-            calendar.isDate(expense.expenseDate, inSameDayAs: date)
+        if let date = date {
+            // 특정 날짜가 선택된 경우 필터링
+            let calendar = Calendar.current
+            state.currentExpense = state.allExpenses.filter { expense in
+                calendar.isDate(expense.expenseDate, inSameDayAs: date)
+            }
+        } else {
+            // 날짜가 nil이면 전체 지출 표시
+            state.currentExpense = state.allExpenses
         }
     }
 
