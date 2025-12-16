@@ -8,7 +8,7 @@ public struct OnBoardingFeature {
     @ObservableState
     public struct State: Equatable {
         var page: Page = .travel
-        @Shared(.appStorage("isFirst")) var isFirst: Bool = true
+        @Shared(.appStorage("isOnboardingCompleted")) var isOnboardingCompleted: Bool = false
         public init() {}
     }
 
@@ -52,7 +52,7 @@ extension OnBoardingFeature {
     ) -> Effect<Action> {
         switch action {
             case .presentMain:
-                state.$isFirst.withLock { $0 = false }
+                state.$isOnboardingCompleted.withLock { $0 = true }
                 return .none
         }
     }

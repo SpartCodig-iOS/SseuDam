@@ -26,7 +26,7 @@ public struct LoginFeature {
         var currentNonce: String = ""
         @Shared(.appStorage("socialType")) var socialType: SocialType? = nil
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
-        @Shared(.appStorage("isFirst")) var isFirst: Bool = false
+        @Shared(.appStorage("isOnboardingCompleted")) var isOnboardingCompleted: Bool = false
 
         @Presents var destination: Destination.State?
 
@@ -217,7 +217,7 @@ extension LoginFeature {
                         let social = authEntity.provider.rawValue
                         analyticsUseCase.track(.auth(.signupSuccess, AuthEventData(socialType: social)))
                         analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: true)))
-                        if !state.isFirst {
+                        if !state.isOnboardingCompleted {
                             return .send(.delegate(.presentOnBoarding))
                         } else {
                             return .send(.delegate(.presentTravelList))
