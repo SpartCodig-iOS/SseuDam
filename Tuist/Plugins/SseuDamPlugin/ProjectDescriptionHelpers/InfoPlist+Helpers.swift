@@ -45,7 +45,7 @@ public extension InfoPlist {
         "UIUserInterfaceStyle": .string("Light"),
         "CFBundleShortVersionString": .string(Environment.mainAppVersion),
         "ITSAppUsesNonExemptEncryption": .boolean(false),
-        "CFBundleVersion": .string("14"),
+        "CFBundleVersion": .string(Environment.mainAppBuildVersion),
         "LSApplicationQueriesSchemes": .array([
               .string("kakaokompassauth"), // 카카오톡 로그인
               .string("kakaolink"),        // 카카오톡 공유

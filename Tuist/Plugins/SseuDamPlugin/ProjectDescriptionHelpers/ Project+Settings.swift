@@ -29,7 +29,7 @@ extension Settings {
       .setCFBundleDisplayName(Environment.appName)
       .setMarketingVersion(Environment.mainAppVersion)
       .setASAuthenticationServicesEnabled()
-      .setCurrentProjectVersion("22")
+      .setCurrentProjectVersion(Environment.mainAppBuildVersion)
       .setCodeSignIdentity()
       .setCodeSignStyle("Manual")
       .setSwiftVersion("6.0")

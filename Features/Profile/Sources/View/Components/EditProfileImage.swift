@@ -48,30 +48,9 @@ public struct EditProfileImage: View {
         .fill(imageURL != nil ? .clear : .gray1)
         .frame(width: size, height: size)
 
-      if let imageURL, let url = URL(string: imageURL) {
-        AsyncImage(url: url) { phase in
-          switch phase {
-          case .empty:
-            ProgressView()
-              .task { onLoadingStateChanged?(true) }
-          case .success(let image):
-            image
-              .resizable()
-              .scaledToFill()
-              .onAppear { onLoadingStateChanged?(false) }
-          case .failure:
-            placeholder(iconSize: iconSize)
-              .task { onLoadingStateChanged?(false) }
-          @unknown default:
-            placeholder(iconSize: iconSize)
-              .task { onLoadingStateChanged?(false) }
-          }
-        }
+      imageContent(iconSize: iconSize)
         .frame(width: size, height: size)
         .clipShape(Circle())
-      } else {
-        placeholder(iconSize: iconSize)
-      }
 
       editBadge()
     }
@@ -79,6 +58,46 @@ public struct EditProfileImage: View {
     .clipShape(Circle())
     .contentShape(Circle())
 
+  }
+
+  @ViewBuilder
+  private func imageContent(iconSize: CGFloat) -> some View {
+    if let imageURL, let url = URL(string: imageURL) {
+      // 🚀 최적화된 DesignSystemAsyncImage - ImageCacheService 직접 사용!
+      DesignSystemAsyncImage(
+        url: url,
+        transaction: Transaction(animation: .easeInOut(duration: 0.25))
+      ) { phase in
+        switch phase {
+        case .success(let image):
+          image
+            .resizable()
+            .scaledToFill()
+            .onAppear {
+              onLoadingStateChanged?(false)
+            }
+        case .failure(_):
+          placeholder(iconSize: iconSize)
+            .onAppear {
+              onLoadingStateChanged?(false)
+            }
+        case .empty:
+          placeholder(iconSize: iconSize)
+            .opacity(0.3)
+            .overlay(
+              ProgressView()
+                .scaleEffect(0.8)
+            )
+            .onAppear {
+              onLoadingStateChanged?(true)
+            }
+        @unknown default:
+          placeholder(iconSize: iconSize)
+        }
+      }
+    } else {
+      placeholder(iconSize: iconSize)
+    }
   }
 
   private func editBadge() -> some View {
@@ -108,6 +127,7 @@ public struct EditProfileImage: View {
       .frame(width: 82, height: 90)
       .foregroundStyle(.primary500)
   }
+
 }
 
 
