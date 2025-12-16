@@ -14,15 +14,17 @@ public protocol SessionRepositoryProtocol {
 }
 
 // MARK: - Dependencies
-public struct SessionRepositoryDependency: DependencyKey {
-    public static var liveValue: SessionRepositoryProtocol = MockSessionRepository()
-    public static var previewValue: SessionRepositoryProtocol = MockSessionRepository()
-    public static var testValue: SessionRepositoryProtocol = MockSessionRepository()
+public struct SessionRepositoryDependencyKey: DependencyKey {
+    public static var liveValue: SessionRepositoryProtocol {
+        fatalError("SessionRepositoryDependency liveValue not implemented")
+    }
+    public static let previewValue: SessionRepositoryProtocol = MockSessionRepository()
+    public static let testValue: SessionRepositoryProtocol = MockSessionRepository()
 }
 
 public extension DependencyValues {
     var sessionRepository:  SessionRepositoryProtocol {
-        get { self[SessionRepositoryDependency.self] }
-        set { self[SessionRepositoryDependency.self] = newValue }
+        get { self[SessionRepositoryDependencyKey.self] }
+        set { self[SessionRepositoryDependencyKey.self] = newValue }
     }
 }
