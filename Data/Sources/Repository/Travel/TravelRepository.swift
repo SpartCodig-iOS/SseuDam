@@ -44,6 +44,12 @@ public final class TravelRepository: TravelRepositoryProtocol {
         try await local.load(status: status)
     }
 
+    public func loadCachedTravel(
+        id: String
+    ) async throws -> Travel? {
+        try await local.load(travelId: id)
+    }
+
     public func createTravel(
         input: CreateTravelInput
     ) async throws -> Travel {
@@ -71,7 +77,9 @@ public final class TravelRepository: TravelRepositoryProtocol {
         id: String
     ) async throws -> Travel {
         let responseDTO = try await remote.fetchTravelDetail(id: id)
-        return responseDTO.toDomain()
+        let travel = responseDTO.toDomain()
+        try await local.upsert(travel: travel)
+        return travel
     }
 
 }

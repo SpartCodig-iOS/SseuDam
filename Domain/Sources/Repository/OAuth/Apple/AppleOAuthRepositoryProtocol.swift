@@ -9,19 +9,21 @@ import Foundation
 import Dependencies
 
 public protocol AppleOAuthRepositoryProtocol {
-  func signIn() async throws -> AppleOAuthPayload
+    func signIn() async throws -> AppleOAuthPayload
 }
 
 // MARK: - Dependencies
-public struct AppleOAuthServiceDependency: DependencyKey {
-  public static var liveValue:  AppleOAuthRepositoryProtocol = MockAppleOAuthRepository()
-  public static var previewValue:  AppleOAuthRepositoryProtocol = MockAppleOAuthRepository()
-  public static var testValue:  AppleOAuthRepositoryProtocol = MockAppleOAuthRepository()
+public struct AppleOAuthRepositoryDependencyKey: DependencyKey {
+    public static var liveValue:  AppleOAuthRepositoryProtocol {
+        fatalError("AppleOAuthServiceDependency liveValue not implemented")
+    }
+    public static var previewValue:  AppleOAuthRepositoryProtocol = MockAppleOAuthRepository()
+    public static var testValue:  AppleOAuthRepositoryProtocol = MockAppleOAuthRepository()
 }
 
 public extension DependencyValues {
-  var appleOAuthService:  AppleOAuthRepositoryProtocol {
-    get { self[AppleOAuthServiceDependency.self] }
-    set { self[AppleOAuthServiceDependency.self] = newValue }
-  }
+    var appleOAuthRepository:  AppleOAuthRepositoryProtocol {
+        get { self[AppleOAuthRepositoryDependencyKey.self] }
+        set { self[AppleOAuthRepositoryDependencyKey.self] = newValue }
+    }
 }

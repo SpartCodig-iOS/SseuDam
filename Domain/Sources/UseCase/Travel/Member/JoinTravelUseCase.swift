@@ -13,11 +13,9 @@ public protocol JoinTravelUseCaseProtocol {
 }
 
 public struct JoinTravelUseCase: JoinTravelUseCaseProtocol {
-    private let repository: TravelMemberRepositoryProtocol
+    @Dependency(\.travelMemberRepository) private var repository: TravelMemberRepositoryProtocol
 
-    public init(repository: TravelMemberRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
 
     public func execute(inviteCode: String) async throws -> Travel {
         try await repository.joinTravel(inviteCode: inviteCode)
@@ -25,17 +23,11 @@ public struct JoinTravelUseCase: JoinTravelUseCaseProtocol {
 }
 
 extension JoinTravelUseCase: DependencyKey {
-    public static var liveValue: JoinTravelUseCaseProtocol = {
-        JoinTravelUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var liveValue: JoinTravelUseCaseProtocol = JoinTravelUseCase()
 
-    public static var previewValue: JoinTravelUseCaseProtocol = {
-        JoinTravelUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var previewValue: JoinTravelUseCaseProtocol = JoinTravelUseCase()
 
-    public static var testValue: JoinTravelUseCaseProtocol = {
-        JoinTravelUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var testValue: JoinTravelUseCaseProtocol = JoinTravelUseCase()
 }
 
 public extension DependencyValues {

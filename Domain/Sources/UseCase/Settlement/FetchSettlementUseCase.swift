@@ -6,14 +6,15 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import Dependencies
+
+public protocol FetchSettlementUseCaseProtocol {
+    func execute(travelId: String) async throws -> TravelSettlement
+}
+
 
 public struct FetchSettlementUseCase: FetchSettlementUseCaseProtocol {
-    private let repository: SettlementRepositoryProtocol
-
-    public init(repository: SettlementRepositoryProtocol) {
-        self.repository = repository
-    }
+    @Dependency(\.settlementRepository) private var repository: SettlementRepositoryProtocol
 
     public func execute(travelId: String) async throws -> TravelSettlement {
         return try await repository.fetchSettlement(travelId: travelId)
@@ -22,7 +23,7 @@ public struct FetchSettlementUseCase: FetchSettlementUseCaseProtocol {
 
 // MARK: - DependencyKey
 public enum FetchSettlementUseCaseDependencyKey: DependencyKey {
-    public static var liveValue: any FetchSettlementUseCaseProtocol = MockFetchSettlementUseCase()
+    public static var liveValue: any FetchSettlementUseCaseProtocol = FetchSettlementUseCase()
 
     public static var testValue: any FetchSettlementUseCaseProtocol = MockFetchSettlementUseCase()
 

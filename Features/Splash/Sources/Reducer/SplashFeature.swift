@@ -83,7 +83,7 @@ public struct SplashFeature {
 
     @Dependency(SessionUseCase.self) var sessionUseCase
     @Dependency(\.continuousClock) var clock
-    @Dependency(VersionUseCase.self) var versionUseCase
+    @Dependency(\.versionUseCase) var versionUseCase
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
@@ -245,6 +245,7 @@ extension SplashFeature {
                         state.$sessionId.withLock { $0 = sessionData.sessionId }
                         state.$socialType.withLock { $0 = sessionData.provider }
                         return .send(.delegate(.presentLogin))
+                    
                     case .failure(let error):
                         state.$socialType.withLock { $0 = nil }
                         state.errorMessage = "세션 조회 실패 : \(error.localizedDescription)"

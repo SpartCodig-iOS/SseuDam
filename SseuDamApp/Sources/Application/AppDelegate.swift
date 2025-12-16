@@ -123,27 +123,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate, @MainActor UNUserNotif
 
     completionHandler()
   }
-
-  /// 여러 가능한 경로에서 딥링크 문자열을 추출
-//  nonisolated private static func extractDeepLink(from userInfo: [AnyHashable: Any]) -> String? {
-//    // 1) 단일 문자열 필드 우선
-//    let stringKeys = ["deeplink", "url"]
-//    for key in stringKeys {
-//      if let url = userInfo[key] as? String { return url }
-//    }
-//
-//    // 2) 중첩 객체에서 url 필드 찾기 (호환 키: deeplink, data, custom)
-//    let containerKeys = ["deeplink", "data", "custom"]
-//    for key in containerKeys {
-//      guard let container = userInfo[key] as? [String: Any],
-//            let url = container["url"] as? String else { continue }
-//      return url
-//    }
-//
-//    #logDebug("❌ No deep link found in push notification")
-//    #logDebug("Available keys: \(userInfo.keys)")
-//    return nil
-//  }
 }
 
 extension Notification.Name {

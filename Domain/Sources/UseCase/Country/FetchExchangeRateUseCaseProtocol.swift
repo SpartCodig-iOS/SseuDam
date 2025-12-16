@@ -13,28 +13,18 @@ public protocol FetchExchangeRateUseCaseProtocol {
 }
 
 public final class FetchExchangeRateUseCase: FetchExchangeRateUseCaseProtocol {
-    private let repository: ExchangeRateRepositoryProtocol
+    @Dependency(\.exchangeRateRepository) private var repository: ExchangeRateRepositoryProtocol
 
-    public init(repository: ExchangeRateRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
     public func execute(base: String) async throws -> ExchangeRate {
         try await repository.fetchExchangeRate(base: base)
     }
 }
 
 extension FetchExchangeRateUseCase: DependencyKey {
-    public static var liveValue: FetchExchangeRateUseCaseProtocol = {
-        FetchExchangeRateUseCase(repository: MockExchangeRateRepository())
-    }()
-
-    public static var previewValue: FetchExchangeRateUseCaseProtocol = {
-        FetchExchangeRateUseCase(repository: MockExchangeRateRepository())
-    }()
-
-    public static var testValue: FetchExchangeRateUseCaseProtocol = {
-        FetchExchangeRateUseCase(repository: MockExchangeRateRepository())
-    }()
+    public static var liveValue: FetchExchangeRateUseCaseProtocol = FetchExchangeRateUseCase()
+    public static var previewValue: FetchExchangeRateUseCaseProtocol = FetchExchangeRateUseCase()
+    public static var testValue: FetchExchangeRateUseCaseProtocol = FetchExchangeRateUseCase()
 }
 
 public extension DependencyValues {

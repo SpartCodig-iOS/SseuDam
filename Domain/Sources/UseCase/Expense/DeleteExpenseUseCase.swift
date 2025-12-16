@@ -13,11 +13,7 @@ public protocol DeleteExpenseUseCaseProtocol {
 }
 
 public struct DeleteExpenseUseCase: DeleteExpenseUseCaseProtocol {
-    private let repository: ExpenseRepositoryProtocol
-
-    public init(repository: ExpenseRepositoryProtocol) {
-        self.repository = repository
-    }
+    @Dependency(\.expenseRepository) private var repository: ExpenseRepositoryProtocol
 
     public func execute(travelId: String, expenseId: String) async throws {
         try await repository.delete(travelId: travelId, expenseId: expenseId)
@@ -26,7 +22,7 @@ public struct DeleteExpenseUseCase: DeleteExpenseUseCaseProtocol {
 
 // MARK: - DependencyKey
 public enum DeleteExpenseUseCaseDependencyKey: DependencyKey {
-    public static var liveValue: any DeleteExpenseUseCaseProtocol = MockDeleteExpenseUseCase()
+    public static var liveValue: any DeleteExpenseUseCaseProtocol = DeleteExpenseUseCase()
 
     public static var testValue: any DeleteExpenseUseCaseProtocol = MockDeleteExpenseUseCase()
 

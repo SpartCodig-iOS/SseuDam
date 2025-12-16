@@ -13,11 +13,9 @@ public protocol LeaveTravelUseCaseProtocol {
 }
 
 public struct LeaveTravelUseCase: LeaveTravelUseCaseProtocol {
-    private let repository: TravelMemberRepositoryProtocol
+    @Dependency(\.travelMemberRepository) private var repository: TravelMemberRepositoryProtocol
 
-    public init(repository: TravelMemberRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
 
     public func execute(travelId: String) async throws {
         try await repository.leaveTravel(travelId: travelId)
@@ -25,17 +23,11 @@ public struct LeaveTravelUseCase: LeaveTravelUseCaseProtocol {
 }
 
 extension LeaveTravelUseCase: DependencyKey {
-    public static var liveValue: LeaveTravelUseCaseProtocol = {
-        LeaveTravelUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var liveValue: LeaveTravelUseCaseProtocol = LeaveTravelUseCase()
 
-    public static var previewValue: LeaveTravelUseCaseProtocol = {
-        LeaveTravelUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var previewValue: LeaveTravelUseCaseProtocol = LeaveTravelUseCase()
 
-    public static var testValue: LeaveTravelUseCaseProtocol = {
-        LeaveTravelUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var testValue: LeaveTravelUseCaseProtocol = LeaveTravelUseCase()
 }
 
 public extension DependencyValues {

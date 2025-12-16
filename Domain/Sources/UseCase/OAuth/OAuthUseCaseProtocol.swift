@@ -8,11 +8,13 @@
 import Foundation
 import AuthenticationServices
 
-
 public protocol OAuthUseCaseProtocol {
-  func signInWithApple(
-    credential: ASAuthorizationAppleIDCredential,
-    nonce: String
-  ) async throws -> UserProfile
-  func signUp(with provider: SocialType) async throws -> UserProfile
+    func signInWithApple(
+        credential: ASAuthorizationAppleIDCredential,
+        nonce: String
+    ) async throws -> UserProfile
+    
+    func signUp(
+        with provider: SocialType
+    ) async throws -> UserProfile
 }

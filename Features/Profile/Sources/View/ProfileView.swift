@@ -318,7 +318,14 @@ extension ProfileView {
                     .background(.gray1)
                     .frame(height: 1)
 
+              HStack {
+                Text("v \(store.appVersion ?? "")")
+                  .font(.app(.body, weight: .regular))
+                  .foregroundStyle(.appBlack)
 
+                Spacer()
+              }
+              .padding(.vertical, 12)
 
             }
             .padding(.horizontal, 16)

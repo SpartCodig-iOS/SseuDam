@@ -13,11 +13,9 @@ public protocol FetchTravelsUseCaseProtocol {
 }
 
 public struct FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
-    private let repository: TravelRepositoryProtocol
+    @Dependency(\.travelRepository) private var repository: TravelRepositoryProtocol
     
-    public init(repository: TravelRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
     
     public func execute(input: FetchTravelsInput) async throws -> [Travel] {
         try await repository.fetchTravels(input: input)
@@ -25,17 +23,9 @@ public struct FetchTravelsUseCase: FetchTravelsUseCaseProtocol {
 }
 
 extension FetchTravelsUseCase: DependencyKey {
-    public static var liveValue: FetchTravelsUseCaseProtocol = {
-        FetchTravelsUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var previewValue: FetchTravelsUseCaseProtocol = {
-        FetchTravelsUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var testValue: FetchTravelsUseCaseProtocol = {
-        FetchTravelsUseCase(repository: MockTravelRepository())
-    }()
+    public static var liveValue: FetchTravelsUseCaseProtocol = FetchTravelsUseCase()
+    public static var previewValue: FetchTravelsUseCaseProtocol = FetchTravelsUseCase()
+    public static var testValue: FetchTravelsUseCaseProtocol = FetchTravelsUseCase()
 }
 
 public extension DependencyValues {
