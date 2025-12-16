@@ -20,17 +20,26 @@ public struct ExpenseListView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // 헤더
-            SettlementHeaderView(
-                totalAmount: store.totalAmount,
-                startDate: store.startDate,
-                endDate: store.endDate,
-                myExpenseAmount: store.myExpenseAmount,
-                selectedDate: $store.selectedDate
-            )
-
-            // 지출 내역 리스트
-            if !store.currentExpense.isEmpty {
+            if !store.allExpenses.isEmpty {
+                // 헤더
+                SettlementHeaderView(
+                    totalAmount: store.formattedTotalAmount,
+                    startDate: store.startDate,
+                    endDate: store.endDate,
+                    myExpenseAmount: store.formattedTotalAmount, // 임시로 동일
+                    expenses: store.allExpenses,
+                    selectedDateRange: $store.selectedDateRange,
+                    currentPage: $store.currentPage
+                )
+                
+                // 카테고리 필터
+                CategoryFilterView(
+                    selectedCategory: $store.selectedCategory
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+                
+                // 지출 내역 리스트
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(store.currentExpense) { expense in
@@ -56,10 +65,10 @@ public struct ExpenseListView: View {
                     Image(asset: .expenseEmpty)
                         .resizable()
                         .frame(width: 167, height: 167)
-                    Text("지출을 추가해보세요!")
+                    Text("아직 지출이 없어요")
                         .font(.app(.title3, weight: .medium))
                 }
-                .frame(maxHeight: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .overlay {

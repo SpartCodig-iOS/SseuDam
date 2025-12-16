@@ -54,6 +54,7 @@ public struct SettlementView: View {
         }
         .background(Color.primary50)
         .navigationBarBackButtonHidden(true)
+        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: store.travel)
         .task {
             send(.onAppear)
         }

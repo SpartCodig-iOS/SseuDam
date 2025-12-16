@@ -67,12 +67,34 @@ extension Expense {
 
 // MARK: - Helper
 extension Expense {
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
     public func formatExpenseDate() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.calendar = Calendar(identifier: .gregorian)
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        return dateFormatter.string(from: expenseDate)
+        Self.dateFormatter.string(from: expenseDate)
+    }
+
+    public static func formatDate(_ date: Date) -> String {
+        dateFormatter.string(from: date)
+    }
+
+    public static func parseDate(_ dateString: String) -> Date? {
+        dateFormatter.date(from: dateString)
+    }
+
+    /// convertedAmount를 포맷팅 (소수점 제거)
+    public func formattedConvertedAmount() -> String {
+        convertedAmount.formatted(.number.precision(.fractionLength(0)))
+    }
+
+    /// amount를 포맷팅 (소수점 제거)
+    public func formattedAmount() -> String {
+        amount.formatted(.number.precision(.fractionLength(0)))
     }
 }
 

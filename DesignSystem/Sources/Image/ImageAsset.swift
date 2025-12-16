@@ -29,4 +29,5 @@ public enum ImageAsset: String {
     case profile
     case check
     case person
+    case settlementEmpty
 }
