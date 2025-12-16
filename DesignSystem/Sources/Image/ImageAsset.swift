@@ -33,4 +33,5 @@ public enum ImageAsset: String {
     case travelMock
     case travelDetailMock
     case supportMaIl
+    case settlementEmpty
 }
