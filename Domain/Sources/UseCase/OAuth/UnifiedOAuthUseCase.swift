@@ -12,15 +12,13 @@ import AuthenticationServices
 
 /// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합 (AuthFacade 역할)
 public struct UnifiedOAuthUseCase {
-    private let oAuthUseCase: any OAuthUseCaseProtocol
+    @Dependency(\.oAuthUseCase) private var oAuthUseCase: any OAuthUseCaseProtocol
     @Dependency(\.authRepository) private var authRepository: AuthRepositoryProtocol
     private let sessionStoreRepository: any SessionStoreRepositoryProtocol
     
     public init(
-        oAuthUseCase: any OAuthUseCaseProtocol = OAuthUseCase.liveValue,
         sessionStoreRepository: any SessionStoreRepositoryProtocol = SessionStoreRepository()
     ) {
-        self.oAuthUseCase = oAuthUseCase
         self.sessionStoreRepository = sessionStoreRepository
     }
 }
@@ -400,7 +398,6 @@ extension UnifiedOAuthUseCase: DependencyKey {
     public static let liveValue = UnifiedOAuthUseCase()
     
     public static let testValue = UnifiedOAuthUseCase(
-        oAuthUseCase: OAuthUseCase.testValue,
         sessionStoreRepository: SessionStoreRepository()
     )
 }

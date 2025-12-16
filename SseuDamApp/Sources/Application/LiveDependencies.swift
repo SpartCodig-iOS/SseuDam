@@ -11,22 +11,19 @@ import Data
 import Domain
 
 public enum LiveDependencies {
-    @MainActor public static func register(_ dependencies: inout DependencyValues) {
-        // Repository 인스턴스 생성 (재사용)
-        let oAuthRepository = OAuthRepository()
- 
+    @MainActor
+    public static func register(_ dependencies: inout DependencyValues) {
         // Auth & Session
         dependencies.authRepository = AuthRepository()
         dependencies.sessionRepository = SessionRepository()
-        dependencies.profileRepository = ProfileRepository()
-        dependencies.versionRepository = VersionRepository()
-        
-        let oAuthUseCase = makeOAuthUseCase(repository: oAuthRepository)
-        dependencies.oAuthUseCase = oAuthUseCase
-        dependencies.unifiedOAuthUseCase = UnifiedOAuthUseCase(
-            oAuthUseCase: oAuthUseCase,
-            sessionStoreRepository: SessionStoreRepository()
+
+        dependencies.oAuthRepository = OAuthRepository()
+        dependencies.googleOAuthRepository = GoogleOAuthRepository()
+        dependencies.appleOAuthRepository = AppleOAuthRepository()
+        dependencies.kakaoOAuthRepository = KakaoOAuthRepository(
+            presentationContextProvider: AppPresentationContextProvider()
         )
+ 
         // Analytics
         dependencies.analyticsRepository = FirebaseAnalyticsRepository()
         
@@ -51,18 +48,12 @@ public enum LiveDependencies {
         
         // Settlement
         dependencies.settlementRepository = SettlementRepository(remote: SettlementRemoteDataSource())
-    }
-    
-    // MARK: - Factory Methods
-    @MainActor
-    private static func makeOAuthUseCase(repository: OAuthRepository) -> OAuthUseCaseProtocol {
-        OAuthUseCase(
-            repository: repository,
-            googleRepository: GoogleOAuthRepository(),
-            appleRepository: AppleOAuthRepository(),
-            kakaoRepository: KakaoOAuthRepository(
-                presentationContextProvider: AppPresentationContextProvider()
-            )
-        )
+        
+        // Profile
+        dependencies.profileRepository = ProfileRepository()
+        
+        // AppVersion
+        dependencies.versionRepository = VersionRepository()
+        
     }
 }

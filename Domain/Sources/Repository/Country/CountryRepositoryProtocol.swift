@@ -17,8 +17,8 @@ public struct CountryRepositoryDependencyKey: DependencyKey {
     public static var liveValue: CountryRepositoryProtocol {
         fatalError("CountryRepositoryDependency liveValue not implemented")
     }
-    public static var previewValue: CountryRepositoryProtocol = MockCountryRepository()
-    public static var testValue: CountryRepositoryProtocol = MockCountryRepository()
+    public static var previewValue: CountryRepositoryProtocol = MockCountriesRepository()
+    public static var testValue: CountryRepositoryProtocol = MockCountriesRepository()
 }
 
 public extension DependencyValues {

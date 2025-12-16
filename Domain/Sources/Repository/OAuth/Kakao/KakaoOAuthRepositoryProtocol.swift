@@ -13,17 +13,17 @@ public protocol KakaoOAuthRepositoryProtocol {
 }
 
 // MARK: - Dependencies
-public struct KakaoOAuthRepositoryDependency: DependencyKey {
+public struct KakaoOAuthRepositoryDependencyKey: DependencyKey {
     public static var liveValue: KakaoOAuthRepositoryProtocol {
         fatalError("KakaoOAuthRepositoryDependency liveValue not implemented")
-    }
+    } 
     public static var previewValue: KakaoOAuthRepositoryProtocol = MockKakaoOAuthRepository()
     public static var testValue: KakaoOAuthRepositoryProtocol = MockKakaoOAuthRepository()
 }
 
 public extension DependencyValues {
     var kakaoOAuthRepository: KakaoOAuthRepositoryProtocol {
-        get { self[KakaoOAuthRepositoryDependency.self] }
-        set { self[KakaoOAuthRepositoryDependency.self] = newValue }
+        get { self[KakaoOAuthRepositoryDependencyKey.self] }
+        set { self[KakaoOAuthRepositoryDependencyKey.self] = newValue }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  GoogleOAuthServicing.swift
+//  GoogleOAuthRepositoryProtocol.swift
 //  Domain
 //
 //  Created by Wonji Suh  on 11/17/25.
@@ -13,7 +13,7 @@ public protocol GoogleOAuthRepositoryProtocol {
 }
 
 // MARK: - Dependencies
-public struct GoogleOAuthRespositoryDependency: DependencyKey {
+public struct GoogleOAuthRepositoryDependencyKey: DependencyKey {
     public static var liveValue:  GoogleOAuthRepositoryProtocol {
         fatalError("GoogleOAuthServiceDependency liveValue not implemented")
     }
@@ -22,8 +22,8 @@ public struct GoogleOAuthRespositoryDependency: DependencyKey {
 }
 
 public extension DependencyValues {
-    var googleOAuthService:  GoogleOAuthRepositoryProtocol {
-        get { self[GoogleOAuthRespositoryDependency.self] }
-        set { self[GoogleOAuthRespositoryDependency.self] = newValue }
+    var googleOAuthRepository:  GoogleOAuthRepositoryProtocol {
+        get { self[GoogleOAuthRepositoryDependencyKey.self] }
+        set { self[GoogleOAuthRepositoryDependencyKey.self] = newValue }
     }
 }

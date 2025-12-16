@@ -13,7 +13,7 @@ public protocol AppleOAuthRepositoryProtocol {
 }
 
 // MARK: - Dependencies
-public struct AppleOAuthRepositoryDependency: DependencyKey {
+public struct AppleOAuthRepositoryDependencyKey: DependencyKey {
     public static var liveValue:  AppleOAuthRepositoryProtocol {
         fatalError("AppleOAuthServiceDependency liveValue not implemented")
     }
@@ -23,7 +23,7 @@ public struct AppleOAuthRepositoryDependency: DependencyKey {
 
 public extension DependencyValues {
     var appleOAuthRepository:  AppleOAuthRepositoryProtocol {
-        get { self[AppleOAuthRepositoryDependency.self] }
-        set { self[AppleOAuthRepositoryDependency.self] = newValue }
+        get { self[AppleOAuthRepositoryDependencyKey.self] }
+        set { self[AppleOAuthRepositoryDependencyKey.self] = newValue }
     }
 }
