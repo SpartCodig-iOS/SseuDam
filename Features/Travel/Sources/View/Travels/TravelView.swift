@@ -19,56 +19,50 @@ public struct TravelView: View {
     }
     
     public var body: some View {
-        let hasCacheForTab = store.cachedTravelsByTab[store.selectedTab] != nil
-        let shouldShowSkeleton = store.isLoading && !hasCacheForTab && store.travels.isEmpty
+        return VStack {
+            TravelListHeaderView {
+                store.send(.profileButtonTapped)
+            }
 
-        return ZStack {
-            Color.primary50.ignoresSafeArea()
+            TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
+                .padding(.horizontal, 20)
 
-            VStack {
-                TravelListHeaderView {
-                    store.send(.profileButtonTapped)
-                }
-
-                TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
-                    .padding(.horizontal, 20)
-
-                Group {
-                    if shouldShowSkeleton {
-                        TravelListSkeletonView()
-                    } else if store.travels.isEmpty {
-                        TravelEmptyView()
-                    } else {
-                        ScrollView {
-                            LazyVStack(spacing: 18) {
-                                ForEach(store.travels, id: \.id) { travel in
-                                    TravelCardView(travel: travel)
-                                        .onAppear {
-                                            store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
-                                        }
-                                        .onTapGesture {
-                                            store.send(.travelSelected(travelId: travel.id))
-                                        }
-                                }
-
-                                if store.isLoadingNextPage {
-                                    ProgressView().padding(.vertical, 20)
-                                }
+            Group {
+                if store.shouldShowSkeleton {
+                    TravelListSkeletonView()
+                } else if store.travels.isEmpty {
+                    TravelEmptyView()
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 18) {
+                            ForEach(store.travels, id: \.id) { travel in
+                                TravelCardView(travel: travel)
+                                    .onAppear {
+                                        store.send(.fetchNextPageIfNeeded(currentItemID: travel.id))
+                                    }
+                                    .onTapGesture {
+                                        store.send(.travelSelected(travelId: travel.id))
+                                    }
                             }
-                            .padding(16)
+
+                            if store.isLoadingNextPage {
+                                ProgressView().padding(.vertical, 20)
+                            }
                         }
-                        .refreshable {
-                            store.send(.refresh)
-                        }
+                        .padding(16)
+                    }
+                    .refreshable {
+                        store.send(.refresh)
                     }
                 }
             }
         }
+        .background(Color.primary50)
         .task {
             store.send(.onAppear)
         }
         .overlay(alignment: .bottomTrailing) {
-            if !shouldShowSkeleton {
+            if !store.shouldShowSkeleton {
                 ZStack(alignment: .bottomTrailing) {
                     if store.isMenuOpen {
                         TravelCreateMenuView(

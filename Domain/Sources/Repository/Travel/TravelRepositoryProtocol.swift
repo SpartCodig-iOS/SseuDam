@@ -13,5 +13,5 @@ public protocol TravelRepositoryProtocol {
     func updateTravel(id: String, input: UpdateTravelInput) async throws -> Travel
     func deleteTravel(id: String) async throws
     func fetchTravelDetail(id: String) async throws -> Travel
-    func observeCachedTravels(status: TravelStatus) -> AsyncStream<[Travel]>
+    func loadCachedTravels(status: TravelStatus) async throws -> [Travel]?
 }
