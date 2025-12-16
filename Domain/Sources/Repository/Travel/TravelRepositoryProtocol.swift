@@ -15,6 +15,7 @@ public protocol TravelRepositoryProtocol {
     func deleteTravel(id: String) async throws
     func fetchTravelDetail(id: String) async throws -> Travel
     func loadCachedTravels(status: TravelStatus) async throws -> [Travel]?
+    func loadCachedTravel(id: String) async throws -> Travel?
 }
 
 // MARK: - Dependency

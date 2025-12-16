@@ -38,7 +38,7 @@ public enum LiveDependencies {
             remote: ExpenseRemoteDataSource(),
             local: ExpenseLocalDataSource()
         )
-        
+
         // TravelMember
         dependencies.travelMemberRepository = TravelMemberRepository(remote: TravelMemberRemoteDataSource())
 
