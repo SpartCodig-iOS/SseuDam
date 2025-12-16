@@ -14,9 +14,7 @@ public enum LiveDependencies {
     @MainActor public static func register(_ dependencies: inout DependencyValues) {
         // Repository 인스턴스 생성 (재사용)
         let oAuthRepository = OAuthRepository()
-        let countryRepository = CountryRepository(remote: CountryRemoteDataSource())
-        let exchangeRateRepository = ExchangeRateRepository(remote: ExchangeRateRemoteDataSource())
-        
+ 
         // Auth & Session
         dependencies.authRepository = AuthRepository()
         dependencies.sessionRepository = SessionRepository()
@@ -48,8 +46,8 @@ public enum LiveDependencies {
         dependencies.travelMemberRepository = TravelMemberRepository(remote: TravelMemberRemoteDataSource())
 
         // Country & Exchange
-        dependencies.fetchCountriesUseCase = FetchCountriesUseCase(repository: countryRepository)
-        dependencies.fetchExchangeRateUseCase = FetchExchangeRateUseCase(repository: exchangeRateRepository)
+        dependencies.countryRepository = CountryRepository(remote: CountryRemoteDataSource())
+        dependencies.exchangeRateRepository = ExchangeRateRepository(remote: ExchangeRateRemoteDataSource())
         
         // Settlement
         dependencies.settlementRepository = SettlementRepository(remote: SettlementRemoteDataSource())
