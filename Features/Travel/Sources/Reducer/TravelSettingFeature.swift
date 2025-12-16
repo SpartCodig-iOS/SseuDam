@@ -36,6 +36,7 @@ public struct TravelSettingFeature {
         case onAppear
 
         case fetchDetail
+        case cachedDetailLoaded(Travel)
         case fetchDetailResponse(Result<Travel, Error>)
 
         case basicInfo(BasicSettingFeature.Action)
@@ -64,6 +65,7 @@ public struct TravelSettingFeature {
     }
 
     @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
+    @Dependency(\.loadTravelDetailCacheUseCase) var loadTravelDetailCacheUseCase
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -77,6 +79,9 @@ public struct TravelSettingFeature {
             case .fetchDetail:
                 state.isLoading = true
                 return .run { [id = state.travelId] send in
+                    if let cached = try? await loadTravelDetailCacheUseCase.execute(id: id) {
+                        await send(.cachedDetailLoaded(cached))
+                    }
                     do {
                         let travel = try await fetchTravelDetailUseCase.execute(id: id)
                         await send(.fetchDetailResponse(.success(travel)))
@@ -85,16 +90,14 @@ public struct TravelSettingFeature {
                     }
                 }
 
+            case .cachedDetailLoaded(let travel):
+                state.isLoading = false
+                state.applyTravel(travel)
+                return .none
+
             case .fetchDetailResponse(.success(let travel)):
                 state.isLoading = false
-                state.basicInfo = BasicSettingFeature.State(travel: travel)
-                state.memberSetting = MemberSettingFeature.State(travel: travel)
-                state.manage = TravelManageFeature.State(
-                    travelId: travel.id,
-                    isOwner: travel.members.first(where: { $0.role == .owner })?.id
-                    == travel.members.first?.id
-                )
-
+                state.applyTravel(travel)
                 return .none
 
             case .fetchDetailResponse(.failure(let err)):
@@ -175,6 +178,16 @@ public struct TravelSettingFeature {
 }
 
 private extension TravelSettingFeature.State {
+    mutating func applyTravel(_ travel: Travel) {
+        basicInfo = BasicSettingFeature.State(travel: travel)
+        memberSetting = MemberSettingFeature.State(travel: travel)
+        let ownerId = travel.members.first(where: { $0.role == .owner })?.id
+        manage = TravelManageFeature.State(
+            travelId: travel.id,
+            isOwner: ownerId == travel.members.first?.id
+        )
+    }
+
     func confirmLeaveAlert() -> DSAlertState<TravelSettingFeature.AlertAction> {
         DSAlertState(
             title: "여행을 나가시겠어요?",

@@ -14,6 +14,7 @@ import SettlementResultFeature
 @Reducer
 public struct SettlementFeature {
     @Dependency(\.fetchTravelDetailUseCase) var fetchTravelDetailUseCase
+    @Dependency(\.loadTravelDetailCacheUseCase) var loadTravelDetailCacheUseCase
     
     public init() {}
 
@@ -64,6 +65,7 @@ public struct SettlementFeature {
         
         @CasePathable
         public enum InnerAction {
+            case cachedTravel(Travel)
             case travelDetailResponse(Result<Travel, Error>)
         }
         
@@ -158,6 +160,12 @@ extension SettlementFeature {
     // MARK: - Inner Action Handler
     private func handleInnerAction(state: inout State, action: Action.InnerAction) -> Effect<Action> {
         switch action {
+        case let .cachedTravel(travel):
+            state.$travel.withLock {
+                $0 = travel
+            }
+            return .none
+
         case let .travelDetailResponse(.success(travel)):
             state.$travel.withLock {
                 $0 = travel
@@ -178,6 +186,9 @@ extension SettlementFeature {
         case .fetchTravel:
             let travelId = state.travelId
             return .run { send in
+                if let cached = try? await loadTravelDetailCacheUseCase.execute(id: travelId) {
+                    await send(.inner(.cachedTravel(cached)))
+                }
                 let result = await Result {
                     try await fetchTravelDetailUseCase.execute(id: travelId)
                 }
