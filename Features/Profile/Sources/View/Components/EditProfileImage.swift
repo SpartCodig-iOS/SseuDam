@@ -14,6 +14,8 @@ public struct EditProfileImage: View {
   private let imageURL: String?
   private let action: (() -> Void)?
   private let onLoadingStateChanged: ((Bool) -> Void)?
+  @State private var loadedImage: UIImage?
+  @State private var isLoading: Bool
 
   public init(
     size: CGFloat = 100,
@@ -25,6 +27,7 @@ public struct EditProfileImage: View {
     self.imageURL = imageURL
     self.action = action
     self.onLoadingStateChanged = onLoadingStateChanged
+    _isLoading = State(initialValue: imageURL != nil)
   }
 
   @ViewBuilder
@@ -48,37 +51,32 @@ public struct EditProfileImage: View {
         .fill(imageURL != nil ? .clear : .gray1)
         .frame(width: size, height: size)
 
-      if let imageURL, let url = URL(string: imageURL) {
-        AsyncImage(url: url) { phase in
-          switch phase {
-          case .empty:
-            ProgressView()
-              .task { onLoadingStateChanged?(true) }
-          case .success(let image):
-            image
-              .resizable()
-              .scaledToFill()
-              .onAppear { onLoadingStateChanged?(false) }
-          case .failure:
-            placeholder(iconSize: iconSize)
-              .task { onLoadingStateChanged?(false) }
-          @unknown default:
-            placeholder(iconSize: iconSize)
-              .task { onLoadingStateChanged?(false) }
-          }
-        }
+      imageContent(iconSize: iconSize)
         .frame(width: size, height: size)
         .clipShape(Circle())
-      } else {
-        placeholder(iconSize: iconSize)
-      }
 
       editBadge()
     }
     .frame(width: size, height: size)
     .clipShape(Circle())
     .contentShape(Circle())
+    .task(id: imageURL) {
+      await loadImage()
+    }
 
+  }
+
+  @ViewBuilder
+  private func imageContent(iconSize: CGFloat) -> some View {
+    if let image = loadedImage {
+      Image(uiImage: image)
+        .resizable()
+        .scaledToFill()
+    } else if isLoading {
+      ProgressView()
+    } else {
+      placeholder(iconSize: iconSize)
+    }
   }
 
   private func editBadge() -> some View {
@@ -107,6 +105,30 @@ public struct EditProfileImage: View {
       .offset(y: 11)
       .frame(width: 82, height: 90)
       .foregroundStyle(.primary500)
+  }
+
+  private func loadImage() async {
+    guard let imageURL, let url = URL(string: imageURL) else {
+      await MainActor.run {
+        loadedImage = nil
+        isLoading = false
+      }
+      onLoadingStateChanged?(false)
+      return
+    }
+
+    await MainActor.run {
+      isLoading = true
+      onLoadingStateChanged?(true)
+    }
+
+    let image = await ImageCacheService.shared.image(for: url)
+
+    await MainActor.run {
+      isLoading = false
+      loadedImage = image
+      onLoadingStateChanged?(false)
+    }
   }
 }
 
