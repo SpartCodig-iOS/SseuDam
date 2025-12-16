@@ -19,7 +19,6 @@ import Photos
 import PhotosUI
 import Domain
 import DesignSystem
-import MessageUI
 
 @Reducer
 public struct ProfileFeature {
@@ -473,52 +472,24 @@ extension ProfileFeature.State: Hashable {
     }
 }
 
-// MARK: - Email Support
+// MARK: - Email Support (SwiftUI)
 private func sendEmail() {
     let recipients = ["suhwj81@gmail.com"]
     let subject = "[쓰담] 문의사항"
     let body = """
-    문의사항을 작성해주세요.
+문의사항을 작성해주세요.
 
-    --
-    앱 버전: \(getAppVersion())
-    iOS 버전: \(UIDevice.current.systemVersion)
-    디바이스: \(UIDevice.current.model)
-    """
+--
+앱 버전: \(getAppVersion())
+iOS 버전: \(UIDevice.current.systemVersion)
+디바이스: \(UIDevice.current.model)
+"""
 
-    if MFMailComposeViewController.canSendMail() {
-        let mailComposer = MFMailComposeViewController()
-        let delegate = MailComposeDelegate()
+    // mailto URL 스킴을 사용한 이메일 앱 열기 (SwiftUI 방식)
+    let urlString = "mailto:\(recipients.joined(separator: ","))?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
 
-        mailComposer.mailComposeDelegate = delegate
-        mailComposer.setToRecipients(recipients)
-        mailComposer.setSubject(subject)
-        mailComposer.setMessageBody(body, isHTML: false)
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootViewController = windowScene.windows.first?.rootViewController {
-
-            // delegate를 강하게 참조하기 위해 mailComposer에 연결
-            objc_setAssociatedObject(mailComposer, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-
-            rootViewController.present(mailComposer, animated: true)
-        }
-    } else {
-        // 메일 앱을 사용할 수 없는 경우 URL 스킴으로 메일 앱 열기
-        let urlString = "mailto:\(recipients.joined(separator: ","))?subject=\(subject.addingPercentEncoding(string: subject) ?? "")&body=\(body.addingPercentEncoding(string: body) ?? "")"
-
-        if let url = URL(string: urlString) {
-            UIApplication.shared.open(url)
-        }
-    }
-}
-
-// MARK: - Mail Compose Delegate
-private class MailComposeDelegate: NSObject, MFMailComposeViewControllerDelegate {
-    func mailComposeController(_ controller: MFMailComposeViewController,
-                              didFinishWith result: MFMailComposeResult,
-                              error: Error?) {
-        controller.dismiss(animated: true, completion: nil)
+    if let url = URL(string: urlString) {
+        UIApplication.shared.open(url)
     }
 }
 
@@ -528,10 +499,4 @@ private func getAppVersion() -> String {
         return "\(version) (\(build))"
     }
     return "Unknown"
-}
-
-extension String {
-    func addingPercentEncoding(string: String) -> String? {
-        return string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-    }
 }
