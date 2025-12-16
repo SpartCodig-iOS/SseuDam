@@ -30,6 +30,14 @@ public struct TravelListFeature {
         var isPresentInvitationView: Bool = false
         var inviteCode: String = ""
 
+        var hasCacheForSelectedTab: Bool {
+            cachedTravelsByTab[selectedTab] != nil
+        }
+
+        var shouldShowSkeleton: Bool {
+            isLoading && !hasCacheForSelectedTab && travels.isEmpty
+        }
+
         @Presents var create: TravelCreateFeature.State?
 
         public init(pendingInviteCode: String? = nil) {
