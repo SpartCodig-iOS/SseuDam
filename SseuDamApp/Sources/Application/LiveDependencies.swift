@@ -58,12 +58,8 @@ public enum LiveDependencies {
         dependencies.expenseRepository = expenseRepository
         
         // TravelMember
-        dependencies.joinTravelUseCase = JoinTravelUseCase(repository: travelMemberRepository)
-        dependencies.delegateOwnerUseCase = DelegateOwnerUseCase(repository: travelMemberRepository)
-        dependencies.deleteTravelMemberUseCase = DeleteTravelMemberUseCase(repository: travelMemberRepository)
-        dependencies.leaveTravelUseCase = LeaveTravelUseCase(repository: travelMemberRepository)
-        dependencies.fetchMemberUseCase = FetchMemberUseCase(repository: travelMemberRepository)
-        
+        dependencies.travelMemberRepository = travelMemberRepository
+
         // Country & Exchange
         dependencies.fetchCountriesUseCase = FetchCountriesUseCase(repository: countryRepository)
         dependencies.fetchExchangeRateUseCase = FetchExchangeRateUseCase(repository: exchangeRateRepository)
