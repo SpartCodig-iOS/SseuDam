@@ -13,11 +13,7 @@ public protocol UpdateExpenseUseCaseProtocol {
 }
 
 public struct UpdateExpenseUseCase: UpdateExpenseUseCaseProtocol {
-    private let repository: ExpenseRepositoryProtocol
-
-    public init(repository: ExpenseRepositoryProtocol) {
-        self.repository = repository
-    }
+    @Dependency(\.expenseRepository) private var repository: ExpenseRepositoryProtocol
 
     public func execute(travelId: String, expenseId: String, input: ExpenseInput) async throws {
         try input.validate()
@@ -27,7 +23,7 @@ public struct UpdateExpenseUseCase: UpdateExpenseUseCaseProtocol {
 
 // MARK: - DependencyKey
 public enum UpdateExpenseUseCaseDependencyKey: DependencyKey {
-    public static var liveValue: any UpdateExpenseUseCaseProtocol = MockUpdateExpenseUseCase()
+    public static var liveValue: any UpdateExpenseUseCaseProtocol = UpdateExpenseUseCase()
 
     public static var testValue: any UpdateExpenseUseCaseProtocol = MockUpdateExpenseUseCase()
 
