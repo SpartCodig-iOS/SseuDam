@@ -38,7 +38,6 @@ public struct LoginFeature {
     }
 
     // MARK: - Action (간소화)
-
     public enum Action: ViewAction, BindableAction {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)

@@ -144,59 +144,43 @@ extension ProfileView {
     fileprivate func socialImage(social: SocialType) -> some View {
         switch social {
         case .apple:
-            socialImageBase(
-                background: .appBlack,
-                imageSize: CGSize(width: 7, height: 11),
-                foregroundColor: .appWhite
-            ) {
-                Image(systemName: social.image)
-            }
+            Circle()
+                .fill(.appBlack)
+                .frame(width: 16, height: 16)
+                .overlay {
+                    Image(systemName: social.image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 7, height: 11)
+                        .foregroundStyle(.appWhite)
+                }
 
         case .google:
-            socialImageBase(
-                background: .appWhite,
-                stroke: .gray2,
-                imageSize: CGSize(width: 7, height: 11)
-            ) {
-                Image(assetName: social.image)
-            }
+            Circle()
+                .fill(.appWhite)
+                .overlay(Circle().stroke(.gray2, lineWidth: 1))
+                .frame(width: 16, height: 16)
+                .overlay {
+                    Image(assetName: social.image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 7, height: 11)
+                }
 
         case .kakao:
-            socialImageBase(
-                background: .clear,
-                imageSize: CGSize(width: 16, height: 16)
-            ) {
-                Image(assetName: social.image)
-            }
+            Circle()
+                .fill(.clear)
+                .frame(width: 16, height: 16)
+                .overlay {
+                    Image(assetName: social.image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                }
 
         case .none:
             EmptyView()
         }
-    }
-
-    @ViewBuilder
-    private func socialImageBase<Content: View>(
-        background: Color,
-        stroke: Color? = nil,
-        imageSize: CGSize,
-        foregroundColor: Color? = nil,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        Circle()
-            .fill(background)
-            .overlay {
-                if let stroke {
-                    Circle().stroke(stroke, lineWidth: 1)
-                }
-            }
-            .frame(width: 16, height: 16)
-            .overlay {
-                content()
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: imageSize.width, height: imageSize.height)
-                    .foregroundStyle(foregroundColor ?? Color.primary)
-            }
     }
 
     @ViewBuilder
