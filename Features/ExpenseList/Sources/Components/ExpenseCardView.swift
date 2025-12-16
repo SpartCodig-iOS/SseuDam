@@ -31,12 +31,14 @@ public struct ExpenseCardView: View {
 
                 // 금액 정보
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("₩\(Int(expense.convertedAmount).formatted())")
+                    Text("₩\(expense.formattedConvertedAmount())")
                         .font(.app(.title3, weight: .semibold))
+                        .lineLimit(1)
                         .foregroundStyle(.black)
 
-                    Text("\(expense.currency) \(expense.amount.formatted())")
+                    Text("\(expense.currency) \(expense.formattedAmount())")
                         .font(.app(.caption1, weight: .medium))
+                        .lineLimit(1)
                 }
             }
 
@@ -50,6 +52,7 @@ public struct ExpenseCardView: View {
                         .resizable()
                         .frame(width: 16, height: 16)
                     Text(expense.payer.name)
+                        .lineLimit(1)
                 }
 
                 // 구분선 (|)
