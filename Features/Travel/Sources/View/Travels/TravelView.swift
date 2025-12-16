@@ -19,21 +19,24 @@ public struct TravelView: View {
     }
     
     public var body: some View {
-        ZStack {
-            Color.primary50.ignoresSafeArea()
-            
-            if store.isLoading {
-                DashboardSkeletonView()
-            } else {
-                VStack {
-                    TravelListHeaderView {
-                        store.send(.profileButtonTapped)
-                    }
-                    
-                    TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
-                        .padding(.horizontal, 20)
+        let hasCacheForTab = store.cachedTravelsByTab[store.selectedTab] != nil
+        let shouldShowSkeleton = store.isLoading && !hasCacheForTab && store.travels.isEmpty
 
-                    if store.travels.isEmpty {
+        return ZStack {
+            Color.primary50.ignoresSafeArea()
+
+            VStack {
+                TravelListHeaderView {
+                    store.send(.profileButtonTapped)
+                }
+
+                TabBarView(selectedTab: $store.selectedTab.sending(\.travelTabSelected))
+                    .padding(.horizontal, 20)
+
+                Group {
+                    if shouldShowSkeleton {
+                        TravelListSkeletonView()
+                    } else if store.travels.isEmpty {
                         TravelEmptyView()
                     } else {
                         ScrollView {
@@ -47,25 +50,25 @@ public struct TravelView: View {
                                             store.send(.travelSelected(travelId: travel.id))
                                         }
                                 }
-                                
+
                                 if store.isLoadingNextPage {
                                     ProgressView().padding(.vertical, 20)
                                 }
                             }
                             .padding(16)
-                        } 
+                        }
                         .refreshable {
-                            store.send(.refresh)  
+                            store.send(.refresh)
                         }
                     }
                 }
             }
         }
         .task {
-          store.send(.onAppear)
+            store.send(.onAppear)
         }
         .overlay(alignment: .bottomTrailing) {
-            if !store.isLoading {
+            if !shouldShowSkeleton {
                 ZStack(alignment: .bottomTrailing) {
                     if store.isMenuOpen {
                         TravelCreateMenuView(
