@@ -41,10 +41,7 @@ public final class TravelRepository: TravelRepositoryProtocol {
     public func loadCachedTravels(
         status: TravelStatus
     ) async throws -> [Travel]? {
-        guard let cache = try await local.load(status: status) else {
-            return nil
-        }
-        return cache.travels.map { $0.toDomain() }
+        try await local.load(status: status)
     }
 
     public func createTravel(
@@ -85,24 +82,19 @@ private extension TravelRepository {
         status: TravelStatus,
         appendExisting: Bool
     ) async throws {
-        var cacheItems = travels.map { $0.toCacheItem() }
+        var cacheItems = travels
 
         if appendExisting,
-           let existing = try? await local.load(status: status)?.travels {
+           let existing = try await local.load(status: status) {
             cacheItems = existing + cacheItems
         }
 
         let deduped = deduplicate(items: cacheItems)
-        let cache = TravelCacheDTO(
-            statusRawValue: status.rawValue,
-            cachedAt: Date(),
-            travels: deduped
-        )
-        try await local.save(cache)
+        try await local.save(travels: deduped, status: status)
     }
 
     // 한 번 캐시된 여행은 다시 저장하지 않도록 ID 기반으로 중복을 제거한다.
-    func deduplicate(items: [TravelCacheItemDTO]) -> [TravelCacheItemDTO] {
+    func deduplicate(items: [Travel]) -> [Travel] {
         var seen = Set<String>()
         return items.filter { item in
             guard !seen.contains(item.id) else { return false }
