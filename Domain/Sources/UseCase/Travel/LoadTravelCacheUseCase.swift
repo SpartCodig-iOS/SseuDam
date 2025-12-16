@@ -13,11 +13,9 @@ public protocol LoadTravelCacheUseCaseProtocol {
 }
 
 public struct LoadTravelCacheUseCase: LoadTravelCacheUseCaseProtocol {
-    private let repository: TravelRepositoryProtocol
-
-    public init(repository: TravelRepositoryProtocol) {
-        self.repository = repository
-    }
+    @Dependency(\.travelRepository) private var repository: TravelRepositoryProtocol
+    
+    public init() {}
 
     public func execute(status: TravelStatus) async throws -> [Travel]? {
         try await repository.loadCachedTravels(status: status)
@@ -25,17 +23,9 @@ public struct LoadTravelCacheUseCase: LoadTravelCacheUseCaseProtocol {
 }
 
 extension LoadTravelCacheUseCase: DependencyKey {
-    public static var liveValue: LoadTravelCacheUseCaseProtocol = {
-        LoadTravelCacheUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var previewValue: LoadTravelCacheUseCaseProtocol = {
-        LoadTravelCacheUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var testValue: LoadTravelCacheUseCaseProtocol = {
-        LoadTravelCacheUseCase(repository: MockTravelRepository())
-    }()
+    public static var liveValue: LoadTravelCacheUseCaseProtocol = LoadTravelCacheUseCase()
+    public static var previewValue: LoadTravelCacheUseCaseProtocol = LoadTravelCacheUseCase()
+    public static var testValue: LoadTravelCacheUseCaseProtocol = LoadTravelCacheUseCase()
 }
 
 public extension DependencyValues {

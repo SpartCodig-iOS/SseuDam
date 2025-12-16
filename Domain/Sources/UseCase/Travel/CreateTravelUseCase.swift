@@ -13,11 +13,9 @@ public protocol CreateTravelUseCaseProtocol {
 }
 
 public struct CreateTravelUseCase: CreateTravelUseCaseProtocol {
-    private let repository: TravelRepositoryProtocol
+    @Dependency(\.travelRepository) private var repository: TravelRepositoryProtocol
     
-    public init(repository: TravelRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
     
     public func execute(input: CreateTravelInput) async throws -> Travel {
         try await repository.createTravel(input: input)
@@ -25,17 +23,9 @@ public struct CreateTravelUseCase: CreateTravelUseCaseProtocol {
 }
 
 extension CreateTravelUseCase: DependencyKey {
-    public static var liveValue: CreateTravelUseCaseProtocol = {
-        CreateTravelUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var previewValue: CreateTravelUseCaseProtocol = {
-        CreateTravelUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var testValue: CreateTravelUseCaseProtocol = {
-        CreateTravelUseCase(repository: MockTravelRepository())
-    }()
+    public static var liveValue: CreateTravelUseCaseProtocol = CreateTravelUseCase()
+    public static var previewValue: CreateTravelUseCaseProtocol = CreateTravelUseCase()
+    public static var testValue: CreateTravelUseCaseProtocol = CreateTravelUseCase()
 }
 
 public extension DependencyValues {
