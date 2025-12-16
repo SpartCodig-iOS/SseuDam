@@ -95,7 +95,7 @@ public struct SettlementHeaderView: View {
                 selectedDateRange: $selectedDateRange,
                 currentPage: $currentPage
             )
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
         }
     }
 

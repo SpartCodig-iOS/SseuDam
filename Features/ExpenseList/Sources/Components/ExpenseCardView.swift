@@ -71,14 +71,13 @@ public struct ExpenseCardView: View {
             .foregroundStyle(Color.gray7)
         }
         .padding(16)
-        .background(Color.white)
+        .background(Color.primary50)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.25), radius: 5, x: 0, y: 4)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.gray.opacity(0.1), lineWidth: 1)
+                .stroke(Color.gray1, lineWidth: 1)
         )
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
     }
 }
 

@@ -23,76 +23,109 @@ public struct SettlementResultView: View {
         VStack(spacing: 0) {
             // 헤더 (총 지출, 통계)
             if !store.paymentsToMake.isEmpty || !store.paymentsToReceive.isEmpty {
-                SettlementResultHeaderView(
-                    totalExpenseAmount: store.formattedTotalExpenseAmount,
-                    myExpenseAmount: store.formattedMyExpenseAmount,
-                    totalPersonCount: store.totalPersonCount,
-                    averageExpensePerPerson: store.formattedAveragePerPerson
-                )
-                
-                
-                // 지급/수령 예정 금액 섹션
-                ScrollView {
-                    VStack(spacing: 8) {
-                        if !store.paymentsToMake.isEmpty {
-                            PaymentSectionView(
-                                title: "지급 예정 금액",
-                                totalAmount: CurrencyFormatter.formatKoreanCurrency(
-                                    store.paymentsToMake.reduce(0.0) { $0 + $1.amount }
-                                ),
-                                amountColor: .red,
-                                payments: store.paymentsToMake.map {
-                                    PaymentItem(
-                                        id: $0.id,
-                                        name: $0.memberName,
-                                        amount: CurrencyFormatter.formatKoreanCurrency($0.amount)
-                                    )
-                                }
-                            )
-                        }
-                        
-                        if !store.paymentsToReceive.isEmpty {
-                            PaymentSectionView(
-                                title: "수령 예정 금액",
-                                totalAmount: CurrencyFormatter.formatKoreanCurrency(
-                                    store.paymentsToReceive.reduce(0.0) { $0 + $1.amount }
-                                ),
-                                amountColor: .primary500,
-                                payments: store.paymentsToReceive.map {
-                                    PaymentItem(
-                                        id: $0.id,
-                                        name: $0.memberName,
-                                        amount: CurrencyFormatter.formatKoreanCurrency($0.amount)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-                .scrollIndicators(.hidden)
-                
-                // 상세보기 버튼
-                Button {
-                    send(.detailButtonTapped)
-                } label: {
-                    Text("정산 내역 보기")
+                // 총 지출 (별도)
+                VStack(spacing: 8) {
+                    Text("총 지출")
                         .font(.app(.body, weight: .medium))
-                        .foregroundStyle(Color.gray9)
+                        .foregroundStyle(Color.gray7)
+
+                    Text(store.formattedTotalExpenseAmount)
+                        .font(.app(.title1, weight: .semibold))
+                        .foregroundStyle(Color.black)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(16)
+                .padding(.vertical, 24)
+
+                VStack(spacing: 0) {
+                    // 통계 정보 (내 지출, 인원수, 1인 평균)
+                    HStack(spacing: 0) {
+                        StatItemView(
+                            label: "내 지출",
+                            value: store.formattedMyExpenseAmount
+                        )
+
+                        StatItemView(
+                            label: "인원 수",
+                            value: "\(store.totalPersonCount)명"
+                        )
+
+                        StatItemView(
+                            label: "1인 평균",
+                            value: store.formattedAveragePerPerson
+                        )
+                    }
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity)
+
+                    // 지급/수령 예정 금액 섹션
+                    ScrollView {
+                        VStack(spacing: 8) {
+                            if !store.paymentsToMake.isEmpty {
+                                PaymentSectionView(
+                                    title: "지급 예정 금액",
+                                    totalAmount: CurrencyFormatter.formatKoreanCurrency(
+                                        store.paymentsToMake.reduce(0.0) { $0 + $1.amount }
+                                    ),
+                                    amountColor: .red,
+                                    payments: store.paymentsToMake.map {
+                                        PaymentItem(
+                                            id: $0.id,
+                                            name: $0.memberName,
+                                            amount: CurrencyFormatter.formatKoreanCurrency($0.amount)
+                                        )
+                                    }
+                                )
+                            }
+
+                            if !store.paymentsToReceive.isEmpty {
+                                PaymentSectionView(
+                                    title: "수령 예정 금액",
+                                    totalAmount: CurrencyFormatter.formatKoreanCurrency(
+                                        store.paymentsToReceive.reduce(0.0) { $0 + $1.amount }
+                                    ),
+                                    amountColor: .primary500,
+                                    payments: store.paymentsToReceive.map {
+                                        PaymentItem(
+                                            id: $0.id,
+                                            name: $0.memberName,
+                                            amount: CurrencyFormatter.formatKoreanCurrency($0.amount)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                        .padding(.bottom, 16)
+                    }
+                    .scrollIndicators(.hidden)
+
+                    // 상세보기 버튼
+                    Button {
+                        send(.detailButtonTapped)
+                    } label: {
+                        Text("정산 내역 보기")
+                            .font(.app(.body, weight: .medium))
+                            .foregroundStyle(Color.gray9)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 16)
+                }
+                .padding(.horizontal, 20)
+                .clipShape(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 20,
+                        topTrailingRadius: 20
+                    )
+                )
+                .overlay(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 20,
+                        topTrailingRadius: 20
+                    )
+                    .stroke(Color.gray1, lineWidth: 1)
+                )
             } else {
-                VStack {
-                    Image(asset: .settlementEmpty)
-                        .resizable()
-                        .frame(width: 167, height: 167)
-                    Text("정산 내역이 없습니다")
-                        .font(.app(.title3, weight: .medium))
-                }
-                .frame(maxHeight: .infinity)
+                EmptyCaseView(image: .settlementEmpty, message: "정산 내역이 없습니다")
             }
         }
-        .padding(.horizontal, 16)
         .background(Color.primary50)
         .onAppear {
             send(.onAppear)
