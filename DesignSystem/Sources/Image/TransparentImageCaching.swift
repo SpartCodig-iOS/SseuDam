@@ -58,6 +58,8 @@ private actor CacheManager {
 /// 기존 AsyncImage, URLSession 등 모든 이미지 요청이 자동으로 캐싱됨
 public final class TransparentImageCaching: URLProtocol {
     private static let handledKey = "TransparentImageCaching_Handled"
+    private static let registrationLock = NSLock()
+    private static var isRegistered = false
 
     // Actor 인스턴스로 캐싱 로직 위임
     private static let cacheManager = CacheManager()
@@ -86,8 +88,9 @@ public final class TransparentImageCaching: URLProtocol {
             return
         }
 
-        Task {
-            await handleImageRequest(url: url)
+        Task { [weak self] in
+            guard let self else { return }
+            await self.handleImageRequest(url: url)
         }
     }
 
@@ -226,20 +229,27 @@ extension TransparentImageCaching {
     /// 투명한 이미지 캐싱을 수동으로 활성화합니다.
     /// 일반적으로는 ImageCacheService 사용 시 자동으로 활성화됩니다.
     public static func activate() {
+        registrationLock.lock()
+        defer { registrationLock.unlock() }
+
+        guard !isRegistered else { return }
         URLProtocol.registerClass(TransparentImageCaching.self)
-        print("🎭 TransparentImageCaching manually activated - All image requests will be automatically cached")
+        isRegistered = true
     }
 
     /// 투명한 이미지 캐싱을 비활성화합니다.
     public static func deactivate() {
+        registrationLock.lock()
+        defer { registrationLock.unlock() }
+
+        guard isRegistered else { return }
         URLProtocol.unregisterClass(TransparentImageCaching.self)
-        print("🎭 TransparentImageCaching deactivated")
+        isRegistered = false
     }
 
     /// 캐시를 완전히 지웁니다.
     public static func clearCache() async {
         await cacheManager.clearCache()
-        print("🗑️ TransparentImageCaching cache cleared")
     }
 
     /// 현재 처리 중인 요청 수를 반환합니다. (디버깅용)
@@ -247,3 +257,7 @@ extension TransparentImageCaching {
         await cacheManager.processingRequestsCount()
     }
 }
+
+// MARK: - Sendable Conformance
+
+extension TransparentImageCaching: @unchecked Sendable {}

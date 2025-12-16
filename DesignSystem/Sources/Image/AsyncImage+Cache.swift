@@ -9,12 +9,11 @@ import SwiftUI
 
 // MARK: - Auto-Initialization
 
-/// DesignSystem import 시 자동으로 ImageCacheService 초기화
+/// DesignSystem import 시 자동으로 ImageCacheService 초기화 및 URLProtocol 등록
 private let _autoSetup: Void = {
     Task {
-        // ImageCacheService 초기화
         _ = await ImageCacheService.shared
-        print("🚀 Direct image caching enabled via DesignSystem import")
+        TransparentImageCaching.activate()
     }
 }()
 

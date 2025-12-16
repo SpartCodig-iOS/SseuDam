@@ -13,12 +13,16 @@ public actor ImageCacheService {
 
     private let cache = NSCache<NSString, UIImage>()
     private var inFlightTasks: [URL: Task<UIImage?, Never>] = [:]
+    private let session: URLSession
     private init() {
         cache.totalCostLimit = 50 * 1024 * 1024
         cache.countLimit = 200  // 더 많은 이미지를 메모리에 캐시
         cache.evictsObjectsWithDiscardedContent = true  // 메모리 압박 시 자동 제거
 
-        print("🚀 ImageCacheService initialized with direct caching")
+        let configuration = URLSessionConfiguration.default
+        configuration.protocolClasses = [] // TransparentImageCaching와 중첩되지 않도록 분리
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        session = URLSession(configuration: configuration)
     }
 
     public func image(
@@ -79,7 +83,7 @@ public actor ImageCacheService {
         key: NSString
     ) async -> UIImage? {
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            let (data, response) = try await session.data(from: url)
             guard
                 let httpResponse = response as? HTTPURLResponse,
                 200..<300 ~= httpResponse.statusCode
