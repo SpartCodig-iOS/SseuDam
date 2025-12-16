@@ -83,7 +83,7 @@ public struct SplashFeature {
 
     @Dependency(SessionUseCase.self) var sessionUseCase
     @Dependency(\.continuousClock) var clock
-    @Dependency(VersionUseCase.self) var versionUseCase
+    @Dependency(\.versionUseCase) var versionUseCase
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
