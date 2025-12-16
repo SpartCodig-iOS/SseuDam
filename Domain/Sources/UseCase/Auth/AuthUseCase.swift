@@ -7,41 +7,32 @@
 
 
 import  ComposableArchitecture
+import Dependencies
 
 public struct AuthUseCase: AuthUseCaseProtocol {
-  @Shared(.appStorage("sessionId")) var sessionId: String? = ""
-  
-    private let repository: AuthRepositoryProtocol
-    public init(
-        repository: AuthRepositoryProtocol
-    ) {
-        self.repository = repository
+    @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+    
+    @Dependency(\.authRepository) private var repository: AuthRepositoryProtocol
+    public init() {}
+    
+    // MARK: - 로그아웃
+    public func logout() async throws -> LogoutStatus {
+        let sessionId = self.sessionId ?? ""
+        return try await repository.logout(sessionId: sessionId)
     }
-
-  // MARK: - 로그아웃
-  public func logout() async throws -> LogoutStatus {
-    let sessionId = self.sessionId ?? ""
-    return try await repository.logout(sessionId: sessionId)
-  }
-
-  public func deleteUser() async throws -> AuthDeleteStatus {
-    let result = try await repository.delete()
-    KeychainManager.shared.clearAll()
-    return result
-  }
+    
+    public func deleteUser() async throws -> AuthDeleteStatus {
+        let result = try await repository.delete()
+        KeychainManager.shared.clearAll()
+        return result
+    }
 }
 
 
 extension AuthUseCase: DependencyKey {
-    public static var liveValue: AuthUseCaseProtocol {
-        return AuthUseCase(repository: MockAuthRepository())
-    }
-
-    public static var previewValue: any AuthUseCaseProtocol { liveValue }
-
-    public static let testValue: AuthUseCaseProtocol = AuthUseCase(
-        repository: MockAuthRepository()
-    )
+    public static let liveValue: AuthUseCaseProtocol = AuthUseCase()
+    public static let previewValue: any AuthUseCaseProtocol = AuthUseCase()
+    public static let testValue: AuthUseCaseProtocol = AuthUseCase()
 }
 
 

@@ -9,5 +9,21 @@ import Foundation
 import Dependencies
 
 public protocol KakaoOAuthRepositoryProtocol {
-  func signIn() async throws -> KakaoOAuthPayload
+    func signIn() async throws -> KakaoOAuthPayload
+}
+
+// MARK: - Dependencies
+public struct KakaoOAuthRepositoryDependency: DependencyKey {
+    public static var liveValue: KakaoOAuthRepositoryProtocol {
+        fatalError("KakaoOAuthRepositoryDependency liveValue not implemented")
+    }
+    public static var previewValue: KakaoOAuthRepositoryProtocol = MockKakaoOAuthRepository()
+    public static var testValue: KakaoOAuthRepositoryProtocol = MockKakaoOAuthRepository()
+}
+
+public extension DependencyValues {
+    var kakaoOAuthRepository: KakaoOAuthRepositoryProtocol {
+        get { self[KakaoOAuthRepositoryDependency.self] }
+        set { self[KakaoOAuthRepositoryDependency.self] = newValue }
+    }
 }

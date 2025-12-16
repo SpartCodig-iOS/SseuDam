@@ -6,22 +6,23 @@
 //
 
 import Foundation
-import  Dependencies
+import Dependencies
 
 public protocol SessionRepositoryProtocol {
-  /// Validate a stored session id and return its status from backend.
-  func checkSession(sessionId: String) async throws -> SessionStatus
+    /// Validate a stored session id and return its status from backend.
+    func checkSession(sessionId: String) async throws -> SessionStatus
 }
 
+// MARK: - Dependencies
 public struct SessionRepositoryDependency: DependencyKey {
-  public static var liveValue: SessionRepositoryProtocol = MockSessionRepository()
-  public static var previewValue: SessionRepositoryProtocol = MockSessionRepository()
-  public static var testValue: SessionRepositoryProtocol = MockSessionRepository()
+    public static var liveValue: SessionRepositoryProtocol = MockSessionRepository()
+    public static var previewValue: SessionRepositoryProtocol = MockSessionRepository()
+    public static var testValue: SessionRepositoryProtocol = MockSessionRepository()
 }
 
 public extension DependencyValues {
-  var sessionRepository:  SessionRepositoryProtocol {
-    get { self[SessionRepositoryDependency.self] }
-    set { self[SessionRepositoryDependency.self] = newValue }
-  }
+    var sessionRepository:  SessionRepositoryProtocol {
+        get { self[SessionRepositoryDependency.self] }
+        set { self[SessionRepositoryDependency.self] = newValue }
+    }
 }

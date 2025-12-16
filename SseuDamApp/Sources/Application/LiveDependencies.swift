@@ -31,6 +31,7 @@ public enum LiveDependencies {
         let versionRepository = VersionRepository()
         
         // Auth & Session
+        dependencies.authRepository = authRepository
         let oAuthUseCase = makeOAuthUseCase(repository: oAuthRepository)
         dependencies.oAuthUseCase = oAuthUseCase
         dependencies.unifiedOAuthUseCase = UnifiedOAuthUseCase(
@@ -39,12 +40,11 @@ public enum LiveDependencies {
             sessionStoreRepository: SessionStoreRepository()
         )
         dependencies.sessionUseCase = SessionUseCase(repository: SessionRepository())
-        dependencies.authUseCase = AuthUseCase(repository: authRepository)
         dependencies.profileUseCase = ProfileUseCase(repository: profileRepository)
         dependencies.versionUseCase = VersionUseCase(repository: versionRepository)
         
         // Analytics
-        dependencies.analyticsUseCase = AnalyticsUseCase(repository: FirebaseAnalyticsRepository())
+        dependencies.analyticsRepository = FirebaseAnalyticsRepository()
         
         // Travel
         dependencies.travelRepository = travelRepository
