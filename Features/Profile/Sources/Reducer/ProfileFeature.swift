@@ -426,9 +426,6 @@ extension ProfileFeature {
                         state.logoutStatus = loginData
                         // Keychain과 AppStorage 모두 정리
                         KeychainManager.shared.clearAll()
-                        state.$sessionId.withLock { $0 = nil }
-                        state.$socialType.withLock { $0 = nil }
-                        state.$userId.withLock { $0 = nil }
                         return .send(.delegate(.presentLogin))
 
                     case .failure(let error):
