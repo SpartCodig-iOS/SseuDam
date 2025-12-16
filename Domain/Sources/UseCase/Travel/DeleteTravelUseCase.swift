@@ -13,11 +13,9 @@ public protocol DeleteTravelUseCaseProtocol {
 }
 
 public struct DeleteTravelUseCase: DeleteTravelUseCaseProtocol {
-    private let repository: TravelRepositoryProtocol
+    @Dependency(\.travelRepository) private var repository: TravelRepositoryProtocol
     
-    public init(repository: TravelRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
     
     public func execute(id: String) async throws {
         try await repository.deleteTravel(id: id)
@@ -25,17 +23,9 @@ public struct DeleteTravelUseCase: DeleteTravelUseCaseProtocol {
 }
 
 extension DeleteTravelUseCase: DependencyKey {
-    public static var liveValue: DeleteTravelUseCaseProtocol = {
-        DeleteTravelUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var previewValue: DeleteTravelUseCaseProtocol = {
-        DeleteTravelUseCase(repository: MockTravelRepository())
-    }()
-
-    public static var testValue: DeleteTravelUseCaseProtocol = {
-        DeleteTravelUseCase(repository: MockTravelRepository())
-    }()
+    public static var liveValue: DeleteTravelUseCaseProtocol = DeleteTravelUseCase()
+    public static var previewValue: DeleteTravelUseCaseProtocol = DeleteTravelUseCase()
+    public static var testValue: DeleteTravelUseCaseProtocol = DeleteTravelUseCase()
 }
 
 public extension DependencyValues {

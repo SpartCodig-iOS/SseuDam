@@ -13,28 +13,18 @@ public protocol FetchCountriesUseCaseProtocol {
 }
 
 public final class FetchCountriesUseCase: FetchCountriesUseCaseProtocol {
-    private let repository: CountryRepositoryProtocol
+    @Dependency(\.countryRepository) private var repository: CountryRepositoryProtocol
 
-    public init(repository: CountryRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
     public func execute() async throws -> [Country] {
         try await repository.fetchCountries()
     }
 }
 
 extension FetchCountriesUseCase: DependencyKey {
-    public static var liveValue: FetchCountriesUseCaseProtocol = {
-        FetchCountriesUseCase(repository: MockCountriesRepository())
-    }()
-
-    public static var previewValue: FetchCountriesUseCaseProtocol = {
-        FetchCountriesUseCase(repository: MockCountriesRepository())
-    }()
-
-    public static var testValue: FetchCountriesUseCaseProtocol = {
-        FetchCountriesUseCase(repository: MockCountriesRepository())
-    }()
+    public static var liveValue: FetchCountriesUseCaseProtocol = FetchCountriesUseCase()
+    public static var previewValue: FetchCountriesUseCaseProtocol = FetchCountriesUseCase()
+    public static var testValue: FetchCountriesUseCaseProtocol = FetchCountriesUseCase()
 }
 
 public extension DependencyValues {

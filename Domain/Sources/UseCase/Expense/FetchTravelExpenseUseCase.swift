@@ -13,11 +13,7 @@ public protocol FetchTravelExpenseUseCaseProtocol {
 }
 
 public struct FetchTravelExpenseUseCase: FetchTravelExpenseUseCaseProtocol {
-    private let repository: ExpenseRepositoryProtocol
-
-    public init(repository: ExpenseRepositoryProtocol) {
-        self.repository = repository
-    }
+    @Dependency(\.expenseRepository) private var repository: ExpenseRepositoryProtocol
 
     public func execute(
         travelId: String,
@@ -54,7 +50,7 @@ public struct FetchTravelExpenseUseCase: FetchTravelExpenseUseCaseProtocol {
 
 // MARK: - DependencyKey
 public enum FetchTravelExpenseUseCaseDependencyKey: DependencyKey {
-    public static var liveValue: any FetchTravelExpenseUseCaseProtocol = MockFetchTravelExpenseUseCase()
+    public static var liveValue: any FetchTravelExpenseUseCaseProtocol = FetchTravelExpenseUseCase()
 
     public static var testValue: any FetchTravelExpenseUseCaseProtocol = MockFetchTravelExpenseUseCase()
 

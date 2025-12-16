@@ -8,33 +8,28 @@
 import Foundation
 import Dependencies
 
-public struct CreateExpenseUseCase {
-    private let repository: ExpenseRepositoryProtocol
+public protocol CreateExpenseUseCaseProtocol {
+    func execute(travelId: String, input: ExpenseInput) async throws
+}
 
-    public init(repository: ExpenseRepositoryProtocol) {
-        self.repository = repository
-    }
-
+public struct CreateExpenseUseCase: CreateExpenseUseCaseProtocol {
+    @Dependency(\.expenseRepository) private var repository: ExpenseRepositoryProtocol
+    
     public func execute(travelId: String, input: ExpenseInput) async throws {
         try input.validate()
         try await repository.save(travelId: travelId, input: input)
     }
 }
 
-extension CreateExpenseUseCase: DependencyKey {
-    public static var liveValue: CreateExpenseUseCase {
-        @Dependency(\.expenseRepository) var repository
-        return CreateExpenseUseCase(repository: repository)
-    }
+public enum CreateExpenseUseCaseDependencyKey: DependencyKey {
+    public static var liveValue: CreateExpenseUseCaseProtocol = CreateExpenseUseCase()
 
-    public static var testValue: CreateExpenseUseCase {
-        CreateExpenseUseCase(repository: MockExpenseRepository())
-    }
+    public static var testValue: CreateExpenseUseCaseProtocol = CreateExpenseUseCase()
 }
 
 extension DependencyValues {
-    public var createExpenseUseCase: CreateExpenseUseCase {
-        get { self[CreateExpenseUseCase.self] }
-        set { self[CreateExpenseUseCase.self] = newValue }
+    public var createExpenseUseCase: CreateExpenseUseCaseProtocol {
+        get { self[CreateExpenseUseCaseDependencyKey.self] }
+        set { self[CreateExpenseUseCaseDependencyKey.self] = newValue }
     }
 }

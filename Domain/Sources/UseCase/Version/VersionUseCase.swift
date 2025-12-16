@@ -6,37 +6,28 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import Dependencies
 
 public struct VersionUseCase: VersionUseCaseProtocol {
-    private let repository: VersionRepositoryProtocol
+    @Dependency(\.versionRepository) private var repository: VersionRepositoryProtocol
     
-    public init(repository: VersionRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
     
     public func getVersion(bundleId: String, version: String) async throws -> Version {
         return try await repository.getVersion(bundleId: bundleId, version: version)
     }
 }
 
-extension VersionUseCase: DependencyKey {
-    public static var liveValue: VersionUseCaseProtocol {
-        return VersionUseCase(repository: MockVersionRepository())
-    }
-    
-    public static var previewValue: VersionUseCaseProtocol { liveValue }
-    
-    public static let testValue: VersionUseCaseProtocol = VersionUseCase(
-        repository: MockVersionRepository()
-    )
+private struct VersionUseCaseDependencyKey: DependencyKey {
+    public static let liveValue: VersionUseCaseProtocol = VersionUseCase()
+    public static let previewValue: VersionUseCaseProtocol = VersionUseCase()
+    public static let testValue: VersionUseCaseProtocol = VersionUseCase()
 }
-
 
 public extension DependencyValues {
     var versionUseCase : VersionUseCaseProtocol {
-        get { self[VersionUseCase.self] }
-        set { self[VersionUseCase.self] = newValue }
+        get { self[VersionUseCaseDependencyKey.self] }
+        set { self[VersionUseCaseDependencyKey.self] = newValue }
     }
 }
 
