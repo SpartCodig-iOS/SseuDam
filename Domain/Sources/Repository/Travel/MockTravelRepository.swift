@@ -101,6 +101,10 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
         let filtered = travels.filter { $0.status == status }
         return filtered.isEmpty ? nil : filtered
     }
+
+    public func loadCachedTravel(id: String) async throws -> Travel? {
+        travels.first { $0.id == id }
+    }
 }
 
 private extension MockTravelRepository {

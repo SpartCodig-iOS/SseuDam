@@ -8,6 +8,6 @@
 import Foundation
 
 public protocol ProfileUseCaseProtocol {
-  func getProfile() async throws -> Profile
-  func editProfile(_ payload: ProfileEditPayload) async throws -> Profile
+    func getProfile() async throws -> Profile
+    func editProfile(_ payload: ProfileEditPayload) async throws -> Profile
 }

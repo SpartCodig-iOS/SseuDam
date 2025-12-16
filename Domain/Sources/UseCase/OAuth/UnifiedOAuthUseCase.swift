@@ -9,21 +9,16 @@ import Foundation
 import Dependencies
 import LogMacro
 import AuthenticationServices
-import ComposableArchitecture
 
 /// 통합 OAuth UseCase - 로그인/회원가입 플로우를 하나로 통합 (AuthFacade 역할)
 public struct UnifiedOAuthUseCase {
-    private let oAuthUseCase: any OAuthUseCaseProtocol
-    private let authRepository: any AuthRepositoryProtocol
+    @Dependency(\.oAuthUseCase) private var oAuthUseCase: any OAuthUseCaseProtocol
+    @Dependency(\.authRepository) private var authRepository: AuthRepositoryProtocol
     private let sessionStoreRepository: any SessionStoreRepositoryProtocol
-
+    
     public init(
-        oAuthUseCase: any OAuthUseCaseProtocol = OAuthUseCase.liveValue,
-        authRepository: any AuthRepositoryProtocol = MockAuthRepository(),
         sessionStoreRepository: any SessionStoreRepositoryProtocol = SessionStoreRepository()
     ) {
-        self.oAuthUseCase = oAuthUseCase
-        self.authRepository = authRepository
         self.sessionStoreRepository = sessionStoreRepository
     }
 }
@@ -31,7 +26,7 @@ public struct UnifiedOAuthUseCase {
 // MARK: - Public Interface
 
 public extension UnifiedOAuthUseCase {
-
+    
     /// OAuth Provider에서 토큰 획득 (Google/Apple SDK 호출)
     func socialLogin(
         with socialType: SocialType,
@@ -44,34 +39,34 @@ public extension UnifiedOAuthUseCase {
             nonce: nonce
         )
     }
-
+    
     /// 회원가입 상태 확인
     func checkSignUpUser(
         with oAuthData: AuthData
     ) async -> Result<OAuthCheckUser, AuthError> {
         return await checkUserRegistrationStatus(with: oAuthData)
     }
-
+    
     /// 로그인 처리
     func loginUser(
         with oAuthData: AuthData
     ) async -> Result<AuthResult, AuthError> {
         let loginResult = await attemptLogin(with: oAuthData)
-
+        
         if case .success(let authEntity) = loginResult {
             saveTokensAndComplete(authEntity: authEntity)
         }
-
+        
         return loginResult
     }
-
+    
     /// 회원가입 처리
     func signUpUser(
         with oAuthData: AuthData
     ) async -> Result<AuthResult, AuthError> {
         return await attemptSignUp(with: oAuthData)
     }
-
+    
     /// 약관 동의 후 회원가입 처리
     func signUpWithTermsAgreement(
         with oAuthData: AuthData
@@ -79,7 +74,7 @@ public extension UnifiedOAuthUseCase {
         Log.info("✅ Terms agreement completed, proceeding with signup")
         return await attemptSignUp(with: oAuthData)
     }
-
+    
     /// OAuth 플로우 처리 (AuthFlowOutcome 반환)
     func processOAuthFlow(
         with socialType: SocialType,
@@ -87,7 +82,7 @@ public extension UnifiedOAuthUseCase {
         nonce: String? = nil
     ) async -> AuthFlowOutcome {
         Log.info("🔐 Starting OAuth flow for: \(socialType.rawValue)")
-
+        
         // 1단계: OAuth Provider 인증
         let oAuthData = await getOAuthCredentials(
             socialType: socialType,
@@ -101,7 +96,7 @@ public extension UnifiedOAuthUseCase {
                 return .failure(.unknownError("OAuth 인증 실패"))
             }
         }
-
+        
         // 2단계: 사용자 등록 상태 확인
         let registrationStatus = await checkUserRegistrationStatus(with: authData)
         guard case .success(let checkUser) = registrationStatus else {
@@ -111,7 +106,7 @@ public extension UnifiedOAuthUseCase {
                 return .failure(.unknownError("등록 상태 확인 실패"))
             }
         }
-
+        
         // 3단계: 등록 여부에 따른 분기 처리
         if checkUser.registered {
             // 이미 등록된 사용자 -> 로그인 진행
@@ -137,14 +132,14 @@ public extension UnifiedOAuthUseCase {
             }
         }
     }
-
+    
     func loginOrSignUp(
         with socialType: SocialType,
         appleCredential: ASAuthorizationAppleIDCredential? = nil,
         nonce: String? = nil
     ) async -> Result<AuthResult, AuthError> {
         Log.info("🔐 Starting unified OAuth flow for: \(socialType.rawValue)")
-
+        
         let oAuthData = await getOAuthCredentials(
             socialType: socialType,
             appleCredential: appleCredential,
@@ -157,7 +152,7 @@ public extension UnifiedOAuthUseCase {
                 return .failure(.unknownError("OAuth 인증 실패"))
             }
         }
-
+        
         let registrationStatus = await checkUserRegistrationStatus(with: authData)
         guard case .success(let checkUser) = registrationStatus else {
             if case .failure(let error) = registrationStatus {
@@ -166,9 +161,9 @@ public extension UnifiedOAuthUseCase {
                 return .failure(.unknownError("등록 상태 확인 실패"))
             }
         }
-
+        
         let authResult: Result<AuthResult, AuthError>
-
+        
         if checkUser.registered {
             authResult = await attemptLogin(with: authData)
         } else {
@@ -179,11 +174,11 @@ public extension UnifiedOAuthUseCase {
                 authResult = await attemptSignUp(with: authData)
             }
         }
-
+        
         if case .success(let authEntity) = authResult, checkUser.registered {
             saveTokensAndComplete(authEntity: authEntity)
         }
-
+        
         return authResult
     }
 }
@@ -191,7 +186,7 @@ public extension UnifiedOAuthUseCase {
 // MARK: - Private Methods
 
 private extension UnifiedOAuthUseCase {
-
+    
     /// OAuth Provider에서 인증 정보 획득
     func getOAuthCredentials(
         socialType: SocialType,
@@ -208,12 +203,12 @@ private extension UnifiedOAuthUseCase {
                 else {
                     return .failure(.invalidCredential("Apple 자격정보가 없습니다"))
                 }
-
+                
                 let profile = try await oAuthUseCase.signInWithApple(
                     credential: credential,
                     nonce: nonce
                 )
-
+                
                 let oAuthData = AuthData(
                     socialType: profile.provider,
                     accessToken: profile.tokens.accessToken,
@@ -226,10 +221,10 @@ private extension UnifiedOAuthUseCase {
                     sessionID: profile.tokens.sessionID,
                     userId: profile.id
                 )
-
-
+                
+                
                 return .success(oAuthData)
-
+                
             case .google:
                 let profile = try await oAuthUseCase.signUp(with: socialType)
                 let oAuthData = AuthData(
@@ -266,7 +261,7 @@ private extension UnifiedOAuthUseCase {
                     userId: finalized.userId
                 )
                 return .success(oAuthData)
-
+                
             case .none:
                 return .failure(.invalidCredential("잘못된 소셜 타입"))
             }
@@ -275,7 +270,7 @@ private extension UnifiedOAuthUseCase {
             return .failure(authError)
         }
     }
-
+    
     /// 로그인 시도
     func attemptLogin(
         with oAuthData: AuthData
@@ -297,7 +292,7 @@ private extension UnifiedOAuthUseCase {
                 Log.info("✅ Kakao finalize-only login completed")
                 return .success(authEntity)
             }
-
+            
             let input = OAuthUserInput(
                 accessToken: oAuthData.authToken ,
                 socialType: oAuthData.socialType,
@@ -305,18 +300,18 @@ private extension UnifiedOAuthUseCase {
                 codeVerifier: oAuthData.codeVerifier,
                 redirectUri: oAuthData.redirectUri
             )
-
+            
             var authEntity = try await authRepository.login(input: input)
             authEntity.token.authToken = oAuthData.authToken
             Log.info("✅ Login successful for \(oAuthData.socialType.rawValue)")
             return .success(authEntity)
-
+            
         } catch {
             Log.info("⚠️ Login failed: \(error.localizedDescription)")
             return .failure(.networkError(error.localizedDescription))
         }
     }
-
+    
     /// 회원가입 상태 확인
     func checkUserRegistrationStatus(
         with oAuthData: AuthData
@@ -325,7 +320,7 @@ private extension UnifiedOAuthUseCase {
             if oAuthData.socialType == .kakao {
                 return .success(OAuthCheckUser(registered: true, needsTerms: false))
             }
-
+            
             let checkInput = OAuthUserInput(
                 accessToken: oAuthData.authToken,
                 socialType: oAuthData.socialType,
@@ -340,7 +335,7 @@ private extension UnifiedOAuthUseCase {
             return .failure(authError)
         }
     }
-
+    
     /// 회원가입 시도
     func attemptSignUp(
         with oAuthData: AuthData
@@ -354,7 +349,7 @@ private extension UnifiedOAuthUseCase {
                     sessionID: oAuthData.sessionID ?? ""
                 )
                 let authEntity = AuthResult(
-                  userId: oAuthData.userId ?? "kakao-user",
+                    userId: oAuthData.userId ?? "kakao-user",
                     name: oAuthData.displayName ?? "",
                     provider: .kakao,
                     token: tokens
@@ -362,7 +357,7 @@ private extension UnifiedOAuthUseCase {
                 saveTokensAndComplete(authEntity: authEntity)
                 return .success(authEntity)
             }
-
+            
             let checkInput = OAuthUserInput(
                 accessToken: oAuthData.authToken,
                 socialType: oAuthData.socialType,
@@ -379,7 +374,7 @@ private extension UnifiedOAuthUseCase {
             return .failure(authError)
         }
     }
-
+    
     /// 토큰 저장 및 로깅
     func saveTokensAndComplete(
         authEntity: AuthResult
@@ -401,10 +396,8 @@ private extension UnifiedOAuthUseCase {
 
 extension UnifiedOAuthUseCase: DependencyKey {
     public static let liveValue = UnifiedOAuthUseCase()
-
+    
     public static let testValue = UnifiedOAuthUseCase(
-        oAuthUseCase: OAuthUseCase.testValue,
-        authRepository: MockAuthRepository(),
         sessionStoreRepository: SessionStoreRepository()
     )
 }

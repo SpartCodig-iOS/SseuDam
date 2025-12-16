@@ -1,13 +1,12 @@
 import Foundation
 import ComposableArchitecture
+import Dependencies
 
 /// Analytics UseCase 구현체
 public struct AnalyticsUseCase: AnalyticsUseCaseProtocol, Sendable {
-    private let repository: any AnalyticsRepositoryProtocol
+    @Dependency(\.analyticsRepository) private var repository: any AnalyticsRepositoryProtocol
 
-    public init(repository: any AnalyticsRepositoryProtocol) {
-        self.repository = repository
-    }
+    public init() {}
 
     public func track(_ event: AnalyticsEvent) {
         Task {
@@ -19,8 +18,8 @@ public struct AnalyticsUseCase: AnalyticsUseCaseProtocol, Sendable {
 // MARK: - Dependency Key
 
 extension AnalyticsUseCase: DependencyKey {
-  public static let liveValue: any AnalyticsUseCaseProtocol = AnalyticsUseCase(repository: MockAnalyticsRepository())
-  public static let testValue: any AnalyticsUseCaseProtocol = AnalyticsUseCase(repository: MockAnalyticsRepository())
+  public static let liveValue: any AnalyticsUseCaseProtocol = AnalyticsUseCase()
+  public static let testValue: any AnalyticsUseCaseProtocol = AnalyticsUseCase()
 }
 
 public extension DependencyValues {

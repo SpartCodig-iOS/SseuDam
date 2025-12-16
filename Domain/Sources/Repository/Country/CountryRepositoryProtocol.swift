@@ -6,7 +6,24 @@
 //
 
 import Foundation
+import Dependencies
 
 public protocol CountryRepositoryProtocol {
     func fetchCountries() async throws -> [Country]
+}
+
+// MARK: - Dependencies
+public struct CountryRepositoryDependencyKey: DependencyKey {
+    public static var liveValue: CountryRepositoryProtocol {
+        fatalError("CountryRepositoryDependency liveValue not implemented")
+    }
+    public static var previewValue: CountryRepositoryProtocol = MockCountriesRepository()
+    public static var testValue: CountryRepositoryProtocol = MockCountriesRepository()
+}
+
+public extension DependencyValues {
+    var countryRepository: CountryRepositoryProtocol {
+        get { self[CountryRepositoryDependencyKey.self] }
+        set { self[CountryRepositoryDependencyKey.self] = newValue }
+    }
 }

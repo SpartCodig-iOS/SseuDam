@@ -13,11 +13,7 @@ public protocol DelegateOwnerUseCaseProtocol {
 }
 
 public struct DelegateOwnerUseCase: DelegateOwnerUseCaseProtocol {
-    private let repository: TravelMemberRepositoryProtocol
-
-    public init(repository: TravelMemberRepositoryProtocol) {
-        self.repository = repository
-    }
+    @Dependency(\.travelMemberRepository) private var repository: TravelMemberRepositoryProtocol
 
     public func execute(travelId: String, newOwnerId: String) async throws -> Travel {
         try await repository.delegateOwner(travelId: travelId, newOwnerId: newOwnerId)
@@ -25,17 +21,11 @@ public struct DelegateOwnerUseCase: DelegateOwnerUseCaseProtocol {
 }
 
 extension DelegateOwnerUseCase: DependencyKey {
-    public static var liveValue: DelegateOwnerUseCaseProtocol = {
-        DelegateOwnerUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var liveValue: DelegateOwnerUseCaseProtocol = DelegateOwnerUseCase()
 
-    public static var previewValue: DelegateOwnerUseCaseProtocol = {
-        DelegateOwnerUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var previewValue: DelegateOwnerUseCaseProtocol = DelegateOwnerUseCase()
 
-    public static var testValue: DelegateOwnerUseCaseProtocol = {
-        DelegateOwnerUseCase(repository: MockTravelMemberRepository())
-    }()
+    public static var testValue: DelegateOwnerUseCaseProtocol = DelegateOwnerUseCase()
 }
 
 public extension DependencyValues {
