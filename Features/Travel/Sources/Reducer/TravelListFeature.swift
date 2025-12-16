@@ -17,7 +17,6 @@ public struct TravelListFeature {
         var travels: [Travel] = []
         var selectedTab: TravelTab = .ongoing
         var cachedTravelsByTab: [TravelTab: [Travel]] = [:]
-        var didStartObservation = false
         
         var isMenuOpen = false
         
@@ -30,6 +29,14 @@ public struct TravelListFeature {
 
         var isPresentInvitationView: Bool = false
         var inviteCode: String = ""
+
+        var hasCacheForSelectedTab: Bool {
+            cachedTravelsByTab[selectedTab] != nil
+        }
+
+        var shouldShowSkeleton: Bool {
+            isLoading && !hasCacheForSelectedTab && travels.isEmpty
+        }
 
         @Presents var create: TravelCreateFeature.State?
 
@@ -46,7 +53,6 @@ public struct TravelListFeature {
         case refresh
         case fetch
         case fetchNextPageIfNeeded(currentItemID: String?)
-        case startObserveCache(TravelTab)
         case cachedTravelsUpdated(tab: TravelTab, travels: [Travel])
         
         case fetchTravelsResponse(tab: TravelTab, page: Int, Result<[Travel], Error>)
@@ -70,32 +76,13 @@ public struct TravelListFeature {
     
     @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase
     @Dependency(\.joinTravelUseCase) var joinTravelUseCase
-    @Dependency(\.observeTravelCacheUseCase) var observeTravelCacheUseCase
+    @Dependency(\.loadTravelCacheUseCase) var loadTravelCacheUseCase
     
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                // 탭별 캐시 스트림을 한번만 구독하고 서버 데이터를 요청
-                guard !state.didStartObservation else {
-                    return .send(.refresh)
-                }
-                state.didStartObservation = true
-                return .run { send in
-                    for tab in TravelTab.allCases {
-                        await send(.startObserveCache(tab))
-                    }
-                    await send(.refresh)
-                }
-
-            case .startObserveCache(let tab):
-                return .run { [tab] send in
-                    let stream = observeTravelCacheUseCase.execute(status: tab.status)
-                    for await travels in stream {
-                        await send(.cachedTravelsUpdated(tab: tab, travels: travels))
-                    }
-                }
-                .cancellable(id: TravelCacheObservationID(tab: tab), cancelInFlight: true)
+                return .send(.refresh)
 
             case .cachedTravelsUpdated(let tab, let travels):
                 state.cachedTravelsByTab[tab] = travels
@@ -141,7 +128,13 @@ public struct TravelListFeature {
                     status: currentTab.status
                 )
                 
-                return .run { [currentTab, currentPage] send in
+                let loadCacheUseCase = loadTravelCacheUseCase
+                return .run { [currentTab, currentPage, loadCacheUseCase] send in
+                    if currentPage == 1,
+                       let cached = try? await loadCacheUseCase.execute(status: currentTab.status),
+                       !cached.isEmpty {
+                        await send(.cachedTravelsUpdated(tab: currentTab, travels: cached))
+                    }
                     do {
                         let result = try await fetchTravelsUseCase.execute(input: input)
                         await send(.fetchTravelsResponse(tab: currentTab, page: currentPage, .success(result)))
@@ -278,10 +271,6 @@ public struct TravelListFeature {
             TravelCreateFeature()
         }
     }
-}
-
-private struct TravelCacheObservationID: Hashable {
-    let tab: TravelTab
 }
 
 // 서버에서 동일 데이터를 여러 번 수신하더라도 한 번만 노출되도록 ID 기준으로 정리

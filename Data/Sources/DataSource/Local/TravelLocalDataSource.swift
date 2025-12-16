@@ -6,138 +6,90 @@
 //
 
 import Foundation
+import SwiftData
 import Domain
 
-public enum TravelCacheError: Error {
-    case cacheDirectoryUnavailable
-    case fileNotFound
-    case dataCorrupted
-}
-
 public protocol TravelLocalDataSourceProtocol: Actor {
-    func observe(status: TravelStatus) -> AsyncStream<[TravelCacheItemDTO]>
-    func load(status: TravelStatus) async throws -> TravelCacheDTO?
-    func save(_ cache: TravelCacheDTO) async throws
-    func clear(status: TravelStatus)
+    func load(status: TravelStatus) async throws -> [Travel]?
+    func save(travels: [Travel], status: TravelStatus) async throws
+    func clear(status: TravelStatus) async throws
 }
 
 public actor TravelLocalDataSource: TravelLocalDataSourceProtocol {
-    private let fileManager = FileManager.default
-    private lazy var cacheDirectory: URL? = {
-        guard var cachesURL = fileManager.urls(
-            for: .cachesDirectory,
-            in: .userDomainMask
-        ).first else {
-            return nil
-        }
-        cachesURL.append(
-            path: TravelCacheConstants.directoryName,
-            directoryHint: .isDirectory
-        )
-        try? fileManager.createDirectory(
-            at: cachesURL,
-            withIntermediateDirectories: true
-        )
-        return cachesURL
-    }()
+    private let container: ModelContainer
 
-    private let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
-    }()
-
-    private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
-
-    // 여행 상태별로 AsyncStream 보관
-    private var observers: [TravelStatus: [UUID: AsyncStream<[TravelCacheItemDTO]>.Continuation]] = [:]
-
-    public init() {}
-
-    public func observe(status: TravelStatus) -> AsyncStream<[TravelCacheItemDTO]> {
-        // 캐시 파일이 갱신될 때마다 새로운 배열을 내보내며, 가지고 있는 캐시가 있다면 즉시 전달한다.
-        AsyncStream { continuation in
-            Task { [weak self] in
-                guard let self else { return }
-                let id = UUID()
-                continuation.onTermination = { [weak self] _ in
-                    Task { await self?.removeObserver(status: status, id: id) }
-                }
-                await self.storeObserver(status: status, id: id, continuation: continuation)
-                if let cache = try? await self.load(status: status) {
-                    continuation.yield(cache.travels)
-                }
+    public init(container: ModelContainer? = nil) {
+        if let container {
+            self.container = container
+        } else {
+            let schema = Schema([
+                TravelCacheEntity.self,
+                TravelCacheItemEntity.self,
+                TravelCacheMemberEntity.self
+            ])
+            do {
+                self.container = try ModelContainer(
+                    for: schema,
+                    configurations: ModelConfiguration(isStoredInMemoryOnly: false)
+                )
+            } catch {
+                fatalError("Failed to create Travel cache container: \(error)")
             }
         }
     }
 
-    public func load(status: TravelStatus) async throws -> TravelCacheDTO? {
-        let url = try cacheURL(for: status)
-        guard fileManager.fileExists(atPath: url.path()) else {
+    public func load(status: TravelStatus) async throws -> [Travel]? {
+        let context = ModelContext(container)
+        guard let cache = try fetchCache(for: status, in: context) else {
             return nil
         }
 
-        do {
-            let data = try Data(contentsOf: url)
-            let cache = try decoder.decode(TravelCacheDTO.self, from: data)
-            if cache.isExpired {
-                try? fileManager.removeItem(at: url)
-                return nil
-            }
-            return cache
-        } catch {
-            try? fileManager.removeItem(at: url)
-            throw TravelCacheError.dataCorrupted
+        // 캐시 시간 만료되면 삭제
+        if cache.isExpired {
+            context.delete(cache)
+            try context.save()
+            return nil
         }
+        // api로 받은 리스트랑 순서 같도록 정렬
+        let sorted = cache.travels.sorted { $0.orderIndex < $1.orderIndex }
+        return sorted.map { $0.toDomain() }
     }
 
-    public func save(_ cache: TravelCacheDTO) async throws {
-        let url = try cacheURL(for: cache.status)
-        let data = try encoder.encode(cache)
-        try data.write(to: url, options: [.atomic])
-        notifyObservers(status: cache.status, travels: cache.travels)
+    public func save(travels: [Travel], status: TravelStatus) async throws {
+        let context = ModelContext(container)
+        if let existing = try fetchCache(for: status, in: context) {
+            context.delete(existing)
+        }
+
+        let cache = TravelCacheEntity(status: status, cachedAt: Date())
+        // 순서 유지하기 위해 index 저장
+        cache.travels = travels.enumerated().map { index, travel in
+            travel.toCacheModel(orderIndex: index)
+        }
+
+        context.insert(cache)
+        try context.save()
     }
 
-    public func clear(status: TravelStatus) {
-        guard let url = try? cacheURL(for: status) else { return }
-        try? fileManager.removeItem(at: url)
+    public func clear(status: TravelStatus) async throws {
+        let context = ModelContext(container)
+        guard let cache = try fetchCache(for: status, in: context) else { return }
+        context.delete(cache)
+        try context.save()
     }
 }
 
 private extension TravelLocalDataSource {
-    func cacheURL(for status: TravelStatus) throws -> URL {
-        guard var directory = cacheDirectory else {
-            throw TravelCacheError.cacheDirectoryUnavailable
-        }
-        directory.append(
-            path: "travel_\(status.rawValue).json",
-            directoryHint: .notDirectory
-        )
-        return directory
-    }
-
-    func storeObserver(
-        status: TravelStatus,
-        id: UUID,
-        continuation: AsyncStream<[TravelCacheItemDTO]>.Continuation
-    ) {
-        var continuations = observers[status] ?? [:]
-        continuations[id] = continuation
-        observers[status] = continuations
-    }
-
-    func removeObserver(status: TravelStatus, id: UUID) {
-        var continuations = observers[status] ?? [:]
-        continuations[id] = nil
-        observers[status] = continuations.isEmpty ? nil : continuations
-    }
-
-    func notifyObservers(status: TravelStatus, travels: [TravelCacheItemDTO]) {
-        guard let continuations = observers[status] else { return }
-        continuations.values.forEach { $0.yield(travels) }
+    func fetchCache(
+        for status: TravelStatus,
+        in context: ModelContext
+    ) throws -> TravelCacheEntity? {
+        var descriptor = FetchDescriptor<TravelCacheEntity>()
+        // TravelCacheEntity 호출 시 travels도 같이 호출
+        descriptor.relationshipKeyPathsForPrefetching = [
+            \TravelCacheEntity.travels
+        ]
+        let caches = try context.fetch(descriptor)
+        return caches.first { $0.statusRawValue == status.rawValue }
     }
 }
