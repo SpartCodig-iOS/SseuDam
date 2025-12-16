@@ -19,6 +19,7 @@ import Photos
 import PhotosUI
 import Domain
 import DesignSystem
+import MessageUI
 
 @Reducer
 public struct ProfileFeature {
@@ -28,6 +29,7 @@ public struct ProfileFeature {
     public struct State: Equatable {
         var profileImageData: Data?
         var isPhotoPickerPresented = false
+        var isMailComposePresented = false
         var errorMessage: String? = ""
         var isLoadingProfile = true
 //        var isProfileImageLoading = false
@@ -67,6 +69,8 @@ public struct ProfileFeature {
         case photoPickerButtonTapped
         case profileImageSelected(Data?, String?)
         case showDeleteAlert
+        case showErrorAlert
+        case sendSupportEmail
 //        case profileImageLoadingStateChanged(Bool)
     }
 
@@ -118,6 +122,34 @@ public struct ProfileFeature {
 
     @Dependency(AuthUseCase.self) var authUseCase
     @Dependency(ProfileUseCase.self) var profileUseCase
+
+    // MARK: - Email Support
+    public static func emailRecipients() -> [String] {
+        return ["suhwj81@gmail.com"]
+    }
+
+    public static func emailSubject() -> String {
+        return "[쓰담] 문의사항"
+    }
+
+    public static func emailBody() -> String {
+        return """
+문의사항을 작성해주세요.
+
+--
+앱 버전: \(getAppVersion())
+iOS 버전: \(UIDevice.current.systemVersion)
+디바이스: \(UIDevice.current.model)
+"""
+    }
+
+    private static func getAppVersion() -> String {
+        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+           let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+            return "\(version) (\(build))"
+        }
+        return "Unknown"
+    }
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
@@ -220,6 +252,31 @@ extension ProfileFeature {
                     )
                 )
                 return .none
+
+          case .showErrorAlert:
+            state.alert = DSAlertState(
+              title: "",
+              message: state.errorMessage ?? "",
+              primary: DSAlertState.ButtonAction(
+                title: "확인",
+                role: .destructive,
+                action: .cancel
+              )
+            )
+            return .none
+
+          case .sendSupportEmail:
+            if MailComposeView.canSendMail {
+                state.isMailComposePresented = true
+            } else {
+                // 메일 앱 설정이 안 되어 있는 경우 URL 스킴 사용
+                return .run { _ in
+                    await MainActor.run {
+                        openMailApp()
+                    }
+                }
+            }
+            return .none
 
 //            case .profileImageLoadingStateChanged(let isLoading):
 //                state.isProfileImageLoading = isLoading
@@ -394,7 +451,7 @@ extension ProfileFeature {
 
                     case .failure(let error):
                         state.errorMessage = error.errorDescription
-                    return .send(.delegate(.presentLogin))
+                        return .send(.delegate(.presentLogin))
                 }
 
 
@@ -410,7 +467,7 @@ extension ProfileFeature {
                     }
 
                     case .failure(let error):
-                        state.errorMessage = error.errorDescription
+                        state.errorMessage = "프로필 수정 실패 \(error.errorDescription)"
 
                     return .run { _ in
                         await MainActor.run {
@@ -430,7 +487,7 @@ extension ProfileFeature {
                         return .send(.delegate(.presentLogin))
 
                     case .failure(let error):
-                        state.errorMessage = error.errorDescription
+                      state.errorMessage = "회원 탈퇴 실패 \(error.errorDescription)"
                         return .none
 
                 }
@@ -442,6 +499,7 @@ extension ProfileFeature.State: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(profileImageData)
         hasher.combine(isPhotoPickerPresented)
+        hasher.combine(isMailComposePresented)
         hasher.combine(selectedPhotoItem)
         hasher.combine(logoutStatus)
         hasher.combine(errorMessage)
@@ -450,3 +508,19 @@ extension ProfileFeature.State: Hashable {
 //        hasher.combine(isProfileImageLoading)
     }
 }
+
+// MARK: - Private Helpers
+extension ProfileFeature {
+    private func openMailApp() {
+        let recipients = Self.emailRecipients()
+        let subject = Self.emailSubject()
+        let body = Self.emailBody()
+
+        let urlString = "mailto:\(recipients.joined(separator: ","))?subject=\(subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&body=\(body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
+        }
+    }
+}
+

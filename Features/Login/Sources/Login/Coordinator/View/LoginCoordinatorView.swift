@@ -11,6 +11,7 @@ import TCACoordinators
 import ComposableArchitecture
 import DesignSystem
 import WebFeature
+import OnBoardingFeature
 
 
 public struct LoginCoordinatorView: View {
@@ -33,6 +34,11 @@ public struct LoginCoordinatorView: View {
           WebView(store: webStore)
             .navigationBarBackButtonHidden(true)
             .enableSwipeBack()
+
+        case .onBoarding(let onBoardingStore):
+          OnBoardingView(store: onBoardingStore)
+            .navigationBarBackButtonHidden(true)
+
       }
     }
   }

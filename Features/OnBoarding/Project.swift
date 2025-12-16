@@ -2,10 +2,10 @@ import ProjectDescription
 import SseuDamPlugin
 
 let project = Project.makeFeature(
-    name: .Login,
+    name: .OnBoarding,
     dependencies: [
-        .Features.Web,
-        .Features.OnBoarding
+        .Domain,
+        .DesignSystem
     ],
     hasTests: true
 )

@@ -35,10 +35,10 @@ public struct SettingRow: View {
        Image(asset: image)
           .resizable()
           .scaledToFit()
-          .frame(width: 24, height: 24)
+          .frame(width: 20, height: 20)
 
         Spacer()
-          .frame(width: 14)
+          .frame(width: 12)
 
         Text(title)
           .font(.app(.title3, weight: .regular))
@@ -55,7 +55,7 @@ public struct SettingRow: View {
         }
       }
     }
-    .padding(.vertical, 16)
+    .padding(.vertical, 12)
     .onTapGesture {
       if showArrow {
         tapTermAction()

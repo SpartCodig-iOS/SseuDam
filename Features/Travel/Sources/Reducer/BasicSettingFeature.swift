@@ -118,7 +118,7 @@ public struct BasicSettingFeature {
     @Dependency(\.fetchCountriesUseCase) var fetchCountriesUseCase
     @Dependency(\.fetchExchangeRateUseCase) var fetchExchangeRateUseCase
     @Dependency(\.updateTravelUseCase) var updateTravelUseCase
-//    @Dependency(\.analyticsUseCase) var analyticsUseCase
+    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
@@ -292,7 +292,7 @@ public struct BasicSettingFeature {
                 state.selectedCurrency = updated.baseCurrency
                 state.exchangeRate = String(updated.baseExchangeRate)
 
-//                analyticsUseCase.track(.travel(.update, TravelEventData(travelId: updated.id)))
+                analyticsUseCase.track(.travel(.update, TravelEventData(travelId: updated.id)))
 
                 return .merge(
                     .send(.updated(state.travel)),
