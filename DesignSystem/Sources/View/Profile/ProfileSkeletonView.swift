@@ -49,6 +49,9 @@ public struct ProfileSkeletonView: View {
         cardPlaceholder()
           .padding(.horizontal, 16)
 
+        cardPlaceholder()
+          .padding(.horizontal, 16)
+
         Spacer()
       }
     }

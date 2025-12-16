@@ -29,4 +29,8 @@ public enum ImageAsset: String {
     case profile
     case check
     case person
+    case travelExpenseMock
+    case travelMock
+    case travelDetailMock
+    case supportMaIl
 }

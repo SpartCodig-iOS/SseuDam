@@ -31,9 +31,11 @@ public struct ProfileView: View {
 
                     termsSection()
 
-                  accountSection()
+                    accountSection()
 
-                  Spacer()
+                    supportSection()
+
+                    Spacer()
 
                 }
                 .navigationBarBackButtonHidden(true)
@@ -109,16 +111,16 @@ extension ProfileView {
             Spacer()
                 .frame(height: 5)
 
-          HStack(spacing: .zero) {
-            socialImage(social: store.profile?.provider ?? .none)
+            HStack(spacing: .zero) {
+                socialImage(social: store.profile?.provider ?? .none)
 
-            Spacer()
-              .frame(width: 4)
+                Spacer()
+                    .frame(width: 4)
 
-            Text(store.profile?.email ?? "")
-                .font(.app(.body, weight: .medium))
-                .foregroundStyle(.gray6)
-          }
+                Text(store.profile?.email ?? "")
+                    .font(.app(.body, weight: .medium))
+                    .foregroundStyle(.gray6)
+            }
 
             Spacer()
                 .frame(height: 24)
@@ -131,53 +133,53 @@ extension ProfileView {
         .padding(.horizontal, 20)
     }
 
-  @ViewBuilder
-  fileprivate func socialImage(
-    social: SocialType
-  ) -> some View {
-    switch social {
-      case .apple:
-        Circle()
-          .fill(.appBlack)
-          .frame(width: 16, height: 16)
-          .overlay {
-            Image(systemName: social.image)
-              .resizable()
-              .scaledToFit()
-              .frame(width: 7, height: 11)
-              .foregroundStyle(.appWhite)
-          }
-      case .google:
-        Circle()
-          .fill(.appWhite)
-          .overlay(Circle().stroke(.gray2, lineWidth: 1))
-          .frame(width: 16, height: 16)
-          .overlay {
-            Image(assetName: social.image)
-              .resizable()
-              .scaledToFit()
-              .frame(width: 7, height: 11)
-          }
+    @ViewBuilder
+    fileprivate func socialImage(
+        social: SocialType
+    ) -> some View {
+        switch social {
+            case .apple:
+                Circle()
+                    .fill(.appBlack)
+                    .frame(width: 16, height: 16)
+                    .overlay {
+                        Image(systemName: social.image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 7, height: 11)
+                            .foregroundStyle(.appWhite)
+                    }
+            case .google:
+                Circle()
+                    .fill(.appWhite)
+                    .overlay(Circle().stroke(.gray2, lineWidth: 1))
+                    .frame(width: 16, height: 16)
+                    .overlay {
+                        Image(assetName: social.image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 7, height: 11)
+                    }
 
-      case .kakao:
-        Circle()
-          .fill(.clear)
-          .frame(width: 16, height: 16)
-          .overlay {
-            Image(assetName: social.image)
-              .resizable()
-              .scaledToFit()
-              .frame(width: 16, height: 16)
-          }
+            case .kakao:
+                Circle()
+                    .fill(.clear)
+                    .frame(width: 16, height: 16)
+                    .overlay {
+                        Image(assetName: social.image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    }
 
-      case .none:
-        EmptyView()
+            case .none:
+                EmptyView()
+        }
     }
-  }
 
     @ViewBuilder
     fileprivate func termsSection() -> some View {
-      VStack(alignment: .leading, spacing: .zero) {
+        VStack(alignment: .leading, spacing: .zero) {
             Spacer()
                 .frame(height: 24)
 
@@ -200,7 +202,7 @@ extension ProfileView {
                     showArrow: true,
                     action: {},
                     tapTermAction: {
-                      store.send(.delegate(.presentPrivacy))
+                        store.send(.delegate(.presentPrivacy))
                     }
                 )
 
@@ -214,68 +216,111 @@ extension ProfileView {
                     showArrow: true,
                     action: {},
                     tapTermAction: {
-                      store.send(.delegate(.presentTerm))
+                        store.send(.delegate(.presentTerm))
                     }
                 )
 
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 16)
             .background(.white)
             .cornerRadius(8)
         }
-      .padding(.horizontal, 20)
+        .padding(.horizontal, 20)
     }
 
-  @ViewBuilder
-  fileprivate func accountSection() -> some View {
-      VStack(alignment: .leading) {
-          Spacer()
-              .frame(height: 20)
+    @ViewBuilder
+    fileprivate func accountSection() -> some View {
+        VStack(alignment: .leading) {
+            Spacer()
+                .frame(height: 20)
 
-          HStack {
+            HStack {
 
-              Text("계정관리")
-                  .font(.app(.title3, weight: .semibold))
-                  .foregroundStyle(.appBlack)
+                Text("계정관리")
+                    .font(.app(.title3, weight: .semibold))
+                    .foregroundStyle(.appBlack)
 
-              Spacer()
-          }
+                Spacer()
+            }
 
-          Spacer()
-              .frame(height: 10)
+            Spacer()
+                .frame(height: 10)
 
-          VStack {
-              SettingRow(
-                  image: .signOut,
-                  title: "로그아웃",
-                  showArrow: false,
-                  action: {
-                    store.send(.async(.logout))
-                  },
-                  tapTermAction: {}
-              )
+            VStack {
+                SettingRow(
+                    image: .signOut,
+                    title: "로그아웃",
+                    showArrow: false,
+                    action: {
+                        store.send(.async(.logout))
+                    },
+                    tapTermAction: {}
+                )
 
-              Divider()
-                  .background(.gray1)
-                  .frame(height: 1)
+                Divider()
+                    .background(.gray1)
+                    .frame(height: 1)
 
-              SettingRow(
-                  image: .userDelete,
-                  title: "회원탈퇴",
-                  showArrow: false,
-                  action: {
-                      store.send(.view(.showDeleteAlert))
-                  },
-                  tapTermAction: {}
-              )
+                SettingRow(
+                    image: .userDelete,
+                    title: "회원탈퇴",
+                    showArrow: false,
+                    action: {
+                        store.send(.view(.showDeleteAlert))
+                    },
+                    tapTermAction: {}
+                )
 
-          }
-          .padding(.horizontal, 16)
-          .background(.white)
-          .cornerRadius(8)
-      }
-      .padding(.horizontal, 20)
-  }
+            }
+            .padding(.horizontal, 16)
+            .background(.white)
+            .cornerRadius(8)
+        }
+        .padding(.horizontal, 20)
+    }
+
+    @ViewBuilder
+    fileprivate func supportSection() -> some View {
+        VStack(alignment: .leading) {
+            Spacer()
+                .frame(height: 20)
+
+            HStack {
+
+                Text("고객지원")
+                    .font(.app(.title3, weight: .semibold))
+                    .foregroundStyle(.appBlack)
+
+                Spacer()
+            }
+
+            Spacer()
+                .frame(height: 10)
+
+            VStack {
+                SettingRow(
+                    image: .supportMaIl,
+                    title: "문의하기",
+                    showArrow: false,
+                    action: {
+
+                    },
+                    tapTermAction: {}
+                )
+
+                Divider()
+                    .background(.gray1)
+                    .frame(height: 1)
+
+
+
+            }
+            .padding(.horizontal, 16)
+            .background(.white)
+            .cornerRadius(8)
+        }
+        .padding(.horizontal, 20)
+    }
 
 }
 
