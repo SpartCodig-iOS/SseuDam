@@ -13,54 +13,46 @@ import Domain
 public enum LiveDependencies {
     @MainActor public static func register(_ dependencies: inout DependencyValues) {
         // Repository 인스턴스 생성 (재사용)
-        let travelRepository = TravelRepository(
-            remote: TravelRemoteDataSource(),
-            local: TravelLocalDataSource()
-        )
-        let expenseRepository = ExpenseRepository(
-            remote: ExpenseRemoteDataSource(),
-            local: ExpenseLocalDataSource()
-        )
-        let travelMemberRepository = TravelMemberRepository(remote: TravelMemberRemoteDataSource())
-        let authRepository = AuthRepository()
         let oAuthRepository = OAuthRepository()
         let countryRepository = CountryRepository(remote: CountryRemoteDataSource())
         let exchangeRateRepository = ExchangeRateRepository(remote: ExchangeRateRemoteDataSource())
-        let settlementRepository = SettlementRepository(remote: SettlementRemoteDataSource())
-        let profileRepository = ProfileRepository()
-        let versionRepository = VersionRepository()
         
         // Auth & Session
-        dependencies.authRepository = authRepository
+        dependencies.authRepository = AuthRepository()
+        dependencies.sessionRepository = SessionRepository()
+        dependencies.profileRepository = ProfileRepository()
+        dependencies.versionRepository = VersionRepository()
+        
         let oAuthUseCase = makeOAuthUseCase(repository: oAuthRepository)
         dependencies.oAuthUseCase = oAuthUseCase
         dependencies.unifiedOAuthUseCase = UnifiedOAuthUseCase(
             oAuthUseCase: oAuthUseCase,
-            authRepository: authRepository,
             sessionStoreRepository: SessionStoreRepository()
         )
-        dependencies.sessionUseCase = SessionUseCase(repository: SessionRepository())
-        dependencies.profileUseCase = ProfileUseCase(repository: profileRepository)
-        dependencies.versionUseCase = VersionUseCase(repository: versionRepository)
-        
         // Analytics
         dependencies.analyticsRepository = FirebaseAnalyticsRepository()
         
         // Travel
-        dependencies.travelRepository = travelRepository
+        dependencies.travelRepository = TravelRepository(
+            remote: TravelRemoteDataSource(),
+            local: TravelLocalDataSource()
+        )
         
         // Expense
-        dependencies.expenseRepository = expenseRepository
+        dependencies.expenseRepository = ExpenseRepository(
+            remote: ExpenseRemoteDataSource(),
+            local: ExpenseLocalDataSource()
+        )
         
         // TravelMember
-        dependencies.travelMemberRepository = travelMemberRepository
+        dependencies.travelMemberRepository = TravelMemberRepository(remote: TravelMemberRemoteDataSource())
 
         // Country & Exchange
         dependencies.fetchCountriesUseCase = FetchCountriesUseCase(repository: countryRepository)
         dependencies.fetchExchangeRateUseCase = FetchExchangeRateUseCase(repository: exchangeRateRepository)
         
         // Settlement
-        dependencies.settlementRepository = settlementRepository
+        dependencies.settlementRepository = SettlementRepository(remote: SettlementRemoteDataSource())
     }
     
     // MARK: - Factory Methods
