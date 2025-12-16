@@ -19,6 +19,7 @@ import Photos
 import PhotosUI
 import Domain
 import DesignSystem
+import MessageUI
 
 @Reducer
 public struct ProfileFeature {
@@ -68,6 +69,7 @@ public struct ProfileFeature {
         case profileImageSelected(Data?, String?)
         case showDeleteAlert
         case showErrorAlert
+        case sendSupportEmail
 //        case profileImageLoadingStateChanged(Bool)
     }
 
@@ -233,6 +235,13 @@ extension ProfileFeature {
               )
             )
             return .none
+
+          case .sendSupportEmail:
+            return .run { _ in
+                await MainActor.run {
+                    sendEmail()
+                }
+            }
 
 //            case .profileImageLoadingStateChanged(let isLoading):
 //                state.isProfileImageLoading = isLoading
@@ -461,5 +470,52 @@ extension ProfileFeature.State: Hashable {
         hasher.combine(profile)
         hasher.combine(isLoadingProfile)
 //        hasher.combine(isProfileImageLoading)
+    }
+}
+
+// MARK: - Email Support
+private func sendEmail() {
+    let recipients = ["suhwj81@gmail.com"]
+    let subject = "[쓰담] 문의사항"
+    let body = """
+    문의사항을 작성해주세요.
+
+    --
+    앱 버전: \(getAppVersion())
+    iOS 버전: \(UIDevice.current.systemVersion)
+    디바이스: \(UIDevice.current.model)
+    """
+
+    if MFMailComposeViewController.canSendMail() {
+        let mailComposer = MFMailComposeViewController()
+        mailComposer.setToRecipients(recipients)
+        mailComposer.setSubject(subject)
+        mailComposer.setMessageBody(body, isHTML: false)
+
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            rootViewController.present(mailComposer, animated: true)
+        }
+    } else {
+        // 메일 앱을 사용할 수 없는 경우 URL 스킴으로 메일 앱 열기
+        let urlString = "mailto:\(recipients.joined(separator: ","))?subject=\(subject.addingPercentEncoding(string: subject) ?? "")&body=\(body.addingPercentEncoding(string: body) ?? "")"
+
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
+        }
+    }
+}
+
+private func getAppVersion() -> String {
+    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+       let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
+        return "\(version) (\(build))"
+    }
+    return "Unknown"
+}
+
+extension String {
+    func addingPercentEncoding(string: String) -> String? {
+        return string.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
     }
 }

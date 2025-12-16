@@ -303,7 +303,7 @@ extension ProfileView {
                     title: "문의하기",
                     showArrow: false,
                     action: {
-
+                        store.send(.view(.sendSupportEmail))
                     },
                     tapTermAction: {}
                 )
