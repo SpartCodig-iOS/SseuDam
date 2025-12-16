@@ -58,8 +58,7 @@ private actor CacheManager {
 /// 기존 AsyncImage, URLSession 등 모든 이미지 요청이 자동으로 캐싱됨
 public final class TransparentImageCaching: URLProtocol {
     private static let handledKey = "TransparentImageCaching_Handled"
-    private static let registrationLock = NSLock()
-    private static var isRegistered = false
+    private static let registrationManager = RegistrationManager()
 
     // Actor 인스턴스로 캐싱 로직 위임
     private static let cacheManager = CacheManager()
@@ -228,23 +227,13 @@ public final class TransparentImageCaching: URLProtocol {
 extension TransparentImageCaching {
     /// 투명한 이미지 캐싱을 수동으로 활성화합니다.
     /// 일반적으로는 ImageCacheService 사용 시 자동으로 활성화됩니다.
-    public static func activate() {
-        registrationLock.lock()
-        defer { registrationLock.unlock() }
-
-        guard !isRegistered else { return }
-        URLProtocol.registerClass(TransparentImageCaching.self)
-        isRegistered = true
+    public static func activate() async {
+        await registrationManager.activate()
     }
 
     /// 투명한 이미지 캐싱을 비활성화합니다.
-    public static func deactivate() {
-        registrationLock.lock()
-        defer { registrationLock.unlock() }
-
-        guard isRegistered else { return }
-        URLProtocol.unregisterClass(TransparentImageCaching.self)
-        isRegistered = false
+    public static func deactivate() async {
+        await registrationManager.deactivate()
     }
 
     /// 캐시를 완전히 지웁니다.
@@ -261,3 +250,21 @@ extension TransparentImageCaching {
 // MARK: - Sendable Conformance
 
 extension TransparentImageCaching: @unchecked Sendable {}
+
+// MARK: - Registration Actor
+
+private actor RegistrationManager {
+    private var isRegistered = false
+
+    func activate() {
+        guard !isRegistered else { return }
+        URLProtocol.registerClass(TransparentImageCaching.self)
+        isRegistered = true
+    }
+
+    func deactivate() {
+        guard isRegistered else { return }
+        URLProtocol.unregisterClass(TransparentImageCaching.self)
+        isRegistered = false
+    }
+}

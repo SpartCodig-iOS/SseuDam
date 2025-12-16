@@ -7,16 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Auto-Initialization
-
-/// DesignSystem import 시 자동으로 ImageCacheService 초기화 및 URLProtocol 등록
-private let _autoSetup: Void = {
-    Task {
-        _ = await ImageCacheService.shared
-        TransparentImageCaching.activate()
-    }
-}()
-
 // MARK: - SwiftUI AsyncImage Replacement
 
 /// 기존 SwiftUI.AsyncImage를 완전히 대체하는 typealias
@@ -43,7 +33,7 @@ public struct DesignSystemAsyncImage<Content: View>: View {
         @ViewBuilder content: @escaping (AsyncImagePhase) -> Content
     ) {
         // ImageCacheService 초기화 확인
-        _ = _autoSetup
+        _ = autoSetup
 
         self.url = url
         self.scale = scale
@@ -66,10 +56,10 @@ public struct DesignSystemAsyncImage<Content: View>: View {
         .task(id: url) {
             await loadImage()
         }
-        .transaction { t in
-            t.animation = transaction.animation
-            t.disablesAnimations = transaction.disablesAnimations
-            t.isContinuous = transaction.isContinuous
+        .transaction { transcation in
+          transcation.animation = transaction.animation
+          transcation.disablesAnimations = transaction.disablesAnimations
+          transcation.isContinuous = transaction.isContinuous
         }
     }
 
@@ -100,6 +90,13 @@ public struct DesignSystemAsyncImage<Content: View>: View {
             }
         }
     }
+
+  private let autoSetup: Void = {
+      Task {
+          _ = ImageCacheService.shared
+          await TransparentImageCaching.activate()
+      }
+  }()
 }
 
 // MARK: - Convenience Initializers
