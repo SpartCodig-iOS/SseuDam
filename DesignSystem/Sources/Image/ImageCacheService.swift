@@ -13,9 +13,12 @@ public actor ImageCacheService {
 
     private let cache = NSCache<NSString, UIImage>()
     private var inFlightTasks: [URL: Task<UIImage?, Never>] = [:]
-
     private init() {
         cache.totalCostLimit = 50 * 1024 * 1024
+        cache.countLimit = 200  // 더 많은 이미지를 메모리에 캐시
+        cache.evictsObjectsWithDiscardedContent = true  // 메모리 압박 시 자동 제거
+
+        print("🚀 ImageCacheService initialized with direct caching")
     }
 
     public func image(
@@ -31,7 +34,9 @@ public actor ImageCacheService {
             return await task.value
         }
 
-        let task = Task(priority: .userInitiated) { [weak self] () -> UIImage? in
+        // 프로필 이미지는 높은 우선순위로 처리
+        let priority: TaskPriority = isProfileImage(url) ? .high : .userInitiated
+        let task = Task(priority: priority) { [weak self] () -> UIImage? in
             guard let self else { return nil }
             return await self.fetchAndCache(url: url, key: key)
         }
@@ -85,6 +90,16 @@ public actor ImageCacheService {
             return image
         } catch {
             return nil
+        }
+    }
+
+    /// 프로필 이미지인지 확인하여 우선순위 적용
+    private func isProfileImage(_ url: URL) -> Bool {
+        let urlString = url.absoluteString.lowercased()
+        let profileKeywords = ["profile", "avatar", "user", "member"]
+
+        return profileKeywords.contains { keyword in
+            urlString.contains(keyword)
         }
     }
 }

@@ -14,8 +14,6 @@ public struct EditProfileImage: View {
   private let imageURL: String?
   private let action: (() -> Void)?
   private let onLoadingStateChanged: ((Bool) -> Void)?
-  @State private var loadedImage: UIImage?
-  @State private var isLoading: Bool
 
   public init(
     size: CGFloat = 100,
@@ -27,7 +25,6 @@ public struct EditProfileImage: View {
     self.imageURL = imageURL
     self.action = action
     self.onLoadingStateChanged = onLoadingStateChanged
-    _isLoading = State(initialValue: imageURL != nil)
   }
 
   @ViewBuilder
@@ -60,20 +57,44 @@ public struct EditProfileImage: View {
     .frame(width: size, height: size)
     .clipShape(Circle())
     .contentShape(Circle())
-    .task(id: imageURL) {
-      await loadImage()
-    }
 
   }
 
   @ViewBuilder
   private func imageContent(iconSize: CGFloat) -> some View {
-    if let image = loadedImage {
-      Image(uiImage: image)
-        .resizable()
-        .scaledToFill()
-    } else if isLoading {
-      ProgressView()
+    if let imageURL, let url = URL(string: imageURL) {
+      // 🚀 최적화된 DesignSystemAsyncImage - ImageCacheService 직접 사용!
+      DesignSystemAsyncImage(
+        url: url,
+        transaction: Transaction(animation: .easeInOut(duration: 0.25))
+      ) { phase in
+        switch phase {
+        case .success(let image):
+          image
+            .resizable()
+            .scaledToFill()
+            .onAppear {
+              onLoadingStateChanged?(false)
+            }
+        case .failure(_):
+          placeholder(iconSize: iconSize)
+            .onAppear {
+              onLoadingStateChanged?(false)
+            }
+        case .empty:
+          placeholder(iconSize: iconSize)
+            .opacity(0.3)
+            .overlay(
+              ProgressView()
+                .scaleEffect(0.8)
+            )
+            .onAppear {
+              onLoadingStateChanged?(true)
+            }
+        @unknown default:
+          placeholder(iconSize: iconSize)
+        }
+      }
     } else {
       placeholder(iconSize: iconSize)
     }
@@ -107,29 +128,6 @@ public struct EditProfileImage: View {
       .foregroundStyle(.primary500)
   }
 
-  private func loadImage() async {
-    guard let imageURL, let url = URL(string: imageURL) else {
-      await MainActor.run {
-        loadedImage = nil
-        isLoading = false
-      }
-      onLoadingStateChanged?(false)
-      return
-    }
-
-    await MainActor.run {
-      isLoading = true
-      onLoadingStateChanged?(true)
-    }
-
-    let image = await ImageCacheService.shared.image(for: url)
-
-    await MainActor.run {
-      isLoading = false
-      loadedImage = image
-      onLoadingStateChanged?(false)
-    }
-  }
 }
 
 
