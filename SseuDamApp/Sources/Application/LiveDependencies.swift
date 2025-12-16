@@ -48,7 +48,7 @@ public enum LiveDependencies {
 
         // Travel
         dependencies.fetchTravelsUseCase = FetchTravelsUseCase(repository: travelRepository)
-        dependencies.observeTravelCacheUseCase = ObserveTravelCacheUseCase(repository: travelRepository)
+        dependencies.loadTravelCacheUseCase = LoadTravelCacheUseCase(repository: travelRepository)
         dependencies.createTravelUseCase = CreateTravelUseCase(repository: travelRepository)
         dependencies.fetchTravelDetailUseCase = FetchTravelDetailUseCase(repository: travelRepository)
         dependencies.updateTravelUseCase = UpdateTravelUseCase(repository: travelRepository)

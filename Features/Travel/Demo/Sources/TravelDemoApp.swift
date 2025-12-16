@@ -28,7 +28,7 @@ struct TravelDemoApp: App {
         TravelListFeature()
     } withDependencies: {
         $0.fetchTravelsUseCase = FetchTravelsUseCase(repository: repo)
-        $0.observeTravelCacheUseCase = ObserveTravelCacheUseCase(repository: repo)
+        $0.loadTravelCacheUseCase = LoadTravelCacheUseCase(repository: repo)
         $0.createTravelUseCase = CreateTravelUseCase(repository: repo)
     }
 

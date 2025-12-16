@@ -38,6 +38,15 @@ public final class TravelRepository: TravelRepositoryProtocol {
         return travels
     }
 
+    public func loadCachedTravels(
+        status: TravelStatus
+    ) async throws -> [Travel]? {
+        guard let cache = try await local.load(status: status) else {
+            return nil
+        }
+        return cache.travels.map { $0.toDomain() }
+    }
+
     public func createTravel(
         input: CreateTravelInput
     ) async throws -> Travel {
@@ -68,24 +77,6 @@ public final class TravelRepository: TravelRepositoryProtocol {
         return responseDTO.toDomain()
     }
 
-    // 로컬 캐시 파일이 갱신될 때마다 스트림을 통해 최신 Travel 배열을 방출
-    public func observeCachedTravels(status: TravelStatus) -> AsyncStream<[Travel]> {
-        AsyncStream { continuation in
-            let task = Task {
-                let baseStream = await local.observe(status: status)
-                for await cacheItems in baseStream {
-                    guard !Task.isCancelled else { break }
-                    let travels = cacheItems.map { $0.toDomain() }
-                    continuation.yield(travels)
-                }
-                continuation.finish()
-            }
-
-            continuation.onTermination = { _ in
-                task.cancel()
-            }
-        }
-    }
 }
 
 private extension TravelRepository {
