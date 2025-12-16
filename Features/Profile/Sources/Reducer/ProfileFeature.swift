@@ -488,12 +488,19 @@ private func sendEmail() {
 
     if MFMailComposeViewController.canSendMail() {
         let mailComposer = MFMailComposeViewController()
+        let delegate = MailComposeDelegate()
+
+        mailComposer.mailComposeDelegate = delegate
         mailComposer.setToRecipients(recipients)
         mailComposer.setSubject(subject)
         mailComposer.setMessageBody(body, isHTML: false)
 
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
+
+            // delegate를 강하게 참조하기 위해 mailComposer에 연결
+            objc_setAssociatedObject(mailComposer, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+
             rootViewController.present(mailComposer, animated: true)
         }
     } else {
@@ -503,6 +510,15 @@ private func sendEmail() {
         if let url = URL(string: urlString) {
             UIApplication.shared.open(url)
         }
+    }
+}
+
+// MARK: - Mail Compose Delegate
+private class MailComposeDelegate: NSObject, MFMailComposeViewControllerDelegate {
+    func mailComposeController(_ controller: MFMailComposeViewController,
+                              didFinishWith result: MFMailComposeResult,
+                              error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
     }
 }
 
