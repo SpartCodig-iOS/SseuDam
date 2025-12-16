@@ -174,6 +174,7 @@ private extension TravelLocalDataSource {
         try fetchAllCaches(in: context)
             .first { $0.statusRawValue == status.rawValue }
     }
+}
 
     // 만료 캐시 삭제
     func purgeExpiredCaches(
