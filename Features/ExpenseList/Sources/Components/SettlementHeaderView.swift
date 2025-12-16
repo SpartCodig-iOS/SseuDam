@@ -18,6 +18,8 @@ public struct SettlementHeaderView: View {
     @Binding var selectedDateRange: ClosedRange<Date>?
     @Binding var currentPage: Int
 
+    @State private var showDatePicker = false
+
     public init(
         totalAmount: String,
         startDate: Date,
@@ -35,38 +37,13 @@ public struct SettlementHeaderView: View {
         self._selectedDateRange = selectedDateRange
         self._currentPage = currentPage
     }
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 8) {
-                // 날짜 선택 (드롭다운 느낌)
-                Menu {
-                    Button {
-                        selectedDateRange = nil
-                    } label: {
-                        HStack {
-                            Text("전체")
-                            if selectedDateRange == nil {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-
-                    ForEach(datesRange, id: \.self) { date in
-                        Button {
-                            // 단일 날짜 선택 (같은 날짜의 범위)
-                            selectedDateRange = date...date
-                        } label: {
-                            HStack {
-                                Text(dateFormatter.string(from: date))
-                                if let range = selectedDateRange,
-                                   Calendar.current.isDate(range.lowerBound, inSameDayAs: date),
-                                   Calendar.current.isDate(range.upperBound, inSameDayAs: date) {
-                                    Image(systemName: "checkmark")
-                                }
-                            }
-                        }
-                    }
+                // 날짜 선택 버튼
+                Button {
+                    showDatePicker = true
                 } label: {
                     HStack(spacing: 4) {
                         Text(selectedDateLabel)
@@ -76,6 +53,13 @@ public struct SettlementHeaderView: View {
                             .font(.caption)
                             .foregroundStyle(Color.gray5)
                     }
+                }
+                .sheet(isPresented: $showDatePicker) {
+                    DateRangePicker(
+                        startDate: startDate,
+                        endDate: endDate,
+                        selectedRange: $selectedDateRange
+                    )
                 }
 
 
@@ -114,25 +98,6 @@ public struct SettlementHeaderView: View {
             // 전체 선택된 경우: "yyyy.MM.dd ~ yyyy.MM.dd"
             return "\(dateFormatter.string(from: startDate)) ~ \(dateFormatter.string(from: endDate))"
         }
-    }
-
-    private var datesRange: [Date] {
-        var dates: [Date] = []
-        let calendar = Calendar.current
-        // 시작일의 00:00:00으로 정규화
-        let start = calendar.startOfDay(for: startDate)
-        let end = calendar.startOfDay(for: endDate)
-
-        var currentDate = start
-        while currentDate <= end {
-            dates.append(currentDate)
-            if let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) {
-                currentDate = nextDate
-            } else {
-                break
-            }
-        }
-        return dates
     }
 
     private var dateFormatter: DateFormatter {
