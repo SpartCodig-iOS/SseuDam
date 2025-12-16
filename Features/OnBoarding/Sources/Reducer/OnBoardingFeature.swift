@@ -8,6 +8,7 @@ public struct OnBoardingFeature {
     @ObservableState
     public struct State: Equatable {
         var page: Page = .travel
+        @Shared(.appStorage("isFirst")) var isFirst: Bool = true
         public init() {}
     }
 
@@ -34,6 +35,7 @@ public struct OnBoardingFeature {
                         state.page = next
                         return .none
                     } else {
+                        state.$isFirst.withLock { $0 = false }
                         return .send(.delegate(.presentMain))
                     }
 
@@ -53,5 +55,12 @@ extension OnBoardingFeature {
             case .presentMain:
                 return .none
         }
+    }
+}
+
+
+extension OnBoardingFeature.State: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(page)
     }
 }

@@ -17,7 +17,7 @@ import Data
 @Reducer
 struct AppFeature {
 
-//    @Dependency(\.analyticsUseCase) var analyticsUseCase
+    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
     // MARK: - State
     @ObservableState
@@ -280,7 +280,7 @@ extension AppFeature {
                            let deeplinkType = notification.userInfo?["deeplink_type"] as? String {
 
                             // Analytics 이벤트 전송
-//                            analyticsUseCase.track(.deeplink(DeeplinkEventData(deeplink: urlString, type: deeplinkType)))
+                            analyticsUseCase.track(.deeplink(DeeplinkEventData(deeplink: urlString, type: deeplinkType)))
 
                             await send(.view(.handlePushNotificationDeepLink(urlString)))
                         }

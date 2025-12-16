@@ -67,6 +67,7 @@ public struct ProfileFeature {
         case photoPickerButtonTapped
         case profileImageSelected(Data?, String?)
         case showDeleteAlert
+        case showErrorAlert
 //        case profileImageLoadingStateChanged(Bool)
     }
 
@@ -220,6 +221,18 @@ extension ProfileFeature {
                     )
                 )
                 return .none
+
+          case .showErrorAlert:
+            state.alert = DSAlertState(
+              title: "",
+              message: state.errorMessage ?? "",
+              primary: DSAlertState.ButtonAction(
+                title: "확인",
+                role: .destructive,
+                action: .cancel
+              )
+            )
+            return .none
 
 //            case .profileImageLoadingStateChanged(let isLoading):
 //                state.isProfileImageLoading = isLoading
@@ -394,7 +407,7 @@ extension ProfileFeature {
 
                     case .failure(let error):
                         state.errorMessage = error.errorDescription
-                    return .send(.delegate(.presentLogin))
+                        return .send(.delegate(.presentLogin))
                 }
 
 
@@ -410,7 +423,7 @@ extension ProfileFeature {
                     }
 
                     case .failure(let error):
-                        state.errorMessage = error.errorDescription
+                        state.errorMessage = "프로필 수정 실패 \(error.errorDescription)"
 
                     return .run { _ in
                         await MainActor.run {
@@ -430,7 +443,7 @@ extension ProfileFeature {
                         return .send(.delegate(.presentLogin))
 
                     case .failure(let error):
-                        state.errorMessage = error.errorDescription
+                      state.errorMessage = "회원 탈퇴 실패 \(error.errorDescription)"
                         return .none
 
                 }
