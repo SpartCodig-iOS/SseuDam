@@ -11,7 +11,9 @@ import Domain
 
 public protocol TravelLocalDataSourceProtocol: Actor {
     func load(status: TravelStatus) async throws -> [Travel]?
+    func load(travelId: String) async throws -> Travel?
     func save(travels: [Travel], status: TravelStatus) async throws
+    func upsert(travel: Travel) async throws
     func clear(status: TravelStatus) async throws
 }
 
@@ -27,10 +29,13 @@ public actor TravelLocalDataSource: TravelLocalDataSourceProtocol {
                 TravelCacheItemEntity.self,
                 TravelCacheMemberEntity.self
             ])
+
             do {
                 self.container = try ModelContainer(
                     for: schema,
-                    configurations: ModelConfiguration(isStoredInMemoryOnly: false)
+                    configurations: ModelConfiguration(
+                        isStoredInMemoryOnly: false
+                    )
                 )
             } catch {
                 fatalError("Failed to create Travel cache container: \(error)")
@@ -38,58 +43,156 @@ public actor TravelLocalDataSource: TravelLocalDataSourceProtocol {
         }
     }
 
+    // 상태별 여행 리스트 조회
     public func load(status: TravelStatus) async throws -> [Travel]? {
-        let context = ModelContext(container)
-        guard let cache = try fetchCache(for: status, in: context) else {
+        let context = makeContext()
+
+        guard let statusCache = try fetchCache(
+            for: status,
+            in: context
+        ) else {
             return nil
         }
 
-        // 캐시 시간 만료되면 삭제
-        if cache.isExpired {
-            context.delete(cache)
+        if statusCache.isExpired {
+            context.delete(statusCache)
             try context.save()
             return nil
         }
-        // api로 받은 리스트랑 순서 같도록 정렬
-        let sorted = cache.travels.sorted { $0.orderIndex < $1.orderIndex }
-        return sorted.map { $0.toDomain() }
+
+        return statusCache.travels
+            .sorted { $0.orderIndex < $1.orderIndex }
+            .map { $0.toDomain() }
     }
 
+    // travelId로 여행 조회
+    public func load(travelId: String) async throws -> Travel? {
+        let context = makeContext()
+
+        let caches = try fetchAllCaches(in: context)
+        let validCaches = try purgeExpiredCaches(caches, in: context)
+
+        for cache in validCaches {
+            if let cachedTravel = cache.travels.first(where: { $0.id == travelId }) {
+                return cachedTravel.toDomain()
+            }
+        }
+
+        return nil
+    }
+
+    // 여행 리스트 전체 저장
     public func save(travels: [Travel], status: TravelStatus) async throws {
-        let context = ModelContext(container)
+        let context = makeContext()
+
         if let existing = try fetchCache(for: status, in: context) {
             context.delete(existing)
         }
 
-        let cache = TravelCacheEntity(status: status, cachedAt: Date())
-        // 순서 유지하기 위해 index 저장
-        cache.travels = travels.enumerated().map { index, travel in
+        let statusCache = TravelCacheEntity(
+            status: status,
+            cachedAt: Date()
+        )
+
+        statusCache.travels = travels.enumerated().map { index, travel in
             travel.toCacheModel(orderIndex: index)
         }
 
-        context.insert(cache)
+        context.insert(statusCache)
         try context.save()
     }
 
+    // 여행 insert or update
+    public func upsert(travel: Travel) async throws {
+        let context = makeContext()
+        let caches = try fetchAllCaches(in: context)
+
+        // 기존 여행 제거
+        var preservedOrderIndex: Int?
+
+        for cache in caches {
+            if let index = cache.travels.firstIndex(where: { $0.id == travel.id }) {
+                preservedOrderIndex = cache.travels[index].orderIndex
+                cache.travels.remove(at: index)
+            }
+        }
+
+        // 대상 상태 캐시 찾기 or 생성
+        let destinationCache = caches.first {
+            $0.statusRawValue == travel.status.rawValue
+        } ?? {
+            let newCache = TravelCacheEntity(
+                status: travel.status,
+                cachedAt: Date()
+            )
+            context.insert(newCache)
+            return newCache
+        }()
+
+        // orderIndex 유지 또는 append
+        let orderIndex = preservedOrderIndex ?? destinationCache.travels.count
+        destinationCache.travels.append(
+            travel.toCacheModel(orderIndex: orderIndex)
+        )
+        destinationCache.cachedAt = Date()
+
+        try context.save()
+    }
+
+    // 캐시 전체 삭제
     public func clear(status: TravelStatus) async throws {
-        let context = ModelContext(container)
-        guard let cache = try fetchCache(for: status, in: context) else { return }
-        context.delete(cache)
+        let context = makeContext()
+        guard let statusCache = try fetchCache(for: status, in: context) else {
+            return
+        }
+        context.delete(statusCache)
         try context.save()
     }
 }
 
 private extension TravelLocalDataSource {
+    func makeContext() -> ModelContext {
+        ModelContext(container)
+    }
+
+    // 모든 캐시 fetch
+    func fetchAllCaches(
+        in context: ModelContext
+    ) throws -> [TravelCacheEntity] {
+        var descriptor = FetchDescriptor<TravelCacheEntity>()
+        descriptor.relationshipKeyPathsForPrefetching = [
+            \TravelCacheEntity.travels
+        ]
+        return try context.fetch(descriptor)
+    }
+
+    // 상태별 캐시 fetch
     func fetchCache(
         for status: TravelStatus,
         in context: ModelContext
     ) throws -> TravelCacheEntity? {
-        var descriptor = FetchDescriptor<TravelCacheEntity>()
-        // TravelCacheEntity 호출 시 travels도 같이 호출
-        descriptor.relationshipKeyPathsForPrefetching = [
-            \TravelCacheEntity.travels
-        ]
-        let caches = try context.fetch(descriptor)
-        return caches.first { $0.statusRawValue == status.rawValue }
+        try fetchAllCaches(in: context)
+            .first { $0.statusRawValue == status.rawValue }
+    }
+
+    // 만료 캐시 삭제
+    func purgeExpiredCaches(
+        _ caches: [TravelCacheEntity],
+        in context: ModelContext
+    ) throws -> [TravelCacheEntity] {
+
+        let validCaches = caches.filter { cache in
+            if cache.isExpired {
+                context.delete(cache)
+                return false
+            }
+            return true
+        }
+
+        if validCaches.count != caches.count {
+            try context.save()
+        }
+
+        return validCaches
     }
 }
