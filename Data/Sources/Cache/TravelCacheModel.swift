@@ -30,9 +30,9 @@ final class TravelCacheEntity {
         TravelStatus(rawValue: statusRawValue) ?? .unknown
     }
 
-    // 현재 시간 기준으로 6시간이 지났으면 만료
+    // 날짜가 변경되면 캐시 초기화
     var isExpired: Bool {
-        Date().timeIntervalSince(cachedAt) > TravelCacheConstants.expiration
+        !Calendar.current.isDate(cachedAt, inSameDayAs: Date())
     }
 }
 
@@ -168,10 +168,6 @@ final class TravelCacheMemberEntity {
             avatarUrl: avatarUrl
         )
     }
-}
-
-enum TravelCacheConstants {
-    static let expiration: TimeInterval = 60 * 60 * 6 // 6 시간
 }
 
 extension Travel {
