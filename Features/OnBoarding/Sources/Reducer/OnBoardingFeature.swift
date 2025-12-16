@@ -35,7 +35,6 @@ public struct OnBoardingFeature {
                         state.page = next
                         return .none
                     } else {
-                        state.$isFirst.withLock { $0 = false }
                         return .send(.delegate(.presentMain))
                     }
 
@@ -53,6 +52,7 @@ extension OnBoardingFeature {
     ) -> Effect<Action> {
         switch action {
             case .presentMain:
+                state.$isFirst.withLock { $0 = false }
                 return .none
         }
     }
