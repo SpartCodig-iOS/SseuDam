@@ -96,6 +96,14 @@ public final class MockTravelRepository: TravelRepositoryProtocol {
     public func deleteTravel(id: String) async throws {
         travels.removeAll { $0.id == id }
     }
+
+    public func observeCachedTravels(status: TravelStatus) -> AsyncStream<[Travel]> {
+        AsyncStream { continuation in
+            let filtered = travels.filter { $0.status == status }
+            continuation.yield(filtered)
+            continuation.finish()
+        }
+    }
 }
 
 private extension MockTravelRepository {

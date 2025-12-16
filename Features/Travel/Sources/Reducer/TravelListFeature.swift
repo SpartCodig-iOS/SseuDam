@@ -16,6 +16,8 @@ public struct TravelListFeature {
     public struct State: Equatable, Hashable {
         var travels: [Travel] = []
         var selectedTab: TravelTab = .ongoing
+        var cachedTravelsByTab: [TravelTab: [Travel]] = [:]
+        var didStartObservation = false
         
         var isMenuOpen = false
         
@@ -44,8 +46,10 @@ public struct TravelListFeature {
         case refresh
         case fetch
         case fetchNextPageIfNeeded(currentItemID: String?)
+        case startObserveCache(TravelTab)
+        case cachedTravelsUpdated(tab: TravelTab, travels: [Travel])
         
-        case fetchTravelsResponse(Result<[Travel], Error>)
+        case fetchTravelsResponse(tab: TravelTab, page: Int, Result<[Travel], Error>)
         case travelTabSelected(TravelTab)
         case travelSelected(travelId: String)
         case openInviteCode(String)
@@ -66,42 +70,83 @@ public struct TravelListFeature {
     
     @Dependency(\.fetchTravelsUseCase) var fetchTravelsUseCase
     @Dependency(\.joinTravelUseCase) var joinTravelUseCase
+    @Dependency(\.observeTravelCacheUseCase) var observeTravelCacheUseCase
     
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .send(.refresh)
+                // 탭별 캐시 스트림을 한번만 구독하고 서버 데이터를 요청
+                guard !state.didStartObservation else {
+                    return .send(.refresh)
+                }
+                state.didStartObservation = true
+                return .run { send in
+                    for tab in TravelTab.allCases {
+                        await send(.startObserveCache(tab))
+                    }
+                    await send(.refresh)
+                }
+
+            case .startObserveCache(let tab):
+                return .run { [tab] send in
+                    let stream = observeTravelCacheUseCase.execute(status: tab.status)
+                    for await travels in stream {
+                        await send(.cachedTravelsUpdated(tab: tab, travels: travels))
+                    }
+                }
+                .cancellable(id: TravelCacheObservationID(tab: tab), cancelInFlight: true)
+
+            case .cachedTravelsUpdated(let tab, let travels):
+                state.cachedTravelsByTab[tab] = travels
+                if state.selectedTab == tab {
+                    state.travels = travels
+                    state.isLoading = false
+                }
+                return .none
                 
             case .travelTabSelected(let newTab):
+                guard state.selectedTab != newTab else { return .none }
                 state.selectedTab = newTab
+                state.page = 1
+                state.hasNext = true
+                state.isLoadingNextPage = false
+                let cached = state.cachedTravelsByTab[newTab]
+                state.travels = cached ?? []
+                state.isLoading = (cached == nil)
                 return .send(.refresh)
                 
             case .refresh:
                 state.page = 1
                 state.hasNext = true
-                state.travels = []
+                state.isLoadingNextPage = false
+                if state.travels.isEmpty {
+                    state.isLoading = true
+                }
                 return .send(.fetch)
                 
             case .fetch:
                 guard state.hasNext else { return .none }
-                if state.page == 1 {
+                let currentTab = state.selectedTab
+                let currentPage = state.page
+                state.uiError = nil
+                if currentPage == 1 {
                     state.isLoading = true
                 } else {
                     state.isLoadingNextPage = true
                 }
                 
                 let input = FetchTravelsInput(
-                    page: state.page,
-                    status: state.selectedTab.status
+                    page: currentPage,
+                    status: currentTab.status
                 )
                 
-                return .run { send in
+                return .run { [currentTab, currentPage] send in
                     do {
                         let result = try await fetchTravelsUseCase.execute(input: input)
-                        await send(.fetchTravelsResponse(.success(result)))
+                        await send(.fetchTravelsResponse(tab: currentTab, page: currentPage, .success(result)))
                     } catch {
-                        await send(.fetchTravelsResponse(.failure(error)))
+                        await send(.fetchTravelsResponse(tab: currentTab, page: currentPage, .failure(error)))
                     }
                 }
                 
@@ -114,34 +159,41 @@ public struct TravelListFeature {
                 state.page += 1
                 return .send(.fetch)
                 
-            case .fetchTravelsResponse(.success(let items)):
-                state.isLoading = false
-                state.isLoadingNextPage = false
+            case .fetchTravelsResponse(let tab, let page, .success(let items)):
+                if tab == state.selectedTab {
+                    state.isLoading = false
+                    state.isLoadingNextPage = false
+                }
                 
                 if items.isEmpty {
-                    state.hasNext = false
+                    if tab == state.selectedTab {
+                        state.hasNext = false
+                        if page == 1 {
+                            state.travels = []
+                        }
+                    }
+                    if page == 1 {
+                        state.cachedTravelsByTab[tab] = []
+                    }
                     return .none
                 }
                 
-                if state.page == 1 {
-                    state.travels = items
-                } else {
-                    state.travels.append(contentsOf: items)
-                }
+                var existing = page == 1 ? [] : state.cachedTravelsByTab[tab] ?? []
+                existing.append(contentsOf: items)
+                let deduped = deduplicate(existing)
+                state.cachedTravelsByTab[tab] = deduped
                 
-                // 동일 여행이 중복 노출되지 않도록 ID 기준으로 정리
-                var seen = Set<String>()
-                state.travels = state.travels.filter { travel in
-                    guard !seen.contains(travel.id) else { return false }
-                    seen.insert(travel.id)
-                    return true
+                if tab == state.selectedTab {
+                    state.travels = deduped
                 }
                 return .none
                 
-            case .fetchTravelsResponse(.failure(let error)):
-                state.isLoading = false
-                state.isLoadingNextPage = false
-                state.uiError = error.localizedDescription
+            case .fetchTravelsResponse(let tab, _, .failure(let error)):
+                if tab == state.selectedTab {
+                    state.isLoading = false
+                    state.isLoadingNextPage = false
+                    state.uiError = error.localizedDescription
+                }
                 return .none
                 
             case .travelSelected:
@@ -225,5 +277,19 @@ public struct TravelListFeature {
         .ifLet(\.$create, action: \.create) {
             TravelCreateFeature()
         }
+    }
+}
+
+private struct TravelCacheObservationID: Hashable {
+    let tab: TravelTab
+}
+
+// 서버에서 동일 데이터를 여러 번 수신하더라도 한 번만 노출되도록 ID 기준으로 정리
+private func deduplicate(_ travels: [Travel]) -> [Travel] {
+    var seen = Set<String>()
+    return travels.filter { travel in
+        guard !seen.contains(travel.id) else { return false }
+        seen.insert(travel.id)
+        return true
     }
 }

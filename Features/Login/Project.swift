@@ -4,7 +4,8 @@ import SseuDamPlugin
 let project = Project.makeFeature(
     name: .Login,
     dependencies: [
-        .Features.Web
+        .Features.Web,
+        .Features.OnBoarding
     ],
     hasTests: true
 )

@@ -26,6 +26,7 @@ public struct LoginFeature {
         var currentNonce: String = ""
         @Shared(.appStorage("socialType")) var socialType: SocialType? = nil
         @Shared(.appStorage("sessionId")) var sessionId: String? = ""
+        @Shared(.appStorage("isOnboardingCompleted")) var isOnboardingCompleted: Bool = false
 
         @Presents var destination: Destination.State?
 
@@ -37,7 +38,6 @@ public struct LoginFeature {
     }
 
     // MARK: - Action (간소화)
-
     public enum Action: ViewAction, BindableAction {
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
@@ -49,7 +49,7 @@ public struct LoginFeature {
 
     @Reducer
     public enum Destination {
-      case termsService(TermsAgreementFeature)
+        case termsService(TermsAgreementFeature)
     }
 
     // MARK: - ViewAction
@@ -78,13 +78,14 @@ public struct LoginFeature {
         case presentTermsAgreement
         case presentServiceWeb
         case presentPrivacyWeb
+        case presentOnBoarding
     }
 
     // MARK: - Dependencies (하나로 통합!)
 
     @Dependency(UnifiedOAuthUseCase.self) var unifiedOAuthUseCase
     @Dependency(SessionUseCase.self) var sessionUseCase
-//    @Dependency(\.analyticsUseCase) var analyticsUseCase
+    @Dependency(\.analyticsUseCase) var analyticsUseCase
 
 
     nonisolated enum CancelID: Hashable {
@@ -100,23 +101,23 @@ public struct LoginFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
+                case .binding:
+                    return .none
 
-            case .destination(let action):
-                return handleDestinationAction(state: &state, action: action)
+                case .destination(let action):
+                    return handleDestinationAction(state: &state, action: action)
 
-            case .view(let viewAction):
-                return handleViewAction(state: &state, action: viewAction)
+                case .view(let viewAction):
+                    return handleViewAction(state: &state, action: viewAction)
 
-            case .async(let asyncAction):
-                return handleAsyncAction(state: &state, action: asyncAction)
+                case .async(let asyncAction):
+                    return handleAsyncAction(state: &state, action: asyncAction)
 
-            case .inner(let innerAction):
-                return handleInnerAction(state: &state, action: innerAction)
+                case .inner(let innerAction):
+                    return handleInnerAction(state: &state, action: innerAction)
 
-            case .delegate(let navigationAction):
-                return handleDelegateAction(state: &state, action: navigationAction)
+                case .delegate(let navigationAction):
+                    return handleDelegateAction(state: &state, action: navigationAction)
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -145,26 +146,26 @@ extension LoginFeature {
         action: PresentationAction<Destination.Action>
     ) -> Effect<Action> {
         switch action {
-        case .presented(.termsService(.scope(.close))):
-            state.destination = nil
+            case .presented(.termsService(.scope(.close))):
+                state.destination = nil
 
-            // 약관 동의 완료 후 저장된 OAuth 데이터로 회원가입 진행
-            if let pendingData = state.pendingOAuthData {
-                state.pendingOAuthData = nil
-                return .send(.async(.signUpWithTermsAgreement(pendingData)))
-            }
+                // 약관 동의 완료 후 저장된 OAuth 데이터로 회원가입 진행
+                if let pendingData = state.pendingOAuthData {
+                    state.pendingOAuthData = nil
+                    return .send(.async(.signUpWithTermsAgreement(pendingData)))
+                }
 
-            return .send(.delegate(.presentTravelList))
+                return .send(.delegate(.presentTravelList))
 
 
-          case .presented(.termsService(.delegate(.presentPrivacyWeb))):
-            return .send(.delegate(.presentPrivacyWeb))
+            case .presented(.termsService(.delegate(.presentPrivacyWeb))):
+                return .send(.delegate(.presentPrivacyWeb))
 
-          case .presented(.termsService(.delegate(.presentServiceWeb))):
-            return .send(.delegate(.presentServiceWeb))
-            
-        default:
-            return .none
+            case .presented(.termsService(.delegate(.presentServiceWeb))):
+                return .send(.delegate(.presentServiceWeb))
+
+            default:
+                return .none
         }
     }
 
@@ -175,17 +176,17 @@ extension LoginFeature {
     ) -> Effect<Action> {
         switch action {
 
-        case .googleButtonTapped:
-            return startOAuthFlow(state: &state, socialType: .google)
+            case .googleButtonTapped:
+                return startOAuthFlow(state: &state, socialType: .google)
 
-        case .appleButtonTapped:
-            return .none
-
-        case .signInWithSocial(let social):
-            if social == .apple {
+            case .appleButtonTapped:
                 return .none
-            }
-            return startOAuthFlow(state: &state, socialType: social)
+
+            case .signInWithSocial(let social):
+                if social == .apple {
+                    return .none
+                }
+                return startOAuthFlow(state: &state, socialType: social)
         }
     }
 
@@ -195,39 +196,47 @@ extension LoginFeature {
         action: InnerAction
     ) -> Effect<Action> {
         switch action {
-        case .authFlowResult(let outcome):
-            state.isLoading = false
+            case .authFlowResult(let outcome):
+                state.isLoading = false
 
-            switch outcome {
-            case .loginSuccess(let authEntity), .signUpSuccess(let authEntity):
-                state.authResult = authEntity
-                state.statusMessage = "\(authEntity.provider.rawValue) 인증 성공!"
-                state.$sessionId.withLock { $0 = authEntity.token.sessionID }
-                // Analytics: 로그인/회원가입 구분 전송
-                let social = authEntity.provider.rawValue
-                if case .signUpSuccess = outcome {
-//                    analyticsUseCase.track(.auth(.signupSuccess, AuthEventData(socialType: social)))
-//                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: true)))
-                } else {
-//                    analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: false)))
+                switch outcome {
+                    case .loginSuccess(let authEntity):
+                        state.authResult = authEntity
+                        state.statusMessage = "\(authEntity.provider.rawValue) 인증 성공!"
+                        state.$sessionId.withLock { $0 = authEntity.token.sessionID }
+                        // Analytics: 로그인/회원가입 구분 전송
+                        let social = authEntity.provider.rawValue
+                        analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: false)))
+                        return .send(.delegate(.presentTravelList))
+
+                    case .signUpSuccess(let authEntity):
+                        state.authResult = authEntity
+                        state.statusMessage = "\(authEntity.provider.rawValue) 인증 성공!"
+                        state.$sessionId.withLock { $0 = authEntity.token.sessionID }
+                        let social = authEntity.provider.rawValue
+                        analyticsUseCase.track(.auth(.signupSuccess, AuthEventData(socialType: social)))
+                        analyticsUseCase.track(.auth(.loginSuccess, AuthEventData(socialType: social, isFirst: true)))
+                        if !state.isOnboardingCompleted {
+                            return .send(.delegate(.presentOnBoarding))
+                        } else {
+                            return .send(.delegate(.presentTravelList))
+                        }
+
+                    case .needsTermsAgreement(let authData):
+                        state.pendingOAuthData = authData
+                        state.statusMessage = "약관 동의가 필요합니다"
+                        return .send(.delegate(.presentTermsAgreement))
+
+                    case .failure(let error):
+                        state.statusMessage = "인증 실패: \(error.localizedDescription)"
+
+                        // Toast로 에러 메시지 표시
+                        return .run { _ in
+                            await MainActor.run {
+                                ToastManager.shared.showError("인증에 실패했어요. 다시 시도해주세요.")
+                            }
+                        }
                 }
-                return .send(.delegate(.presentTravelList))
-
-            case .needsTermsAgreement(let authData):
-                state.pendingOAuthData = authData
-                state.statusMessage = "약관 동의가 필요합니다"
-                return .send(.delegate(.presentTermsAgreement))
-
-            case .failure(let error):
-                state.statusMessage = "인증 실패: \(error.localizedDescription)"
-
-                // Toast로 에러 메시지 표시
-                return .run { _ in
-                    await MainActor.run {
-                        ToastManager.shared.showError("인증에 실패했어요. 다시 시도해주세요.")
-                    }
-                }
-            }
         }
     }
 
@@ -236,41 +245,41 @@ extension LoginFeature {
         action: AsyncAction
     ) -> Effect<Action> {
         switch action {
-          case .prepareAppleRequest(let request):
-            let nonce = AppleLoginManager().prepare(request)
-            state.currentNonce = nonce
-            return .none
+            case .prepareAppleRequest(let request):
+                let nonce = AppleLoginManager().prepare(request)
+                state.currentNonce = nonce
+                return .none
 
-        case .appleCompletion(let result):
-            guard
-                case .success(let auth) = result,
-                let credential = auth.credential as? ASAuthorizationAppleIDCredential,
-                !state.currentNonce.isEmpty
-            else {
-                return .send(.inner(.authFlowResult(.failure(.invalidCredential("Apple 인증 정보가 없습니다")))))
-            }
-
-            return startOAuthFlow(
-                state: &state,
-                socialType: .apple,
-                appleCredential: credential,
-                nonce: state.currentNonce
-            )
-
-        case .signUpWithTermsAgreement(let oAuthData):
-            state.isLoading = true
-            state.statusMessage = "회원가입 중..."
-
-            return .run { send in
-                let result = await unifiedOAuthUseCase.signUpWithTermsAgreement(with: oAuthData)
-                switch result {
-                case .success(let authResult):
-                    await send(.inner(.authFlowResult(.signUpSuccess(authResult))))
-                case .failure(let error):
-                    await send(.inner(.authFlowResult(.failure(error))))
+            case .appleCompletion(let result):
+                guard
+                    case .success(let auth) = result,
+                    let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                    !state.currentNonce.isEmpty
+                else {
+                    return .send(.inner(.authFlowResult(.failure(.invalidCredential("Apple 인증 정보가 없습니다")))))
                 }
-            }
-            .cancellable(id: CancelID.googleOAuth, cancelInFlight: true)
+
+                return startOAuthFlow(
+                    state: &state,
+                    socialType: .apple,
+                    appleCredential: credential,
+                    nonce: state.currentNonce
+                )
+
+            case .signUpWithTermsAgreement(let oAuthData):
+                state.isLoading = true
+                state.statusMessage = "회원가입 중..."
+
+                return .run { send in
+                    let result = await unifiedOAuthUseCase.signUpWithTermsAgreement(with: oAuthData)
+                    switch result {
+                        case .success(let authResult):
+                            await send(.inner(.authFlowResult(.signUpSuccess(authResult))))
+                        case .failure(let error):
+                            await send(.inner(.authFlowResult(.failure(error))))
+                    }
+                }
+                .cancellable(id: CancelID.googleOAuth, cancelInFlight: true)
         }
     }
 
@@ -279,18 +288,21 @@ extension LoginFeature {
         action: DelegateAction
     ) -> Effect<Action> {
         switch action {
-        case .presentTravelList:
-            return .none
+            case .presentTravelList:
+                return .none
 
-        case .presentTermsAgreement:
-            state.destination = .termsService(.init())
-            return .none
+            case .presentTermsAgreement:
+                state.destination = .termsService(.init())
+                return .none
 
-          case .presentPrivacyWeb:
-            return .none
+            case .presentPrivacyWeb:
+                return .none
 
-          case .presentServiceWeb:
-            return .none
+            case .presentServiceWeb:
+                return .none
+
+            case .presentOnBoarding:
+                return .none
         }
     }
 }
@@ -310,10 +322,10 @@ private extension LoginFeature {
 
         let cancelID: CancelID
         switch socialType {
-        case .google: cancelID = .googleOAuth
-        case .apple: cancelID = .appleOAuth
-        case .kakao: cancelID = .kakaoOAuth
-        case .none: cancelID = .appleOAuth
+            case .google: cancelID = .googleOAuth
+            case .apple: cancelID = .appleOAuth
+            case .kakao: cancelID = .kakaoOAuth
+            case .none: cancelID = .appleOAuth
         }
 
         return .run { send in

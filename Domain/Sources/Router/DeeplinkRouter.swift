@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import Dependencies
+import ComposableArchitecture
+import LogMacro
 
 public struct DeeplinkRouter: Sendable {
 
@@ -14,7 +15,9 @@ public struct DeeplinkRouter: Sendable {
 
     // MARK: - Public Interface
 
-    public func parse(_ urlString: String) -> DeeplinkResult {
+  public func parse(
+    _ urlString: String
+  ) -> DeeplinkResult {
         guard let url = URL(string: urlString),
               url.scheme == "sseudam" else {
             return .invalid(url: urlString, reason: "Invalid scheme")
@@ -34,7 +37,10 @@ public struct DeeplinkRouter: Sendable {
 
     // MARK: - Private Parsing
 
-    private func parseTravelDeeplink(url: URL, pathComponents: [String]) -> DeeplinkResult {
+  private func parseTravelDeeplink(
+    url: URL,
+    pathComponents: [String]
+  ) -> DeeplinkResult {
         guard let (travelId, remainingComponents) = extractTravelId(url: url, pathComponents: pathComponents),
               !travelId.isEmpty else {
             return .invalid(url: url.absoluteString, reason: "Missing travel ID")
@@ -56,7 +62,9 @@ public struct DeeplinkRouter: Sendable {
         return .success(.travel(travelDeeplink))
     }
 
-    private func parseInviteDeeplink(url: URL) -> DeeplinkResult {
+  private func parseInviteDeeplink(
+    url: URL
+  ) -> DeeplinkResult {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let inviteCode = components.queryItems?.first(where: { $0.name == "code" })?.value,
               !inviteCode.isEmpty else {
@@ -66,7 +74,10 @@ public struct DeeplinkRouter: Sendable {
         return .requiresLogin(destination: .invite(code: inviteCode))
     }
 
-    private func extractTravelId(url: URL, pathComponents: [String]) -> (String, [String])? {
+  private func extractTravelId(
+    url: URL,
+    pathComponents: [String]
+  ) -> (String, [String])? {
         if pathComponents.first == "travel" && pathComponents.count >= 2 {
             // ["travel", "123", "expense", "456"]
             let travelId = pathComponents[1]
@@ -80,6 +91,26 @@ public struct DeeplinkRouter: Sendable {
         }
         return nil
     }
+
+  public  func extractDeepLink(from userInfo: [AnyHashable: Any]) -> String? {
+    // 1) 단일 문자열 필드 우선
+    let stringKeys = ["deeplink", "url"]
+    for key in stringKeys {
+      if let url = userInfo[key] as? String { return url }
+    }
+
+    // 2) 중첩 객체에서 url 필드 찾기 (호환 키: deeplink, data, custom)
+    let containerKeys = ["deeplink", "data", "custom"]
+    for key in containerKeys {
+      guard let container = userInfo[key] as? [String: Any],
+            let url = container["url"] as? String else { continue }
+      return url
+    }
+
+    #logDebug("❌ No deep link found in push notification")
+    #logDebug("Available keys: \(userInfo.keys)")
+    return nil
+  }
 }
 
 // MARK: - Dependencies

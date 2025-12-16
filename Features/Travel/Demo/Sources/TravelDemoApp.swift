@@ -19,12 +19,16 @@ struct TravelDemoApp: App {
     private static let mockCountriesRepo = MockCountriesRepository()
     private static let mockExchangeRateRepo = MockExchangeRateRepository()
 
-    private static let repo = TravelRepository(remote: TravelRemoteDataSource())
+    private static let repo = TravelRepository(
+        remote: TravelRemoteDataSource(),
+        local: TravelLocalDataSource()
+    )
 
     private let store = Store(initialState: TravelListFeature.State()) {
         TravelListFeature()
     } withDependencies: {
         $0.fetchTravelsUseCase = FetchTravelsUseCase(repository: repo)
+        $0.observeTravelCacheUseCase = ObserveTravelCacheUseCase(repository: repo)
         $0.createTravelUseCase = CreateTravelUseCase(repository: repo)
     }
 

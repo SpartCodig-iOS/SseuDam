@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import TCACoordinators
 import WebFeature
+import OnBoardingFeature
 
 
 @Reducer
@@ -75,6 +76,7 @@ extension LoginCoordinator {
   public enum LoginScreen {
     case login(LoginFeature)
     case web(WebFeature)
+    case onBoarding(OnBoardingFeature)
   }
 }
 
@@ -96,7 +98,14 @@ extension LoginCoordinator {
       case .routeAction(id: _, action: .login(.delegate(.presentPrivacyWeb))):
         state.routes.push(.web(.init(url: "https://sseudam.up.railway.app/privacy/")))
         return .none
-        
+
+      case .routeAction(id: _, action: .login(.delegate(.presentOnBoarding))):
+        state.routes.push(.onBoarding(.init()))
+        return .none
+
+      case .routeAction(id: _, action: .onBoarding(.delegate(.presentMain))):
+        return .send(.delegate(.presentMain))
+
       default:
         return .none
     }

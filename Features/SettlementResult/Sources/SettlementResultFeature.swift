@@ -39,14 +39,19 @@ public struct SettlementResultFeature {
             memberDetails: []
         )
 
-        // 총 지출 금액
-        public var totalExpenseAmount: Int {
-            Int(settlementCalculation.totalExpenseAmount)
+        // 포맷팅된 총 지출 금액 (억/만 단위)
+        public var formattedTotalExpenseAmount: String {
+            CurrencyFormatter.formatKoreanCurrency(settlementCalculation.totalExpenseAmount)
         }
 
-        // 내 부담 금액 (내가 실제로 부담해야 할 금액)
-        public var myExpenseAmount: Int {
-            Int(settlementCalculation.myShareAmount)
+        // 포맷팅된 내 부담 금액 (억/만 단위)
+        public var formattedMyExpenseAmount: String {
+            CurrencyFormatter.formatKoreanCurrency(settlementCalculation.myShareAmount)
+        }
+
+        // 포맷팅된 1인 평균 금액 (억/만 단위)
+        public var formattedAveragePerPerson: String {
+            CurrencyFormatter.formatKoreanCurrency(settlementCalculation.averagePerPerson)
         }
 
         // 인원수

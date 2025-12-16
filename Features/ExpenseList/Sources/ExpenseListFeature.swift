@@ -26,25 +26,31 @@ public struct ExpenseListFeature {
         public var endDate: Date {
             return travel?.endDate ?? Date()
         }
-        var _selectedDate: Date? = nil
-        public var selectedDate: Date {
-            get {
-                return _selectedDate ?? startDate
-            } set {
-                _selectedDate = newValue
-            }
-        }
+        public var selectedDateRange: ClosedRange<Date>? = nil
+        public var currentPage: Int = 0
+        public var selectedCategory: ExpenseCategory? = nil
         public let travelId: String
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
         public var pendingHighlightExpenseId: String?
-        public var totalAmount: Int {
-            Int(currentExpense.reduce(0) { $0 + $1.convertedAmount })
-        }
-
-        public var myExpenseAmount: Int {
-            // 임시로 전체 금액과 동일하게 처리 (나중에 내 지출 필터링 로직 추가 필요)
-            totalAmount
+        /// 포맷팅된 총 지출 금액 문자열
+        /// 포맷팅된 총 지출 금액 문자열
+        public var formattedTotalAmount: String {
+            // 날짜 범위가 선택되지 않았을 때(전체 기간)는 페이지네이션과 관계없이 전체 지출의 합계 표시
+            // 단, 카테고리 필터는 적용해야 함
+            let expensesToCalculate: [Expense]
+            if selectedDateRange == nil {
+                if let category = selectedCategory {
+                    expensesToCalculate = allExpenses.filter { $0.category == category }
+                } else {
+                    expensesToCalculate = allExpenses
+                }
+            } else {
+                expensesToCalculate = currentExpense
+            }
+            
+            let total = expensesToCalculate.reduce(0.0) { $0 + $1.convertedAmount }
+            return total.formatted(.number.precision(.fractionLength(0)))
         }
 
         public init(
@@ -117,9 +123,29 @@ public struct ExpenseListFeature {
                 return .none
             case .delegate:
                 return .none
-            case .binding(\.selectedDate):
-                // 로컬 캐시에서 필터링
-                filterExpensesByDate(&state, date: state.selectedDate)
+            case .binding(\.selectedDateRange):
+                // 날짜 범위 변경 시 필터링
+                applyFilters(&state)
+                
+                // 선택된 날짜에 맞는 페이지로 이동
+                if let range = state.selectedDateRange {
+                    let calendar = Calendar.current
+                    let startDay = calendar.startOfDay(for: state.startDate)
+                    let rangeStartDay = calendar.startOfDay(for: range.lowerBound)
+                    
+                    if let days = calendar.dateComponents([.day], from: startDay, to: rangeStartDay).day {
+                        state.currentPage = days / 7
+                    }
+                }
+                return .none
+            case .binding(\.currentPage):
+                // 페이지 변경 시 선택된 날짜 초기화 및 해당 페이지 데이터로 필터링
+                state.selectedDateRange = nil
+                applyFilters(&state)
+                return .none
+            case .binding(\.selectedCategory):
+                // 카테고리 변경 시 필터링
+                applyFilters(&state)
                 return .none
             case .binding:
                 return .none
@@ -158,8 +184,8 @@ extension ExpenseListFeature {
                 $0 = expenses
             }
             applyExpenseHighlight(&state)
-            // 현재 선택된 날짜로 필터링
-            filterExpensesByDate(&state, date: state.selectedDate)
+            // 현재 선택된 필터 적용
+            applyFilters(&state)
             state.isLoading = false
             return .none
 
@@ -197,11 +223,43 @@ extension ExpenseListFeature {
     }
 
     // MARK: - Helper Methods
-    private func filterExpensesByDate(_ state: inout State, date: Date?) {
-        guard let date = date else { return }
+    private func applyFilters(_ state: inout State) {
         let calendar = Calendar.current
+
         state.currentExpense = state.allExpenses.filter { expense in
-            calendar.isDate(expense.expenseDate, inSameDayAs: date)
+            // 날짜 범위 필터링
+            if let range = state.selectedDateRange {
+                let rangeStart = calendar.startOfDay(for: range.lowerBound)
+                let rangeEnd = calendar.startOfDay(for: range.upperBound)
+                let expenseDay = calendar.startOfDay(for: expense.expenseDate)
+
+                guard expenseDay >= rangeStart && expenseDay <= rangeEnd else {
+                    return false
+                }
+            } else {
+                // 선택된 날짜가 없으면 현재 페이지(7일)에 해당하는지 확인
+                // 페이지 시작일 = 여행 시작일 + (currentPage * 7)일
+                if let pageStart = calendar.date(byAdding: .day, value: state.currentPage * 7, to: state.startDate) {
+                    let pageStartDay = calendar.startOfDay(for: pageStart)
+                    // 페이지 끝일 = 시작일 + 6일
+                    let pageEndDay = calendar.date(byAdding: .day, value: 6, to: pageStartDay) ?? Date()
+                    
+                    let expenseDay = calendar.startOfDay(for: expense.expenseDate)
+                    
+                    guard expenseDay >= pageStartDay && expenseDay <= pageEndDay else {
+                        return false
+                    }
+                }
+            }
+
+            // 카테고리 필터링
+            if let category = state.selectedCategory {
+                guard expense.category == category else {
+                    return false
+                }
+            }
+
+            return true
         }
     }
 
@@ -210,8 +268,9 @@ extension ExpenseListFeature {
         guard let expense = state.allExpenses.first(where: { $0.id == targetId }) else { return }
         let calendar = Calendar.current
         let targetDate = calendar.startOfDay(for: expense.expenseDate)
-        state.selectedDate = targetDate
-        filterExpensesByDate(&state, date: targetDate)
+        // 단일 날짜 선택 (같은 날짜의 범위)
+        state.selectedDateRange = targetDate...targetDate
+        applyFilters(&state)
         state.pendingHighlightExpenseId = nil
     }
 }

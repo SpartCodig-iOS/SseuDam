@@ -16,10 +16,12 @@ public extension TargetDependency {
 
 public extension TargetDependency.Features {
     // MARK: - Feature Modules
+    static let Expense: TargetDependency = .project(target: "ExpenseFeature", path: .relativeToRoot("Features/Expense"))
     static let ExpenseList: TargetDependency = .project(target: "ExpenseListFeature", path: .relativeToRoot("Features/ExpenseList"))
     static let Login: TargetDependency = .project(target: "LoginFeature", path: .relativeToRoot("Features/Login"))
     static let Main: TargetDependency = .project(target: "MainFeature", path: .relativeToRoot("Features/Main"))
     static let Member: TargetDependency = .project(target: "MemberFeature", path: .relativeToRoot("Features/Member"))
+    static let OnBoarding: TargetDependency = .project(target: "OnBoardingFeature", path: .relativeToRoot("Features/OnBoarding"))
     static let Profile: TargetDependency = .project(target: "ProfileFeature", path: .relativeToRoot("Features/Profile"))
     static let SaveExpense: TargetDependency = .project(target: "SaveExpenseFeature", path: .relativeToRoot("Features/SaveExpense"))
     static let Settlement: TargetDependency = .project(target: "SettlementFeature", path: .relativeToRoot("Features/Settlement"))
@@ -32,10 +34,12 @@ public extension TargetDependency.Features {
 
 // MARK: - Feature Names
 public enum FeatureName: String {
+    case Expense
     case ExpenseList
     case Login
     case Main
     case Member
+    case OnBoarding
     case Profile
     case SaveExpense
     case Settlement
