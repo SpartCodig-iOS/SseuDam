@@ -14,7 +14,6 @@ public class KakaoOAuthProvider: OAuthProviderProtocol {
 
     public init() {}
 
-    // ✅ 기존 Kakao 특수 로직 그대로 (Dependencies 매개변수로 전달)
     public func signUp(kakaoRepository: KakaoOAuthRepositoryProtocol) async throws -> UserProfile {
         let kakaoPayload = try await kakaoRepository.signIn()
         let tokens = AuthTokens(

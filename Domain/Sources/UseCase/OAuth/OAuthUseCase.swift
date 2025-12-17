@@ -11,7 +11,7 @@ import LogMacro
 import AuthenticationServices
 
 public struct OAuthUseCase: OAuthUseCaseProtocol {
-    // ✅ Dependencies 시스템 유지
+    
     @Dependency(\.oAuthRepository) private var repository: OAuthRepositoryProtocol
     @Dependency(\.googleOAuthRepository) private var googleRepository: GoogleOAuthRepositoryProtocol
     @Dependency(\.appleOAuthRepository) private var appleRepository: AppleOAuthRepositoryProtocol
@@ -19,7 +19,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
 
     public init() {}
 
-    // ✅ 기존 시그니처와 동작 완전 동일
+
     public func signInWithApple(
         credential: ASAuthorizationAppleIDCredential,
         nonce: String
@@ -32,7 +32,7 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
         )
     }
 
-    // ✅ 기존 시그니처와 동작 완전 동일
+
     public func signUp(
         with provider: SocialType
     ) async throws -> UserProfile {

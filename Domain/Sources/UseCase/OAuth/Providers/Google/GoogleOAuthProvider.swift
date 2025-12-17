@@ -14,7 +14,7 @@ public class GoogleOAuthProvider: OAuthProviderProtocol {
 
     public init() {}
 
-    // ✅ 기존 signUp 로직 그대로 (Dependencies 매개변수로 전달)
+  
     public func signUp(
         repository: OAuthRepositoryProtocol,
         googleRepository: GoogleOAuthRepositoryProtocol
@@ -33,7 +33,6 @@ public class GoogleOAuthProvider: OAuthProviderProtocol {
         return profile
     }
 
-    // ✅ 기존 fetchPayload 로직 그대로 (매개변수로 repository 전달)
     private func fetchPayload(googleRepository: GoogleOAuthRepositoryProtocol) async throws -> OAuthSignInPayload {
         let payload = try await googleRepository.signIn()
         return OAuthSignInPayload(

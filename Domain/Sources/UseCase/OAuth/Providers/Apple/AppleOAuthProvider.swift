@@ -15,7 +15,6 @@ public class AppleOAuthProvider: AppleOAuthProviderProtocol {
 
     public init() {}
 
-    // ✅ 기존 signInWithApple 로직 그대로 (Dependencies 매개변수로 전달)
     public func signInWithCredential(
         credential: ASAuthorizationAppleIDCredential,
         nonce: String,
@@ -42,7 +41,6 @@ public class AppleOAuthProvider: AppleOAuthProviderProtocol {
         return profile
     }
 
-    // ✅ signUp 메소드 (Dependencies 매개변수로 전달)
     public func signUp(
         repository: OAuthRepositoryProtocol,
         appleRepository: AppleOAuthRepositoryProtocol
@@ -61,7 +59,6 @@ public class AppleOAuthProvider: AppleOAuthProviderProtocol {
         return profile
     }
 
-    // ✅ 기존 formatDisplayName 로직 그대로
     private func formatDisplayName(_ components: PersonNameComponents?) -> String? {
         guard let components else { return nil }
         let formatter = PersonNameComponentsFormatter()
@@ -69,7 +66,6 @@ public class AppleOAuthProvider: AppleOAuthProviderProtocol {
         return name.isEmpty ? nil : name
     }
 
-    // ✅ 기존 fetchPayload 로직 그대로 (매개변수로 repository 전달)
     private func fetchPayload(appleRepository: AppleOAuthRepositoryProtocol) async throws -> OAuthSignInPayload {
         let payload = try await appleRepository.signIn()
         return OAuthSignInPayload(
