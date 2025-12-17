@@ -126,7 +126,7 @@ jobs:
       - name: Run Fastlane QA
         run: |
           # fastlane/.env 파일 사용하므로 별도 환경변수 설정 불필요
-          bundle exec fastlane qa
+          bundle exec fastlane QA
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
