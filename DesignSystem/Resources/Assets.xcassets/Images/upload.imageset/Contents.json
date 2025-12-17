@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "travelList.png",
+      "filename" : "lucide_upload.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "travelList2.png",
+      "filename" : "lucide_upload@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "travelList3.png",
+      "filename" : "lucide_upload@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

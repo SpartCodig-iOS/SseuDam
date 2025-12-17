@@ -158,8 +158,7 @@ struct BasicSettingView: View {
     private var inviteSection: some View {
         Button {
             guard let inviteCode = store.travel.inviteCode else { return }
-            UIPasteboard.general.string = inviteCode
-            ToastManager.shared.showSuccess("클립보드에 복사되었습니다.")
+            InviteCodeHelper.copyToClipboard(inviteCode)
         } label: {
             VStack(alignment: .leading, spacing: 8) {
                 Text("초대 코드")
@@ -180,16 +179,8 @@ struct BasicSettingView: View {
                     Spacer()
 
                     Button {
-                        if let deepLink = store.travel.deepLink {
-                            let activityViewController = UIActivityViewController(
-                                activityItems: [deepLink],
-                                applicationActivities: nil
-                            )
-
-                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                               let window = windowScene.windows.first {
-                                window.rootViewController?.present(activityViewController, animated: true)
-                            }
+                        if let deepLink = store.travel.deepLink, let url = URL(string: deepLink) {
+                            InviteCodeHelper.shareDeepLink(url)
                         }
                     } label: {
                         Image(systemName: "square.and.arrow.up")

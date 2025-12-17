@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import ComposableArchitecture
+import Dependencies
 import LogMacro
 
 public struct DeeplinkRouter: Sendable {

@@ -18,7 +18,6 @@ struct ExpenseChartView: View {
     @Binding var currentPage: Int
 
     private let barWidth: CGFloat = 18
-    @State private var dragStartDateString: String?
 
     private static let mmddFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -102,6 +101,15 @@ struct ExpenseChartView: View {
             }
         }
         .frame(height: 126)
+        .onChange(of: selectedDateString) { _, newValue in
+            guard let dateStr = newValue,
+                  let date = Expense.parseDate(dateStr) else { return }
+
+            // 탭한 날짜만 선택 (단일 날짜 범위)
+            let calendar = Calendar.current
+            let selected = calendar.startOfDay(for: date)
+            selectedDateRange = selected...selected
+        }
     }
     
     private func chartView(for chunk: [String]) -> some View {
@@ -130,91 +138,35 @@ struct ExpenseChartView: View {
                 }
             }
         }
-        .chartXSelection(value: currentSelectionBinding)
         .chartGesture { proxy in
-            DragGesture(minimumDistance: 0)
-                .onChanged { value in
-                    handleDragChange(value: value, proxy: proxy)
-                }
+            SpatialTapGesture()
                 .onEnded { value in
-                    handleDragEnd(value: value, proxy: proxy)
+                    // 정확한 타입 추론을 위해 as: String.self 명시
+                    if let dateString = proxy.value(atX: value.location.x, as: String.self) {
+                        selectedDateString = dateString
+                    }
                 }
         }
         .frame(height: 94)
     }
 
-    // 현재 선택 중인 날짜 (드래그 중일 수도 있음)
-    private var currentSelectionBinding: Binding<String?> {
-        Binding(
-            get: {
-                if let dragStart = dragStartDateString {
-                    return dragStart
-                }
-                if let range = selectedDateRange {
-                    return Expense.formatDate(range.lowerBound)
-                }
-                return nil
-            },
-            set: { _ in }
-        )
-    }
-
-    private func handleDragChange(value: DragGesture.Value, proxy: ChartProxy) {
-        let location = value.location
-        if let dateStr: String = proxy.value(atX: location.x, as: String.self) {
-            if dragStartDateString == nil {
-                // 드래그 시작
-                dragStartDateString = dateStr
-            } else {
-                // 드래그 중 - 범위 업데이트
-                updateRangeSelection(from: dragStartDateString!, to: dateStr)
-            }
-        }
-    }
-
-    private func handleDragEnd(value: DragGesture.Value, proxy: ChartProxy) {
-        let location = value.location
-        if let endDateStr: String = proxy.value(atX: location.x, as: String.self),
-           let startDateStr = dragStartDateString {
-
-            let dragDistance = value.translation.width
-
-            // 드래그가 거의 없었으면 단일 선택 (탭)
-            if abs(dragDistance) < 10 {
-                // 단일 날짜 선택
-                if let date = Expense.parseDate(startDateStr) {
-                    selectedDateRange = date...date
-                }
-            } else {
-                // 범위 선택
-                updateRangeSelection(from: startDateStr, to: endDateStr)
-            }
-        }
-        // 드래그 상태 초기화
-        dragStartDateString = nil
-    }
-
-    private func updateRangeSelection(from startStr: String, to endStr: String) {
-        guard let startDate = Expense.parseDate(startStr),
-              let endDate = Expense.parseDate(endStr) else { return }
-
-        // 시작과 끝을 정렬
-        let lower = min(startDate, endDate)
-        let upper = max(startDate, endDate)
-        selectedDateRange = lower...upper
-    }
+    @State private var selectedDateString: String?
 
     private func barColor(for dateString: String) -> Color {
-        guard let range = selectedDateRange else { return .primary500 }
-        guard let date = Expense.parseDate(dateString) else { return .primary500 }
+        guard let date = Expense.parseDate(dateString) else { return .primary100 }
 
-        let calendar = Calendar.current
-        let dateDay = calendar.startOfDay(for: date)
-        let rangeStart = calendar.startOfDay(for: range.lowerBound)
-        let rangeEnd = calendar.startOfDay(for: range.upperBound)
+        // 선택된 범위가 있으면 범위 체크
+        if let range = selectedDateRange {
+            let calendar = Calendar.current
+            let dateDay = calendar.startOfDay(for: date)
+            let rangeStart = calendar.startOfDay(for: range.lowerBound)
+            let rangeEnd = calendar.startOfDay(for: range.upperBound)
 
-        // 범위 내에 있으면 primary500, 아니면 primary100
-        return (dateDay >= rangeStart && dateDay <= rangeEnd) ? .primary500 : .primary100
+            return (dateDay >= rangeStart && dateDay <= rangeEnd) ? .primary500 : .primary100
+        }
+
+        // 선택된 범위가 없으면 기본 색상
+        return .primary100
     }
 }
 
