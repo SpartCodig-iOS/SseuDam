@@ -11,119 +11,57 @@ import LogMacro
 import AuthenticationServices
 
 public struct OAuthUseCase: OAuthUseCaseProtocol {
+    // ✅ Dependencies 시스템 유지
     @Dependency(\.oAuthRepository) private var repository: OAuthRepositoryProtocol
     @Dependency(\.googleOAuthRepository) private var googleRepository: GoogleOAuthRepositoryProtocol
     @Dependency(\.appleOAuthRepository) private var appleRepository: AppleOAuthRepositoryProtocol
     @Dependency(\.kakaoOAuthRepository) private var kakaoRepository: KakaoOAuthRepositoryProtocol
-    
+
     public init() {}
-    
+
+    // ✅ 기존 시그니처와 동작 완전 동일
     public func signInWithApple(
         credential: ASAuthorizationAppleIDCredential,
         nonce: String
     ) async throws -> UserProfile {
-        guard let identityTokenData = credential.identityToken,
-              let identityToken = String(data: identityTokenData, encoding: .utf8),
-              let authCode = String(data: credential.authorizationCode ?? Data(), encoding: .utf8)
-        else {
-            throw AuthError.missingIDToken
-        }
-        
-        let displayName = formatDisplayName(credential.fullName)
-        Log.info("Apple sign-in credential received for \(displayName ?? "unknown user")")
-        
-        let profile = try await repository.signIn(
-            provider: .apple,
-            idToken: identityToken,
+        let provider = AppleOAuthProvider()
+        return try await provider.signInWithCredential(
+            credential: credential,
             nonce: nonce,
-            displayName: displayName,
-            authorizationCode: authCode
+            repository: repository
         )
-        Log.info("Supabase sign-in with Apple succeeded")
-        return profile
     }
-    
-    // MARK: - Helper Methods
-    private func formatDisplayName(
-        _ components: PersonNameComponents?
-    ) -> String? {
-        guard let components else { return nil }
-        let formatter = PersonNameComponentsFormatter()
-        let name = formatter.string(from: components).trimmingCharacters(in: .whitespacesAndNewlines)
-        return name.isEmpty ? nil : name
-    }
-    
+
+    // ✅ 기존 시그니처와 동작 완전 동일
     public func signUp(
         with provider: SocialType
     ) async throws -> UserProfile {
-        // Kakao는 Supabase OAuth를 거치지 않고 Kakao SDK 토큰을 그대로 사용
-        if provider == .kakao {
-            let kakaoPayload = try await kakaoRepository.signIn()
-            let tokens = AuthTokens(
-                authToken: kakaoPayload.authorizationCode ?? "",
-                accessToken: kakaoPayload.accessToken,
-                refreshToken: kakaoPayload.refreshToken ?? "",
-                sessionID: ""
-            )
-            return UserProfile(
-                id: kakaoPayload.authorizationCode ?? UUID().uuidString,
-                email: nil,
-                displayName: kakaoPayload.displayName,
-                provider: .kakao,
-                tokens: tokens,
-                authCode: kakaoPayload.authorizationCode,
-                codeVerifier: kakaoPayload.codeVerifier
-            )
-        }
-        
-        let payload = try await fetchPayload(for: provider)
-        Log.info("\(provider.rawValue) sign-in succeeded for \(payload.displayName ?? "unknown user")")
-        
-        let profile = try await repository.signIn(
-            provider: payload.provider,
-            idToken: payload.idToken,
-            nonce: payload.nonce,
-            displayName: payload.displayName,
-            authorizationCode: payload.authorizationCode
-        )
-        Log.info("Supabase sign-in with \(provider.rawValue) succeeded")
-        
-        return profile
-    }
-    
-    private func fetchPayload(
-        for provider: SocialType
-    ) async throws -> OAuthSignInPayload {
-        switch provider {
-        case .apple:
-            let payload = try await appleRepository.signIn()
-            return OAuthSignInPayload(
-                provider: .apple,
-                idToken: payload.idToken,
-                nonce: payload.nonce,
-                displayName: payload.displayName,
-                authorizationCode: payload.authorizationCode
-            )
-        case .google:
-            let payload = try await googleRepository.signIn()
-            return OAuthSignInPayload(
-                provider: .google,
-                idToken: payload.idToken,
-                nonce: nil,
-                displayName: payload.displayName,
-                authorizationCode: payload.authorizationCode
-            )
-        case .kakao:
-            // Kakao는 SDK 토큰을 바로 사용하므로 여기서는 빈 페이로드 반환
-            return OAuthSignInPayload(
-                provider: .kakao,
-                idToken: "",
-                nonce: nil,
-                displayName: nil,
-                authorizationCode: nil
-            )
-        case .none:
-            throw AuthError.configurationMissing
+        Log.info("🔥 OAuthUseCase.signUp called with provider: \(provider.rawValue)")
+
+        do {
+            switch provider {
+            case .apple:
+                let appleProvider = AppleOAuthProvider()
+                let result = try await appleProvider.signUp(repository: repository, appleRepository: appleRepository)
+                Log.info("✅ Apple signUp completed successfully")
+                return result
+            case .google:
+                let googleProvider = GoogleOAuthProvider()
+                let result = try await googleProvider.signUp(repository: repository, googleRepository: googleRepository)
+                Log.info("✅ Google signUp completed successfully")
+                return result
+            case .kakao:
+                let kakaoProvider = KakaoOAuthProvider()
+                let result = try await kakaoProvider.signUp(kakaoRepository: kakaoRepository)
+                Log.info("✅ Kakao signUp completed successfully")
+                return result
+            case .none:
+                Log.error("❌ Invalid provider: none")
+                throw AuthError.configurationMissing
+            }
+        } catch {
+            Log.error("💥 OAuthUseCase.signUp failed: \(error.localizedDescription)")
+            throw error
         }
     }
 }
