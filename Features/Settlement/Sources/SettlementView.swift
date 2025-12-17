@@ -33,7 +33,7 @@ public struct SettlementView: View {
                     send(.settingsButtonTapped)
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             // 탭 바 (Custom Segmented Control)
             HStack(spacing: 0) {
                 TabButton(title: "지출 내역", isSelected: store.selectedTab == 0) {
@@ -43,7 +43,7 @@ public struct SettlementView: View {
                     send(.tabSelected(1))
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
 
             // 컨텐츠 영역
             if store.selectedTab == 0 {

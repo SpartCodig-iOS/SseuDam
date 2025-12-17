@@ -26,15 +26,14 @@ public struct ExpenseListFeature {
         public var endDate: Date {
             return travel?.endDate ?? Date()
         }
-        public var selectedDateRange: ClosedRange<Date>? = nil
+        public var selectedDateRange: ClosedRange<Date>?
         public var currentPage: Int = 0
         public var selectedCategory: ExpenseCategory? = nil
         public let travelId: String
         public var isLoading: Bool = false
         @Presents public var alert: AlertState<Action.AlertAction>?
         public var pendingHighlightExpenseId: String?
-        /// 포맷팅된 총 지출 금액 문자열
-        /// 포맷팅된 총 지출 금액 문자열
+        
         public var formattedTotalAmount: String {
             // 날짜 범위가 선택되지 않았을 때(전체 기간)는 페이지네이션과 관계없이 전체 지출의 합계 표시
             // 단, 카테고리 필터는 적용해야 함
@@ -137,11 +136,6 @@ public struct ExpenseListFeature {
                         state.currentPage = days / 7
                     }
                 }
-                return .none
-            case .binding(\.currentPage):
-                // 페이지 변경 시 선택된 날짜 초기화 및 해당 페이지 데이터로 필터링
-                state.selectedDateRange = nil
-                applyFilters(&state)
                 return .none
             case .binding(\.selectedCategory):
                 // 카테고리 변경 시 필터링

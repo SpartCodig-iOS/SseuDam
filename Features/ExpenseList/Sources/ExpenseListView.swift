@@ -26,49 +26,81 @@ public struct ExpenseListView: View {
                     totalAmount: store.formattedTotalAmount,
                     startDate: store.startDate,
                     endDate: store.endDate,
-                    myExpenseAmount: store.formattedTotalAmount, // 임시로 동일
+                    myExpenseAmount: store.formattedTotalAmount,
                     expenses: store.allExpenses,
                     selectedDateRange: $store.selectedDateRange,
                     currentPage: $store.currentPage
                 )
                 
-                // 카테고리 필터
-                CategoryFilterView(
-                    selectedCategory: $store.selectedCategory
-                )
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                if let inviteCode = store.travel?.inviteCode,
+                    let url = store.travel?.deepLink,
+                    let deepLinkURL = URL(string: url) {
+                    InvitationCodeView(
+                        invitationCode: inviteCode,
+                        deepLinkURL: deepLinkURL
+                    )
+                }
                 
-                // 지출 내역 리스트
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(store.currentExpense) { expense in
-                            ExpenseCardView(expense: expense)
-                                .onTapGesture {
-                                    send(.onTapExpense(expense))
-                                }
-                                .transition(.asymmetric(
-                                    insertion: .scale(scale: 0.95, anchor: .top)
-                                        .combined(with: .opacity)
-                                        .combined(with: .move(edge: .top)),
-                                    removal: .scale(scale: 0.95, anchor: .top)
-                                        .combined(with: .opacity)
-                                ))
+                VStack(spacing: 0) {
+                    // 카테고리 필터
+                    CategoryFilterView(
+                        selectedCategory: $store.selectedCategory
+                    )
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+
+                    // 지출 내역 리스트
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            ForEach(store.currentExpense) { expense in
+                                ExpenseCardView(expense: expense)
+                                    .onTapGesture {
+                                        send(.onTapExpense(expense))
+                                    }
+                                    .transition(.asymmetric(
+                                        insertion: .scale(scale: 0.95, anchor: .top)
+                                            .combined(with: .opacity)
+                                            .combined(with: .move(edge: .top)),
+                                        removal: .scale(scale: 0.95, anchor: .top)
+                                            .combined(with: .opacity)
+                                    ))
+                            }
+                        }
+                        .padding(.bottom, 16 + 54)
+                        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: store.currentExpense.count)
+                    }
+                    .scrollIndicators(.hidden)
+                    .overlay {
+                        if store.currentExpense.isEmpty {
+                            EmptyCaseView(image: .expenseEmpty, message: "아직 지출이 없어요")
                         }
                     }
-                    .padding(.vertical, 10)
-                    .animation(.spring(response: 0.35, dampingFraction: 0.75), value: store.currentExpense.count)
                 }
-                .scrollIndicators(.hidden)
+                .background(Color.primary50)
+                .clipShape(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 20,
+                        topTrailingRadius: 20
+                    )
+                )
+                .overlay(
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 20,
+                        topTrailingRadius: 20
+                    )
+                    .stroke(Color.gray1, lineWidth: 1)
+                )
             } else {
-                VStack {
-                    Image(asset: .expenseEmpty)
-                        .resizable()
-                        .frame(width: 167, height: 167)
-                    Text("아직 지출이 없어요")
-                        .font(.app(.title3, weight: .medium))
+                if let inviteCode = store.travel?.inviteCode,
+                    let url = store.travel?.deepLink,
+                    let deepLinkURL = URL(string: url) {
+                    InvitationCodeView(
+                        invitationCode: inviteCode,
+                        deepLinkURL: deepLinkURL
+                    )
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                EmptyCaseView(image: .expenseEmpty, message: "아직 지출이 없어요")
             }
         }
         .overlay {
@@ -82,9 +114,10 @@ public struct ExpenseListView: View {
                     send(.addExpenseButtonTapped)
                 }
                 .padding(.trailing, 20)
-                .padding(.bottom, 20)
+                .padding(.bottom, 54)
             }
         }
+        .ignoresSafeArea()
         .onAppear {
             send(.onAppear)
         }

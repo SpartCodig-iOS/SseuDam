@@ -13,7 +13,25 @@ public struct AuthUseCase: AuthUseCaseProtocol {
     @Shared(.appStorage("sessionId")) var sessionId: String? = ""
     
     @Dependency(\.authRepository) private var repository: AuthRepositoryProtocol
+    @Dependency(\.authRepository) private var authRepository: AuthRepositoryProtocol
+    @Dependency(\.tokenStorageUseCase) private var tokenStorageUseCase: TokenStorageUseCase
+    
+    
     public init() {}
+    
+    // MARK: - 로그인
+    public func login(_ authData: AuthData) async -> Result<AuthResult, AuthError> {
+        do {
+            let input = makeOAuthInput(from: authData)
+            var authResult = try await authRepository.login(input: input)
+            authResult.token.authToken = authData.authToken
+            await tokenStorageUseCase.save(auth: authResult)
+            return .success(authResult)
+        } catch {
+            let authError = error as? AuthError ?? .unknownError(error.localizedDescription)
+            return .failure(authError)
+        }
+    }
     
     // MARK: - 로그아웃
     public func logout() async throws -> LogoutStatus {
@@ -25,6 +43,18 @@ public struct AuthUseCase: AuthUseCaseProtocol {
         let result = try await repository.delete()
         KeychainManager.shared.clearAll()
         return result
+    }
+}
+
+private extension AuthUseCase {
+    func makeOAuthInput(from authData: AuthData) -> OAuthUserInput {
+        OAuthUserInput(
+            accessToken: authData.authToken,
+            socialType: authData.socialType,
+            authorizationCode: authData.authorizationCode,
+            codeVerifier: authData.codeVerifier,
+            redirectUri: authData.redirectUri
+        )
     }
 }
 

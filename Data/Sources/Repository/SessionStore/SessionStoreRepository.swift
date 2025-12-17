@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Domain
 
 /// Keychain + UserDefaults를 감싼 세션 저장소
 public final class SessionStoreRepository: SessionStoreRepositoryProtocol, @unchecked Sendable {
@@ -17,7 +18,7 @@ public final class SessionStoreRepository: SessionStoreRepositoryProtocol, @unch
 
     public init() {}
 
-    public func save(tokens: AuthTokens, socialType: SocialType?, userId: String?) {
+    public func save(tokens: AuthTokens, socialType: SocialType?, userId: String?) async {
         KeychainManager.shared.saveTokens(
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken
@@ -35,7 +36,7 @@ public final class SessionStoreRepository: SessionStoreRepositoryProtocol, @unch
         }
     }
 
-    public func loadTokens() -> AuthTokens? {
+    public func loadTokens() async -> AuthTokens? {
         let tokens = KeychainManager.shared.loadTokens()
         guard let access = tokens.accessToken,
               let refresh = tokens.refreshToken
@@ -50,16 +51,16 @@ public final class SessionStoreRepository: SessionStoreRepositoryProtocol, @unch
         )
     }
 
-    public func loadSocialType() -> SocialType? {
+    public func loadSocialType() async -> SocialType? {
         guard let raw = UserDefaults.standard.string(forKey: Keys.socialType) else { return nil }
         return SocialType(rawValue: raw)
     }
 
-    public func loadUserId() -> String? {
+    public func loadUserId() async -> String? {
         UserDefaults.standard.string(forKey: Keys.userId)
     }
 
-    public func clearAll() {
+    public func clearAll() async {
         KeychainManager.shared.clearAll()
         UserDefaults.standard.removeObject(forKey: Keys.sessionId)
         UserDefaults.standard.removeObject(forKey: Keys.socialType)

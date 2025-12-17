@@ -134,21 +134,21 @@ struct UnifiedOAuthUseCaseTests {
 }
 
 // MARK: - Mock Session Store
-private final class MockSessionStoreRepository: SessionStoreRepositoryProtocol {
+private final class MockSessionStoreRepository: SessionStoreRepositoryProtocol, @unchecked Sendable {
     var savedTokens: AuthTokens?
     var savedSocialType: SocialType?
     var savedUserId: String?
 
-    func save(tokens: AuthTokens, socialType: SocialType?, userId: String?) {
+    func save(tokens: AuthTokens, socialType: SocialType?, userId: String?) async {
         savedTokens = tokens
         savedSocialType = socialType
         savedUserId = userId
     }
 
-    func loadTokens() -> AuthTokens? { savedTokens }
-    func loadSocialType() -> SocialType? { savedSocialType }
-    func loadUserId() -> String? { savedUserId }
-    func clearAll() {
+    func loadTokens() async -> AuthTokens? { savedTokens }
+    func loadSocialType() async -> SocialType? { savedSocialType }
+    func loadUserId() async -> String? { savedUserId }
+    func clearAll() async {
         savedTokens = nil
         savedSocialType = nil
         savedUserId = nil
