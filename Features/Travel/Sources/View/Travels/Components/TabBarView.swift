@@ -12,9 +12,9 @@ struct TabBarView: View {
     @Binding var selectedTab: TravelTab
 
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             ForEach(TravelTab.allCases, id: \.self) { tab in
-                VStack {
+                VStack(spacing: 0) {
                     Text(tab.rawValue)
                         .font(.app(.title3, weight: .medium))
                         .foregroundStyle(Color.appBlack)

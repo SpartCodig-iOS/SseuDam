@@ -19,7 +19,7 @@ public struct TravelView: View {
     }
     
     public var body: some View {
-        return VStack {
+        return VStack(spacing: 0) {
             TravelListHeaderView {
                 store.send(.profileButtonTapped)
             }
@@ -34,7 +34,7 @@ public struct TravelView: View {
                     TravelEmptyView()
                 } else {
                     ScrollView {
-                        LazyVStack(spacing: 18) {
+                        LazyVStack(spacing: 8) {
                             ForEach(store.travels, id: \.id) { travel in
                                 TravelCardView(travel: travel)
                                     .onAppear {
@@ -49,7 +49,8 @@ public struct TravelView: View {
                                 ProgressView().padding(.vertical, 20)
                             }
                         }
-                        .padding(16)
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 20)
                     }
                     .refreshable {
                         store.send(.refresh)

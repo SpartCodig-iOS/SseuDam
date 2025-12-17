@@ -37,7 +37,7 @@ public struct MemberView: View {
 
                 Spacer()
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .padding(.vertical, 20)
 
             ScrollView {
@@ -52,7 +52,8 @@ public struct MemberView: View {
                         }
                     }
                 }
-                .padding(16)
+                .padding(.vertical, 16)
+                .padding(.horizontal, 20)
             }
         }
         .navigationBarBackButtonHidden(true)

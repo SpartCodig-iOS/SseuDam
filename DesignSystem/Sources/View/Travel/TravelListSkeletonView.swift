@@ -20,7 +20,8 @@ public struct TravelListSkeletonView: View {
                     cardSkeleton()
                 }
             }
-            .padding(16)
+            .padding(.vertical, 16)
+            .padding(.horizontal, 20)
         }
         .onAppear {
             withAnimation(

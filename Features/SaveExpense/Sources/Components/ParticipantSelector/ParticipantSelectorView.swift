@@ -61,7 +61,8 @@ public struct ParticipantSelectorView: View {
                         )
                     }
                 }
-                .padding(16)
+                .padding(.vertical, 16)
+                .padding(.horizontal, 20)
                 .background(Color.white)
                 .cornerRadius(12)
                 .overlay(
