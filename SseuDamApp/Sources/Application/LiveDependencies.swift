@@ -23,7 +23,7 @@ public enum LiveDependencies {
         dependencies.kakaoOAuthRepository = KakaoOAuthRepository(
             presentationContextProvider: AppPresentationContextProvider()
         )
- 
+        dependencies.sessionStoreRepository = SessionStoreRepository()
         // Analytics
         dependencies.analyticsRepository = FirebaseAnalyticsRepository()
         
