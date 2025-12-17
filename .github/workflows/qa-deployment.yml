@@ -1,6 +1,12 @@
 name: QA Deployment
 
 on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '빌드할 브랜치'
+        required: true
+        default: 'feature/fastlaneCi'
   pull_request:
     types: [opened, synchronize, edited, labeled]
     branches: ['*'] # 모든 브랜치에서 PR 가능
@@ -16,7 +22,11 @@ jobs:
       - name: Check QA trigger
         id: check
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # 수동 트리거는 항상 실행
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ Manual trigger - deploying to branch: ${{ github.event.inputs.branch }}"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             # PR title이나 body에 [QA], [qa], qa: 태그가 있는지 확인
             PR_TITLE="${{ github.event.pull_request.title }}"
             PR_BODY="${{ github.event.pull_request.body }}"
@@ -53,6 +63,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.inputs.branch || github.ref }}
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
