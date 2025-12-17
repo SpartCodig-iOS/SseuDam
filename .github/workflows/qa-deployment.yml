@@ -1,0 +1,223 @@
+name: QA Deployment
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited, labeled]
+    branches: ['*'] # 모든 브랜치에서 PR 가능
+  push:
+    branches: ['*'] # 모든 브랜치에서 push 가능 (QA 태그 있을 때만 실행)
+
+jobs:
+  check-qa-trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+    steps:
+      - name: Check QA trigger
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # PR title이나 body에 [QA], [qa], qa: 태그가 있는지 확인
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_BODY="${{ github.event.pull_request.body }}"
+
+            if [[ "$PR_TITLE" =~ \[QA\]|\[qa\]|qa: ]] || [[ "$PR_BODY" =~ \[QA\]|\[qa\]|qa: ]]; then
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+              echo "✅ QA tag found in PR title or body"
+            else
+              echo "should-deploy=false" >> $GITHUB_OUTPUT
+              echo "❌ QA tag not found"
+            fi
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            # 커밋 메시지에 [QA], [qa], qa: 태그가 있는지 확인
+            COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+
+            if [[ "$COMMIT_MESSAGE" =~ \[QA\]|\[qa\]|qa: ]]; then
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+              echo "✅ QA tag found in commit message: $COMMIT_MESSAGE"
+            else
+              echo "should-deploy=false" >> $GITHUB_OUTPUT
+              echo "❌ No QA tag in commit message"
+            fi
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+  qa-deployment:
+    needs: check-qa-trigger
+    if: needs.check-qa-trigger.outputs.should-deploy == 'true'
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4' # 프로젝트에 맞는 Xcode 버전으로 변경
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+
+      - name: Cache Tuist
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.tuist
+            .build
+          key: ${{ runner.os }}-tuist-${{ hashFiles('**/Project.swift', '**/Tuist/**') }}
+          restore-keys: |
+            ${{ runner.os }}-tuist-
+
+      - name: Install Tuist
+        run: |
+          curl -Ls https://install.tuist.io | bash
+          echo "$HOME/.tuist/bin" >> $GITHUB_PATH
+
+      - name: Generate Xcode project
+        run: |
+          tuist install
+          tuist generate
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install CocoaPods dependencies (if needed)
+        run: |
+          if [ -f "Podfile" ]; then
+            pod install --repo-update
+          fi
+
+      - name: Create fastlane .env file from GitHub Secrets
+        run: |
+          # GitHub Secrets에서 fastlane/.env 파일 생성
+          mkdir -p fastlane
+          cat > fastlane/.env << EOF
+          APP_IDENTIFIER="${{ secrets.APP_IDENTIFIER }}"
+          APPLE_ID="${{ secrets.APPLE_ID }}"
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD="${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}"
+          TEAM_ID=${{ secrets.TEAM_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID=${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID=${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY=${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          EOF
+
+          echo "✅ fastlane/.env 파일 생성 완료!"
+
+      - name: Setup iOS certificates and provisioning profiles
+        run: |
+          # Fastlane match를 사용한다면 keychain 설정
+          security create-keychain -p "" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+
+      - name: Run Fastlane QA
+        run: |
+          # fastlane/.env 파일 사용하므로 별도 환경변수 설정 불필요
+          bundle exec fastlane qa
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-build-artifacts
+          path: |
+            *.ipa
+            *.app.dSYM.zip
+            fastlane/reports/
+          retention-days: 30
+
+      - name: Comment PR with QA build info
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            let buildStatus = '${{ job.status }}' === 'success' ? '✅ 성공' : '❌ 실패';
+            let buildNumber = process.env.BUILD_NUMBER || 'Unknown';
+
+            const comment = `
+            ## 🚀 QA 빌드 결과
+
+            **상태**: ${buildStatus}
+            **빌드 번호**: ${buildNumber}
+            **커밋**: ${context.sha.substring(0, 7)}
+
+            ${buildStatus === '✅ 성공' ?
+              '✅ TestFlight에 업로드 완료되었습니다.\n📱 TestFlight 앱에서 확인 가능합니다.' :
+              '❌ 빌드에 실패했습니다. 로그를 확인해주세요.'}
+
+            **실행 시간**: ${new Date().toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'})}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+
+  notify-skip:
+    needs: check-qa-trigger
+    if: needs.check-qa-trigger.outputs.should-deploy == 'false' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Comment PR about skipping QA
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `
+            ## ⏭️ QA 빌드 스킵
+
+            QA 빌드를 실행하려면 PR 제목이나 설명에 다음 태그 중 하나를 추가하세요:
+            - \`[QA]\`
+            - \`[qa]\`
+            - \`qa:\`
+
+            **예시**:
+            - \`[QA] 새로운 정산 기능 테스트\`
+            - \`qa: 버그 수정 확인 필요\`
+            `;
+
+            // 기존에 스킵 알림이 있으면 삭제하고 새로 추가
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const existingComment = comments.data.find(
+              comment => comment.body.includes('QA 빌드 스킵') && comment.user.type === 'Bot'
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
