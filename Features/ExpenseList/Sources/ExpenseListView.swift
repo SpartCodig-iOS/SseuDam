@@ -32,6 +32,15 @@ public struct ExpenseListView: View {
                     currentPage: $store.currentPage
                 )
                 
+                if let inviteCode = store.travel?.inviteCode,
+                    let url = store.travel?.deepLink,
+                    let deepLinkURL = URL(string: url) {
+                    InvitationCodeView(
+                        invitationCode: inviteCode,
+                        deepLinkURL: deepLinkURL
+                    )
+                }
+                
                 VStack(spacing: 0) {
                     // 카테고리 필터
                     CategoryFilterView(
@@ -83,6 +92,14 @@ public struct ExpenseListView: View {
                     .stroke(Color.gray1, lineWidth: 1)
                 )
             } else {
+                if let inviteCode = store.travel?.inviteCode,
+                    let url = store.travel?.deepLink,
+                    let deepLinkURL = URL(string: url) {
+                    InvitationCodeView(
+                        invitationCode: inviteCode,
+                        deepLinkURL: deepLinkURL
+                    )
+                }
                 EmptyCaseView(image: .expenseEmpty, message: "아직 지출이 없어요")
             }
         }
