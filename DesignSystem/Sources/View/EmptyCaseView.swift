@@ -23,7 +23,7 @@ public struct EmptyCaseView: View {
                 .frame(width: 167, height: 167)
             Text(message)
                 .font(.app(.title3, weight: .medium))
-                .foregroundStyle(Color.gray6)
+                .foregroundStyle(Color.black)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
