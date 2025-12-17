@@ -58,7 +58,7 @@ public struct ExpenseListView: View {
                                     ))
                             }
                         }
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 16 + 54)
                         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: store.currentExpense.count)
                     }
                     .scrollIndicators(.hidden)
@@ -100,6 +100,7 @@ public struct ExpenseListView: View {
                 .padding(.bottom, 54)
             }
         }
+        .ignoresSafeArea()
         .onAppear {
             send(.onAppear)
         }

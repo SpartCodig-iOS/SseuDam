@@ -164,13 +164,26 @@ extension SettlementFeature {
             state.$travel.withLock {
                 $0 = travel
             }
+            // 초기 날짜 범위를 전체 여행 기간으로 설정
+            if state.expenseList.selectedDateRange == nil {
+                let calendar = Calendar.current
+                let start = calendar.startOfDay(for: travel.startDate)
+                let end = calendar.startOfDay(for: travel.endDate)
+                state.expenseList.selectedDateRange = start...end
+            }
             return .none
 
         case let .travelDetailResponse(.success(travel)):
             state.$travel.withLock {
                 $0 = travel
             }
-
+            // 초기 날짜 범위를 전체 여행 기간으로 설정
+            if state.expenseList.selectedDateRange == nil {
+                let calendar = Calendar.current
+                let start = calendar.startOfDay(for: travel.startDate)
+                let end = calendar.startOfDay(for: travel.endDate)
+                state.expenseList.selectedDateRange = start...end
+            }
             return .none
 
         case let .travelDetailResponse(.failure(error)):

@@ -106,7 +106,8 @@ public struct SettlementResultView: View {
                             .foregroundStyle(Color.gray9)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 16)
+                    .padding(.top, 16)
+                    .safeAreaPadding(34)
                 }
                 .padding(.horizontal, 20)
                 .clipShape(
@@ -130,6 +131,7 @@ public struct SettlementResultView: View {
         .onAppear {
             send(.onAppear)
         }
+        .ignoresSafeArea()
         .alert($store.scope(state: \.alert, action: \.scope.alert))
         .sheet(
             item: $store.scope(

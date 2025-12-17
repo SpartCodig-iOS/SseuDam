@@ -26,7 +26,7 @@ public struct ExpenseListFeature {
         public var endDate: Date {
             return travel?.endDate ?? Date()
         }
-        public var selectedDateRange: ClosedRange<Date>? = nil
+        public var selectedDateRange: ClosedRange<Date>?
         public var currentPage: Int = 0
         public var selectedCategory: ExpenseCategory? = nil
         public let travelId: String
@@ -137,11 +137,6 @@ public struct ExpenseListFeature {
                         state.currentPage = days / 7
                     }
                 }
-                return .none
-            case .binding(\.currentPage):
-                // 페이지 변경 시 선택된 날짜 초기화 및 해당 페이지 데이터로 필터링
-                state.selectedDateRange = nil
-                applyFilters(&state)
                 return .none
             case .binding(\.selectedCategory):
                 // 카테고리 변경 시 필터링

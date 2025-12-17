@@ -101,7 +101,7 @@ struct ExpenseChartView: View {
             }
         }
         .frame(height: 126)
-        .onChange(of: selectedDateString) { newValue in
+        .onChange(of: selectedDateString) { _, newValue in
             guard let dateStr = newValue,
                   let date = Expense.parseDate(dateStr) else { return }
 
