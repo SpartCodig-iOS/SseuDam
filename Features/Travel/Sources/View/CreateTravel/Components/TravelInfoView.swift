@@ -16,7 +16,7 @@ struct TravelInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("여행 정보")
-                .font(.app(.title3, weight: .semibold))
+                .font(.app(.title2, weight: .semibold))
                 .foregroundStyle(Color.appBlack)
 
             VStack(spacing: 16) {

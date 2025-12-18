@@ -19,7 +19,7 @@ struct InputContainer<Content: View>: View {
         HStack {
             content
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .frame(height: 52)
         .background(Color.white)
         .overlay(

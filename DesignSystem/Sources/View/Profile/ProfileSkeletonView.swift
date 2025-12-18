@@ -27,27 +27,27 @@ public struct ProfileSkeletonView: View {
 
         Divider()
           .background(.gray2.opacity(0.4))
-          .padding(.horizontal, 16)
+          .padding(.horizontal, 20)
 
         Spacer().frame(height: 32)
 
         sectionPlaceholder()
-          .padding(.horizontal, 16)
+          .padding(.horizontal, 20)
 
         Spacer().frame(height: 12)
 
         cardPlaceholder()
-          .padding(.horizontal, 16)
+          .padding(.horizontal, 20)
 
         Spacer().frame(height: 28)
 
         sectionPlaceholder()
-          .padding(.horizontal, 16)
+          .padding(.horizontal, 20)
 
         Spacer().frame(height: 12)
 
         cardPlaceholder()
-          .padding(.horizontal, 16)
+          .padding(.horizontal, 20)
 
 //        sectionPlaceholder()
 //          .padding(.horizontal, 16)
@@ -87,7 +87,7 @@ private extension ProfileSkeletonView {
 
       Spacer()
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, 20)
     .padding(.top, 12)
   }
 
@@ -134,7 +134,7 @@ private extension ProfileSkeletonView {
             .frame(height: 14)
             .shimmer(phase: shimmerPhase)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .frame(height: 52)
 
         if index == 0 {

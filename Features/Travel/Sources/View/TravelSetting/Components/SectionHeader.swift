@@ -33,7 +33,7 @@ struct SectionHeader: View {
                 } label: {
                     Text(isEditing ? "완료" : "수정")
                         .underline(true, color: Color.gray7)
-                        .font(.app(.caption1, weight: .medium))
+                        .font(.app(.body, weight: .medium))
                         .foregroundColor(Color.gray7)
                 }
             }

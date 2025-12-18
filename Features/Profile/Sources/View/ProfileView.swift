@@ -91,7 +91,7 @@ extension ProfileView {
                 store.send(.delegate(.backToTravel))
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
     }
 
     @ViewBuilder
@@ -227,7 +227,7 @@ extension ProfileView {
                 )
 
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .background(.white)
             .cornerRadius(8)
         }
@@ -278,7 +278,7 @@ extension ProfileView {
                 )
 
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .background(.white)
             .cornerRadius(8)
         }
@@ -328,7 +328,7 @@ extension ProfileView {
               .padding(.vertical, 12)
 
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .background(.white)
             .cornerRadius(8)
         }

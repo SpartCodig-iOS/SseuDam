@@ -29,7 +29,7 @@ public struct TravelSettingSkeletonView: View {
 
         manageCard()
       }
-      .padding(.horizontal, 16)
+      .padding(.horizontal, 20)
       .padding(.bottom, 28)
     }
     .background(Color.primary50.ignoresSafeArea())
@@ -86,7 +86,8 @@ private extension TravelSettingSkeletonView {
         smallBar()
       }
     }
-    .padding(16)
+    .padding(.vertical, 16)
+    .padding(.horizontal, 20)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(
       RoundedRectangle(cornerRadius: 12)
@@ -109,7 +110,8 @@ private extension TravelSettingSkeletonView {
         fullBar(height: 20)
       }
     }
-    .padding(16)
+    .padding(.vertical, 16)
+    .padding(.horizontal, 20)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(
       RoundedRectangle(cornerRadius: 12)
@@ -132,7 +134,7 @@ private extension TravelSettingSkeletonView {
 
       manageRow()
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, 20)
     .padding(.vertical, 14)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(

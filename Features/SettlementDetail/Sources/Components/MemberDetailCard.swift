@@ -142,7 +142,7 @@ struct MemberDetailCard: View {
                         .padding(.vertical, 16)
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 20)
                 .transition(.asymmetric(
                     insertion: .scale(scale: 0.95, anchor: .top).combined(with: .opacity),
                     removal: .scale(scale: 0.95, anchor: .top).combined(with: .opacity)

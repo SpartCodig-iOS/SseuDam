@@ -22,7 +22,7 @@ struct PaymentSectionView: View {
                 .foregroundStyle(Color.black)
 
             // 결제 리스트
-            VStack(spacing: 12) {
+            VStack(spacing: 20) {
                 ForEach(payments) { payment in
                     PaymentRowView(payment: payment)
                 }
@@ -62,7 +62,7 @@ private struct PaymentRowView: View {
                 .frame(width: 32, height: 32)
 
             Text(payment.name)
-                .font(.app(.title3, weight: .medium))
+                .font(.app(.body, weight: .medium))
                 .foregroundStyle(Color.black)
 
             Spacer()

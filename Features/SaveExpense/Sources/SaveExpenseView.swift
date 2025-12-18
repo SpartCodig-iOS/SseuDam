@@ -84,7 +84,7 @@ public struct SaveExpenseView: View {
                 send(.saveButtonTapped)
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .padding(.bottom, 16)
         .navigationBarBackButtonHidden(true)
         .background(Color.white)

@@ -50,11 +50,22 @@ struct InviteCodeModalView: View {
 
                 Button(action: onConfirm) {
                     Text("확인")
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.appWhite)
                         .font(.app(.title3, weight: .semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 13)
                         .background(Color.primary500)
+                        .cornerRadius(26)
+                }
+                .padding(.bottom, 10)
+
+                Button(action: onCancel) {
+                    Text("취소")
+                        .foregroundColor(Color.appBlack)
+                        .font(.app(.title3, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(Color.gray1)
                         .cornerRadius(26)
                 }
             }

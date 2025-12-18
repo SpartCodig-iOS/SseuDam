@@ -31,7 +31,7 @@ public struct DashboardSkeletonView: View {
           cardPlaceholder()
         }
       }
-      .padding(.horizontal, 16)
+      .padding(.horizontal, 20)
       .padding(.bottom, 32)
     }
     .background(Color.primary50.ignoresSafeArea())
@@ -65,7 +65,7 @@ private extension DashboardSkeletonView {
         placeholder(width: 40, height: 12, color: .gray3)
       }
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, 20)
     .padding(.vertical, 14)
     .frame(maxWidth: .infinity, alignment: .leading)
     .background(
