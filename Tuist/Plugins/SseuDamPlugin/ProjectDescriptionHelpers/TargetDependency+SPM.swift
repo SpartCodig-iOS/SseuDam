@@ -19,4 +19,5 @@ public extension TargetDependency.SPM {
   static let LogMacro: TargetDependency = .external(name: "LogMacro")
   static let FirebaseAnalytics = TargetDependency.external(name: "FirebaseAnalytics", condition: .none)
   static let FirebaseCrashlytics = TargetDependency.external(name: "FirebaseCrashlytics", condition: .none)
+  static let Mixpanel = TargetDependency.external(name: "Mixpanel", condition: .none)
 }

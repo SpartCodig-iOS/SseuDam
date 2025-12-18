@@ -25,7 +25,7 @@ public enum LiveDependencies {
         )
         dependencies.sessionStoreRepository = SessionStoreRepository()
         // Analytics
-        dependencies.analyticsRepository = FirebaseAnalyticsRepository()
+        dependencies.analyticsRepository = AnalyticsRepository()
         
         // Travel
         dependencies.travelRepository = TravelRepository(

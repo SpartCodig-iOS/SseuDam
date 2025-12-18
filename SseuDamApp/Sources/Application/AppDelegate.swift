@@ -12,10 +12,12 @@ import Data
 import Firebase
 import FirebaseAnalytics
 import ComposableArchitecture
+import Mixpanel
 
 final class AppDelegate: NSObject, UIApplicationDelegate, @MainActor UNUserNotificationCenterDelegate {
   @Dependency(\.deeplinkRouter) var deeplinkRouter
-
+  let mixPanelKey = Bundle.main.object(forInfoDictionaryKey: "MIXPANEL_TOKEN") as? String
+  
   @MainActor
   func application(
     _ application: UIApplication,
@@ -28,6 +30,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, @MainActor UNUserNotif
 #endif
 
     FirebaseApp.configure()
+    Mixpanel.initialize(token: mixPanelKey ?? "", trackAutomaticEvents: false)
     Analytics.setAnalyticsCollectionEnabled(true)
     let center = UNUserNotificationCenter.current()
     center.delegate = self

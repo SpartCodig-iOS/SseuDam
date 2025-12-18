@@ -10,6 +10,7 @@ let project = Project.makeFramework(
     .SPM.GoogleSignIn,
     .SPM.FirebaseAnalytics,
     .SPM.FirebaseCrashlytics,
+    .SPM.Mixpanel
   ],
   hasTests: true,
   settings: .settings(
