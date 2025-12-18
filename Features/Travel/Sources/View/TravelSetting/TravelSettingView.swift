@@ -73,8 +73,7 @@ private extension TravelSettingView {
 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 20)
+            .padding(20)
 
             ScrollView {
                 VStack(spacing: 16) {
@@ -99,7 +98,8 @@ private extension TravelSettingView {
                         TravelManageView(store: manageStore)
                     }
                 }
-                .padding(16)
+                .padding(.vertical, 16)
+                .padding(.horizontal, 20)
             }
             .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)

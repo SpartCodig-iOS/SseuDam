@@ -67,7 +67,7 @@ struct TravelManageView: View {
                     .disabled(store.isSubmitting)
                 }
             }
-            .padding(16)
+            .padding(20)
             .background(RoundedRectangle(cornerRadius: 8).fill(Color(.appWhite)))
         }
     }

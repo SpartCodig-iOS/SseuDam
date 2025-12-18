@@ -75,5 +75,5 @@ public struct SettingRow: View {
     action: {},
     tapTermAction: {}
   )
-  .padding(.horizontal, 16)
+  .padding(.horizontal, 20)
 }

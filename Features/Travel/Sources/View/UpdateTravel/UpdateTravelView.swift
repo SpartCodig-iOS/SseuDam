@@ -44,7 +44,7 @@ public struct UpdateTravelView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 20)
             }
             .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)
@@ -52,7 +52,7 @@ public struct UpdateTravelView: View {
             SaveButton(isEnabled: store.canSave && !store.isSubmitting) {
                 store.send(.saveButtonTapped)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .padding(.vertical, 10)
         }
         .background(Color.primary50)
@@ -95,14 +95,13 @@ private extension UpdateTravelView {
 
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 20)
+        .padding(20)
     }
 
     var travelInfoSection: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("여행 정보")
-                .font(.app(.title3, weight: .semibold))
+                .font(.app(.title2, weight: .semibold))
                 .foregroundStyle(Color.appBlack)
 
             VStack(spacing: 16) {

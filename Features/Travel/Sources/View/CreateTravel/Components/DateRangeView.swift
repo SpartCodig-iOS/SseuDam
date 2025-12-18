@@ -40,6 +40,9 @@ struct DateRangeView: View {
                     title: "시작",
                     date: startDate
                 ) {
+                    if startDate == nil {
+                        startDate = today
+                    }
                     showStartPicker.toggle()
                 }
                 .sheet(isPresented: $showStartPicker) {
@@ -74,6 +77,9 @@ struct DateRangeView: View {
                     title: "종료",
                     date: endDate
                 ) {
+                    if endDate == nil {
+                        endDate = startDate ?? today
+                    }
                     showEndPicker.toggle()
                 }
                 .sheet(isPresented: $showEndPicker) {
@@ -99,6 +105,14 @@ struct DateRangeView: View {
                     .presentationDetents([.medium])
                     .presentationBackground(Color.primary50)
                 }
+            }
+        }
+        .onAppear {
+            if startDate == nil {
+                startDate = today
+            }
+            if endDate == nil {
+                endDate = startDate ?? today
             }
         }
     }

@@ -62,7 +62,8 @@ struct BasicSettingView: View {
 
                 inviteSection
             }
-            .padding(16)
+            .padding(.vertical, 16)
+            .padding(.horizontal, 20)
             .background(RoundedRectangle(cornerRadius: 8).fill(Color(.appWhite)))
         }
     }

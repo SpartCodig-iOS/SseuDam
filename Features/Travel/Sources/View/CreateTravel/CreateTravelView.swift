@@ -35,8 +35,7 @@ public struct CreateTravelView: View {
 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 20)
+            .padding(20)
 
             ScrollView {
                 VStack(spacing: 16) {
@@ -68,7 +67,7 @@ public struct CreateTravelView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 20)
             }
             .scrollDismissesKeyboard(.immediately)
             .scrollIndicators(.hidden)
@@ -77,7 +76,7 @@ public struct CreateTravelView: View {
             SaveButton(isEnabled: store.isSaveEnabled && !store.isSubmitting) {
                 store.send(.saveButtonTapped)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .padding(.vertical, 10)
         }
         .onAppear {

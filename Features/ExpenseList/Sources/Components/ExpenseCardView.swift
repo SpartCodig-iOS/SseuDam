@@ -70,7 +70,7 @@ public struct ExpenseCardView: View {
             .font(.app(.caption1, weight: .medium))
             .foregroundStyle(Color.gray7)
         }
-        .padding(16)
+        .padding(20)
         .background(Color.primary50)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
