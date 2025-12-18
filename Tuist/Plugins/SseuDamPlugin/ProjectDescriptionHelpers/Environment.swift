@@ -10,7 +10,7 @@ public enum Environment {
 
     // MARK: - Version Management
     public static let mainAppVersion = "1.0.4"
-    public static let mainAppBuildVersion = "24"
+    public static let mainAppBuildVersion = "26"
     public static let demoAppVersion = "0.1.0"  // Demo app용 별도 버전
 
     // MARK: - Platform
