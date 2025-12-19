@@ -117,40 +117,38 @@ extension SplashFeature {
         action: View
     ) -> Effect<Action> {
         switch action {
-            case .onAppear:
-                return .send(.async(.checkVersion))
-
-            case .startAnimation:
-                return .run { send in
-                    try await Task.sleep(for: .seconds(0.5))
-                    await send(.view(.animationCompleted))
-                }
-
-            case .animationCompleted:
-                state.isAnimated = true
-                return .run { send in
-                    try await Task.sleep(for: .seconds(0.8))
-                    await send(.view(.onAppear))
-                }
-
-            case .showVersionAlert:
-                if state.version?.shouldUpdate == true {
-                    state.alert = DSAlertState(
-                        title: "새 버전이 업데이트되었어요.",
-                        message: "새로운 기능과 개선사항이 적용되었어요.\n앱스토어에서 최신버전으로 업데이트 해주세요.",
-                        primary: DSAlertState.ButtonAction(
-                            title: "앱스토어 이동하기",
-                            role: .destructive,
-                            action: .confirm
-                        ),
-                        secondary: DSAlertState.ButtonAction(
-                            title: "나중에 할게요",
-                            role: .cancel,
-                            action: .cancel
-                        )
-                    )
-                }
-                return .none
+        case .onAppear:
+            return .send(.async(.checkVersion))
+            
+        case .startAnimation:
+            return .run { send in
+                try await Task.sleep(for: .seconds(0.5))
+                await send(.view(.animationCompleted))
+            }
+            
+        case .animationCompleted:
+            state.isAnimated = true
+            return .run { send in
+                try await Task.sleep(for: .seconds(0.8))
+                await send(.view(.onAppear))
+            }
+            
+        case .showVersionAlert:
+            state.alert = DSAlertState(
+                title: "새 버전이 업데이트되었어요.",
+                message: "새로운 기능과 개선사항이 적용되었어요.\n앱스토어에서 최신버전으로 업데이트 해주세요.",
+                primary: DSAlertState.ButtonAction(
+                    title: "앱스토어 이동하기",
+                    role: .destructive,
+                    action: .confirm
+                ),
+                secondary: DSAlertState.ButtonAction(
+                    title: "나중에 할게요",
+                    role: .cancel,
+                    action: .cancel
+                )
+            )
+            return .none
         }
     }
 
@@ -259,7 +257,8 @@ extension SplashFeature {
                         state.$appLastVersion.withLock { $0 = versionData.version }
                         // 최신 버전(latestVersion)이 저장된 앱 버전보다 높으면 알럿 표시
                         if let savedVersion = state.appVersion,
-                           versionData.version.compare(savedVersion, options: .numeric) == .orderedDescending {
+                           versionData.version.compare(savedVersion, options: .numeric) == .orderedDescending,
+                           state.version?.shouldUpdate == true {
                             return .send(.view(.showVersionAlert))
                         }
                         return sessionRoutingEffect(sessionId: state.sessionId ?? "")
