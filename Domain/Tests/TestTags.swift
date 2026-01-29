@@ -17,4 +17,5 @@ extension Tag {
     @Tag static var settlement: Self
     @Tag static var auth: Self
     @Tag static var model: Self
+    @Tag static var member: Self
 }
