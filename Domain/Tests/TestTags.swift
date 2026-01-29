@@ -12,5 +12,5 @@ extension Tag {
     @Tag static var unit: Self
     @Tag static var useCase: Self
     @Tag static var integration: Self
-    
+    @Tag static var expense: Self
 }
