@@ -24,6 +24,11 @@ public enum ExpenseEditType {
     }
 }
 
+public enum SaveExpenseMode: Equatable, Hashable {
+    case manual
+    case receiptScan
+}
+
 @Reducer
 public struct SaveExpenseFeature {
     @Dependency(\.createExpenseUseCase) var createExpenseUseCase
@@ -34,7 +39,11 @@ public struct SaveExpenseFeature {
     public struct State: Equatable, Hashable {
         let travel: Travel
         let expense: Expense?
-
+        
+        // 화면 모드
+        var mode: SaveExpenseMode = .manual
+        
+        var receiptImage: Data? = nil
         var amount: String = ""
         var title: String = ""
         var expenseDate: Date
@@ -61,6 +70,18 @@ public struct SaveExpenseFeature {
         public init(travel: Travel) {
             self.travel = travel
             self.expense = nil
+            self.expenseDate = travel.startDate
+            self.participantSelector = ParticipantSelectorFeature.State(
+                availableParticipants: IdentifiedArray(uniqueElements: travel.members)
+            )
+        }
+        
+        // 영수증 스캔으로 새 지출 추가
+        public init(travel: Travel, receiptImage: Data) {
+            self.travel = travel
+            self.expense = nil
+            self.mode = .receiptScan
+            self.receiptImage = receiptImage
             self.expenseDate = travel.startDate
             self.participantSelector = ParticipantSelectorFeature.State(
                 availableParticipants: IdentifiedArray(uniqueElements: travel.members)

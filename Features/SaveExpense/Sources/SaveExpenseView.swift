@@ -38,6 +38,16 @@ public struct SaveExpenseView: View {
 
             ScrollView {
                 VStack(spacing: 20) {
+                    // 0. 영수증 이미지(옵션)
+                    if let data = store.receiptImageData,
+                       let uiImage = UIImage(data: data) {
+                        ReceiptHeaderView(
+                            image: uiImage,
+                            onZoom: { send(.receiptZoomTapped) },
+                        )
+                        .padding(.top, 8)
+                    }
+                    
                     // 1. 지출 제목
                     TextInputField(
                         label: "지출 제목",
