@@ -21,78 +21,14 @@ public struct SaveExpenseView: View {
     }
     
     public var body: some View {
+        content
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
-            // 네비게이션 바
-            NavigationBarView(
-                title: store.isEditMode ? "지출 수정" : "지출 추가",
-                onBackTapped: {
-                    send(.backButtonTapped)
-                }
-            ) {
-                if store.isEditMode {
-                    TrailingButton(text: "삭제") {
-                        send(.deleteButtonTapped)
-                    }
-                }
-            }
-
-            ScrollView {
-                VStack(spacing: 20) {
-                    // 0. 영수증 이미지(옵션)
-                    if let data = store.receiptImageData,
-                       let uiImage = UIImage(data: data) {
-                        ReceiptHeaderView(
-                            image: uiImage,
-                            onZoom: { send(.receiptZoomTapped) },
-                        )
-                        .padding(.top, 8)
-                    }
-                    
-                    // 1. 지출 제목
-                    TextInputField(
-                        label: "지출 제목",
-                        placeholder: "ex) 점심 식사",
-                        text: $store.title
-                    )
-
-                    // 2. 지출 금액
-                    AmountInputField(
-                        amount: $store.amount,
-                        baseCurrency: store.baseCurrency,
-                        convertedAmountKRW: store.convertedAmountKRW
-                    )
-
-                    // 3. 지출일
-                    DatePickerField(
-                        label: "지출일",
-                        date: $store.expenseDate,
-                        startDate: store.travelStartDate,
-                        endDate: store.travelEndDate
-                    )
-
-                    // 4. 카테고리
-                    CategorySelector(selectedCategory: $store.selectedCategory)
-
-                    // 5. 결제자 & 참여자
-                    ParticipantSelectorView(
-                        store: store.scope(
-                            state: \.participantSelector,
-                            action: \.scope.participantSelector
-                        )
-                    )
-                }
-                .padding(.bottom, 16)
-            }
-            .scrollDismissesKeyboard(.immediately)
-            .scrollIndicators(.hidden)
-
-            // 저장/수정 버튼
-            PrimaryButton(
-                title: store.isEditMode ? "수정" : "저장",
-                isEnabled: store.canSave
-            ) {
-                send(.saveButtonTapped)
-            }
+            navigationBar
+            form
+            saveButton
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 16)
@@ -100,16 +36,109 @@ public struct SaveExpenseView: View {
         .background(Color.white)
         .alert($store.scope(state: \.deleteAlert, action: \.scope.deleteAlert))
         .alert($store.scope(state: \.errorAlert, action: \.scope.errorAlert))
-        .overlay {
-            if store.isLoading {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .overlay {
-                        ProgressView()
-                            .tint(.white)
-                            .controlSize(.large)
-                    }
+        .overlay(loadingOverlay)
+    }
+
+    private var navigationBar: some View {
+        NavigationBarView(
+            title: store.isEditMode ? "지출 수정" : "지출 추가",
+            onBackTapped: {
+                send(.backButtonTapped)
             }
+        ) {
+            if store.isEditMode {
+                TrailingButton(text: "삭제") {
+                    send(.deleteButtonTapped)
+                }
+            }
+        }
+    }
+
+    private var form: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                receiptHeader
+                titleInput
+                amountInput
+                dateInput
+                categoryInput
+                participantSelector
+            }
+            .padding(.bottom, 16)
+        }
+        .scrollDismissesKeyboard(.immediately)
+        .scrollIndicators(.hidden)
+    }
+
+    @ViewBuilder
+    private var receiptHeader: some View {
+        if let data = store.receiptImage,
+           let uiImage = UIImage(data: data) {
+            ReceiptHeaderView(
+                image: uiImage,
+                onZoom: { send(.receiptZoomTapped) },
+            )
+            .padding(.top, 8)
+        }
+    }
+
+    private var titleInput: some View {
+        TextInputField(
+            label: "지출 제목",
+            placeholder: "ex) 점심 식사",
+            text: $store.title
+        )
+    }
+
+    private var amountInput: some View {
+        AmountInputField(
+            amount: $store.amount,
+            baseCurrency: store.baseCurrency,
+            convertedAmountKRW: store.convertedAmountKRW
+        )
+    }
+
+    private var dateInput: some View {
+        DatePickerField(
+            label: "지출일",
+            date: $store.expenseDate,
+            startDate: store.travelStartDate,
+            endDate: store.travelEndDate
+        )
+    }
+
+    private var categoryInput: some View {
+        CategorySelector(selectedCategory: $store.selectedCategory)
+    }
+
+    private var participantSelector: some View {
+        ParticipantSelectorView(
+            store: store.scope(
+                state: \.participantSelector,
+                action: \.scope.participantSelector
+            )
+        )
+    }
+
+    private var saveButton: some View {
+        PrimaryButton(
+            title: store.isEditMode ? "수정" : "저장",
+            isEnabled: store.canSave
+        ) {
+            send(.saveButtonTapped)
+        }
+    }
+
+    @ViewBuilder
+    private var loadingOverlay: some View {
+        if store.isLoading {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .overlay {
+                    ProgressView()
+                        .tint(.white)
+                        .controlSize(.large)
+                }
         }
     }
 }
@@ -135,9 +164,15 @@ public struct SaveExpenseView: View {
         currencies: ["JPY"]
     )
 
-    NavigationStack {
+    var state = SaveExpenseFeature.State(travel: mockTravel)
+
+    state.receiptImage = UIImage(systemName: "doc.text.image")?
+        .withTintColor(.black, renderingMode: .alwaysOriginal)
+        .pngData()
+
+    return NavigationStack {
         SaveExpenseView(
-            store: Store(initialState: SaveExpenseFeature.State(travel: mockTravel)) {
+            store: Store(initialState: state) {
                 SaveExpenseFeature()
             }
         )

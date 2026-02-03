@@ -36,4 +36,5 @@ public enum ImageAsset: String {
     case settlementEmpty
     case copy
     case upload
+    case zoomIn
 }

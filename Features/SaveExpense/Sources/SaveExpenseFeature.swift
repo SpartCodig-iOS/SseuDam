@@ -50,6 +50,8 @@ public struct SaveExpenseFeature {
         var selectedCategory: ExpenseCategory? = nil
         var convertedAmountKRW: String = ""
         var isLoading: Bool = false
+        
+        var isReceiptZoomPresented: Bool = false
 
         @Presents var deleteAlert: AlertState<Action.DeleteAlert>?
         @Presents var errorAlert: AlertState<Action.ErrorAlert>?
@@ -187,6 +189,8 @@ public struct SaveExpenseFeature {
             case saveButtonTapped
             case deleteButtonTapped
             case backButtonTapped
+            case receiptZoomTapped
+            case receiptZoomDismissed
         }
 
         @CasePathable
@@ -289,6 +293,14 @@ extension SaveExpenseFeature {
         case .backButtonTapped:
             // Coordinator가 pop을 처리하도록 delegate로 전달
             return .send(.delegate(.onTapBackButton))
+            
+        case .receiptZoomTapped:
+            state.isReceiptZoomPresented = true
+            return .none
+
+        case .receiptZoomDismissed:
+            state.isReceiptZoomPresented = false
+            return .none
         }
     }
 

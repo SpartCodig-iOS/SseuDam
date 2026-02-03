@@ -21,15 +21,17 @@ struct ReceiptHeaderView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             
             Button(action: onZoom) {
-                Image(systemName: "magnifyingglass")
+                Image(asset: .zoomIn)
                     .resizable()
                     .frame(width: 24, height: 24)
+                    .foregroundStyle(Color.appWhite)
                     .padding(20)
-                    .background(Color.appWhite)
-                    .clipShape(Circle())
             }
         }
-        .padding(.horizontal, 20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.gray2)
+        )
     }
 }
 
