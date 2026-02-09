@@ -122,6 +122,7 @@ public struct ProfileFeature {
 
     @Dependency(AuthUseCase.self) var authUseCase
     @Dependency(ProfileUseCase.self) var profileUseCase
+  @Dependency(\.keychainManager) var keychainManager
 
     // MARK: - Email Support
     public static func emailRecipients() -> [String] {
@@ -425,7 +426,7 @@ extension ProfileFeature {
                     case .success(let loginData):
                         state.logoutStatus = loginData
                         // Keychain과 AppStorage 모두 정리
-                        KeychainManager.shared.clearAll()
+                      keychainManager.clearAll()
                         return .send(.delegate(.presentLogin))
 
                     case .failure(let error):

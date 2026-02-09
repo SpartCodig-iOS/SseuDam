@@ -12,17 +12,17 @@ import Domain
 public extension APIHeaders {
     static let registerKeychainTokenProvider: Void = {
         APIHeaders.setTokenProvider {
-            KeychainManager.shared.loadAccessToken()
+            KeychainManager.live.loadAccessToken()
         }
     }()
-    
+
     static var accessTokenHeader: [String: String] {
         _ = registerKeychainTokenProvider
-        
-        guard let token = KeychainManager.shared.loadAccessToken() else {
+
+        guard let token = KeychainManager.live.loadAccessToken() else {
             return ["Content-Type": "application/json"]
         }
-        
+
         return [
             "Content-Type": "application/json",
             "Authorization": "Bearer \(token)"
