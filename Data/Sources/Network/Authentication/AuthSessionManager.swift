@@ -55,6 +55,18 @@ final class AuthSessionManager {
   public func clear() {
     interceptor.credential = nil
   }
+
+  func updateCredential(accessToken: String, refreshToken: String) {
+    guard let credential = AccessTokenCredential.make(
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    ) else {
+      interceptor.credential = nil
+      return
+    }
+
+    interceptor.credential = credential
+  }
 }
 
 private extension AuthSessionManager {
