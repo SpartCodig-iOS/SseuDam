@@ -10,15 +10,24 @@ import Dependencies
 import LogMacro
 import AuthenticationServices
 
-public class AppleOAuthProvider: AppleOAuthProviderProtocol {
+public class AppleOAuthProvider: AppleOAuthProviderProtocol, @unchecked Sendable {
     public let socialType: SocialType = .apple
 
-    public init() {}
+    private let oAuthRepository: OAuthRepositoryProtocol
+    private let appleRepository: AppleOAuthRepositoryProtocol
+
+    /// DI를 위한 생성자 - Repository들을 한 번에 주입받음
+    public init(
+        oAuthRepository: OAuthRepositoryProtocol,
+        appleRepository: AppleOAuthRepositoryProtocol
+    ) {
+        self.oAuthRepository = oAuthRepository
+        self.appleRepository = appleRepository
+    }
 
     public func signInWithCredential(
         credential: ASAuthorizationAppleIDCredential,
-        nonce: String,
-        repository: OAuthRepositoryProtocol
+        nonce: String
     ) async throws -> UserProfile {
         guard let identityTokenData = credential.identityToken,
               let identityToken = String(data: identityTokenData, encoding: .utf8),
@@ -30,7 +39,7 @@ public class AppleOAuthProvider: AppleOAuthProviderProtocol {
         let displayName = formatDisplayName(credential.fullName)
         Log.info("Apple sign-in credential received for \(displayName ?? "unknown user")")
 
-        let profile = try await repository.signIn(
+        let profile = try await oAuthRepository.signIn(
             provider: .apple,
             idToken: identityToken,
             nonce: nonce,
@@ -41,14 +50,11 @@ public class AppleOAuthProvider: AppleOAuthProviderProtocol {
         return profile
     }
 
-    public func signUp(
-        repository: OAuthRepositoryProtocol,
-        appleRepository: AppleOAuthRepositoryProtocol
-    ) async throws -> UserProfile {
-        let payload = try await fetchPayload(appleRepository: appleRepository)
+    public func signUp() async throws -> UserProfile {
+        let payload = try await fetchPayload()
         Log.info("apple sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
-        let profile = try await repository.signIn(
+        let profile = try await oAuthRepository.signIn(
             provider: payload.provider,
             idToken: payload.idToken,
             nonce: payload.nonce,
@@ -66,7 +72,7 @@ public class AppleOAuthProvider: AppleOAuthProviderProtocol {
         return name.isEmpty ? nil : name
     }
 
-    private func fetchPayload(appleRepository: AppleOAuthRepositoryProtocol) async throws -> OAuthSignInPayload {
+    private func fetchPayload() async throws -> OAuthSignInPayload {
         let payload = try await appleRepository.signIn()
         return OAuthSignInPayload(
             provider: .apple,

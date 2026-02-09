@@ -11,11 +11,15 @@ import LogMacro
 import AuthenticationServices
 
 public struct OAuthUseCase: OAuthUseCaseProtocol {
-    
+
     @Dependency(\.oAuthRepository) private var repository: OAuthRepositoryProtocol
     @Dependency(\.googleOAuthRepository) private var googleRepository: GoogleOAuthRepositoryProtocol
     @Dependency(\.appleOAuthRepository) private var appleRepository: AppleOAuthRepositoryProtocol
     @Dependency(\.kakaoOAuthRepository) private var kakaoRepository: KakaoOAuthRepositoryProtocol
+
+    // ✅ Provider들도 DI로 주입받음
+    @Dependency(\.appleOAuthProvider) private var appleProvider: AppleOAuthProviderProtocol
+    @Dependency(\.googleOAuthProvider) private var googleProvider: GoogleOAuthProviderProtocol
 
     public init() {}
 
@@ -24,11 +28,9 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
         credential: ASAuthorizationAppleIDCredential,
         nonce: String
     ) async throws -> UserProfile {
-        let provider = AppleOAuthProvider()
-        return try await provider.signInWithCredential(
+        return try await appleProvider.signInWithCredential(
             credential: credential,
-            nonce: nonce,
-            repository: repository
+            nonce: nonce
         )
     }
 
@@ -41,13 +43,11 @@ public struct OAuthUseCase: OAuthUseCaseProtocol {
         do {
             switch provider {
             case .apple:
-                let appleProvider = AppleOAuthProvider()
-                let result = try await appleProvider.signUp(repository: repository, appleRepository: appleRepository)
+                let result = try await appleProvider.signUp()
                 Log.info("✅ Apple signUp completed successfully")
                 return result
             case .google:
-                let googleProvider = GoogleOAuthProvider()
-                let result = try await googleProvider.signUp(repository: repository, googleRepository: googleRepository)
+                let result = try await googleProvider.signUp()
                 Log.info("✅ Google signUp completed successfully")
                 return result
             case .kakao:
