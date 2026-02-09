@@ -13,7 +13,10 @@ import Domain
 public enum LiveDependencies {
     @MainActor
     public static func register(_ dependencies: inout DependencyValues) {
-        // Auth & Session
+        // ✅ DI 패턴으로 변경된 의존성들 (순서 중요!)
+        dependencies.keychainManager = KeychainManager.live
+
+        // Repository 먼저 등록
         dependencies.authRepository = AuthRepository()
         dependencies.sessionRepository = SessionRepository()
 
@@ -24,6 +27,18 @@ public enum LiveDependencies {
             presentationContextProvider: AppPresentationContextProvider()
         )
         dependencies.sessionStoreRepository = SessionStoreRepository()
+
+        // ✅ Provider 등록 (Repository 의존성 주입)
+        dependencies.appleOAuthProvider = AppleOAuthProvider(
+            oAuthRepository: dependencies.oAuthRepository,
+            appleRepository: dependencies.appleOAuthRepository
+        )
+
+        dependencies.googleOAuthProvider = GoogleOAuthProvider(
+            oAuthRepository: dependencies.oAuthRepository,
+            googleRepository: dependencies.googleOAuthRepository
+        )
+
         // Analytics
         dependencies.analyticsRepository = AnalyticsRepository()
         
