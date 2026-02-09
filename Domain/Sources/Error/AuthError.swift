@@ -24,6 +24,8 @@ public enum AuthError: Error, Equatable, LocalizedError, Hashable {
   case backendError(String)
   /// 약관 동의가 필요한 경우
   case needsTermsAgreement(String)
+  /// 리프레시 토큰이 만료된 경우
+  case refreshTokenExpired
   /// 그 외 알 수 없는 에러
   case unknownError(String)
 
@@ -47,8 +49,22 @@ public enum AuthError: Error, Equatable, LocalizedError, Hashable {
       return "서버에서 오류가 발생했습니다: \(message)"
     case .needsTermsAgreement(let message):
       return "\(message)"
+    case .refreshTokenExpired:
+      return "인증이 만료되어 다시 로그인이 필요합니다."
     case .unknownError(let message):
       return "알 수 없는 오류가 발생했습니다: \(message)"
+    }
+  }
+
+  // MARK: - Token Expiration Helper
+
+  /// Indicates whether this error represents a token expiration
+  public var isTokenExpiredError: Bool {
+    switch self {
+    case .refreshTokenExpired:
+      return true
+    default:
+      return false
     }
   }
 }
