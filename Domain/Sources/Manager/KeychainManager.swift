@@ -7,7 +7,6 @@
 
 import Foundation
 import Security
-import LogMacro
 
 enum KeychainKey: String {
   case accessToken = "access_token"
@@ -25,27 +24,73 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
     self.service = service
   }
 
-  // MARK: - 공개 API
+  // MARK: - KeychainManaging Protocol (Async Methods)
 
   /// 액세스 토큰을 키체인에 저장
-  public func saveAccessToken(_ token: String) {
+  public func saveAccessToken(_ token: String) async {
     save(token: token, for: .accessToken)
   }
 
   /// 리프레시 토큰을 키체인에 저장
-  public func saveRefreshToken(_ token: String) {
+  public func saveRefreshToken(_ token: String) async {
     save(token: token, for: .refreshToken)
   }
 
   /// 키체인에서 액세스 토큰 로드
-  public func loadAccessToken() -> String? {
+  public func loadAccessToken() async -> String? {
     loadToken(for: .accessToken)
   }
 
   /// 키체인에서 리프레시 토큰 로드
-  public func loadRefreshToken() -> String? {
+  public func loadRefreshToken() async -> String? {
     loadToken(for: .refreshToken)
   }
+
+  /// 두 토큰을 원자적으로 저장
+  public func saveTokens(
+    accessToken: String?,
+    refreshToken: String?
+  ) async {
+    if let accessToken {
+      await saveAccessToken(accessToken)
+    } else {
+      deleteAccessToken()
+    }
+
+    if let refreshToken {
+      await saveRefreshToken(refreshToken)
+    } else {
+      deleteRefreshToken()
+    }
+
+    NotificationCenter.default.post(name: .tokensDidUpdate, object: nil)
+  }
+
+  /// 두 토큰을 모두 로드
+  public func loadTokens() async -> (accessToken: String?, refreshToken: String?) {
+    (await loadAccessToken(), await loadRefreshToken())
+  }
+
+  /// 모든 토큰 삭제 (로그아웃 시 사용)
+  public func clearAll() async {
+    deleteAccessToken()
+    deleteRefreshToken()
+    NotificationCenter.default.post(name: .tokensDidClear, object: nil)
+  }
+
+  // MARK: - Synchronous Methods for Compatibility
+
+  /// 키체인에서 액세스 토큰 로드 (동기 버전)
+  public func loadAccessTokenSync() -> String? {
+    return loadToken(for: .accessToken)
+  }
+
+  /// 키체인에서 리프레시 토큰 로드 (동기 버전)
+  public func loadRefreshTokenSync() -> String? {
+    return loadToken(for: .refreshToken)
+  }
+
+  // MARK: - Additional Methods
 
   /// 액세스 토큰 삭제
   public func deleteAccessToken() {
@@ -57,44 +102,12 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
     deleteToken(for: .refreshToken)
   }
 
-  /// 두 토큰을 원자적으로 저장
-  public func saveTokens(
-    accessToken: String?,
-    refreshToken: String?
-  ) {
-    if let accessToken {
-      saveAccessToken(accessToken)
-    } else {
-      deleteAccessToken()
-    }
-
-    if let refreshToken {
-      saveRefreshToken(refreshToken)
-    } else {
-      deleteRefreshToken()
-    }
-
-    NotificationCenter.default.post(name: .tokensDidUpdate, object: nil)
-  }
-
-  /// 두 토큰을 모두 로드
-  public func loadTokens() -> (accessToken: String?, refreshToken: String?) {
-    (loadAccessToken(), loadRefreshToken())
-  }
-
-  /// 모든 토큰 삭제 (로그아웃 시 사용)
-  public func clearAll() {
-    deleteAccessToken()
-    deleteRefreshToken()
-    NotificationCenter.default.post(name: .tokensDidClear, object: nil)
-  }
-
-  // MARK: - 내부 헬퍼 메서드
+  // MARK: - Private Helper Methods
 
   /// 토큰을 키체인에 저장 (Update-Add 패턴 사용)
   private func save(token: String, for key: KeychainKey) {
     guard let data = token.data(using: .utf8) else {
-      Log.info("Keychain: 토큰을 데이터로 변환 실패, key: \(key.rawValue)")
+      print("Keychain: 토큰을 데이터로 변환 실패, key: \(key.rawValue)")
       return
     }
 
@@ -121,10 +134,10 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
 
       let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
       if addStatus != errSecSuccess {
-        Log.info("Keychain: Failed to add token for key \(key.rawValue), status: \(addStatus)")
+        print("Keychain: Failed to add token for key \(key.rawValue), status: \(addStatus)")
       }
     } else if updateStatus != errSecSuccess {
-      Log.info("Keychain: Failed to update token for key \(key.rawValue), status: \(updateStatus)")
+      print("Keychain: Failed to update token for key \(key.rawValue), status: \(updateStatus)")
     }
   }
 
@@ -145,7 +158,7 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
           let token = String(data: data, encoding: .utf8)
     else {
       if status != errSecItemNotFound {
-        Log.info("Keychain: Failed to load token for key \(key.rawValue), status: \(status)")
+        print("Keychain: Failed to load token for key \(key.rawValue), status: \(status)")
       }
       return nil
     }
@@ -162,7 +175,7 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
 
     let status = SecItemDelete(query as CFDictionary)
     if status != errSecSuccess && status != errSecItemNotFound {
-      Log.info("Keychain: Failed to delete token for key \(key.rawValue), status: \(status)")
+      print("Keychain: Failed to delete token for key \(key.rawValue), status: \(status)")
     }
   }
 }

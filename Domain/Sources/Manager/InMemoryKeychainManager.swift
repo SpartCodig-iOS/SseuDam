@@ -12,10 +12,9 @@ import Foundation
 
 /// In-Memory implementation for KeychainManaging protocol
 /// Used for testing and SwiftUI previews
-public final class InMemoryKeychainManager: KeychainManaging, @unchecked Sendable {
+public actor InMemoryKeychainManager: KeychainManaging {
   private var accessTokenStorage: String?
   private var refreshTokenStorage: String?
-  private let lock = NSLock()
 
   // MARK: - Test helpers
   private(set) var saveAccessTokenCallCount = 0
@@ -27,24 +26,17 @@ public final class InMemoryKeychainManager: KeychainManaging, @unchecked Sendabl
 
   // MARK: - KeychainManaging Implementation
 
-  public func saveAccessToken(_ token: String) {
-    lock.lock()
-    defer { lock.unlock() }
+  public func saveAccessToken(_ token: String) async {
     accessTokenStorage = token
     saveAccessTokenCallCount += 1
   }
 
-  public func saveRefreshToken(_ token: String) {
-    lock.lock()
-    defer { lock.unlock() }
+  public func saveRefreshToken(_ token: String) async {
     refreshTokenStorage = token
     saveRefreshTokenCallCount += 1
   }
 
-  public func saveTokens(accessToken: String?, refreshToken: String?) {
-    lock.lock()
-    defer { lock.unlock() }
-
+  public func saveTokens(accessToken: String?, refreshToken: String?) async {
     if let accessToken {
       accessTokenStorage = accessToken
     }
@@ -54,27 +46,19 @@ public final class InMemoryKeychainManager: KeychainManaging, @unchecked Sendabl
     saveTokensCallCount += 1
   }
 
-  public func loadAccessToken() -> String? {
-    lock.lock()
-    defer { lock.unlock() }
+  public func loadAccessToken() async -> String? {
     return accessTokenStorage
   }
 
-  public func loadRefreshToken() -> String? {
-    lock.lock()
-    defer { lock.unlock() }
+  public func loadRefreshToken() async -> String? {
     return refreshTokenStorage
   }
 
-  public func loadTokens() -> (accessToken: String?, refreshToken: String?) {
-    lock.lock()
-    defer { lock.unlock() }
+  public func loadTokens() async -> (accessToken: String?, refreshToken: String?) {
     return (accessTokenStorage, refreshTokenStorage)
   }
 
-  public func clearAll() {
-    lock.lock()
-    defer { lock.unlock() }
+  public func clearAll() async {
     accessTokenStorage = nil
     refreshTokenStorage = nil
     clearAllCallCount += 1
@@ -83,9 +67,7 @@ public final class InMemoryKeychainManager: KeychainManaging, @unchecked Sendabl
   // MARK: - Test Helpers
 
   /// Reset all call counts for testing
-  public func resetCounts() {
-    lock.lock()
-    defer { lock.unlock() }
+  public func resetCounts() async {
     saveAccessTokenCallCount = 0
     saveRefreshTokenCallCount = 0
     saveTokensCallCount = 0
@@ -94,30 +76,22 @@ public final class InMemoryKeychainManager: KeychainManaging, @unchecked Sendabl
 
   /// Check if tokens are stored
   public var hasStoredTokens: Bool {
-    lock.lock()
-    defer { lock.unlock() }
     return accessTokenStorage != nil && refreshTokenStorage != nil
   }
 
   /// Preload tokens for testing
-  public func preloadTokens(accessToken: String, refreshToken: String) {
-    lock.lock()
-    defer { lock.unlock() }
+  public func preloadTokens(accessToken: String, refreshToken: String) async {
     accessTokenStorage = accessToken
     refreshTokenStorage = refreshToken
   }
 
   /// Verify specific tokens are saved
-  public func verifyTokensSaved(accessToken: String, refreshToken: String) -> Bool {
-    lock.lock()
-    defer { lock.unlock() }
+  public func verifyTokensSaved(accessToken: String, refreshToken: String) async -> Bool {
     return accessTokenStorage == accessToken && refreshTokenStorage == refreshToken
   }
 
   /// Get all call counts for verification
-  public func getAllCallCounts() -> (saveAccessToken: Int, saveRefreshToken: Int, saveTokens: Int, clearAll: Int) {
-    lock.lock()
-    defer { lock.unlock() }
+  public func getAllCallCounts() async -> (saveAccessToken: Int, saveRefreshToken: Int, saveTokens: Int, clearAll: Int) {
     return (saveAccessTokenCallCount, saveRefreshTokenCallCount, saveTokensCallCount, clearAllCallCount)
   }
 }

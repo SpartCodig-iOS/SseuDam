@@ -96,8 +96,8 @@ private extension AuthSessionManager {
 
   static func loadCredentialFromKeychain() -> AccessTokenCredential? {
     guard
-      let accessToken = KeychainManager.live.loadAccessToken(),
-      let refreshToken = KeychainManager.live.loadRefreshToken()
+      let accessToken = KeychainManager.live.loadAccessTokenSync(),
+      let refreshToken = KeychainManager.live.loadRefreshTokenSync()
     else {
       return nil
     }

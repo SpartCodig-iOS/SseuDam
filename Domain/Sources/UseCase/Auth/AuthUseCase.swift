@@ -42,7 +42,7 @@ public struct AuthUseCase: AuthUseCaseProtocol {
     
     public func deleteUser() async throws -> AuthDeleteStatus {
         let result = try await repository.delete()
-        keychainManager.clearAll()
+      await keychainManager.clearAll()
         return result
     }
 }

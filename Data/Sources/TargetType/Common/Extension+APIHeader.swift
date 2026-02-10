@@ -12,14 +12,14 @@ import Domain
 public extension APIHeaders {
     static let registerKeychainTokenProvider: Void = {
         APIHeaders.setTokenProvider {
-            KeychainManager.live.loadAccessToken()
+            KeychainManager.live.loadAccessTokenSync()
         }
     }()
 
     static var accessTokenHeader: [String: String] {
         _ = registerKeychainTokenProvider
 
-        guard let token = KeychainManager.live.loadAccessToken() else {
+        guard let token = KeychainManager.live.loadAccessTokenSync() else {
             return ["Content-Type": "application/json"]
         }
 

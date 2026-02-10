@@ -11,23 +11,17 @@ import Foundation
 /// Provides secure storage for authentication tokens
 public protocol KeychainManaging: Sendable {
   /// Save access token to keychain
-  func saveAccessToken(_ token: String)
-
+  func saveAccessToken(_ token: String) async
   /// Save refresh token to keychain
-  func saveRefreshToken(_ token: String)
-
+  func saveRefreshToken(_ token: String) async
   /// Save both tokens atomically
-  func saveTokens(accessToken: String?, refreshToken: String?)
-
+  func saveTokens(accessToken: String?, refreshToken: String?) async
   /// Load access token from keychain
-  func loadAccessToken() -> String?
-
+  func loadAccessToken() async -> String?
   /// Load refresh token from keychain
-  func loadRefreshToken() -> String?
-
+  func loadRefreshToken() async -> String?
   /// Load both tokens
-  func loadTokens() -> (accessToken: String?, refreshToken: String?)
-
+  func loadTokens() async -> (accessToken: String?, refreshToken: String?)
   /// Clear all stored tokens
-  func clearAll()
+  func clearAll() async
 }

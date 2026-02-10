@@ -23,7 +23,7 @@ public final class SessionStoreRepository: SessionStoreRepositoryProtocol, @unch
     }
 
     public func save(tokens: AuthTokens, socialType: SocialType?, userId: String?) async {
-        keychainManager.saveTokens(
+        await keychainManager.saveTokens(
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken
         )
@@ -41,7 +41,7 @@ public final class SessionStoreRepository: SessionStoreRepositoryProtocol, @unch
     }
 
     public func loadTokens() async -> AuthTokens? {
-        let tokens = keychainManager.loadTokens()
+        let tokens = await keychainManager.loadTokens()
         guard let access = tokens.accessToken,
               let refresh = tokens.refreshToken
         else { return nil }
@@ -65,7 +65,7 @@ public final class SessionStoreRepository: SessionStoreRepositoryProtocol, @unch
     }
 
     public func clearAll() async {
-        keychainManager.clearAll()
+        await keychainManager.clearAll()
         UserDefaults.standard.removeObject(forKey: Keys.sessionId)
         UserDefaults.standard.removeObject(forKey: Keys.socialType)
         UserDefaults.standard.removeObject(forKey: Keys.userId)

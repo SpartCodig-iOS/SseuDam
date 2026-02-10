@@ -426,7 +426,9 @@ extension ProfileFeature {
                     case .success(let loginData):
                         state.logoutStatus = loginData
                         // Keychain과 AppStorage 모두 정리
-                      keychainManager.clearAll()
+                    Task {
+                      await keychainManager.clearAll()
+                    }
                         return .send(.delegate(.presentLogin))
 
                     case .failure(let error):

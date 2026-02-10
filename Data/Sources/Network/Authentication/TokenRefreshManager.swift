@@ -87,7 +87,7 @@ private extension TokenRefreshManager {
             let tokens = result.token
 
             // Save to keychain
-            KeychainManager.live.saveTokens(
+            await KeychainManager.live.saveTokens(
                 accessToken: tokens.accessToken,
                 refreshToken: tokens.refreshToken
             )
@@ -120,7 +120,7 @@ private extension TokenRefreshManager {
 
     func performAutomaticLogout() async {
         // 1. Clear keychain
-        KeychainManager.live.clearAll()
+        await KeychainManager.live.clearAll()
 
         // 2. Clear session manager credential
         await MainActor.run {

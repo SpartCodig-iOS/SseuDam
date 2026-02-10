@@ -281,7 +281,7 @@ private extension SplashFeature {
                 return
             }
 
-          guard let accessToken = keychainManager.loadAccessToken(),
+          guard let accessToken = await keychainManager.loadAccessToken(),
                   !accessToken.isEmpty else {
                 await send(.async(.checkSession))
                 return
