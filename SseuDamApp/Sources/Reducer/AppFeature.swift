@@ -68,6 +68,8 @@ struct AppFeature {
         case setupPushNotificationObserver
         case handlePushDeepLink(String)
         case checkPendingPushDeepLink
+        case startTokenExpiryListener        // ✅ 토큰 만료 리스너 시작
+        case handleTokenExpiry               // ✅ 토큰 만료 처리
     }
 
     @CasePathable
@@ -90,6 +92,7 @@ struct AppFeature {
         case transitionToLogin
         case transitionToMain
         case transitionToProfile
+        case refreshTokenExpiredListener    // 토큰 만료 리스너
     }
 
     // MARK: - body
@@ -220,12 +223,18 @@ extension AppFeature {
                 state.splash = nil
                 state.login = nil
 
+                // 토큰 만료 리스너 시작
+                let tokenExpiryEffect = Effect<Action>.send(.inner(.startTokenExpiryListener))
+
                 // 대기 중인 푸시 딥 링크가 있으면 처리
                 if case .push(let deepLink) = pending {
-                    return .send(.inner(.handlePushDeepLink(deepLink)))
+                    return .merge(
+                        tokenExpiryEffect,
+                        .send(.inner(.handlePushDeepLink(deepLink)))
+                    )
                 }
 
-                return .none
+                return tokenExpiryEffect
 
             case .handleDeepLinkJoin(let inviteCode):
                 // 딥링크를 통한 여행 참여 처리 (팝업 우선 표시)
@@ -272,6 +281,13 @@ extension AppFeature {
                         await send(.inner(.setPendingDeepLink(.push(pendingDeepLink))))
                     }
                 }
+
+            case .startTokenExpiryListener:
+                return setupRefreshTokenExpiredListener()
+
+            case .handleTokenExpiry:
+                // 토큰 만료 시 로그인 화면으로 이동
+                return .send(.view(.presentLogin))
 
             case .setupPushNotificationObserver:
                 return .run { send in
@@ -330,5 +346,15 @@ extension AppFeature {
             default:
                 return .none
         }
+    }
+
+    // MARK: - 토큰 만료 리스너 설정 (효율적인 Publisher 패턴)
+    private func setupRefreshTokenExpiredListener() -> Effect<Action> {
+        return .publisher {
+            NotificationCenter.default
+                .publisher(for: .refreshTokenExpired)
+                .map { _ in Action.inner(.handleTokenExpiry) }
+        }
+        .cancellable(id: CancelID.refreshTokenExpiredListener, cancelInFlight: true)
     }
 }

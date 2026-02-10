@@ -9,20 +9,27 @@ import Foundation
 import Dependencies
 import LogMacro
 
-public class GoogleOAuthProvider: OAuthProviderProtocol {
+public class GoogleOAuthProvider: GoogleOAuthProviderProtocol, @unchecked Sendable {
     public let socialType: SocialType = .google
 
-    public init() {}
+    private let oAuthRepository: OAuthRepositoryProtocol
+    private let googleRepository: GoogleOAuthRepositoryProtocol
+
+    /// DI를 위한 생성자 - Repository들을 한 번에 주입받음
+    public init(
+        oAuthRepository: OAuthRepositoryProtocol,
+        googleRepository: GoogleOAuthRepositoryProtocol
+    ) {
+        self.oAuthRepository = oAuthRepository
+        self.googleRepository = googleRepository
+    }
 
   
-    public func signUp(
-        repository: OAuthRepositoryProtocol,
-        googleRepository: GoogleOAuthRepositoryProtocol
-    ) async throws -> UserProfile {
-        let payload = try await fetchPayload(googleRepository: googleRepository)
+    public func signUp() async throws -> UserProfile {
+        let payload = try await fetchPayload()
         Log.info("google sign-in succeeded for \(payload.displayName ?? "unknown user")")
 
-        let profile = try await repository.signIn(
+        let profile = try await oAuthRepository.signIn(
             provider: payload.provider,
             idToken: payload.idToken,
             nonce: payload.nonce,
@@ -33,7 +40,7 @@ public class GoogleOAuthProvider: OAuthProviderProtocol {
         return profile
     }
 
-    private func fetchPayload(googleRepository: GoogleOAuthRepositoryProtocol) async throws -> OAuthSignInPayload {
+    private func fetchPayload() async throws -> OAuthSignInPayload {
         let payload = try await googleRepository.signIn()
         return OAuthSignInPayload(
             provider: .google,

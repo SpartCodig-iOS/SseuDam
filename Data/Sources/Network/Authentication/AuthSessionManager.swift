@@ -55,6 +55,18 @@ final class AuthSessionManager {
   public func clear() {
     interceptor.credential = nil
   }
+
+  func updateCredential(accessToken: String, refreshToken: String) {
+    guard let credential = AccessTokenCredential.make(
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    ) else {
+      interceptor.credential = nil
+      return
+    }
+
+    interceptor.credential = credential
+  }
 }
 
 private extension AuthSessionManager {
@@ -84,8 +96,8 @@ private extension AuthSessionManager {
 
   static func loadCredentialFromKeychain() -> AccessTokenCredential? {
     guard
-      let accessToken = KeychainManager.shared.loadAccessToken(),
-      let refreshToken = KeychainManager.shared.loadRefreshToken()
+      let accessToken = KeychainManager.live.loadAccessTokenSync(),
+      let refreshToken = KeychainManager.live.loadRefreshTokenSync()
     else {
       return nil
     }
