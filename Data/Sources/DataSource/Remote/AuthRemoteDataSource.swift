@@ -38,7 +38,7 @@ public struct AuthRemoteDataSource: AuthRemoteDataSourceProtocol {
 
     public func refresh(token: String) async throws -> TokenResult {
         let body = RefreshRequestDTO(refreshToken: token)
-        let response: BaseResponse<RefreshResponseDTO> = try await authProvider.request(.refreshToken(body: body))
+        let response: BaseResponse<RefreshResponseDTO> = try await noAuthProvider.request(.refreshToken(body: body))
         guard let data = response.data else { throw NetworkError.noData }
         return data.toDomain()
     }

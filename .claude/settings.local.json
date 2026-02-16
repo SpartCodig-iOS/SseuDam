@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild:*)",
+      "Bash(tuist clean:*)",
+      "Bash(tuist generate:*)",
+      "Bash(tuist install:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(swift -frontend -parse:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(swift build:*)",
+      "Bash(timeout 30s xcodebuild:*)",
+      "Bash(gh pr view:*)",
+      "WebFetch(domain:docs.google.com)",
+      "Bash(chmod:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(xargs:*)",
+      "Bash(tuist build:*)",
+      "Bash(sudo rm:*)",
+      "Bash(gh pr create:*)"
+    ]
+  }
+}
