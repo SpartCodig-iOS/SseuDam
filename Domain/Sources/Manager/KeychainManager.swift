@@ -53,17 +53,32 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
   ) async {
     if let accessToken {
       await saveAccessToken(accessToken)
+
+      // Verify access token was saved
+      let savedAccessToken = await loadAccessToken()
+      if savedAccessToken != accessToken {
+        print("Keychain: Access token save verification failed, retrying...")
+        await saveAccessToken(accessToken)
+      }
     } else {
       deleteAccessToken()
     }
 
     if let refreshToken {
       await saveRefreshToken(refreshToken)
+
+      // Verify refresh token was saved
+      let savedRefreshToken = await loadRefreshToken()
+      if savedRefreshToken != refreshToken {
+        print("Keychain: Refresh token save verification failed, retrying...")
+        await saveRefreshToken(refreshToken)
+      }
     } else {
       deleteRefreshToken()
     }
 
     NotificationCenter.default.post(name: .tokensDidUpdate, object: nil)
+    print("Keychain: Successfully saved and verified tokens")
   }
 
   /// 두 토큰을 모두 로드

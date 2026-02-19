@@ -23,7 +23,11 @@
       "Bash(xargs:*)",
       "Bash(tuist build:*)",
       "Bash(sudo rm:*)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(PORT=3001 npm run dev:*)",
+      "Bash(PORT=9000 npm run dev:*)"
     ]
   }
 }

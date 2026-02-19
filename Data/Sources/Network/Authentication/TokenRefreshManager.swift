@@ -86,11 +86,24 @@ private extension TokenRefreshManager {
             let result = try await remote.refresh(token: credential.refreshToken)
             let tokens = result.token
 
-            // Save to keychain
+            // Save to keychain with verification
             await KeychainManager.live.saveTokens(
                 accessToken: tokens.accessToken,
                 refreshToken: tokens.refreshToken
             )
+
+            // Verify tokens were saved successfully
+            let (savedAccessToken, savedRefreshToken) = await KeychainManager.live.loadTokens()
+            guard savedAccessToken == tokens.accessToken,
+                  let refreshToken = tokens.refreshToken,
+                  savedRefreshToken == refreshToken else {
+                print("TokenRefresh: Failed to verify saved tokens - retrying save")
+                // Retry save once more
+                await KeychainManager.live.saveTokens(
+                    accessToken: tokens.accessToken,
+                    refreshToken: tokens.refreshToken
+                )
+            }
 
             // Update session manager credential
             await MainActor.run {
@@ -107,9 +120,12 @@ private extension TokenRefreshManager {
                 throw TokenRefreshError.invalidAccessToken
             }
 
+            print("TokenRefresh: Successfully refreshed and saved tokens. Expires: \(refreshedCredential.expiration)")
+
             return refreshedCredential
 
         } catch {
+            print("TokenRefresh: Failed to refresh token - \(error)")
             // If refresh token is expired, perform automatic logout
             if isRefreshTokenExpiredError(error) {
                 await performAutomaticLogout()

@@ -13,7 +13,7 @@ struct AccessTokenCredential: AuthenticationCredential, Sendable {
   let refreshToken: String
   let expiration: Date
 
-  private let refreshLeadTime: TimeInterval = 5 * 60 // refresh 5 minutes before expiry
+  private let refreshLeadTime: TimeInterval = 30 * 60 // refresh 30 minutes before expiry
 
   var requiresRefresh: Bool {
     Date().addingTimeInterval(refreshLeadTime) >= expiration
@@ -35,7 +35,10 @@ struct AccessTokenCredential: AuthenticationCredential, Sendable {
 private extension AccessTokenCredential {
   static func decodeExpiration(from token: String) -> Date? {
     let components = token.components(separatedBy: ".")
-    guard components.count == 3 else { return nil }
+    guard components.count == 3 else {
+      print("JWT: Invalid token format - expected 3 components, got \(components.count)")
+      return nil
+    }
 
     let payload = components[1]
     var base64 = payload
@@ -47,13 +50,33 @@ private extension AccessTokenCredential {
       base64 += String(repeating: "=", count: paddingLength)
     }
 
-    guard let data = Data(base64Encoded: base64) else { return nil }
+    guard let data = Data(base64Encoded: base64) else {
+      print("JWT: Failed to decode base64 payload")
+      return nil
+    }
 
     do {
       let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-      guard let exp = json?["exp"] as? TimeInterval else { return nil }
-      return Date(timeIntervalSince1970: exp)
+      guard let exp = json?["exp"] as? TimeInterval else {
+        print("JWT: Missing or invalid 'exp' field in payload")
+        return nil
+      }
+
+      let expirationDate = Date(timeIntervalSince1970: exp)
+      let now = Date()
+      let timeUntilExpiry = expirationDate.timeIntervalSince(now)
+
+      print("JWT: Token expires at \(expirationDate), current time: \(now), time until expiry: \(timeUntilExpiry/3600) hours")
+
+      // Sanity check: token should not be expired already and should not expire more than 24 hours from now
+      guard timeUntilExpiry > 0 && timeUntilExpiry < 24 * 60 * 60 else {
+        print("JWT: Token expiration time seems invalid - timeUntilExpiry: \(timeUntilExpiry)")
+        return nil
+      }
+
+      return expirationDate
     } catch {
+      print("JWT: Failed to parse JSON payload - \(error)")
       return nil
     }
   }

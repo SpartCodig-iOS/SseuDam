@@ -36,11 +36,15 @@ final class AccessTokenAuthenticator: Authenticator {
     for session: Session,
     completion: @escaping @Sendable (Result<Credential, any Error>) -> Void
   ) {
+    print("AccessTokenAuthenticator: Starting token refresh for credential expiring at \(credential.expiration)")
+
     _Concurrency.Task {
       do {
         let refreshedCredential = try await tokenRefreshManager.refreshCredentialIfNeeded(current: credential)
+        print("AccessTokenAuthenticator: Token refresh successful, new expiration: \(refreshedCredential.expiration)")
         completion(.success(refreshedCredential))
       } catch {
+        print("AccessTokenAuthenticator: Token refresh failed with error: \(error)")
         completion(.failure(error))
       }
     }
