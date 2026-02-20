@@ -7,23 +7,32 @@
 
 import Foundation
 import Alamofire
+import LogMacro
 
 struct AccessTokenCredential: AuthenticationCredential, Sendable {
   let accessToken: String
   let refreshToken: String
   let expiration: Date
 
-  private let refreshLeadTime: TimeInterval = 30 * 60 // refresh 30 minutes before expiry
+  private let refreshLeadTime: TimeInterval = 30 * 60 // refresh 30 minutes before expiry (적합한 시간 for 3시간 토큰)
 
   var requiresRefresh: Bool {
-    Date().addingTimeInterval(refreshLeadTime) >= expiration
+    // 만료 30분 전 또는 이미 만료된 경우 모두 갱신 필요
+    let now = Date()
+    return now.addingTimeInterval(refreshLeadTime) >= expiration || now >= expiration
   }
 
   static func make(
     accessToken: String,
     refreshToken: String
-  ) -> AccessTokenCredential? {
-    guard let expiration = decodeExpiration(from: accessToken) else { return nil }
+  ) -> AccessTokenCredential {
+    // JWT 디코딩을 시도하되, 실패하면 기본 만료시간 사용 (3시간 후)
+    let fallbackExpiration = Date().addingTimeInterval(3 * 60 * 60) // 3시간
+    let expiration = decodeExpiration(from: accessToken) ?? {
+      #logDebug("⚠️ JWT decoding failed, using fallback expiration: 3 hours from now")
+      return fallbackExpiration
+    }()
+
     return AccessTokenCredential(
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -36,7 +45,7 @@ private extension AccessTokenCredential {
   static func decodeExpiration(from token: String) -> Date? {
     let components = token.components(separatedBy: ".")
     guard components.count == 3 else {
-      print("JWT: Invalid token format - expected 3 components, got \(components.count)")
+      #logDebug("🚫 JWT decoding failed: Invalid JWT format (expected 3 parts, got \(components.count))")
       return nil
     }
 
@@ -51,33 +60,25 @@ private extension AccessTokenCredential {
     }
 
     guard let data = Data(base64Encoded: base64) else {
-      print("JWT: Failed to decode base64 payload")
+      #logDebug("🚫 JWT decoding failed: Base64 decoding failed")
       return nil
     }
 
-    do {
-      let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-      guard let exp = json?["exp"] as? TimeInterval else {
-        print("JWT: Missing or invalid 'exp' field in payload")
-        return nil
-      }
-
-      let expirationDate = Date(timeIntervalSince1970: exp)
-      let now = Date()
-      let timeUntilExpiry = expirationDate.timeIntervalSince(now)
-
-      print("JWT: Token expires at \(expirationDate), current time: \(now), time until expiry: \(timeUntilExpiry/3600) hours")
-
-      // Sanity check: token should not be expired already and should not expire more than 24 hours from now
-      guard timeUntilExpiry > 0 && timeUntilExpiry < 24 * 60 * 60 else {
-        print("JWT: Token expiration time seems invalid - timeUntilExpiry: \(timeUntilExpiry)")
-        return nil
-      }
-
-      return expirationDate
-    } catch {
-      print("JWT: Failed to parse JSON payload - \(error)")
+    guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+      #logDebug("🚫 JWT decoding failed: JSON parsing failed")
       return nil
     }
+
+    guard let exp = json["exp"] as? TimeInterval else {
+      #logDebug("🚫 JWT decoding failed: 'exp' claim not found or invalid type")
+      #logDebug("🔍 Available keys in JWT payload: \(json.keys.joined(separator: ", "))")
+      return nil
+    }
+
+    let expirationDate = Date(timeIntervalSince1970: exp)
+    #logDebug("✅ JWT expiration decoded successfully: \(expirationDate)")
+    #logDebug("🕐 Time until expiration: \(expirationDate.timeIntervalSinceNow / 3600) hours")
+
+    return expirationDate
   }
 }

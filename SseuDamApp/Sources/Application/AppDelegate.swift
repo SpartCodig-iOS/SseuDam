@@ -29,6 +29,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, @MainActor UNUserNotif
     setenv("FIRDebugEnabled", "1", 1)
 #endif
 
+    // 앱 시작시 토큰 체크는 AuthSessionManager가 자동으로 처리
+
     FirebaseApp.configure()
     Mixpanel.initialize(token: mixPanelKey ?? "", trackAutomaticEvents: false)
     Analytics.setAnalyticsCollectionEnabled(true)
