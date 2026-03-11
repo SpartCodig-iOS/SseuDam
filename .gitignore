@@ -102,3 +102,6 @@ Derived/
 # Tuist dependencies
 Tuist/Dependencies/
 Tuist/.build/
+
+# Claude settings
+.claude/settings.local.json
