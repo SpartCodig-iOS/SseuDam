@@ -11,7 +11,7 @@ import DesignSystem
 struct TravelEmptyView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            Image(assetName: "emptyTravelList")
+            Image(assetName: "EmptyTravelList")
                 .resizable()
                 .scaledToFit()
                 .frame(height: 160)

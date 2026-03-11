@@ -15,7 +15,8 @@ public struct AuthUseCase: AuthUseCaseProtocol {
     @Dependency(\.authRepository) private var repository: AuthRepositoryProtocol
     @Dependency(\.authRepository) private var authRepository: AuthRepositoryProtocol
     @Dependency(\.tokenStorageUseCase) private var tokenStorageUseCase: TokenStorageUseCase
-    
+    @Dependency(\.keychainManager) private var keychainManager
+
     
     public init() {}
     
@@ -41,7 +42,7 @@ public struct AuthUseCase: AuthUseCaseProtocol {
     
     public func deleteUser() async throws -> AuthDeleteStatus {
         let result = try await repository.delete()
-        KeychainManager.shared.clearAll()
+      await keychainManager.clearAll()
         return result
     }
 }

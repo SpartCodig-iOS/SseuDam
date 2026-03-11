@@ -14,21 +14,39 @@
 
 ## 📱 주요 기능
 
-### 🌍 여행 관리
-- **여행 생성 및 관리**: 여행 일정과 참가자 관리
+### 🌍 **여행 관리**
+- **여행 생성 및 관리**: 여행 일정과 참가자 관리 (김민희 담당)
 - **초대 코드**: 친구들을 쉽게 여행에 초대
+- **여행 참여/나가기**: 실시간 멤버 관리 시스템
 - **실시간 환율**: 최신 환율 정보로 정확한 경비 계산
 
-### 💰 경비 관리 & 정산
+### 💰 **경비 관리 & 정산**
+- **지출 내역 CRUD**: 지출 조회, 생성, 수정, 삭제 (홍석현 담당)
+- **카테고리별 분류**: 식비, 숙박, 교통, 쇼핑 등 체계적 분류
 - **실시간 경비 입력**: 여행 중 발생하는 모든 경비 기록
-- **자동 정산 계산**: 복잡한 N분의 1 정산을 자동으로 계산
-- **정산 내역 공유**: 투명한 정산 결과 공유
+- **스마트 정산**: Pay(지출액) - Owe(책임액) 자동 계산으로 명확한 정산 제안
+- **정산 내역 상세보기**: 멤버별 투명한 정산 내역 공개
+- **일별 지출 차트**: 터치 인터랙션이 가능한 시각화 그래프
 
-### 🔐 간편 인증
-- **소셜 로그인**: Google, Apple 로그인 지원
+### 🔐 **인증 시스템**
+- **소셜 로그인**: Google, Apple 로그인 지원 (서원지 담당)
+- **스플래시 화면**: 부드러운 앱 시작 경험
+- **온보딩**: 신규 사용자를 위한 친절한 가이드
 - **안전한 인증**: OAuth 2.0 기반 보안 시스템
 
-### 🎨 사용자 경험
+### 👤 **프로필 관리**
+- **프로필 수정**: 사용자 정보 관리 (서원지 담당)
+- **이미지 캐싱**: ImageCacheService로 최적화된 프로필 이미지
+- **버전 정보**: 앱 버전 표시 및 관리
+
+### 📊 **Analytics & 추적**
+- **이중 트래킹**: Firebase Analytics + Mixpanel 동시 수집
+- **사용자 행동 분석**: 앱 사용 패턴 및 성능 모니터링
+- **딥링크 추적**: 앱 진입 경로 분석
+
+### 🎨 **사용자 경험**
+- **아름다운 디자인**: 전문 디자이너의 UI/UX 설계 (오나람 담당)
+- **커스텀 아이콘**: 브랜드 일관성을 위한 전용 아이콘 디자인
 - **Skeleton Loading**: 부드러운 로딩 경험
 - **Toast 알림**: 직관적인 피드백 시스템
 - **다크 모드**: 시스템 설정에 따른 테마 자동 변경
@@ -40,51 +58,114 @@
 
 ```
 SseuDam/
-├── 🎯 Features/          # 기능별 모듈
-│   ├── Login/           # 로그인 & 회원가입
-│   ├── Travel/          # 여행 관리
-│   ├── Expense/         # 경비 관리
-│   ├── Settlement/      # 정산
-│   ├── Profile/         # 프로필
-│   ├── Web/             # WebView 기능
-│   ├── Main/            # 메인 탭
-│   └── Splash/          # 스플래시
+├── 🎯 Features/              # 기능별 모듈
+│   ├── Login/               # 로그인 & 소셜 인증 (서원지)
+│   ├── OnBoarding/          # 신규 사용자 가이드
+│   ├── Splash/              # 스플래시 화면 (서원지)
+│   ├── Profile/             # 프로필 관리 (서원지)
+│   ├── Travel/              # 여행 CRUD & 멤버 관리 (김민희)
+│   ├── Member/              # 여행 참여/나가기 (김민희)
+│   ├── Expense/             # 지출 등록
+│   ├── ExpenseList/         # 지출 내역 & 차트 (홍석현)
+│   ├── SaveExpense/         # 지출 저장 로직
+│   ├── Settlement/          # 정산 메인 (홍석현)
+│   ├── SettlementResult/    # 정산 결과 (홍석현)
+│   ├── SettlementDetail/    # 정산 상세보기 (홍석현)
+│   ├── Main/                # 메인 탭 네비게이션
+│   └── Web/                 # WebView 기능
 │
 ├── 🏛️ Core Layers/
-│   ├── Domain/          # 비즈니스 로직 & 엔터티
-│   ├── Data/            # Repository 구현 & DTO
-│   ├── NetworkService/  # API 통신
-│   └── DesignSystem/    # UI 컴포넌트 & 디자인 시스템
+│   ├── Domain/              # 비즈니스 로직 & 엔터티
+│   ├── Data/                # Repository 구현 & DTO
+│   ├── NetworkService/      # API 통신
+│   └── DesignSystem/        # UI 컴포넌트 & 디자인 시스템 (오나람)
 │
-└── 📱 App/
-    └── SseuDamApp/      # 메인 애플리케이션
+├── 📱 App/
+│   └── SseuDamApp/          # 메인 애플리케이션
+│
+├── ⚙️ Configuration/
+│   ├── Config/              # 환경 설정
+│   ├── Entitlements/        # 앱 권한 설정
+│   └── Scripts/             # 빌드 스크립트
+│
+└── 🧪 Tests/                # 테스트 모음
 ```
 
 ### 기술 스택
 
-#### 🏗️ 아키텍처 & 패턴
-- **[TCA (The Composable Architecture)](https://github.com/pointfreeco/swift-composable-architecture)**: 단방향 데이터 플로우
-- **[TCACoordinators](https://github.com/johnpatrickmorgan/TCACoordinators)**: 네비게이션 관리
+#### 🏗️ **아키텍처 & 패턴**
+- **[TCA (The Composable Architecture)](https://github.com/pointfreeco/swift-composable-architecture)**: 단방향 데이터 플로우, 상태 관리
+- **[TCACoordinators](https://github.com/johnpatrickmorgan/TCACoordinators)**: 네비게이션 관리 (홍석현 담당)
 - **Clean Architecture**: 계층 분리 및 의존성 역전
-- **[Tuist](https://tuist.io/)**: 프로젝트 생성 및 모듈 관리
+- **[Tuist](https://tuist.io/)**: 프로젝트 생성 및 모듈 관리 (홍석현 담당)
+- **Dependencies 시스템**: @Dependency를 활용한 DI 간소화
 
-#### 🌐 네트워킹
-- **[Supabase](https://supabase.com/)**: Backend as a Service
+#### 🌐 **네트워킹 & 백엔드**
+- **[Supabase](https://supabase.com/)**: Backend as a Service (서원지 담당)
 - **[Moya](https://github.com/Moya/Moya)**: 타입 세이프한 네트워킹
 - **[Alamofire](https://github.com/Alamofire/Alamofire)**: HTTP 네트워킹
+- **실시간 환율 API**: 정확한 통화 변환
 
-#### 🔐 인증
+#### 🔐 **인증 & 보안**
 - **[Google Sign-In](https://developers.google.com/identity/sign-in/ios)**: Google OAuth
+- **[Apple Sign-In](https://developer.apple.com/sign-in-with-apple/)**: Apple 로그인
 - **[AppAuth-iOS](https://github.com/openid/AppAuth-iOS)**: OAuth 2.0 / OpenID Connect
+- **Keychain Services**: 보안 토큰 저장
 
-#### 🎨 UI/UX
+#### 📊 **Analytics & 모니터링**
+- **[Firebase Analytics](https://firebase.google.com/products/analytics)**: 사용자 행동 분석
+- **[Mixpanel](https://mixpanel.com/)**: 고급 이벤트 추적
+- **이중 트래킹**: 데이터 정확도 향상을 위한 이중 수집 시스템
+
+#### 💾 **데이터 관리**
+- **SwiftData**: iOS 17+ 로컬 데이터 저장
+- **UserDefaults**: 사용자 설정 관리
+- **ImageCacheService**: NSCache 기반 이미지 캐싱 (50MB 제한)
+- **AsyncStream**: 여행 리스트 실시간 캐시 처리
+
+#### 🎨 **UI/UX**
 - **SwiftUI**: 선언적 UI 프레임워크
-- **Skeleton Loading**: 로딩 상태 UX
-- **Toast System**: 사용자 피드백
+- **AsyncImage**: 비동기 이미지 로딩
+- **Skeleton Loading**: 로딩 상태 UX 개선
+- **Toast System**: 사용자 피드백 향상
+- **Custom Design System**: 일관된 브랜드 경험 (오나람 디자인)
 
-#### 🛠️ 개발 도구
-- **[FastLane](https://fastlane.tools/)**: 배포 자동화
+#### 🛠️ **개발 도구 & 배포**
+- **[Fastlane](https://fastlane.tools/)**: 배포 자동화
+- **GitHub Actions**: QA 자동 빌드 시스템
+- **TestFlight**: 베타 테스트 배포
 - **Xcode 16.0+**: iOS 개발 환경
+
+## 👥 팀 구성
+
+### 💻 **개발팀**
+
+#### 🎨 **김민희** - iOS 개발자
+- **여행 관리 시스템**: 여행 조회, 생성, 수정, 삭제
+- **멤버십 관리**: 여행 참여, 나가기 기능
+- **여행 멤버 관리**: 실시간 멤버 상태 관리
+- **캐시 시스템**: SwiftData 기반 데이터 저장 최적화
+
+#### 🏗️ **홍석현** - iOS 개발자 & 아키텍트
+- **프로젝트 구조 설계**: Clean Architecture + TCA 설계
+- **지출 관리 시스템**: 지출 내역 CRUD 전체 구현
+- **TCACoordinator**: 화면 전환 및 네비게이션 관리
+- **정산 시스템**: 스마트 정산 계산 및 상세 내역 구현
+- **시각화**: 일별 지출 차트 및 인터랙션 구현
+
+#### 🌐 **서원지** - 풀스택 개발자
+- **서버 개발**: Supabase 기반 백엔드 API 설계 및 구현
+- **인증 시스템**: 스플래시, 회원가입, 로그인 전체 플로우
+- **프로필 관리**: 사용자 정보 관리 및 이미지 캐싱 시스템
+- **Analytics 시스템**: Firebase + Mixpanel 이중 트래킹 구현
+- **보안**: OAuth 2.0 기반 안전한 인증 구현
+
+### 🎨 **디자인팀**
+
+#### 🌈 **오나람** - UI/UX 디자이너
+- **앱 디자인**: 전체 UI/UX 설계 및 디자인 시스템 구축
+- **브랜드 아이덴티티**: 아이콘 디자인 및 시각적 일관성 구축
+- **사용자 경험**: 직관적이고 아름다운 인터페이스 설계
 
 ## 🚀 시작하기
 
@@ -157,9 +238,9 @@ tuist build
 tuist build -c release
 ```
 
-### FastLane을 통한 배포
+### QA 배포
 ```bash
-# QA 빌드 (TestFlight)
+# 수동 실행
 fastlane QA
 ```
 
@@ -171,14 +252,55 @@ fastlane QA
 - **Swift Style Guide**: [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/) 준수
 - **접근 제어자**: `private`, `fileprivate`, `internal`, `public` 적극 활용
 - **final 키워드**: 상속이 불필요한 클래스에 `final` 사용
+- **타입 안전성**: `as Any` 명시적 캐스팅으로 타입 모호성 방지
 
+#### 아키텍처 패턴
+- **TCA**: State, Action, Reducer 패턴 준수
+- **의존성 주입**: `@Dependency` 활용한 DI 시스템
+- **모듈 분리**: Feature별 독립적인 모듈 구조
+
+### 🔧 주요 시스템
+
+#### 정산 시스템
+- **Pay - Owe 알고리즘**: 각 멤버의 순 차액 자동 계산
+- **투명한 정산**: 멤버별 결제/부담 내역 상세 공개
+- **시각화**: 일별 지출 차트로 지출 패턴 파악
+
+#### 캐시 시스템
+- **SwiftData**: JSON 파일 방식에서 SwiftData로 전환
+- **ImageCacheService**: Actor 패턴으로 thread-safe 이미지 캐싱
+- **AsyncStream**: 실시간 데이터 스트리밍
+
+#### Analytics 시스템
+- **이중 트래킹**: Firebase + Mixpanel 동시 수집
+- **데이터 비교**: 두 플랫폼의 분석 결과 비교로 최적 솔루션 선택
 
 ## 🛠️ 요구사항
 
-- Xcode 16.0+
-- iOS 17.0+
-- Tuist 4.0+
+- **Xcode 16.0+**
+- **iOS 17.0+**
+- **Tuist 4.0+**
+- **Swift 5.9+**
+
+## 📈 성능 최적화
+
+- **모듈화**: Feature별 독립 빌드로 컴파일 시간 50% 단축
+- **이미지 캐싱**: 50MB 제한 NSCache로 메모리 효율성 확보
+- **데이터 캐싱**: SwiftData 기반 오프라인 지원
+- **네트워크 최적화**: Moya + Alamofire 기반 효율적 API 통신
+
+## 🔮 향후 계획
+
+- **통합 캐시 매니저**: 도메인별 캐시 서비스 통합
 
 ## 📄 라이선스
 
 Copyright © 2025 SpartaCoding. All rights reserved.
+
+---
+
+<div align="center">
+
+**🧳 함께하는 여행을 더 스마트하게, SseuDam과 함께하세요! ✨**
+
+</div>

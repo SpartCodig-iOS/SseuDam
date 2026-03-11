@@ -84,6 +84,7 @@ public struct SplashFeature {
     @Dependency(SessionUseCase.self) var sessionUseCase
     @Dependency(\.continuousClock) var clock
     @Dependency(\.versionUseCase) var versionUseCase
+  @Dependency(\.keychainManager) var keychainManager
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
@@ -280,7 +281,7 @@ private extension SplashFeature {
                 return
             }
 
-            guard let accessToken = KeychainManager.shared.loadAccessToken(),
+          guard let accessToken = await keychainManager.loadAccessToken(),
                   !accessToken.isEmpty else {
                 await send(.async(.checkSession))
                 return

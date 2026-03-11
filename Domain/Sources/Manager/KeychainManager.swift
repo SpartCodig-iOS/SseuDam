@@ -7,55 +7,58 @@
 
 import Foundation
 import Security
-import LogMacro
 
 enum KeychainKey: String {
   case accessToken = "access_token"
   case refreshToken = "refresh_token"
 }
 
-public struct KeychainManager {
-  public static let shared = KeychainManager()
-  private init() {}
+public final class KeychainManager: KeychainManaging, @unchecked Sendable {
+  /// DI를 위한 라이브 인스턴스 제공
+  public static let live = KeychainManager()
 
-  // MARK: - Public API
-  func saveAccessToken(_ token: String) {
+  private let service: String
+
+  /// Keychain 서비스 이름으로 앱의 Bundle ID 사용
+  private init(service: String = "io.sseudam.co") {
+    self.service = service
+  }
+
+  // MARK: - KeychainManaging Protocol (Async Methods)
+
+  /// 액세스 토큰을 키체인에 저장
+  public func saveAccessToken(_ token: String) async {
     save(token: token, for: .accessToken)
   }
 
-  func saveRefreshToken(_ token: String) {
+  /// 리프레시 토큰을 키체인에 저장
+  public func saveRefreshToken(_ token: String) async {
     save(token: token, for: .refreshToken)
   }
 
-  public func loadAccessToken() -> String? {
+  /// 키체인에서 액세스 토큰 로드
+  public func loadAccessToken() async -> String? {
     loadToken(for: .accessToken)
   }
 
-  public func loadRefreshToken() -> String? {
+  /// 키체인에서 리프레시 토큰 로드
+  public func loadRefreshToken() async -> String? {
     loadToken(for: .refreshToken)
   }
 
-  public func deleteAccessToken() {
-    deleteToken(for: .accessToken)
-  }
-
-  public func deleteRefreshToken() {
-    deleteToken(for: .refreshToken)
-  }
-
-  /// 둘 다 한 번에 저장
+  /// 두 토큰을 원자적으로 저장
   public func saveTokens(
     accessToken: String?,
     refreshToken: String?
-  ) {
+  ) async {
     if let accessToken {
-      saveAccessToken(accessToken)
+      await saveAccessToken(accessToken)
     } else {
       deleteAccessToken()
     }
 
     if let refreshToken {
-      saveRefreshToken(refreshToken)
+      await saveRefreshToken(refreshToken)
     } else {
       deleteRefreshToken()
     }
@@ -63,40 +66,78 @@ public struct KeychainManager {
     NotificationCenter.default.post(name: .tokensDidUpdate, object: nil)
   }
 
-  /// 둘 다 한 번에 불러오기
-  public func loadTokens() -> (accessToken: String?, refreshToken: String?) {
-    (loadAccessToken(), loadRefreshToken())
+  /// 두 토큰을 모두 로드
+  public func loadTokens() async -> (accessToken: String?, refreshToken: String?) {
+    (await loadAccessToken(), await loadRefreshToken())
   }
 
-  /// 모두 삭제 (로그아웃 시 등)
-  public func clearAll() {
+  /// 모든 토큰 삭제 (로그아웃 시 사용)
+  public func clearAll() async {
     deleteAccessToken()
     deleteRefreshToken()
     NotificationCenter.default.post(name: .tokensDidClear, object: nil)
   }
 
-  // MARK: - Private helpers
+  // MARK: - Synchronous Methods for Compatibility
 
+  /// 키체인에서 액세스 토큰 로드 (동기 버전)
+  public func loadAccessTokenSync() -> String? {
+    return loadToken(for: .accessToken)
+  }
+
+  /// 키체인에서 리프레시 토큰 로드 (동기 버전)
+  public func loadRefreshTokenSync() -> String? {
+    return loadToken(for: .refreshToken)
+  }
+
+  // MARK: - Additional Methods
+
+  /// 액세스 토큰 삭제
+  public func deleteAccessToken() {
+    deleteToken(for: .accessToken)
+  }
+
+  /// 리프레시 토큰 삭제
+  public func deleteRefreshToken() {
+    deleteToken(for: .refreshToken)
+  }
+
+  // MARK: - Private Helper Methods
+
+  /// 토큰을 키체인에 저장 (Update-Add 패턴 사용)
   private func save(token: String, for key: KeychainKey) {
     guard let data = token.data(using: .utf8) else {
-      Log.info("Keychain: Failed to convert token to data for key \(key.rawValue)")
+      print("Keychain: 토큰을 데이터로 변환 실패, key: \(key.rawValue)")
       return
     }
 
-    // 기존 항목이 있으면 먼저 삭제
-    deleteToken(for: key)
-
+    // Update-Add 패턴: 먼저 업데이트 시도, 없으면 새로 추가
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: key.rawValue,
+      kSecAttrService as String: service
+    ]
+
+    let attributes: [String: Any] = [
       kSecValueData as String: data,
       kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
     ]
 
-    let status = SecItemAdd(query as CFDictionary, nil)
+    // Try to update existing item first
+    let updateStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
 
-    if status != errSecSuccess {
-      Log.info("Keychain: Failed to save token for key \(key.rawValue), status: \(status)")
+    if updateStatus == errSecItemNotFound {
+      // Item doesn't exist, add it
+      var addQuery = query
+      addQuery[kSecValueData as String] = data
+      addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+
+      let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+      if addStatus != errSecSuccess {
+        print("Keychain: Failed to add token for key \(key.rawValue), status: \(addStatus)")
+      }
+    } else if updateStatus != errSecSuccess {
+      print("Keychain: Failed to update token for key \(key.rawValue), status: \(updateStatus)")
     }
   }
 
@@ -104,6 +145,7 @@ public struct KeychainManager {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: key.rawValue,
+      kSecAttrService as String: service,
       kSecReturnData as String: true,
       kSecMatchLimit as String: kSecMatchLimitOne
     ]
@@ -116,7 +158,7 @@ public struct KeychainManager {
           let token = String(data: data, encoding: .utf8)
     else {
       if status != errSecItemNotFound {
-        Log.info("Keychain: Failed to load token for key \(key.rawValue), status: \(status)")
+        print("Keychain: Failed to load token for key \(key.rawValue), status: \(status)")
       }
       return nil
     }
@@ -127,12 +169,13 @@ public struct KeychainManager {
   private func deleteToken(for key: KeychainKey) {
     let query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
-      kSecAttrAccount as String: key.rawValue
+      kSecAttrAccount as String: key.rawValue,
+      kSecAttrService as String: service
     ]
 
     let status = SecItemDelete(query as CFDictionary)
     if status != errSecSuccess && status != errSecItemNotFound {
-      Log.info("Keychain: Failed to delete token for key \(key.rawValue), status: \(status)")
+      print("Keychain: Failed to delete token for key \(key.rawValue), status: \(status)")
     }
   }
 }
@@ -140,4 +183,5 @@ public struct KeychainManager {
 public extension Notification.Name {
   static let tokensDidUpdate = Notification.Name("tokensDidUpdate")
   static let tokensDidClear = Notification.Name("tokensDidClear")
+  static let refreshTokenExpired = Notification.Name("RefreshTokenExpired")
 }

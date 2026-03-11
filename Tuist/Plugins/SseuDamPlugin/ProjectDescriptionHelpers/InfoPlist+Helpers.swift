@@ -14,6 +14,7 @@ public extension InfoPlist {
         "GOOGLE_REVERSED_IOS_CLIENT_ID": .string("$(GOOGLE_REVERSED_IOS_CLIENT_ID)"),
         "KAKAO_NATIVE_APP_KEY": .string("$(KAKAO_NATIVE_APP_KEY)"),
         "KAKAO_REST_API_KEY": .string("$(KAKAO_REST_API_KEY)"),
+        "MIXPANEL_TOKEN": .string("$(MIXPANEL_TOKEN)"),
         "CFBundleURLTypes": .array([
           .dictionary([
             "CFBundleURLName": .string("sseudam"),

@@ -18,13 +18,13 @@ enum TokenRefreshError: Error {
 final class AccessTokenAuthenticator: Authenticator {
   typealias Credential = AccessTokenCredential
 
-  private let remote: any AuthRemoteDataSourceProtocol
+  private let tokenRefreshManager: TokenRefreshManager
 
   init(remote: any AuthRemoteDataSourceProtocol = AuthRemoteDataSource(
     authProvider: MoyaProvider<AuthAPITarget>.default,
     oauthProvider: MoyaProvider<OAuthAPITarget>.default
   )) {
-    self.remote = remote
+    self.tokenRefreshManager = TokenRefreshManager(remote: remote)
   }
 
   func apply(_ credential: Credential, to urlRequest: inout URLRequest) {
@@ -37,8 +37,12 @@ final class AccessTokenAuthenticator: Authenticator {
     completion: @escaping @Sendable (Result<Credential, any Error>) -> Void
   ) {
     _Concurrency.Task {
-      let result = await refreshCredential(credential)
-      completion(result)
+      do {
+        let refreshedCredential = try await tokenRefreshManager.refreshCredentialIfNeeded(current: credential)
+        completion(.success(refreshedCredential))
+      } catch {
+        completion(.failure(error))
+      }
     }
   }
 
@@ -47,7 +51,13 @@ final class AccessTokenAuthenticator: Authenticator {
     with response: HTTPURLResponse,
     failDueToAuthenticationError error: any Error
   ) -> Bool {
-    response.statusCode == 401
+    // First check HTTP status code
+    if response.statusCode == 401 {
+      return true
+    }
+
+    // Enhanced 401 detection logic (sync version)
+    return isRefreshTokenExpiredError(error)
   }
 
   func isRequest(
@@ -58,33 +68,41 @@ final class AccessTokenAuthenticator: Authenticator {
   }
 }
 
+// MARK: - Enhanced Error Detection
 private extension AccessTokenAuthenticator {
-  func refreshCredential(_ credential: Credential) async -> Result<Credential, any Error> {
-    guard credential.refreshToken.isEmpty == false else {
-      return .failure(TokenRefreshError.missingRefreshToken)
+  /// Enhanced 401 detection with multiple layers (sync version)
+  func isRefreshTokenExpiredError(_ error: Error) -> Bool {
+    // 1. Check string description for "statusCodeError(401)"
+    if String(describing: error).contains("statusCodeError(401)") {
+      return true
     }
 
-    do {
-      let result = try await remote.refresh(token: credential.refreshToken)
-      let tokens = result.token
-
-      KeychainManager.shared.saveTokens(
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken
-      )
-
-      guard
-        let refreshedCredential = AccessTokenCredential.make(
-          accessToken: tokens.accessToken,
-          refreshToken: tokens.refreshToken ?? ""
-        )
-      else {
-        return .failure(TokenRefreshError.invalidAccessToken)
+    // 2. Check Moya MoyaError.statusCode
+    if let moyaError = error as? MoyaError {
+      switch moyaError {
+      case .statusCode(let response) where response.statusCode == 401:
+        return true
+      case .underlying(_, let response) where response?.statusCode == 401:
+        return true
+      default:
+        break
       }
-
-      return .success(refreshedCredential)
-    } catch {
-      return .failure(error)
     }
+
+    // 3. Check AuthError.isTokenExpiredError
+    if let authError = error as? AuthError {
+      return authError.isTokenExpiredError
+    }
+
+    // 4. Check error message keywords
+    let errorDesc = error.localizedDescription.lowercased()
+    if errorDesc.contains("401") ||
+       errorDesc.contains("unauthorized") ||
+       errorDesc.contains("유효하지 않은 토큰") {
+      return true
+    }
+
+    return false
   }
 }
+
