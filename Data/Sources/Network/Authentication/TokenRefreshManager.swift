@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 import Domain
 import Moya
+import LogMacro
 
 /// Actor-based token refresh manager for concurrency safety
 /// Prevents multiple simultaneous token refresh attempts
@@ -78,7 +79,12 @@ actor TokenRefreshManager {
 // MARK: - Private Methods
 private extension TokenRefreshManager {
     func performRefresh(_ credential: AccessTokenCredential) async throws -> AccessTokenCredential {
+        #logDebug("TokenRefresh: Starting refresh for token expiring at \(credential.expiration)")
+        #logDebug("TokenRefresh: Current time: \(Date())")
+        #logDebug("TokenRefresh: Refresh token length: \(credential.refreshToken.count)")
+
         guard !credential.refreshToken.isEmpty else {
+            #logError("TokenRefresh: Missing refresh token")
             throw TokenRefreshError.missingRefreshToken
         }
 
@@ -86,11 +92,24 @@ private extension TokenRefreshManager {
             let result = try await remote.refresh(token: credential.refreshToken)
             let tokens = result.token
 
-            // Save to keychain
+            // Save to keychain with verification
             await KeychainManager.live.saveTokens(
                 accessToken: tokens.accessToken,
                 refreshToken: tokens.refreshToken
             )
+
+            // Verify tokens were saved successfully
+            let (savedAccessToken, savedRefreshToken) = await KeychainManager.live.loadTokens()
+            if savedAccessToken != tokens.accessToken ||
+               tokens.refreshToken == nil ||
+               savedRefreshToken != tokens.refreshToken {
+                #logError("TokenRefresh: Failed to verify saved tokens - retrying save")
+                // Retry save once more
+                await KeychainManager.live.saveTokens(
+                    accessToken: tokens.accessToken,
+                    refreshToken: tokens.refreshToken
+                )
+            }
 
             // Update session manager credential
             await MainActor.run {
@@ -100,16 +119,17 @@ private extension TokenRefreshManager {
                 )
             }
 
-            guard let refreshedCredential = AccessTokenCredential.make(
+            let refreshedCredential = AccessTokenCredential.make(
                 accessToken: tokens.accessToken,
                 refreshToken: tokens.refreshToken ?? ""
-            ) else {
-                throw TokenRefreshError.invalidAccessToken
-            }
+            )
+
+            #logDebug("TokenRefresh: Successfully refreshed and saved tokens. Expires: \(refreshedCredential.expiration)")
 
             return refreshedCredential
 
         } catch {
+            #logError("TokenRefresh: Failed to refresh token - \(error)")
             // If refresh token is expired, perform automatic logout
             if isRefreshTokenExpiredError(error) {
                 await performAutomaticLogout()
@@ -119,13 +139,17 @@ private extension TokenRefreshManager {
     }
 
     func performAutomaticLogout() async {
+        #logError("🚨 TokenRefresh: Performing automatic logout due to refresh token failure")
+
         // 1. Clear keychain
         await KeychainManager.live.clearAll()
+        #logDebug("TokenRefresh: Cleared keychain")
 
         // 2. Clear session manager credential
         await MainActor.run {
             AuthSessionManager.shared.clear()
         }
+        #logDebug("TokenRefresh: Cleared session manager")
 
         // 3. Send notification for automatic logout
         await MainActor.run {
@@ -135,5 +159,6 @@ private extension TokenRefreshManager {
                 userInfo: ["reason": "401_refresh_failed"]
             )
         }
+        #logDebug("TokenRefresh: Sent logout notification")
     }
 }

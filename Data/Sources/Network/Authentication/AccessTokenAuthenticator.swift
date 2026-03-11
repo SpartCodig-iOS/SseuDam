@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 import Domain
 import Moya
+import LogMacro
 
 enum TokenRefreshError: Error {
   case missingRefreshToken
@@ -36,11 +37,15 @@ final class AccessTokenAuthenticator: Authenticator {
     for session: Session,
     completion: @escaping @Sendable (Result<Credential, any Error>) -> Void
   ) {
+    #logDebug("AccessTokenAuthenticator: Starting token refresh for credential expiring at \(credential.expiration)")
+
     _Concurrency.Task {
       do {
         let refreshedCredential = try await tokenRefreshManager.refreshCredentialIfNeeded(current: credential)
+        #logDebug("AccessTokenAuthenticator: Token refresh successful, new expiration: \(refreshedCredential.expiration)")
         completion(.success(refreshedCredential))
       } catch {
+        #logError("AccessTokenAuthenticator: Token refresh failed with error: \(error)")
         completion(.failure(error))
       }
     }
@@ -51,13 +56,21 @@ final class AccessTokenAuthenticator: Authenticator {
     with response: HTTPURLResponse,
     failDueToAuthenticationError error: any Error
   ) -> Bool {
+    #logDebug("AccessTokenAuthenticator: Auth error detected - Status: \(response.statusCode), Error: \(error)")
+
     // First check HTTP status code
     if response.statusCode == 401 {
+      #logDebug("AccessTokenAuthenticator: 401 status code - triggering token refresh")
       return true
     }
 
     // Enhanced 401 detection logic (sync version)
-    return isRefreshTokenExpiredError(error)
+    let shouldRefresh = isRefreshTokenExpiredError(error)
+    if shouldRefresh {
+      #logDebug("AccessTokenAuthenticator: Error indicates token refresh needed")
+    }
+
+    return shouldRefresh
   }
 
   func isRequest(

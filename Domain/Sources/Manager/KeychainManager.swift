@@ -7,6 +7,7 @@
 
 import Foundation
 import Security
+import LogMacro
 
 enum KeychainKey: String {
   case accessToken = "access_token"
@@ -53,17 +54,32 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
   ) async {
     if let accessToken {
       await saveAccessToken(accessToken)
+
+      // Verify access token was saved
+      let savedAccessToken = await loadAccessToken()
+      if savedAccessToken != accessToken {
+        #logError("Keychain: Access token save verification failed, retrying...")
+        await saveAccessToken(accessToken)
+      }
     } else {
       deleteAccessToken()
     }
 
     if let refreshToken {
       await saveRefreshToken(refreshToken)
+
+      // Verify refresh token was saved
+      let savedRefreshToken = await loadRefreshToken()
+      if savedRefreshToken != refreshToken {
+        #logError("Keychain: Refresh token save verification failed, retrying...")
+        await saveRefreshToken(refreshToken)
+      }
     } else {
       deleteRefreshToken()
     }
 
     NotificationCenter.default.post(name: .tokensDidUpdate, object: nil)
+    #logDebug("Keychain: Successfully saved and verified tokens")
   }
 
   /// 두 토큰을 모두 로드
@@ -107,7 +123,7 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
   /// 토큰을 키체인에 저장 (Update-Add 패턴 사용)
   private func save(token: String, for key: KeychainKey) {
     guard let data = token.data(using: .utf8) else {
-      print("Keychain: 토큰을 데이터로 변환 실패, key: \(key.rawValue)")
+      #logError("Keychain: 토큰을 데이터로 변환 실패, key: \(key.rawValue)")
       return
     }
 
@@ -134,10 +150,10 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
 
       let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
       if addStatus != errSecSuccess {
-        print("Keychain: Failed to add token for key \(key.rawValue), status: \(addStatus)")
+        #logError("Keychain: Failed to add token for key \(key.rawValue), status: \(addStatus)")
       }
     } else if updateStatus != errSecSuccess {
-      print("Keychain: Failed to update token for key \(key.rawValue), status: \(updateStatus)")
+      #logError("Keychain: Failed to update token for key \(key.rawValue), status: \(updateStatus)")
     }
   }
 
@@ -158,7 +174,7 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
           let token = String(data: data, encoding: .utf8)
     else {
       if status != errSecItemNotFound {
-        print("Keychain: Failed to load token for key \(key.rawValue), status: \(status)")
+        #logError("Keychain: Failed to load token for key \(key.rawValue), status: \(status)")
       }
       return nil
     }
@@ -175,7 +191,7 @@ public final class KeychainManager: KeychainManaging, @unchecked Sendable {
 
     let status = SecItemDelete(query as CFDictionary)
     if status != errSecSuccess && status != errSecItemNotFound {
-      print("Keychain: Failed to delete token for key \(key.rawValue), status: \(status)")
+      #logError("Keychain: Failed to delete token for key \(key.rawValue), status: \(status)")
     }
   }
 }
